@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoLoginPlugin.h" />
+    <ClInclude Include="AutoLogin.h">
+      <Filter>AutoLogin</Filter>
+    </ClInclude>
+    <ClInclude Include="HTMLFormIterator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{65569bdf-b2af-4fed-b396-5bdf378416d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{876235ba-7e4b-40e3-aacb-ae6788960f6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AutoLogin">
+      <UniqueIdentifier>{6679fc12-fa32-491e-9b44-06c11bbb9672}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoLoginPlugin.cpp" />
+    <ClCompile Include="AutoLogin.cpp">
+      <Filter>AutoLogin</Filter>
+    </ClCompile>
+    <ClCompile Include="HTMLFormIterator.cpp" />
+  </ItemGroup>
+</Project>

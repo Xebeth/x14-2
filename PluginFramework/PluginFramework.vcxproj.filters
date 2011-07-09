@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Plugins">
+      <UniqueIdentifier>{34daf0fd-69de-49f1-be7c-d0c4acfd7688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{884e404b-832b-445f-81cf-5af35cfe8056}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Iterators">
+      <UniqueIdentifier>{d96dced0-8504-46a9-98ab-4e91a05b5a4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{76647749-c438-42c3-9763-64136d5cb017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin Services">
+      <UniqueIdentifier>{ee7bde24-7c65-4a99-adff-c003f082c3bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin Manager">
+      <UniqueIdentifier>{9ee280d1-f040-4a94-90bd-e78c66e54fc1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IPlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginUUID.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginVersion.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginIterator.h">
+      <Filter>Iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\string_t.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\FileIterator.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginManager.h">
+      <Filter>Plugin Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginFramework.h" />
+    <ClInclude Include="PluginSupport.h">
+      <Filter>Plugin Services</Filter>
+    </ClInclude>
+    <ClInclude Include="IPluginServices.h">
+      <Filter>Plugin Services</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginIterator.cpp">
+      <Filter>Iterators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\string_t.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\FileIterator.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginManager.cpp">
+      <Filter>Plugin Manager</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

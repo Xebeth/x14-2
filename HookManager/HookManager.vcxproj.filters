@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DetoursManager.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="EasyHookManager.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="HookManager.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHookManager.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled Header</Filter>
+    </ClCompile>
+    <ClCompile Include="IATHookManager.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MinHookManager.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="DetoursManager.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="EasyHookManager.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="HookManager.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled Header</Filter>
+    </ClInclude>
+    <ClInclude Include="HookEngine.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="IATHookManager.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Hook">
+      <UniqueIdentifier>{0f854b60-f8be-487e-aabc-915869ed128e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled Header">
+      <UniqueIdentifier>{413b53f5-28f1-4a15-a310-6b913a9ffb80}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

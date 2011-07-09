@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{a75eaf22-5f8f-426c-833e-1ef3fe2f5e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{334b0c36-abfa-4468-a90e-04b761e9bbbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower">
+      <UniqueIdentifier>{6c653b87-32a6-4c14-b819-860ba7ed35d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{587ab62c-8ac6-446c-a77b-d68dde8f3ecc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Settings">
+      <UniqueIdentifier>{548c9e75-fa02-4171-9aa4-2457d0e06ba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Plugins">
+      <UniqueIdentifier>{33449ff6-2913-4791-9a0f-fcb7abd2ae6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules">
+      <UniqueIdentifier>{046cf216-cbd4-4f86-a043-72b21abb3007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\System">
+      <UniqueIdentifier>{c53564f5-3869-4d75-af72-51fb042c5671}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Graphics">
+      <UniqueIdentifier>{1262a8e1-f755-4168-9bb4-1341875a5901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Graphics\Direct3D9">
+      <UniqueIdentifier>{8a97afa8-34ab-4fd5-8ee9-9dda8f96a00b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Chat">
+      <UniqueIdentifier>{630b5882-6d86-41b2-9e18-c5927754c3f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Commands">
+      <UniqueIdentifier>{adb733e0-d2b6-405b-8a40-cbf0586778ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks">
+      <UniqueIdentifier>{2b3dd565-28d9-43a8-8536-17a10db1bc15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks\System">
+      <UniqueIdentifier>{ddf7db51-13ba-4504-9397-7d86a024a01a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks\Graphics">
+      <UniqueIdentifier>{2a1fd40b-ae82-45f7-ae8f-cf479ef9fc29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks\Chat">
+      <UniqueIdentifier>{f2e9f9ae-3632-426a-91fa-d65a4c76604b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WindowerEngine.cpp">
+      <Filter>Windower</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerSettingsManager.cpp">
+      <Filter>Windower\Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\string_t.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemCore.cpp">
+      <Filter>Windower\Modules\System</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3D9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCore.cpp">
+      <Filter>Windower\Modules\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="GameChatCore.cpp">
+      <Filter>Windower\Modules\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateWindowExHook.cpp">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterClassExHook.cpp">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9Hook.cpp">
+      <Filter>Windower\Hooks\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FormatChatMessageHook.cpp">
+      <Filter>Windower\Hooks\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="WndProcHook.cpp">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandParser.cpp">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerCommand.cpp">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandDispatcher.cpp">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginEngine.cpp">
+      <Filter>Windower</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginsServices.cpp">
+      <Filter>Windower\Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerCore.cpp">
+      <Filter>Windower\Modules</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerEngine.h">
+      <Filter>Windower</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerSettings.h">
+      <Filter>Windower\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerSettingsManager.h">
+      <Filter>Windower\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\string_t.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemCore.h">
+      <Filter>Windower\Modules\System</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3D9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3DDevice9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCore.h">
+      <Filter>Windower\Modules\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="GameChatCore.h">
+      <Filter>Windower\Modules\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateWindowExHook.h">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterClassExHook.h">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9Hook.h">
+      <Filter>Windower\Hooks\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatChatMessageHook.h">
+      <Filter>Windower\Hooks\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="WndProcHook.h">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameChatPlugin.h">
+      <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandParser.h">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerCommand.h">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandDispatcher.h">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEngine.h">
+      <Filter>Windower</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginEngine.h">
+      <Filter>Windower</Filter>
+    </ClInclude>
+    <ClInclude Include="ICoreModule.h">
+      <Filter>Windower\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerCore.h">
+      <Filter>Windower\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginsServices.h">
+      <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{353809ff-d399-4e2e-80c3-fc1720d3e758}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{7172cd62-b186-4d98-a205-732437e04ba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bootstrap">
+      <UniqueIdentifier>{d0260901-a278-4ed7-b87c-fda8e3909071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooks">
+      <UniqueIdentifier>{3ae4acc9-5b34-466a-a24d-f8be034193a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{22d51dcf-4867-47e2-9f72-b4e330216c66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bootstrap\Plugins">
+      <UniqueIdentifier>{d8650e7f-cbc1-42b8-8676-d60c213e1bf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bootstrap\Modules">
+      <UniqueIdentifier>{8432e5be-18f9-4cfa-b536-9f113d379356}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{43bf7089-c459-4910-9945-04d29b8ede8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bootstrap\Modules\System">
+      <UniqueIdentifier>{f7763c1c-bfea-478a-ae4b-597425ab36fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bootstrap\Modules\Commands">
+      <UniqueIdentifier>{91a218cd-0d1c-4907-8838-de3013dd8d5d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="BootstrapEngine.cpp">
+      <Filter>Bootstrap</Filter>
+    </ClCompile>
+    <ClCompile Include="ShellExecuteExHook.cpp">
+      <Filter>Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateProcessHook.cpp">
+      <Filter>Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateWindowExHook.cpp">
+      <Filter>Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\string_t.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\PluginEngine.cpp">
+      <Filter>Bootstrap</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\PluginsServices.cpp">
+      <Filter>Bootstrap\Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\WindowerCore.cpp">
+      <Filter>Bootstrap\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemCore.cpp">
+      <Filter>Bootstrap\Modules\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\CommandDispatcher.cpp">
+      <Filter>Bootstrap\Modules\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\WindowerCommand.cpp">
+      <Filter>Bootstrap\Modules\Commands</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="BootstrapEngine.h">
+      <Filter>Bootstrap</Filter>
+    </ClInclude>
+    <ClInclude Include="ShellExecuteExHook.h">
+      <Filter>Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateProcessHook.h">
+      <Filter>Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateWindowExHook.h">
+      <Filter>Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\string_t.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\PluginEngine.h">
+      <Filter>Bootstrap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\PluginsServices.h">
+      <Filter>Bootstrap\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerCore.h">
+      <Filter>Bootstrap\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\ICoreModule.h">
+      <Filter>Bootstrap</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemCore.h">
+      <Filter>Bootstrap\Modules\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerCommand.h">
+      <Filter>Bootstrap\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\CommandDispatcher.h">
+      <Filter>Bootstrap\Modules\Commands</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

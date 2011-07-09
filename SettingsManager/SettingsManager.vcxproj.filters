@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{8eb26063-5676-49be-bb32-f0880ad1e4a7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SimpleIni.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsIniFile.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsInterface.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SettingsManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SettingsIniFile.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
