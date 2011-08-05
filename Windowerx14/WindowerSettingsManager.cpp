@@ -8,18 +8,15 @@
 #include "stdafx.h"
 #include <vector>
 
-#include <SettingsInterface.h>
-#include <SettingsIniFile.h>
+#include <SettingsManager.h>
 #include "WindowerSettings.h"
 #include "WindowerSettingsManager.h"
 
 namespace Windower
 {
-	SettingsManager::SettingsManager(const TCHAR *pIniFile)
+	SettingsManager::SettingsManager(const TCHAR *pIniFile) : m_AutoLogin(false)
 	{
 		bool bEmpty = true;
-
-		m_pDefaultProfile = NULL;
 
 		if (pIniFile != NULL)
 		{
@@ -52,12 +49,6 @@ namespace Windower
 		}
 
 		m_Profiles.clear();
-
-		if (m_pDefaultProfile != NULL)
-		{
-			delete m_pDefaultProfile;
-			m_pDefaultProfile = NULL;
-		}
 
 		if (m_pSettingsFile != NULL)
 		{
@@ -94,7 +85,7 @@ namespace Windower
 		{
 			SettingsIterator SettingsIter;
 
-			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_pDefaultProfile);
+			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
 
 			for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
 			{
@@ -112,15 +103,15 @@ namespace Windower
 		return false;
 	}
 
-	bool SettingsManager::LoadProfile(const TCHAR *pProfileName, WindowerProfile **pSettings)
+	bool SettingsManager::LoadProfile(const TCHAR *pProfileName, WindowerProfile *pSettings)
 	{
 		if (m_pSettingsFile != NULL && pProfileName != NULL && pSettings != NULL)
 		{
-			(*pSettings)->SetVSync(m_pSettingsFile->GetLong(pProfileName, _T("VSync")));
-			(*pSettings)->SetResolution(m_pSettingsFile->GetLong(pProfileName, _T("ResX")),
+			pSettings->SetVSync(m_pSettingsFile->GetLong(pProfileName, _T("VSync")));
+			pSettings->SetResolution(m_pSettingsFile->GetLong(pProfileName, _T("ResX")),
 										m_pSettingsFile->GetLong(pProfileName, _T("ResY")));
-			(*pSettings)->SetPluginsDir(m_pSettingsFile->GetString(pProfileName, _T("PluginsDir")));
-			(*pSettings)->SetName(pProfileName);
+			pSettings->SetPluginsDir(m_pSettingsFile->GetString(pProfileName, _T("PluginsDir")));
+			pSettings->SetName(pProfileName);
 
 			return true;
 		}
@@ -130,28 +121,28 @@ namespace Windower
 
 	bool SettingsManager::LoadDefaultProfile(WindowerProfile **pSettings_out)
 	{
-		return LoadProfile(GetDefaultProfile(), pSettings_out);
+		return LoadProfile(GetDefaultProfile().c_str(), *pSettings_out);
 	}
 
 	bool SettingsManager::Load()
 	{
 		if (m_pSettingsFile != NULL)
 		{
-			const TCHAR *pCurrentProfile = _T("CurrentProfile");
-			const TCHAR *pGeneralSection = _T("General");
 			CSimpleIni::TNamesDepend Sections;
 			SectionsIterator SectionIter;
 
-			SetDefaultProfile(m_pSettingsFile->GetString(pGeneralSection, pCurrentProfile));
+			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile")));
+			SetAutoLogin(m_pSettingsFile->GetLong(_T("General"), _T("AutoLogin")) == 1);
+
 			m_pSettingsFile->getSections(Sections);
 
 			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
 			{
-				if (_tcsicmp(SectionIter->pItem, pGeneralSection) != 0)
+				if (_tcsicmp(SectionIter->pItem, _T("General")) != 0)
 				{
 					WindowerProfile *pSettings = new WindowerProfile();
 
-					if (LoadProfile(SectionIter->pItem, &pSettings))
+					if (LoadProfile(SectionIter->pItem, pSettings))
 						m_Profiles.push_back(pSettings);
 					else
 						delete pSettings;
@@ -174,27 +165,11 @@ namespace Windower
 		WindowerProfile Settings(ResX, ResY, TRUE, DEFAULT_PROFILE_NAME, DEFAULT_PLUGINS_DIR);
 
 		SetDefaultProfile(DEFAULT_PROFILE_NAME);
-		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_pDefaultProfile);
+		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
 
 		return CreateProfile(DEFAULT_PROFILE_NAME, &Settings) != NULL;
 	}
-
-	void SettingsManager::SetDefaultProfile(const TCHAR* pProfileName)
-	{
-		if (pProfileName != NULL)
-		{
-			if (m_pDefaultProfile != NULL)
-				delete m_pDefaultProfile;
-
-			m_pDefaultProfile = _tcsdup(pProfileName);
-		}
-	}
-
-	const TCHAR* SettingsManager::GetDefaultProfile()
-	{
-		return m_pDefaultProfile;
-	}
-
+	
 	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName)
 	{
 		SettingsIterator SettingsIter;

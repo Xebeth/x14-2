@@ -45,21 +45,20 @@ long HTMLFormIterator::InitForms()
 	return m_FormCount;
 }
 
-/*! \brief 
-*/
 void HTMLFormIterator::Reset()
 {
 	m_CurrentIndex.vt = VT_I4;
 	m_CurrentIndex.lVal = 0;
 	
 	if (m_pCurrentForm != NULL)
+	{
 		m_pCurrentForm->Release();
+		InitForms();
+	}
 	
 	m_pCurrentForm = NULL;
 }
 
-/*! \brief 
-*/
 void HTMLFormIterator::Release()
 {
 	m_pCurrentForm->Release();

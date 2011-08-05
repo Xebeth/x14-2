@@ -9,6 +9,7 @@
 #include <PluginFramework.h>
 #include <NonCopyable.h>
 #include <HookEngine.h>
+#include <IATPatcher.h>
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -58,8 +59,8 @@ namespace Bootstrap
 									   LPPROCESS_INFORMATION lpProcessInformation)
 	{
 		char DLLPath[MAX_PATH];
-	BOOL Result = FALSE;
-	TCHAR* pDLL32Path;
+		BOOL Result = FALSE;
+		TCHAR* pDLL32Path;
 
 #ifndef _DEBUG
 		TCHAR *pDirPath = new TCHAR[MAX_PATH];
@@ -74,7 +75,8 @@ namespace Bootstrap
 
 		delete[] pDirPath;
 #else
-		if (_tcsstr(lpCommandLine, TARGET_PROCESS_GAME) != NULL || _tcsstr(lpApplicationName, TARGET_PROCESS_GAME) != NULL)
+		if ((lpCommandLine != NULL && _tcsstr(lpCommandLine, TARGET_PROCESS_GAME) != NULL)
+		 || (lpApplicationName != NULL && _tcsstr(lpApplicationName, TARGET_PROCESS_GAME) != NULL))
 			pDLL32Path = _tcsdup(_T("F:\\~dev\\cpp\\Windowerx14\\Debug\\windowerx14.dll"));
 		else
 			pDLL32Path = _tcsdup(_T("F:\\~dev\\cpp\\Windowerx14\\Debug\\bootstrap.dll"));
@@ -93,25 +95,32 @@ namespace Bootstrap
 		delete[] pDLL32Path;
 #endif // _DEBUG
 
-	return Result;
+		return Result;
 	}
 
 	BOOL SystemCore::ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo)
 	{
-		PROCESS_INFORMATION ProcessInfo;
-		STARTUPINFO StartupInfo;
-		string_t CommandLine;
+		if (lpExecInfo->lpVerb == NULL || _tcsicmp(lpExecInfo->lpVerb, _T("open")) != 0)
+		{
+			PROCESS_INFORMATION ProcessInfo;
+			STARTUPINFO StartupInfo;
+			string_t CommandLine;
 
-		format(CommandLine, _T("\"%s\" %s"), lpExecInfo->lpFile, lpExecInfo->lpParameters);
-		SecureZeroMemory(&StartupInfo, sizeof(StartupInfo));
+			format(CommandLine, _T("\"%s\" %s"), lpExecInfo->lpFile, lpExecInfo->lpParameters);
+			SecureZeroMemory(&StartupInfo, sizeof(StartupInfo));
 
-		StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
-		StartupInfo.wShowWindow = SW_SHOWNORMAL;
-		StartupInfo.cb = sizeof(StartupInfo);
+			StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
+			StartupInfo.wShowWindow = SW_SHOWNORMAL;
+			StartupInfo.cb = sizeof(StartupInfo);
 
-		return CreateProcessHook(lpExecInfo->lpFile, (LPTSTR)CommandLine.c_str(), NULL, NULL, FALSE,
-								 CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-								 NULL, lpExecInfo->lpDirectory, &StartupInfo, &ProcessInfo);
+			return CreateProcessHook(lpExecInfo->lpFile, (LPTSTR)CommandLine.c_str(), NULL, NULL, FALSE,
+									 CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+									 NULL, lpExecInfo->lpDirectory, &StartupInfo, &ProcessInfo);
+		}
+		else
+		{
+			return m_pShellExecuteExTrampoline(lpExecInfo);
+		}
 	}
 
 	void SystemCore::RegisterHooks(IHookManager *pHookManager)
@@ -120,7 +129,8 @@ namespace Bootstrap
 		{
 			pHookManager->RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
 			pHookManager->RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
-			pHookManager->RegisterHook("CreateProcess", "Kernel32.dll", CreateProcessW, ::CreateProcessHook);
+			IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
+			// pHookManager->RegisterHook("CreateProcess", "Kernel32.dll", CreateProcessW, ::CreateProcessHook);
 		}
 	}
 
@@ -130,7 +140,7 @@ namespace Bootstrap
 		{
 			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)pHookManager->GetTrampolineFunc("CreateWindowEx");
 			m_pShellExecuteExTrampoline = (fnShellExecuteEx)pHookManager->GetTrampolineFunc("ShellExecuteEx");
-			m_pCreateProcessTrampoline = (fnCreateProcess)pHookManager->GetTrampolineFunc("CreateProcess");
+			// m_pCreateProcessTrampoline = (fnCreateProcess)pHookManager->GetTrampolineFunc("CreateProcess");
 		}
 	}
 }

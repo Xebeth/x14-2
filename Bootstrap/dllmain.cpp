@@ -29,6 +29,9 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 	{
 		if (g_pEngine == NULL)
 		{
+#ifdef _DEBUG
+			Sleep(3000);
+#endif // _DEBUG
 			g_pEngine = new Bootstrap::BootstrapEngine(_T("config.ini"));
 			bResult = g_pEngine->Attach();
 		}

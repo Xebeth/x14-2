@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\Common\string_t.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Windowerx14\CommandDispatcher.cpp" />
     <ClCompile Include="..\Windowerx14\PluginEngine.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="ShellExecuteExHook.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SystemCore.cpp" />
   </ItemGroup>

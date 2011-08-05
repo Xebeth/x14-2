@@ -29,11 +29,12 @@ namespace Settings
 		virtual void getSections(CSimpleIni::TNamesDepend &Sections) const;
 
 		// Settings accessors
-		virtual LONG GetLong(const string_t &SectionName_in, const string_t &Key_in) const;
-		virtual void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue);
-		virtual const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in) const;
-		virtual void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
-
+		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in) const;
+		ULONG GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in) const;
+		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
+		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
+		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in) const;
+		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
 	protected:
 		string_t m_SourceFile;
 		CSimpleIni *m_pIni;

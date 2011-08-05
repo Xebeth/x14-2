@@ -12,16 +12,23 @@
 
 namespace Windower
 {
-	class WindowerCommand;
+	class AutoLoginSettings;
+	class WindowerCommand;	
 
 	class AutoLoginPlugin : public PluginFramework::IPlugin
 	{
 	public:
+		AutoLoginPlugin();
+		~AutoLoginPlugin();
+
 		static void* Create();
 		static void Destroy(void *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
 		static int AutoLoginThread(const WindowerCommand *pCommand_in);
+
+	protected:
+		static AutoLoginSettings *m_pSettings;
 	};
 }
 

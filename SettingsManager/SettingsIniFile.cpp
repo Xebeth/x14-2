@@ -82,10 +82,24 @@ namespace Settings
 		return 0L;
 	}
 
+	ULONG SettingsIniFile::GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in) const
+	{
+		if (m_pIni != NULL)
+			return m_pIni->GetUnsignedLongValue(SectionName_in.c_str(), Key_in.c_str());
+
+		return 0L;
+	}
+
 	void SettingsIniFile::SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in)
 	{
 		if (m_pIni != NULL)
 			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in);
+	}
+
+	void SettingsIniFile::SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in)
+	{
+		if (m_pIni != NULL)
+			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in, NULL, true);
 	}
 
 	const TCHAR* SettingsIniFile::GetString(const string_t &SectionName_in, const string_t &Key_in) const

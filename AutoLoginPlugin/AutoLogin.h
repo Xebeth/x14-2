@@ -12,9 +12,15 @@
 
 DWORD WINAPI AutoLoginThread(LPVOID pParam);
 
+namespace Windower
+{
+	class AutoLoginSettings;
+}
+
 class HTMLFormIterator;
-struct IHTMLAnchorElement;
+
 struct IHTMLInputElement;
+struct IConnectionPoint;
 struct IHTMLFormElement;
 struct IHTMLDocument2;
 struct IHTMLElement;
@@ -22,32 +28,41 @@ struct IHTMLElement;
 class AutoLogin
 {
 public:
-	AutoLogin(HWND hParentWnd_in) : m_hParentWnd(hParentWnd_in), m_hIEServer(NULL),
-		m_LoginComplete(false), m_pPasswordInput(NULL), m_pSubmitAnchor(NULL),
-		m_pFormIterator(NULL), m_pHTMLDoc(NULL) {}
+	AutoLogin(Windower::AutoLoginSettings *pSettings_in);
+	~AutoLogin();
 
 	void MonitorForms();
+	void OnSubmit();
 
 protected:
-	bool SetPasswordInput(IHTMLElement *pElement_in, const TCHAR *pPassword_in);
+	bool SetPasswordInput(IHTMLInputElement *pElement_in, const TCHAR *pPassword_in);
+	bool AutoCompleteForm();
+
 	IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
-	
+	bool WaitUntilDocumentComplete(long Timeout_in);
 	bool IsStatus(const TCHAR *pStatus_in);
 	bool UpdateDocumentState();
-	
-	bool WaitUntilDocumentComplete(long Timeout_in);
+	bool SetEventSink(IHTMLElement *pForm_in);
+	bool RemoveEventSink();
+
 	HWND GetIEServerWindow(long Timeout_in);
 	bool GetHTMLDocument(long Timeout_in);
 	FARPROC GetObjectFromLParamAddr();
 
-	bool FillPassword();
-
-	IHTMLAnchorElement *m_pSubmitAnchor;
 	IHTMLInputElement *m_pPasswordInput;
-	HTMLFormIterator *m_pFormIterator;
+	IHTMLFormElement *m_pLoginForm;
 	IHTMLDocument2 *m_pHTMLDoc;
+
+	Windower::AutoLoginSettings *m_pSettings;
+	HTMLFormIterator *m_pFormIterator;
 	bool m_LoginComplete;
+	bool m_PasswordSet;
 	BSTR m_DocumentState;
+	CryptUtils m_Crypt;
+
+	IConnectionPoint* m_pConnectionPoint;
+	HTMLEventSink m_EventSink;
+	DWORD m_dwCookie;
 
 	HWND m_hParentWnd;
 	HWND m_hIEServer;

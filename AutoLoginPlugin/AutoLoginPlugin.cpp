@@ -7,15 +7,37 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
+#include <SettingsManager.h>
 
+#include "AutoLoginSettings.h"
 #include "WindowerCommand.h"
+#include "CryptUtils.h"
+#include "HTMLEventSink.h"
 #include "AutoLoginPlugin.h"
 #include "AutoLogin.h"
 
 const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServices = NULL;
 
 namespace Windower
-{
+{	
+	AutoLoginSettings * AutoLoginPlugin::m_pSettings = NULL;
+
+	//! \brief AutoLoginPlugin default constructor
+	AutoLoginPlugin::AutoLoginPlugin()
+	{
+		m_pSettings = new AutoLoginSettings(_T("autologin.ini"));
+	}
+	
+	//! \brief AutoLoginPlugin destructor
+	AutoLoginPlugin::~AutoLoginPlugin()
+	{
+		if (m_pSettings != NULL)
+		{
+			delete m_pSettings;
+			m_pSettings = NULL;
+		}
+	}
+
 	/*! \brief Creates an instance of AutoLoginPlugin
 		\return a pointer to the new AutoLoginPlugin instance
 	*/
@@ -42,14 +64,18 @@ namespace Windower
 
 	int AutoLoginPlugin::AutoLoginThread(const WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("AutoLoginPlugin") == 0)
+		if (m_pSettings != NULL)
 		{
-			AutoLoginPlugin *pTimestamp = reinterpret_cast<AutoLoginPlugin*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("hwnd");
+			if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("AutoLoginPlugin") == 0)
+			{
+				AutoLoginPlugin *pTimestamp = reinterpret_cast<AutoLoginPlugin*>(pCommand_in->Caller.pData);
+				const WindowerCommandParam *pParam = pCommand_in->GetParameter("hwnd");
 
-			CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)pParam->GetIntegerValue(), 0, NULL);	
+				m_pSettings->SetParentWnd((HWND)pParam->GetIntegerValue());
+				CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL);	
 
-			return DISPATCHER_RESULT_SUCCESS;
+				return DISPATCHER_RESULT_SUCCESS;
+			}
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;

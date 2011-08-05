@@ -57,7 +57,8 @@ namespace Bootstrap
 		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
 		Windower::ICoreModule::SetPluginManager(m_pPluginManager);
 		// load plugins
-		LoadPlugin(_T("AutoLogin"));
+		if (m_pSettingsManager->GetAutoLogin())
+			LoadPlugin(_T("AutoLogin"));
 	}
 	
 	BootstrapEngine::~BootstrapEngine()

@@ -12,6 +12,13 @@
       <Filter>AutoLogin</Filter>
     </ClInclude>
     <ClInclude Include="HTMLFormIterator.h" />
+    <ClInclude Include="AutoLoginSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CryptUtils.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HTMLEventSink.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -22,6 +29,12 @@
     </Filter>
     <Filter Include="AutoLogin">
       <UniqueIdentifier>{6679fc12-fa32-491e-9b44-06c11bbb9672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{0f1981a8-2179-493e-a6b2-22dcd892db0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{3fb54c55-06dd-4d8e-bad4-08937fa2ad33}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,5 +51,12 @@
       <Filter>AutoLogin</Filter>
     </ClCompile>
     <ClCompile Include="HTMLFormIterator.cpp" />
+    <ClCompile Include="AutoLoginSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CryptUtils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="HTMLEventSink.cpp" />
   </ItemGroup>
 </Project>

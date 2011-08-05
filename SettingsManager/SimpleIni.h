@@ -879,6 +879,13 @@ public:
         bool *          a_pHasMultiple = NULL
         ) const;
 
+	unsigned long GetUnsignedLongValue(
+		const SI_CHAR * a_pSection,
+		const SI_CHAR * a_pKey,
+		long            a_nDefault     = 0,
+		bool *          a_pHasMultiple = NULL
+		) const;
+
     /** Retrieve a boolean value for a specific key. If multiple keys are enabled
         (see SetMultiKey) then only the first value associated with that key
         will be returned, see GetAllValues for getting all values with multikey.
@@ -1960,6 +1967,45 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetLongValue(
     }
 
     return nValue;
+}
+
+template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
+unsigned long
+	CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::GetUnsignedLongValue(
+	const SI_CHAR * a_pSection,
+	const SI_CHAR * a_pKey,
+	long            a_nDefault,
+	bool *          a_pHasMultiple
+	) const
+{
+	// return the default if we don't have a value
+	const SI_CHAR * pszValue = GetValue(a_pSection, a_pKey, NULL, a_pHasMultiple);
+	if (!pszValue || !*pszValue) return a_nDefault;
+
+	// convert to UTF-8/MBCS which for a numeric value will be the same as ASCII
+	char szValue[64] = { 0 };
+	SI_CONVERTER c(m_bStoreIsUtf8);
+	if (!c.ConvertToStore(pszValue, szValue, sizeof(szValue))) {
+		return a_nDefault;
+	}
+
+	// handle the value as hex if prefaced with "0x"
+	long nValue = a_nDefault;
+	char * pszSuffix = szValue;
+	if (szValue[0] == '0' && (szValue[1] == 'x' || szValue[1] == 'X')) {
+		if (!szValue[2]) return a_nDefault;
+		nValue = strtoul(&szValue[2], &pszSuffix, 16);
+	}
+	else {
+		nValue = strtoul(szValue, &pszSuffix, 10);
+	}
+
+	// any invalid strings will return the default value
+	if (*pszSuffix) { 
+		return a_nDefault; 
+	}
+
+	return nValue;
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>

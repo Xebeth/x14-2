@@ -90,7 +90,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\CryptUtils.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="AutoLogin.cpp" />
+    <ClCompile Include="AutoLoginSettings.cpp" />
+    <ClCompile Include="HTMLEventSink.cpp" />
     <ClCompile Include="HTMLFormIterator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -98,7 +103,10 @@
     <ClCompile Include="AutoLoginPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\CryptUtils.h" />
     <ClInclude Include="AutoLogin.h" />
+    <ClInclude Include="AutoLoginSettings.h" />
+    <ClInclude Include="HTMLEventSink.h" />
     <ClInclude Include="HTMLFormIterator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="AutoLoginPlugin.h" />

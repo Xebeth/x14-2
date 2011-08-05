@@ -5,9 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Crypt function wrapper
 **************************************************************************/
-// #include "stdafx.h"
 #include <string_t.h>
-#include <windows.h>
+#include <stdhdr.h>
 #include <locale>
 
 #include "CryptUtils.h"
@@ -129,8 +128,8 @@ size_t CryptUtils::GenerateMachineID(string_t &MachineID_out)
 
 void CryptUtils::StringToHex(const string_t &Input_in, string_t &Output_out)
 {
-	const TCHAR *pData = Input_in.data();
-	size_t Length = Input_in.size();
+	size_t Length = Input_in.size() * sizeof(TCHAR);
+	const BYTE *pData = (BYTE*)Input_in.data();
 
 	Output_out.clear();
 
@@ -140,19 +139,22 @@ void CryptUtils::StringToHex(const string_t &Input_in, string_t &Output_out)
 
 void CryptUtils::HexToString(const string_t &Input_in, string_t &Output_out)
 {
-	size_t Length = Input_in.size() / 2;
-	TCHAR *pTempStr = new TCHAR[Length + 1];
+	// number of bytes per character
 	size_t CharSize = sizeof(TCHAR);
+	size_t Length = Input_in.size() / CharSize;
+	TCHAR *pCurrentChar, *pTempStr = new TCHAR[Length + CharSize];
 	string_t HexBlock;
 	long Hex;
 
-	memset(pTempStr, 0, (Length + 1) * CharSize);
+	memset(pTempStr, 0, Length + CharSize);
+	pCurrentChar = pTempStr;
 	
-	for (size_t i = 0; i < Length; ++i)
+	for (size_t i = 0; i < Length; i += CharSize)
 	{
-		HexBlock = Input_in.substr(i * CharSize, CharSize);
+		HexBlock = Input_in.substr((i + 1) * CharSize, CharSize);
+		HexBlock += Input_in.substr(i * CharSize, CharSize);
 		Hex = _tcstol(HexBlock.c_str(), NULL, 16);
-		*(pTempStr + i) = (TCHAR)Hex;
+		*(pCurrentChar++) = (TCHAR)Hex;
 	}
 
 	Output_out.assign(pTempStr);

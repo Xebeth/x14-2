@@ -19,6 +19,7 @@
 		#pragma comment(lib, "SettingsManager.x86d.lib")
 		#pragma comment(lib, "HookManager.x86d.lib")
 		#pragma comment (lib, "detours_d.lib")
+		#pragma comment (lib, "IATPatcher.x86d.lib")
 	#endif
 #else
 	#ifdef _M_X64
@@ -31,6 +32,7 @@
 		#pragma comment(lib, "SettingsManager.x86.lib")
 		#pragma comment(lib, "HookManager.x86.lib")
 		#pragma comment (lib, "detours.lib")
+		#pragma comment (lib, "IATPatcher.x86.lib")
 	#endif
 #endif
 
