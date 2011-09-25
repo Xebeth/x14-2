@@ -118,7 +118,7 @@ bool AutoLogin::AutoCompleteForm()
 	if (m_pFormIterator == NULL)
 		m_pFormIterator = new HTMLFormIterator(*m_pHTMLDoc);
 
-	while (m_pFormIterator->End() == false)
+	while (m_PasswordSet == false && m_pFormIterator->End() == false)
 	{
 		pCurrentForm = m_pFormIterator->Next();
 
