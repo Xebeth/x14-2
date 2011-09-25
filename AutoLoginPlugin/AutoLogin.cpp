@@ -71,9 +71,12 @@ void AutoLogin::MonitorForms()
 					{
 						m_pFormIterator->Reset();
 						// invalidate the password
-						m_pPasswordInput->Release();
-						m_pPasswordInput = NULL;
-						m_PasswordSet = false;
+						if (m_pPasswordInput != NULL)
+						{
+							m_pPasswordInput->Release();
+							m_pPasswordInput = NULL;
+							m_PasswordSet = false;
+						}
 					}
 				}
 			}
@@ -161,7 +164,7 @@ bool AutoLogin::AutoCompleteForm()
 								string_t Password;
 
 								m_Crypt.Crypt(Key, CryptedPassword, Password);
-								m_PasswordSet = SetPasswordInput(m_pPasswordInput, Password.c_str());
+								m_PasswordSet = SetPasswordInput(Password.c_str());
 							}
 						}
 
@@ -258,11 +261,11 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 	return pElement;
 }
 
-bool AutoLogin::SetPasswordInput(IHTMLInputElement *pElement_in, const TCHAR *pPassword_in)
+bool AutoLogin::SetPasswordInput(const TCHAR *pPassword_in)
 {
 	bool Result = false;
 
-	if (pPassword_in != NULL && pElement_in != NULL)
+	if (pPassword_in != NULL && m_pPasswordInput != NULL)
 	{
 		BSTR Passwd = SysAllocString(pPassword_in);
 

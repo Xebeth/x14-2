@@ -35,7 +35,7 @@ public:
 	void OnSubmit();
 
 protected:
-	bool SetPasswordInput(IHTMLInputElement *pElement_in, const TCHAR *pPassword_in);
+	bool SetPasswordInput(const TCHAR *pPassword_in);
 	bool AutoCompleteForm();
 
 	IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
