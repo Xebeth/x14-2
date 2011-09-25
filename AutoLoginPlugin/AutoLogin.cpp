@@ -61,15 +61,9 @@ void AutoLogin::MonitorForms()
 				{
 					// try to auto-complete the login form
 					if (m_PasswordSet == false)
-						if (AutoCompleteForm() == false)
-						{
-							m_pFormIterator->Reset();
-							// invalidate the password
-							m_pPasswordInput = NULL;
-							m_PasswordSet = false;
-						}
+						AutoCompleteForm();
 
-					Sleep(5);
+					Sleep(100);
 				}
 				else if (WaitUntilDocumentComplete(10000))
 				{
@@ -77,6 +71,7 @@ void AutoLogin::MonitorForms()
 					{
 						m_pFormIterator->Reset();
 						// invalidate the password
+						m_pPasswordInput->Release();
 						m_pPasswordInput = NULL;
 						m_PasswordSet = false;
 					}
@@ -86,7 +81,6 @@ void AutoLogin::MonitorForms()
 				GetHTMLDocument(5000);
 		}
 		// cleanup
-		m_pPasswordInput->Release();
 		m_pFormIterator->Release();
 		m_pHTMLDoc->Release();
 
@@ -107,22 +101,9 @@ void AutoLogin::OnSubmit()
 		
 		if (SUCCEEDED(m_pPasswordInput->get_value(&Passwd)))
 		{
-			if (MessageBox(m_hIEServer, _T("Would you like the AutoLogin plugin to store your password?"), _T("AutoLogin plugin"), MB_YESNO | MB_ICONQUESTION) == IDYES)
-			{
-				string_t Key, Hex, CryptedPassword;
-				long KeyHash;
-
-				// get the key from the machine ID
-				m_Crypt.GenerateMachineID(Key);
-				KeyHash = m_Crypt.Hash(Key);
-				// encrypt the password
-				m_Crypt.Crypt(Key, Passwd, CryptedPassword);
-				m_Crypt.StringToHex(CryptedPassword, Hex);
-
-				m_pSettings->SetKeyHash(KeyHash);
-				m_pSettings->SetPassword(Hex);
-				m_pSettings->Save();
-			}
+			// we retrieved a password so store it
+			// at this point we're not sure if it's valid
+			m_FormPassword = Passwd;
 		}
 
 		SysFreeString(Passwd);
@@ -133,12 +114,11 @@ bool AutoLogin::AutoCompleteForm()
 {
 	IHTMLElement *pCurrentForm = NULL;
 	IHTMLElement *pElement = NULL;
-	BSTR CurrentID = _T("");
 
 	if (m_pFormIterator == NULL)
 		m_pFormIterator = new HTMLFormIterator(*m_pHTMLDoc);
 
-	if (m_pFormIterator->End() == false)
+	while (m_pFormIterator->End() == false)
 	{
 		pCurrentForm = m_pFormIterator->Next();
 
@@ -150,42 +130,60 @@ bool AutoLogin::AutoCompleteForm()
 				// look for it in the current form
 				pElement = FindChildById(pCurrentForm, _T("passwd"));
 
-				if (pElement != NULL && SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (void**)&m_pPasswordInput)) && m_pPasswordInput != NULL)
+				if (pElement != NULL)
 				{
-					string_t Key;
-					long KeyHash;
+					BSTR FormID = SysAllocString(_T(""));
 
-					// retrieve the key used to encrypt the password
-					m_Crypt.GenerateMachineID(Key);
-					KeyHash = m_Crypt.Hash(Key);
+					// retrieve the ID of the form
+					pCurrentForm->get_id(&FormID);
+					m_CurrentForm = FormID;
+					SysFreeString(FormID);
 
-					// check if the key hashes match
-					if (m_pSettings->GetKeyHash() == KeyHash)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (void**)&m_pPasswordInput)) && m_pPasswordInput != NULL)
 					{
-						string_t CryptedPassword;
+						string_t Key;
+						long KeyHash;
 
-						// retrieve the password from the settings
-						m_Crypt.HexToString(m_pSettings->GetPassword(), CryptedPassword);
+						// retrieve the key used to encrypt the password
+						m_Crypt.GenerateMachineID(Key);
+						KeyHash = m_Crypt.Hash(Key);
 
-						if (CryptedPassword.empty() == false)
+						// check if the key hashes match
+						if (m_pSettings->GetKeyHash() == KeyHash)
 						{
-							string_t Password;
+							string_t CryptedPassword;
 
-							m_Crypt.Crypt(Key, CryptedPassword, Password);
-							m_PasswordSet = SetPasswordInput(m_pPasswordInput, Password.c_str());
+							// retrieve the password from the settings
+							m_Crypt.HexToString(m_pSettings->GetPassword(), CryptedPassword);
+
+							if (CryptedPassword.empty() == false)
+							{
+								string_t Password;
+
+								m_Crypt.Crypt(Key, CryptedPassword, Password);
+								m_PasswordSet = SetPasswordInput(m_pPasswordInput, Password.c_str());
+							}
 						}
-					}
-					
-					if (m_PasswordSet == false)
-					{
-						// reset the config
-						m_pSettings->SetKeyHash(0);
-						m_pSettings->SetAutoValidate(0);
-						m_pSettings->SetPassword(_T(""));
 
-						m_pSettings->Save();
+						if (m_PasswordSet == false)
+						{
+							// we've made it so far but failed, give up
+							m_PasswordSet = true;
+							// reset the config
+							m_pSettings->SetKeyHash(0);
+							m_pSettings->SetAutoValidate(0);
+							m_pSettings->SetPassword(_T(""));
 
-						SetEventSink(pCurrentForm);
+							m_pSettings->Save();
+
+							// since we couldn't set the password, try to retrieve it 
+							// by listening to the submit event
+							if (m_dwCookie == 0)
+								SetEventSink(pCurrentForm);
+						}
+
+						m_pPasswordInput->Release();
+						m_pPasswordInput = NULL;
 					}
 
 					pElement->Release();
@@ -193,6 +191,8 @@ bool AutoLogin::AutoCompleteForm()
 			}
 		}
 	}
+
+	m_pFormIterator->Reset();
 
 	return m_PasswordSet;
 }
@@ -213,7 +213,7 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 			if (SUCCEEDED(hr) && pElements != NULL)
 			{
 				IDispatch* pInputDispatch = NULL;
-				BSTR EltID = _T("");
+				BSTR EltID = SysAllocString(_T(""));
 				long nLength = 0;
 				VARIANT Index;
 
@@ -236,12 +236,18 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 								pInputDispatch->Release();
 								break;
 							}
+							else
+							{
+								// not the element we seek, release it
+								pElement->Release();
+							}
 						}
 
 						pInputDispatch->Release();
 					}
 				}
-
+				// cleanup
+				SysFreeString(EltID);
 				pElements->Release();
 			}
 
@@ -358,14 +364,23 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 bool AutoLogin::IsStatus(const TCHAR *pStatus_in)
 {
 	return (pStatus_in != NULL && UpdateDocumentState() 
-		 && _tcscmp(m_DocumentState, pStatus_in) == 0);
+		 && m_DocumentState.compare(pStatus_in) == 0);
 }
 
 bool AutoLogin::UpdateDocumentState()
 {
-	m_DocumentState = _T("");
+	BSTR DocState = SysAllocString(_T(""));
+	bool Result = false;
 
-	return SUCCEEDED(m_pHTMLDoc->get_readyState(&m_DocumentState));
+	if (SUCCEEDED(m_pHTMLDoc->get_readyState(&DocState)))
+	{
+		m_DocumentState = DocState;
+		Result = true;
+	}
+
+	SysFreeString(DocState);
+
+	return Result;
 }
 
 bool AutoLogin::SetEventSink(IHTMLElement *pForm_in)

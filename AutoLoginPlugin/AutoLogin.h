@@ -55,9 +55,11 @@ protected:
 
 	Windower::AutoLoginSettings *m_pSettings;
 	HTMLFormIterator *m_pFormIterator;
+	string_t m_DocumentState;
+	string_t m_FormPassword;
+	string_t m_CurrentForm;
 	bool m_LoginComplete;
 	bool m_PasswordSet;
-	BSTR m_DocumentState;
 	CryptUtils m_Crypt;
 
 	IConnectionPoint* m_pConnectionPoint;
