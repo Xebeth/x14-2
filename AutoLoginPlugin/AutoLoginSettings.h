@@ -12,7 +12,7 @@ namespace Windower
 {
 	typedef Settings::SettingsIniFile SettingsIniFile;
 	
-	class AutoLoginSettings
+	class AutoLoginSettings : public SettingsIniFile
 	{
 	public:
 		explicit AutoLoginSettings(const TCHAR *pSettingsFile_in);
@@ -30,7 +30,6 @@ namespace Windower
 		HWND GetParentWnd() const { return m_hParentWnd; }
 
 	protected:
-		SettingsIniFile *m_pSettingsFile;
 		bool			 m_AutoValidate;
 		HWND			 m_hParentWnd;
 		string_t		 m_Password;

@@ -16,43 +16,28 @@ namespace Windower
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in)
-		: m_AutoValidate(false), m_hParentWnd(NULL)
+		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_AutoValidate(false), m_hParentWnd(NULL)
 	{
-		bool bEmpty = true;
-
-		if (pSettingsFile_in != NULL)
-		{
-			m_pSettingsFile = new SettingsIniFile(pSettingsFile_in);
-			bEmpty = !Load();
-		}
-		else
-			m_pSettingsFile = NULL;
-
-		if (bEmpty)
+		if (pSettingsFile_in != NULL && Load() == false)
 			Save();
 	}
 
 	bool AutoLoginSettings::Save()
 	{
-		if (m_pSettingsFile != NULL)
-		{
-			m_pSettingsFile->SetLong(_T("AutoLogin"), _T("AutoValidate"), m_AutoValidate ? 1L : 0L);
-			m_pSettingsFile->SetString(_T("AutoLogin"), _T("Password"), m_Password);
-			m_pSettingsFile->SetHex(_T("AutoLogin"), _T("KeyHash"), m_KeyHash);
+		SetLong(_T("AutoLogin"), _T("AutoValidate"), m_AutoValidate ? 1L : 0L);
+		SetString(_T("AutoLogin"), _T("Password"), m_Password);
+		SetHex(_T("AutoLogin"), _T("KeyHash"), m_KeyHash);
 
-			return m_pSettingsFile->Save();
-		}
-
-		return false;
+		return SettingsIniFile::Save();
 	}
 
 	bool AutoLoginSettings::Load()
 	{
-		if (m_pSettingsFile != NULL && m_pSettingsFile->Load())
+		if (SettingsIniFile::Load())
 		{
-			m_AutoValidate = (m_pSettingsFile->GetLong(_T("AutoLogin"), _T("AutoValidate")) == 1);
-			m_Password = m_pSettingsFile->GetString(_T("AutoLogin"), _T("Password"));
-			m_KeyHash = m_pSettingsFile->GetUnsignedLong(_T("AutoLogin"), _T("KeyHash"));
+			m_AutoValidate = (GetLong(_T("AutoLogin"), _T("AutoValidate")) == 1);
+			m_Password = GetString(_T("AutoLogin"), _T("Password"));
+			m_KeyHash = GetUnsignedLong(_T("AutoLogin"), _T("KeyHash"));
 
 			return true;
 		}
