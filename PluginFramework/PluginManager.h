@@ -24,7 +24,7 @@ namespace PluginFramework
 		IPlugin* LoadPlugin(const string_t &PluginName_in);
 		bool UnloadPlugin(const string_t &PluginName_in);
 
-		unsigned int ListPlugins(string_t Directory_in);
+		unsigned int ListPlugins(const string_t &Directory_in);
 		bool IsPluginValid(const TCHAR *pPluginPath_in);
 		string_t& GetVersionStr(string_t &Version_out) const;
 		bool RegisterPlugin(PluginInfo &Info_in_out, string_t PluginPath_in);

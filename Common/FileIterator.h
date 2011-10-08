@@ -14,7 +14,7 @@
 class FileIterator : public NonCopyable
 {
 public:
-	explicit FileIterator(string_t &Directory_in, const TCHAR *pWildcard_in = _T("*.*"));
+	explicit FileIterator(const string_t &Directory_in, const TCHAR *pWildcard_in = _T("*.*"));
 	~FileIterator();
 	
 	const TCHAR* Current();
@@ -28,7 +28,7 @@ public:
 
 protected:
 	WIN32_FIND_DATA m_FindData;
-	string_t &m_Directory;
+	string_t m_Directory;
 	string_t m_Wildcard;
 	HANDLE m_hFile;
 

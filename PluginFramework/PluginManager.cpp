@@ -44,7 +44,7 @@ namespace PluginFramework
 		\param[in] pDirectory_in : the directory in which we're looking for plugins
 		\return the number of available plugins
 	*/
-	unsigned int PluginManager::ListPlugins(string_t Directory_in)
+	unsigned int PluginManager::ListPlugins(const string_t &Directory_in)
 	{
 		PluginIterator Iter(Directory_in, *this);
 		unsigned int PluginCount = 0;

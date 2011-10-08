@@ -26,7 +26,6 @@ void CryptUtils::Crypt(const string_t &CryptKey_in, const string_t &InputStr_in,
 	unsigned long i, j, k, t;
 	TCHAR temp = NULL;
 
-	
 	OuputStr_out.clear();
 
 	for(i = 0UL; i < 256UL; ++i)

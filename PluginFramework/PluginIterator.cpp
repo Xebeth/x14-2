@@ -26,7 +26,7 @@ namespace PluginFramework
 		\param[in] Manager_in : a reference to the plugin manager
 		\param[in] pWildcard_in : the wildcard used to select files (e.g: *.dll)
 	*/
-	PluginIterator::PluginIterator(string_t &Directory_in, PluginManager &Manager_in, const TCHAR *pWildcard_in)
+	PluginIterator::PluginIterator(const string_t &Directory_in, PluginManager &Manager_in, const TCHAR *pWildcard_in)
 		: FileIterator(Directory_in, pWildcard_in), m_PluginManager(Manager_in) {}
 
 	/*! \brief Checks if a plugin is valid through the challenge/response mechanism of the manager

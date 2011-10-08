@@ -12,7 +12,7 @@
 	\param[in] Directory_in : the directory in which to look for files
 	\param[in] pWildcard_in : the wildcard used to select files (e.g: *.dll)
 */
-FileIterator::FileIterator(string_t &Directory_in, const TCHAR *pWildcard_in)
+FileIterator::FileIterator(const string_t &Directory_in, const TCHAR *pWildcard_in)
 			: m_Directory(Directory_in), m_hFile(INVALID_HANDLE_VALUE)
 {
 	NormalizePath(m_Directory);

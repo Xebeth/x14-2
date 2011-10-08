@@ -14,8 +14,8 @@ namespace PluginFramework
 	class PluginIterator : public FileIterator
 	{
 	public:
-		PluginIterator(string_t &Directory_in, PluginManager &Manager_in,
-			const TCHAR *pWildcard_in = _T("*.dll"));
+		PluginIterator(const string_t &Directory_in, PluginManager &Manager_in,
+					   const TCHAR *pWildcard_in = _T("*.dll"));
 
 		virtual bool IsValid();
 	protected:
