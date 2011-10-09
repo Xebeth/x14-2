@@ -25,7 +25,7 @@ namespace Windower
 	/*! \brief Creates an instance of TimestampPlugin
 		\return a pointer to the new TimestampPlugin instance
 	*/
-	void* TimestampPlugin::Create()
+	PluginFramework::IPlugin* TimestampPlugin::Create()
 	{
 		TimestampPlugin *pNewInst = new TimestampPlugin;
 		TimestampPlugin::Query(pNewInst->m_BasePluginInfo);
@@ -47,7 +47,11 @@ namespace Windower
 		WindowerCommand Command(PLUGIN_REGKEY, "timestamp::format", "sets the format of the timestamp", Caller, SetFormat, Params, 1, 1);
 		PluginFramework::ServiceParam InvokeArg(_T("WindowerCommand"), &Command);
 
-		m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArg, PluginFramework::ServiceParam());
+		if (m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArg, PluginFramework::ServiceParam()) == false)
+		{
+			delete pNewInst;
+			pNewInst = NULL;
+		}
 			
 		return pNewInst;
 	}
@@ -55,7 +59,7 @@ namespace Windower
 	/*! \brief Destroys an instance of TimestampPlugin
 		\param[in] pInstance_in : an instance of TimestampPlugin
 	*/
-	void TimestampPlugin::Destroy(void *pInstance_in)
+	void TimestampPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
@@ -63,10 +67,9 @@ namespace Windower
 			PluginFramework::ServiceParam InvokeArg(_T("UnregisterParam"), &UnregParam);
 
 			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg, PluginFramework::ServiceParam());
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), (IPlugin*)pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
 
-
-			delete (TimestampPlugin *)pInstance_in;
+			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}

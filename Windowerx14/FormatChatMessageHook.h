@@ -10,9 +10,9 @@
 
 typedef struct _GameChatTextObject
 {
-	char	*pResBuf;
-	DWORD	dwUnknown;
-	DWORD	dwSize;
+	const char	*pResBuf;
+	DWORD		 dwUnknown;
+	DWORD		 dwSize;
 } GameChatTextObject;
 
 // int __thiscall sub_504EA0(int this, unsigned __int16 a2, int a3, int a4) => search for %04X in disassembly

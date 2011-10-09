@@ -14,9 +14,10 @@ namespace Windower
 	{
 	public:
 		TellDetectPlugin() : IGameChatPlugin() {}
+		virtual ~TellDetectPlugin() {}
 
-		static void* Create();
-		static void Destroy(void *pInstance_in);
+		static PluginFramework::IPlugin* Create();
+		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
 		bool FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,

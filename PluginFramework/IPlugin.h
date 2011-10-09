@@ -14,10 +14,13 @@ namespace PluginFramework
 	class IPlugin
 	{
 	public:
+		virtual ~IPlugin() {}
+
 		static void SetPluginServices(const PluginFramework::IPluginServices *pPluginServices_in)
 			{ m_pPluginServices = pPluginServices_in; }
 
 		const PluginInfo& GetInfo() { return m_BasePluginInfo; }
+		void SetInfo(const PluginInfo &PluginInfo_in) { m_BasePluginInfo = PluginInfo_in; }
 
 	protected:
 		static const PluginFramework::IPluginServices *m_pPluginServices;

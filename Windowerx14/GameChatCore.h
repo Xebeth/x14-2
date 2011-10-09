@@ -30,6 +30,8 @@ namespace Windower
 		bool FormatChatMessageHook(LPVOID _this, USHORT MessageType, const GameChatTextObject* pSender, GameChatTextObject* pMessage);
 
 	protected:
+		bool DisplayWindowerVersion();
+
 		void OnSubscribe(const string_t &ServiceName_in,
 						 const PluginSet &Subscribers_in);
 		void OnUnsubscribe(const string_t &ServiceName_in,
@@ -54,11 +56,11 @@ namespace Windower
 	private:
 		void UpdateChatData(const void *pChatObj_in);
 
-		PluginSet			 m_ChatFormatSubscribers;
-		GameChatTextObject	 m_StoredMessage;
-		GameChatTextObject	 m_StoredSender;
-		CommandDispatcher	&m_CommandDispatcher;
-		CommandParser		&m_CommandParser;
+		PluginSet					 m_ChatFormatSubscribers;
+		const GameChatTextObject	*m_pLastSender;
+		CommandDispatcher			&m_CommandDispatcher;
+		CommandParser				&m_CommandParser;
+		LPVOID						 m_pGameChatObject;
 	};
 }
 

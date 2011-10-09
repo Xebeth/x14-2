@@ -32,7 +32,7 @@ extern "C"
 						  _T("\tFramework:\t%s\n")
 						  _T("\tAuthor:\t\t%s\n")
 						  _T("\tDescritpion:\t%s\n")
-						  _T("\tPath:\t\t%s\n"),
+						  _T("\tPath:\t\t%s"),
 						  Name.c_str(), PluginVersion.ToString().c_str(),
 						  Handle, FrameworkVersion.ToString().c_str(),
 						  Author.c_str(), Descritpion.c_str(),
@@ -49,9 +49,9 @@ extern "C"
 		HMODULE							Handle;
 	};
 
-	typedef void* (*fnCreate)(); 
+	typedef PluginFramework::IPlugin* (*fnCreate)(); 
 	typedef void (*fnQuery)(PluginInfo&);
-	typedef void (*fnDestroy)(void *);
+	typedef void (*fnDestroy)(PluginFramework::IPlugin*);
 
 	typedef struct _RegisterParams
 	{

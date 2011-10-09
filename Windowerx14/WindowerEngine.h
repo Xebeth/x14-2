@@ -14,6 +14,7 @@ namespace Windower
 {
 	class CommandDispatcher;
 	class WindowerProfile;
+	class WindowerCommand;
 	class SettingsManager;
 	class PluginServices;
 	class CommandParser;
@@ -23,6 +24,7 @@ namespace Windower
 	class SystemCore;
 
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
+	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 
 	class WindowerEngine : public PluginEngine
 	{
@@ -44,6 +46,14 @@ namespace Windower
 		GraphicsCore&			Graphics() const { return *m_pGraphicsCore; }
 		GameChatCore&			GameChat() const { return *m_pGameChatCore; }
 		const WindowerProfile&	Settings() const { return *m_pSettings; }
+
+		// Command implementations
+		bool InjectText(const std::string& Text_in, USHORT MessageType_in = 0x20); // CHAT_MESSAGE_TYPE_ECHO_MESSAGE
+		bool ListPlugins();
+
+		// Command callbacks
+		static int ListPlugins(const WindowerCommand *pCommand_in);
+		static int InjectText(const WindowerCommand *pCommand_in);
 
 	private:
 		SettingsManager		*m_pSettingsManager;

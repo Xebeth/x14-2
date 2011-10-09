@@ -16,6 +16,7 @@ namespace Windower
 	{
 	public:
 		IGameChatPlugin() : PluginFramework::IPlugin() {}
+		virtual ~IGameChatPlugin() {}
 
 		virtual int FilterCommands(GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
 								   DWORD dwOriginalMsgSize, char **pBuffer_in_out) { return -1; }

@@ -11,6 +11,7 @@
 #include <HookEngine.h>
 #include <queue>
 
+#include "version.h"
 #include "BaseEngine.h"
 #include "PluginEngine.h"
 #include "WindowerEngine.h"
@@ -33,12 +34,9 @@ namespace Windower
 {
 	/*! \brief default constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
-		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in)
+		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pGameChatObject(NULL), m_pLastSender(NULL),
+		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL), m_pChatHead(NULL)
 	{
-		m_pFormatChatMessageTrampoline = NULL;
-		m_pPrevChatHead = m_pPrevChatTail = NULL;
-		m_pChatTail = m_pChatHead = NULL;
-
 		RegisterService(_T("FormatChatMessage"), false);
 		// add compatible plugins
 		PluginFramework::PluginUUID UUID;
@@ -90,8 +88,9 @@ namespace Windower
 			{
 				if (pMessage_in->dwSize > 2)
 				{
-					char *pOriginalMsg = pMessage_in->pResBuf, *pFeedbackMsg = NULL;
 					DWORD dwOriginalSize = pMessage_in->dwSize, dwNewSize = 0;
+					const char *pOriginalMsg = pMessage_in->pResBuf;
+					char *pFeedbackMsg = NULL;
 					WindowerCommand Command;
 					std::string HelpMsg;
 					int ParseResult;
@@ -122,17 +121,65 @@ namespace Windower
 		return false;
 	}
 
+	bool GameChatCore::DisplayWindowerVersion()
+	{
+		if (m_pGameChatObject != NULL && m_pLastSender != NULL)
+		{
+			GameChatTextObject Message;
+			std::string MessageText;
+
+			format(MessageText, "[ Windower x14 version %i.%i.%i.%i ]\n",
+				   MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
+				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);
+
+			Message.dwSize = MessageText.length() + 1;
+			Message.pResBuf = MessageText.c_str();
+			Message.dwUnknown = 0x0220;
+
+			return m_pFormatChatMessageTrampoline(m_pGameChatObject, CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE, m_pLastSender, &Message);
+		}
+
+		return false;
+	}
+
 	bool GameChatCore::FormatChatMessageHook(LPVOID _this, USHORT MessageType,
 											 const GameChatTextObject* pSender,
 											 GameChatTextObject* pMessage)
 	{
+		// if _this is NULL, we're probably trying to inject text in the chat
+		if (_this == NULL)
+		{
+			// use the saved object
+			if (m_pGameChatObject != NULL)
+			{
+				// restore the chat objects
+				_this = m_pGameChatObject;
+				pSender = m_pLastSender;
+			}
+			else
+				return false;
+		}
+		else
+		{
+			m_pLastSender = pSender;
+
+			if (m_pGameChatObject == NULL)
+			{
+				// save the chat objects
+				m_pGameChatObject = _this;
+
+				DisplayWindowerVersion();
+			}
+		}
+
 		// update the chat head & tail
 		UpdateChatData(_this);
 
 		if (FilterCommands(_this, MessageType, pSender, pMessage) == false && m_pFormatChatMessageTrampoline != NULL)
 		{
-			char *pModifiedMsg = NULL, *pOriginalMsg = pMessage->pResBuf;
+			const char *pOriginalMsg = pMessage->pResBuf;
 			DWORD dwOriginalSize = pMessage->dwSize;
+			char *pModifiedMsg = NULL;
 			PluginSet::iterator Iter;
 			bool bResult;
 		
@@ -145,7 +192,6 @@ namespace Windower
 			}
 			// call the original function
 			bResult = m_pFormatChatMessageTrampoline(_this, MessageType, pSender, pMessage);
-			// bResult = m_pFormatChatMessageTrampoline(_this, MessageType, pSender, pMessage);
 			// restore the original pointer and size of the message object
 			pMessage->pResBuf = pOriginalMsg;
 			pMessage->dwSize = dwOriginalSize;

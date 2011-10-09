@@ -52,6 +52,7 @@ namespace PluginFramework
 
 		UINT PrevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
+		// iterating effectively loads every DLLs in the directory to check them (see PluginIterator::IsValid())
 		for (hFile = Iter.Begin(); hFile != Iter.End(); hFile = ++Iter)
 			++PluginCount;
 
@@ -76,13 +77,10 @@ namespace PluginFramework
 
 			bResult  = CheckDLLExports(hPlugin, &QueryFunc);
 			bResult &= CheckPluginInfo(QueryFunc, Info);
+			bResult &= RegisterPlugin(Info, pPluginPath_in);
+			bResult &= UnloadDLL(hPlugin);
 
-			if (bResult && RegisterPlugin(Info, pPluginPath_in))
-				_tprintf(_T("Registered %s"), Info.ToString().c_str());
-			else
-				bResult = false;
-
-			return (bResult && UnloadDLL(hPlugin));
+			return bResult;
 		}
 
 		return false;
@@ -247,10 +245,13 @@ namespace PluginFramework
 			if (LoadIter != m_LoadedPlugins.end())
 			{
 				// create a new instance
-				pResult = (IPlugin*)LoadIter->second->CreateFunc();
+				pResult = LoadIter->second->CreateFunc();
 				// if the object creation succeeded; store it
 				if (pResult != NULL)
+				{
+					pResult->SetInfo(LoadIter->second->Info);
 					m_PluginObjects[PluginName_in] = pResult;
+				}
 			}
 
 			return pResult;
@@ -298,9 +299,6 @@ namespace PluginFramework
 		}
 	}
 
-	/*! \brief 
-	\param[] hModule_in : 
-	*/
 	RegisterParams* PluginManager::InitializePlugin(HMODULE hModule_in)
 	{
 		fnInitialize pInitFunc = (fnInitialize)::GetProcAddress(hModule_in, "InitPlugin");

@@ -21,7 +21,7 @@ namespace Windower
 	/*! \brief Creates an instance of TellDetectPlugin
 		\return a pointer to the new TellDetectPlugin instance
 	*/
-	void* TellDetectPlugin::Create()
+	PluginFramework::IPlugin* TellDetectPlugin::Create()
 	{
 		TellDetectPlugin *pNewInst = new TellDetectPlugin;
 		TellDetectPlugin::Query(pNewInst->m_BasePluginInfo);
@@ -38,13 +38,13 @@ namespace Windower
 	/*! \brief Destroys an instance of TellDetectPlugin
 		\param[in] pInstance_in : an instance of TellDetectPlugin
 	*/
-	void TellDetectPlugin::Destroy(void *pInstance_in)
+	void TellDetectPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), (IPlugin*)pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
 
-			delete (TellDetectPlugin *)pInstance_in;
+			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}

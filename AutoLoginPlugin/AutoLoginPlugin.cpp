@@ -41,7 +41,7 @@ namespace Windower
 	/*! \brief Creates an instance of AutoLoginPlugin
 		\return a pointer to the new AutoLoginPlugin instance
 	*/
-	void* AutoLoginPlugin::Create()
+	PluginFramework::IPlugin* AutoLoginPlugin::Create()
 	{
 		AutoLoginPlugin *pNewInst = new AutoLoginPlugin;
 		AutoLoginPlugin::Query(pNewInst->m_BasePluginInfo);
@@ -84,11 +84,11 @@ namespace Windower
 	/*! \brief Destroys an instance of AutoLoginPlugin
 		\param[in] pInstance_in : an instance of AutoLoginPlugin
 	*/
-	void AutoLoginPlugin::Destroy(void *pInstance_in)
+	void AutoLoginPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
-			delete (AutoLoginPlugin *)pInstance_in;
+			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}

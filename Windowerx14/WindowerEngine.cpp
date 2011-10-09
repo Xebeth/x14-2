@@ -82,11 +82,19 @@ namespace Windower
 		// load plugins
 		LoadPlugin(_T("Tell detect"));
 		LoadPlugin(_T("Timestamp"));
-		// LoadPlugin(_T("Chat log")); not working
 
 		// register commands
-		// CallerParam Caller("WindowerEngine", this);
-		// m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "list", "lists the loaded plugins", Caller, ListPlugins);
+		CallerParam Caller("WindowerEngine", this);
+		const char *pParamName = "text";
+		CommandParameters Params;
+
+		Params[pParamName].Name = pParamName;
+		Params[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
+		Params[pParamName].Value = "";
+		Params[pParamName].Description = "text to inject in the chat log";
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "inject", "[test] injects text in the chat log", Caller, InjectText, 1, 1, Params, false, true);
+
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "list", "lists the loaded plugins", Caller, ListPlugins);
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -167,7 +175,7 @@ namespace Windower
 			while (!m_bShutdown)
 			{
 				UpdateEngine();
-				Sleep(0);
+				Sleep(100);
 			}
 		}
 
@@ -199,5 +207,103 @@ namespace Windower
 	void WindowerEngine::OnShutdown()
 	{
 		m_bShutdown = true;
+	}
+
+	/*! \brief Inject text command callback ("inject")
+		\param[in] pCommand_in : the command passed by the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int WindowerEngine::InjectText(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		{
+			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
+			const WindowerCommandParam *pParam = pCommand_in->GetParameter("text");
+
+			if (pEngine != NULL && pParam != NULL && pEngine->InjectText(pParam->Value))
+				return DISPATCHER_RESULT_SUCCESS;
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	/*! \brief Inject text command implementation ("inject")
+		\param[in] Text_in : the text to inject in the chat log
+		\param[in] MessageType_in : the type of the message
+		\return true if the text was injected in the chat log; false otherwise
+	*/
+	bool WindowerEngine::InjectText(const std::string& Text_in, USHORT MessageType_in)
+	{
+		GameChatTextObject Message;
+
+		Message.dwSize = Text_in.length() + 1;
+		Message.pResBuf = Text_in.c_str();		
+		Message.dwUnknown = 0x0040;
+		
+		return m_pGameChatCore->FormatChatMessageHook(NULL, MessageType_in, NULL, &Message);
+	}
+
+	/*! \brief List plugins command callback ("list")
+		\param[in] pCommand_in : the command passed by the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int WindowerEngine::ListPlugins(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		{
+			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
+
+			if (pEngine != NULL && pEngine->ListPlugins())
+				return DISPATCHER_RESULT_SUCCESS;
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	/*! \brief List plugins command implementation ("list")
+		\return true if the plugins were listed successfully; false otherwise
+	*/
+	bool WindowerEngine::ListPlugins()
+	{
+		if (m_pPluginManager != NULL)
+		{
+			size_t PluginCount = m_Plugins.size();
+			std::string PluginData;
+
+			switch(PluginCount)
+			{
+				case 0:
+					PluginData = "No plugin is currently loaded.";
+				break;
+				case 1:
+					PluginData = "1 plugin is currently loaded:";
+				break;
+				default:
+					format(PluginData, "%i plugins are currently loaded:", PluginCount);
+			}
+
+			if (PluginCount > 0)
+			{
+				WindowerPlugins::const_iterator PluginIt;
+				CSimpleIni::Converter Convert(true);
+				string_t PluginDescW;				
+
+				InjectText(PluginData, CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+
+				for (PluginIt = m_Plugins.begin(); PluginIt != m_Plugins.end(); ++PluginIt)
+				{
+					PluginDescW = PluginIt->second->GetInfo().ToString();
+					Convert.ConvertToStore(PluginDescW.c_str());
+					
+					InjectText(Convert.Data(), CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+				}
+
+				return true;
+			}
+			else
+				return InjectText(PluginData, CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+		}
+
+		return false;
 	}
 }

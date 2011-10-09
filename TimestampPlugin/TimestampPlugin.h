@@ -18,9 +18,10 @@ namespace Windower
 	{
 	public:
 		TimestampPlugin();
+		virtual ~TimestampPlugin() {}
 
-		static void* Create();
-		static void Destroy(void *pInstance_in);
+		static PluginFramework::IPlugin* Create();
+		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
 		static int SetFormat(const WindowerCommand *pCommand_in);
