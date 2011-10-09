@@ -19,21 +19,21 @@ namespace PluginFramework
 			: Major(Major_in), Minor(Minor_in), Build(Build_in) {}
 		_PluginVersion(const TCHAR *pVersion_in) { FromString(pVersion_in); }
 
-		bool operator == (const _PluginVersion& OtherVersion)
+		bool operator == (const _PluginVersion& OtherVersion) const
 		{
 			return (OtherVersion.Major == Major
 				 && OtherVersion.Minor == Minor
 				 && OtherVersion.Build == Build);
 		}
 
-		bool FromString(const TCHAR* pVersion_in)
+		bool FromString(const TCHAR* pVersion_in) const
 		{
 			// ex : 1.0.25
 			return (_stscanf_s(pVersion_in, _T("%d.%d.%d"),
 					&Major, &Minor, &Build) == 3);
 		}
 
-		string_t ToString()
+		string_t ToString() const
 		{
 			return format(_T("%d.%d.%d"), Major, Minor, Build);
 		}

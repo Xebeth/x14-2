@@ -29,6 +29,8 @@ namespace PluginFramework
 		string_t& GetVersionStr(string_t &Version_out) const;
 		bool RegisterPlugin(PluginInfo &Info_in_out, string_t PluginPath_in);
 
+		const RegisteredPlugins& GetRegisteredPlugins() const { return m_RegisteredPlugins; }
+
 		static PluginVersion m_Version;
 
 	private:

@@ -26,7 +26,7 @@ extern "C"
 	public:
 		PluginInfo() : Handle(NULL) {}
 
-		string_t ToString()
+		string_t ToString() const
 		{
 			return format(_T("Plugin '%s v%s' [0x%08X]:\n")
 						  _T("\tFramework:\t%s\n")
