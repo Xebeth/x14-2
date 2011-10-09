@@ -13,24 +13,24 @@ class CryptUtils
 public:
 	CryptUtils();
 
-	string_t CombineHash(const string_t &InputStr1_in,
-						 const string_t &InputStr2_in);
-	size_t GenerateMachineID(string_t &MachineID_out);
+	static string_t CombineHash(const string_t &InputStr1_in,
+								const string_t &InputStr2_in);
+	static size_t GenerateMachineID(string_t &MachineID_out);
 
-	void Crypt(const string_t &CryptKey_in,
-			   const string_t &InputStr_in,
-			   string_t &OuputStr_out);
-	long Hash(const string_t &InputStr_in);
+	static void Crypt(const string_t &CryptKey_in,
+					  const string_t &InputStr_in,
+					  string_t &OuputStr_out);
+	static long Hash(const string_t &InputStr_in);
 
-	void StringToHex(const string_t &Input_in, string_t &Output_out);
-	void HexToString(const string_t &Input_in, string_t &Output_out);
+	static void StringToHex(const string_t &Input_in, string_t &Output_out);
+	static void HexToString(const string_t &Input_in, string_t &Output_out);
 protected:
 	typedef std::collate<TCHAR> collate_t;
 
-	const collate_t& m_Collate;
+	static const collate_t &m_Collate;
 
-	TCHAR m_SubstBox1[256];
-	TCHAR m_SubstBox2[256];
+	static TCHAR m_SubstBox1[256];
+	static TCHAR m_SubstBox2[256];
 };
 
 #endif//__CRYPT_H__

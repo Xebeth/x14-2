@@ -60,7 +60,6 @@ protected:
 	string_t m_CurrentForm;
 	bool m_LoginComplete;
 	bool m_PasswordSet;
-	CryptUtils m_Crypt;
 
 	IConnectionPoint* m_pConnectionPoint;
 	HTMLEventSink m_EventSink;

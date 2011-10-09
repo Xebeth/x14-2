@@ -148,8 +148,8 @@ bool AutoLogin::AutoCompleteForm()
 						long KeyHash;
 
 						// retrieve the key used to encrypt the password
-						m_Crypt.GenerateMachineID(Key);
-						KeyHash = m_Crypt.Hash(Key);
+						CryptUtils::GenerateMachineID(Key);
+						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
 						if (m_pSettings->GetKeyHash() == KeyHash)
@@ -157,13 +157,13 @@ bool AutoLogin::AutoCompleteForm()
 							string_t CryptedPassword;
 
 							// retrieve the password from the settings
-							m_Crypt.HexToString(m_pSettings->GetPassword(), CryptedPassword);
+							CryptUtils::HexToString(m_pSettings->GetPassword(), CryptedPassword);
 
 							if (CryptedPassword.empty() == false)
 							{
 								string_t Password;
 
-								m_Crypt.Crypt(Key, CryptedPassword, Password);
+								CryptUtils::Crypt(Key, CryptedPassword, Password);
 								m_PasswordSet = SetPasswordInput(Password.c_str());
 							}
 						}

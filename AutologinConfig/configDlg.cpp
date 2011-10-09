@@ -22,7 +22,7 @@ CconfigDlg::CconfigDlg(CWnd* pParent)
 	: CDialog(CconfigDlg::IDD, pParent), m_pSettings(new AutoLoginSettings(_T("autologin.ini")))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_Crypt.GenerateMachineID(m_EncryptionKey);		
+	CryptUtils::GenerateMachineID(m_EncryptionKey);		
 }
 
 CconfigDlg::~CconfigDlg()
@@ -55,7 +55,7 @@ BOOL CconfigDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	long KeyHash = m_Crypt.Hash(m_EncryptionKey);
+	long KeyHash = CryptUtils::Hash(m_EncryptionKey);
 	CString StrKeyHash;
 
 	StrKeyHash.Format(_T("0x%08x"), KeyHash);
@@ -104,7 +104,7 @@ HCURSOR CconfigDlg::OnQueryDragIcon()
 void CconfigDlg::OnBnClickedOk()
 {
 	m_pSettings->SetPassword(m_PasswordHash);
-	m_pSettings->SetKeyHash(m_Crypt.Hash(m_EncryptionKey));
+	m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));
 
 	m_pSettings->Save();
 
@@ -119,8 +119,8 @@ void CconfigDlg::OnPasswordChange()
 	GetDlgItemText(IDC_EDIT1, Password);
 
 	ClearPassword = Password.GetBuffer();
-	m_Crypt.Crypt(m_EncryptionKey, ClearPassword, CryptedPassword);
-	m_Crypt.StringToHex(CryptedPassword, m_PasswordHash);
+	CryptUtils::Crypt(m_EncryptionKey, ClearPassword, CryptedPassword);
+	CryptUtils::StringToHex(CryptedPassword, m_PasswordHash);
 
 	SetDlgItemText(IDC_EDIT2, m_PasswordHash.c_str());
 }

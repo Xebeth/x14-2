@@ -11,7 +11,12 @@
 
 #include "CryptUtils.h"
 
-CryptUtils::CryptUtils() : m_Collate(std::use_facet<collate_t>(std::locale()))
+const CryptUtils::collate_t &CryptUtils::m_Collate = std::use_facet<collate_t>(std::locale());
+
+TCHAR CryptUtils::m_SubstBox1[256] = { 0 };
+TCHAR CryptUtils::m_SubstBox2[256] = { 0 };
+
+CryptUtils::CryptUtils()
 {
 	// always initialize the arrays with zero
 	memset(m_SubstBox1, 0, sizeof(m_SubstBox1));

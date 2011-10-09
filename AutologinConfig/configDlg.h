@@ -22,7 +22,6 @@ public:
 protected:
 	HICON m_hIcon;
 	AutoLoginSettings *m_pSettings;
-	CryptUtils m_Crypt;
 	string_t m_EncryptionKey;
 	string_t m_PasswordHash;
 
