@@ -115,6 +115,9 @@
     <ClCompile Include="WindowerCore.cpp">
       <Filter>Windower\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="utf8_convert.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -194,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="PluginsServices.h">
       <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="utf8_convert.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
