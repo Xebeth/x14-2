@@ -12,13 +12,14 @@
 
 namespace PluginFramework
 {
-	typedef struct _PluginUUID
+	class PluginUUID
 	{
-		_PluginUUID() : m_Data1(0), m_Data2(0), m_Data3(0),
+	public:
+		PluginUUID() : m_Data1(0), m_Data2(0), m_Data3(0),
 			m_Data4(0), m_Data5_1(0), m_Data5_2(0) {}
-		_PluginUUID(TCHAR* pUID_in) { FromString(pUID_in); }
+		PluginUUID(TCHAR* pUID_in) { FromString(pUID_in); }
 
-		_PluginUUID& FromString(TCHAR* pUID_in)
+		PluginUUID& FromString(TCHAR* pUID_in)
 		{
 			// ex : BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9
 			_stscanf_s(pUID_in, _T("%08X-%04X-%04X-%04X-%08X%04X"),
@@ -34,7 +35,7 @@ namespace PluginFramework
 						  m_Data1, m_Data2, m_Data3, m_Data4, m_Data5_1, m_Data5_2);
 		}
 
-		bool operator == (const _PluginUUID &OtherUUID) const
+		bool operator == (const PluginUUID &OtherUUID) const
 		{
 			return (m_Data1 == OtherUUID.m_Data1
 				 && m_Data2 == OtherUUID.m_Data2
@@ -44,19 +45,19 @@ namespace PluginFramework
 				 && m_Data5_2 == OtherUUID.m_Data5_2);
 		}
 		// meaningless operator but required by std::set
-		bool operator < (const _PluginUUID &OtherUUID) const
+		bool operator < (const PluginUUID &OtherUUID) const
 		{
 			return (m_Data1 < OtherUUID.m_Data1);
 		}
 
-
+	protected:
 		DWORD	m_Data1;
 		WORD	m_Data2;
 		WORD	m_Data3;
 		WORD	m_Data4;
 		DWORD	m_Data5_1;
 		WORD	m_Data5_2;
-	} PluginUUID;
+	};
 }
 
 #endif//__PLUGIN_UUID_H__

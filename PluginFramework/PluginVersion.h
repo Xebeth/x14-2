@@ -12,14 +12,15 @@
 
 namespace PluginFramework
 {
-	typedef struct _PluginVersion
+	class PluginVersion
 	{
-		_PluginVersion() : Major(0), Minor(0), Build(0) {}
-		_PluginVersion(short Major_in, short Minor_in, unsigned int Build_in)
+	public:
+		PluginVersion() : Major(0), Minor(0), Build(0) {}
+		PluginVersion(short Major_in, short Minor_in, unsigned int Build_in)
 			: Major(Major_in), Minor(Minor_in), Build(Build_in) {}
-		_PluginVersion(const TCHAR *pVersion_in) { FromString(pVersion_in); }
+		PluginVersion(const TCHAR *pVersion_in) { FromString(pVersion_in); }
 
-		bool operator == (const _PluginVersion& OtherVersion) const
+		bool operator == (const PluginVersion& OtherVersion) const
 		{
 			return (OtherVersion.Major == Major
 				 && OtherVersion.Minor == Minor
@@ -38,10 +39,11 @@ namespace PluginFramework
 			return format(_T("%d.%d.%d"), Major, Minor, Build);
 		}
 
+	private:
 		int Major;
 		int Minor;
 		int Build;
-	} PluginVersion;
+	};
 }
 
 #endif//__PLUGIN_VERSION_H__
