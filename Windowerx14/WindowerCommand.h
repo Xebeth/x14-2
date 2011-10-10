@@ -8,6 +8,8 @@
 #ifndef __WINDOWER_COMMAND_H__
 #define __WINDOWER_COMMAND_H__
 
+#include "utf8_convert.h"
+
 namespace Windower
 {
 	enum COMMAND_PARAM_TYPE
@@ -65,6 +67,11 @@ namespace Windower
 		double GetFloatValue() const
 		{
 			return strtod(Value.c_str(), NULL);
+		}
+
+		string_t& GetWideStringValue(string_t &Result_out) const
+		{
+			return convert_utf8(Value, Result_out);
 		}
 	};
 
