@@ -31,7 +31,7 @@ namespace Windower
 		virtual bool Detach();
 
 		bool LoadPlugin(const string_t &PluginName_in, bool ForceReload_in = false);
-		void UnloadPlugin(const string_t &PluginName_in);
+		bool UnloadPlugin(const string_t &PluginName_in);
 
 		bool RegisterModule(const string_t ModuleName_in, ICoreModule *pModule_in);
 		bool UnregisterModule(const string_t ModuleName_in);

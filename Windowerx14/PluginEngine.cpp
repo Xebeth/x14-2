@@ -40,10 +40,7 @@ namespace Windower
 		WindowerPlugins::iterator Iter = m_Plugins.begin();
 
 		while (m_Plugins.empty() == false)
-		{
 			UnloadPlugin(Iter->first);
-			Iter = m_Plugins.erase(Iter);
-		}
 
 		m_Plugins.clear();
 
@@ -95,7 +92,7 @@ namespace Windower
 			if (pPlugin == NULL)
 			{
 				// try to load it
-				pPlugin = static_cast<PluginFramework::IPlugin*>(m_pPluginManager->LoadPlugin(PluginName_in));
+				pPlugin = m_pPluginManager->LoadPlugin(PluginName_in);
 				// if the plugin was loaded successfuly; store it
 				if (pPlugin != NULL)
 					m_Plugins[PluginName_in] = pPlugin;
@@ -105,9 +102,20 @@ namespace Windower
 		return (pPlugin != NULL);
 	}
 
-	void PluginEngine::UnloadPlugin(const string_t &PluginName_in)
+	bool PluginEngine::UnloadPlugin(const string_t &PluginName_in)
 	{
-		if (GetPluginInstance(PluginName_in) != NULL)
-			m_pPluginManager->UnloadPlugin(PluginName_in);
+		PluginFramework::IPlugin *pPlugin = GetPluginInstance(PluginName_in);
+
+		if (pPlugin != NULL && m_pPluginManager->UnloadPlugin(PluginName_in))
+		{
+			WindowerPlugins::const_iterator Iter = m_Plugins.find(PluginName_in);
+
+			if (Iter != m_Plugins.end())
+				m_Plugins.erase(Iter);
+
+			return true;
+		}
+
+		return false;
 	}
 }
