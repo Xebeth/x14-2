@@ -80,21 +80,35 @@ namespace Windower
 		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
 		ICoreModule::SetPluginManager(m_pPluginManager);
 		// load plugins
-		LoadPlugin(_T("Tell detect"));
-		LoadPlugin(_T("Timestamp"));
+		PluginEngine::LoadPlugin(_T("Tell detect"));
+		PluginEngine::LoadPlugin(_T("Timestamp"));
 
 		// register commands
 		CallerParam Caller("WindowerEngine", this);
 		const char *pParamName = "text";
-		CommandParameters Params;
+		CommandParameters InjectParams;
 
-		Params[pParamName].Name = pParamName;
-		Params[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
-		Params[pParamName].Value = "";
-		Params[pParamName].Description = "text to inject in the chat log";
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "inject", "[test] injects text in the chat log", Caller, InjectText, 1, 1, Params, false, true);
+		// register the "list" command
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "list", "Lists the loaded plugins.", Caller, ListPlugins);
 
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "list", "lists the loaded plugins", Caller, ListPlugins);
+		// register the "inject" command
+		InjectParams[pParamName].Name = pParamName;
+		InjectParams[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
+		InjectParams[pParamName].Value = "";
+		InjectParams[pParamName].Description = "text to inject in the chat log";
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "inject", "Injects text in the chat log.", Caller, InjectText, 1, 1, InjectParams, false, true);
+		// register the "load" command
+		CommandParameters PluginParams;
+		pParamName = "plugin_name";
+
+		PluginParams[pParamName].Name = pParamName;
+		PluginParams[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
+		PluginParams[pParamName].Value = "";
+		PluginParams[pParamName].Description = "the name of the plugin to load";
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "load", "Loads a plugin given its name.", Caller, LoadPlugin, 1, 1, PluginParams);
+		// register the "unload" command
+		InjectParams[pParamName].Description = "the name of the plugin to unload";
+		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "unload", "Unloads a plugin given its name.", Caller, UnloadPlugin, 1, 1, PluginParams);
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -184,6 +198,12 @@ namespace Windower
 
 	void WindowerEngine::UpdateEngine()
 	{
+
+		if (m_FeedbackMessages.empty() == false)
+		{
+			InjectText(m_FeedbackMessages.front());
+			m_FeedbackMessages.pop_front();
+		}
 
 	}
 
@@ -285,25 +305,83 @@ namespace Windower
 			if (PluginCount > 0)
 			{
 				WindowerPlugins::const_iterator PluginIt;
-				CSimpleIni::Converter Convert(true);
 				string_t PluginDescW;				
 
-				InjectText(PluginData, CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+				InjectText(PluginData);
 
 				for (PluginIt = m_Plugins.begin(); PluginIt != m_Plugins.end(); ++PluginIt)
 				{
 					PluginDescW = PluginIt->second->GetInfo().ToString();
-					Convert.ConvertToStore(PluginDescW.c_str());
 					
-					InjectText(Convert.Data(), CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+					InjectText(convert_ansi(PluginDescW, PluginData));
 				}
 
 				return true;
 			}
 			else
-				return InjectText(PluginData, CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+				return InjectText(PluginData);
 		}
 
 		return false;
+	}
+
+	/*! \brief Unload plugin command callback ("unload")
+		\param[in] pCommand_in : the command passed by the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int WindowerEngine::UnloadPlugin(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		{
+			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
+			const WindowerCommandParam *pParam = pCommand_in->GetParameter("plugin_name");
+
+			if (pEngine != NULL && pParam != NULL)
+			{
+				std::string Feedback;
+				string_t PluginName;
+
+				if (static_cast<PluginEngine*>(pEngine)->UnloadPlugin(pParam->GetWideStringValue(PluginName)))
+					format(Feedback,"The plugin '%s' was unloaded successfully.", pParam->Value.c_str());
+				else
+					format(Feedback, "The plugin '%s' couldn't be unloaded.", pParam->Value.c_str());
+
+				// pEngine->AddFeedbackMessage(Feedback);
+
+				return DISPATCHER_RESULT_SUCCESS;
+			}
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	/*! \brief Load plugin command callback ("load")
+		\param[in] pCommand_in : the command passed by the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int WindowerEngine::LoadPlugin(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		{
+			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
+			const WindowerCommandParam *pParam = pCommand_in->GetParameter("plugin_name");
+
+			if (pEngine != NULL && pParam != NULL)
+			{
+				std::string Feedback;
+				string_t PluginName;
+
+				if (static_cast<PluginEngine*>(pEngine)->LoadPlugin(pParam->GetWideStringValue(PluginName)))
+					format(Feedback, "The plugin '%s' was loaded successfully.", pParam->Value.c_str());
+				else
+					format(Feedback, "The plugin '%s' couldn't be loaded.", pParam->Value.c_str());
+
+				pEngine->AddFeedbackMessage(Feedback);
+
+				return DISPATCHER_RESULT_SUCCESS;
+			}
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 }

@@ -47,11 +47,15 @@ namespace Windower
 		GameChatCore&			GameChat() const { return *m_pGameChatCore; }
 		const WindowerProfile&	Settings() const { return *m_pSettings; }
 
+		void AddFeedbackMessage(const std::string &Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
+
 		// Command implementations
 		bool InjectText(const std::string& Text_in, USHORT MessageType_in = 0x20); // CHAT_MESSAGE_TYPE_ECHO_MESSAGE
 		bool ListPlugins();
 
 		// Command callbacks
+		static int UnloadPlugin(const WindowerCommand *pCommand_in);
+		static int LoadPlugin(const WindowerCommand *pCommand_in);
 		static int ListPlugins(const WindowerCommand *pCommand_in);
 		static int InjectText(const WindowerCommand *pCommand_in);
 
@@ -69,6 +73,8 @@ namespace Windower
 		bool				 m_bShutdown;
 		HWND				 m_hGameWnd;
 		DWORD				 m_dwPID;
+
+		std::list<std::string> m_FeedbackMessages;
 	};
 }
 

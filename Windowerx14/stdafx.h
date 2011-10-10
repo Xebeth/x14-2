@@ -10,7 +10,9 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
+
 #include <string_t.h>
+#include <list>
 
 #define __USE_DETOURS
 // #define __USE_MINHOOK
