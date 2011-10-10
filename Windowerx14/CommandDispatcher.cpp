@@ -74,7 +74,7 @@ namespace Windower
 	{
 		RegisteredCommands::const_iterator Iter = m_Commands.find(CommandName_in);
 
-		if (Iter == m_Commands.end() && Iter->second != NULL)
+		if (Iter != m_Commands.end() && Iter->second != NULL)
 		{
 			if (Iter->second->RegistrationKey == RegistrationKey_in)
 			{
