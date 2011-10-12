@@ -45,7 +45,7 @@ namespace Bootstrap
 													   nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 		DWORD_PTR ClassAtom = (DWORD_PTR)lpClassName;
 
-		if (lpClassName != NULL && ((ClassAtom & 0xFFFF0000) != NULL) && _tcscmp(TARGET_CLASSNAME, lpClassName) == 0)
+		if (lpClassName != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName) == 0)
 		{
 			static_cast<BootstrapEngine&>(m_Engine).InvokeAutoLogin(hWndResult);
 		}

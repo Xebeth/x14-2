@@ -37,10 +37,8 @@ namespace Windower
 	bool PluginEngine::Detach()
 	{
 		// destroy the created plugins
-		WindowerPlugins::iterator Iter = m_Plugins.begin();
-
-		while (m_Plugins.empty() == false)
-			UnloadPlugin(Iter->first);
+		while(m_Plugins.empty() == false)
+			UnloadPlugin(m_Plugins.rbegin()->first);
 
 		m_Plugins.clear();
 
