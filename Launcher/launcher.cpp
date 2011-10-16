@@ -29,13 +29,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
 	PROCESS_INFORMATION ProcessInfo;
 	TCHAR* pDLL32Path, *pExePath;
-	BOOL Result;
-
-#ifdef _DEBUG
-	pExePath = _tcsdup(_T("E:\\Final Fantasy XIV\\ffxivboot.exe"));
-	pDLL32Path = _tcsdup(_T("F:\\~dev\\cpp\\Windowerx14\\Debug\\bootstrap.dll"));
-#else
 	TCHAR DirPath [MAX_PATH];
+	BOOL Result;
 
 	pDLL32Path = new TCHAR[MAX_PATH];
 	pExePath = new TCHAR[MAX_PATH];
@@ -43,17 +38,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	GetCurrentDirectory(MAX_PATH, DirPath);
 	_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
 	_stprintf_s(pExePath, MAX_PATH, _T("%s\\ffxivboot.exe"), DirPath);
-#endif
 
 	Result = InjectModule::CreateProcessEx(pExePath, ProcessInfo, NULL, CREATE_DEFAULT_ERROR_MODE |
 										   CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, pDLL32Path, NULL);
-#ifdef _DEBUG
-	delete pDLL32Path;
-	delete pExePath;
-#else
+
 	delete[] pDLL32Path;
 	delete[] pExePath;
-#endif // _DEBUG
 
 	return (Result != FALSE);
 }

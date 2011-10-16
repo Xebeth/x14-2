@@ -62,8 +62,8 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
 	}
 
-	bool TellDetectPlugin::FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-											 GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+	bool TellDetectPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+											 StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 											 DWORD dwOriginalMsgSize, char **pBuffer_in_out)
 	{
 		if (MessageType == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)

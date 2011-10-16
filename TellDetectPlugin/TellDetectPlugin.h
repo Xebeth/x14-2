@@ -20,8 +20,8 @@ namespace Windower
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
-		bool FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-							   GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
 	};
 }

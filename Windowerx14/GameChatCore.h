@@ -27,7 +27,9 @@ namespace Windower
 		void OnHookInstall(IHookManager *pHookManager);
 
 		//! \brief FormatChatMessage hook
-		bool FormatChatMessageHook(LPVOID _this, USHORT MessageType, const GameChatTextObject* pSender, GameChatTextObject* pMessage);
+		bool FormatChatMessageHook(LPVOID _this, USHORT MessageType, const StringObject* pSender, StringObject* pMessage);
+
+		StringObject* CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
 
 	protected:
 		bool DisplayWindowerVersion();
@@ -37,12 +39,12 @@ namespace Windower
 		void OnUnsubscribe(const string_t &ServiceName_in,
 						   const PluginSet &Subscribers_in);
 		bool FilterCommands(LPVOID _this, USHORT MessageType_in,
-							const GameChatTextObject* pSender_in,
-							GameChatTextObject* pMessage_in);
+							const StringObject* pSender_in,
+							StringObject* pMessage_in);
 
 		fnFormatChatMessage	m_pFormatChatMessageTrampoline;
-		//! FormatChatMessage address in the game process
-		DWORD_PTR m_dwFormatChatMessageAddr;
+		fnCreateString		m_pCreateStringTrampoline;
+
 		//! pointer to the start of the chat memory
 		char			 **m_pChatHead;
 		//! pointer to the previous start of the chat memory
@@ -57,10 +59,9 @@ namespace Windower
 		void UpdateChatData(const void *pChatObj_in);
 
 		PluginSet					 m_ChatFormatSubscribers;
-		const GameChatTextObject	*m_pLastSender;
 		CommandDispatcher			&m_CommandDispatcher;
 		CommandParser				&m_CommandParser;
-		LPVOID						 m_pGameChatObject;
+		std::string					 m_InjectVersion;
 	};
 }
 

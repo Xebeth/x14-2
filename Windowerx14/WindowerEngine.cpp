@@ -14,6 +14,7 @@
 #include <d3d9.h>
 #include <queue>
 
+#include "version.h"
 #include "BaseEngine.h"
 #include "PluginEngine.h"
 #include "WindowerEngine.h"
@@ -47,6 +48,7 @@ namespace Windower
 	WindowerEngine::WindowerEngine(const TCHAR *pConfigFile_in)
 		: PluginEngine(pConfigFile_in)
 	{
+		m_bInjectVersion = false;
 		m_bThreadInit = false;
 		m_bShutdown = false;
 		m_hGameWnd = NULL;
@@ -62,8 +64,8 @@ namespace Windower
 		// create the services
 
 		// Win32 related hooks
-		m_pSystemCore = new SystemCore(*this);
-		RegisterModule(_T("System"), m_pSystemCore);
+ 		m_pSystemCore = NULL; // new SystemCore(*this);
+// 		RegisterModule(_T("System"), m_pSystemCore);
 		// Commander dispatcher
 		m_pCommandDispatcher = new CommandDispatcher(*this);
 		RegisterModule(_T("CommandDispatcher"), m_pCommandDispatcher);
@@ -85,21 +87,10 @@ namespace Windower
 
 		// register commands
 		CallerParam Caller("WindowerEngine", this);
-		const char *pParamName = "text";
-		CommandParameters InjectParams;
 
-		// register the "list" command
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "list", "Lists the loaded plugins.", Caller, ListPlugins);
-
-		// register the "inject" command
-		InjectParams[pParamName].Name = pParamName;
-		InjectParams[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
-		InjectParams[pParamName].Value = "";
-		InjectParams[pParamName].Description = "text to inject in the chat log";
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "inject", "Injects text in the chat log.", Caller, InjectText, 1, 1, InjectParams, false, true);
 		// register the "load" command
+		const char *pParamName = "plugin_name";
 		CommandParameters PluginParams;
-		pParamName = "plugin_name";
 
 		PluginParams[pParamName].Name = pParamName;
 		PluginParams[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
@@ -107,7 +98,7 @@ namespace Windower
 		PluginParams[pParamName].Description = "the name of the plugin to load";
 		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "load", "Loads a plugin given its name.", Caller, LoadPlugin, 1, 1, PluginParams);
 		// register the "unload" command
-		InjectParams[pParamName].Description = "the name of the plugin to unload";
+		PluginParams[pParamName].Description = "the name of the plugin to unload";
 		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "unload", "Unloads a plugin given its name.", Caller, UnloadPlugin, 1, 1, PluginParams);
 	}
 
@@ -198,13 +189,11 @@ namespace Windower
 
 	void WindowerEngine::UpdateEngine()
 	{
-
 		if (m_FeedbackMessages.empty() == false)
 		{
-			InjectText(m_FeedbackMessages.front());
+			// @TODO inject text in the chat log
 			m_FeedbackMessages.pop_front();
 		}
-
 	}
 
 	bool WindowerEngine::InitializeEngine()
@@ -227,102 +216,6 @@ namespace Windower
 	void WindowerEngine::OnShutdown()
 	{
 		m_bShutdown = true;
-	}
-
-	/*! \brief Inject text command callback ("inject")
-		\param[in] pCommand_in : the command passed by the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
-	*/
-	int WindowerEngine::InjectText(const WindowerCommand *pCommand_in)
-	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
-		{
-			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("text");
-
-			if (pEngine != NULL && pParam != NULL && pEngine->InjectText(pParam->Value))
-				return DISPATCHER_RESULT_SUCCESS;
-		}
-
-		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
-	/*! \brief Inject text command implementation ("inject")
-		\param[in] Text_in : the text to inject in the chat log
-		\param[in] MessageType_in : the type of the message
-		\return true if the text was injected in the chat log; false otherwise
-	*/
-	bool WindowerEngine::InjectText(const std::string& Text_in, USHORT MessageType_in)
-	{
-		GameChatTextObject Message;
-
-		Message.dwSize = Text_in.length() + 1;
-		Message.pResBuf = Text_in.c_str();		
-		Message.dwUnknown = 0x0040;
-		
-		return m_pGameChatCore->FormatChatMessageHook(NULL, MessageType_in, NULL, &Message);
-	}
-
-	/*! \brief List plugins command callback ("list")
-		\param[in] pCommand_in : the command passed by the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
-	*/
-	int WindowerEngine::ListPlugins(const WindowerCommand *pCommand_in)
-	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
-		{
-			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
-
-			if (pEngine != NULL && pEngine->ListPlugins())
-				return DISPATCHER_RESULT_SUCCESS;
-		}
-
-		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
-	/*! \brief List plugins command implementation ("list")
-		\return true if the plugins were listed successfully; false otherwise
-	*/
-	bool WindowerEngine::ListPlugins()
-	{
-		if (m_pPluginManager != NULL)
-		{
-			size_t PluginCount = m_Plugins.size();
-			std::string PluginData;
-
-			switch(PluginCount)
-			{
-				case 0:
-					PluginData = "No plugin is currently loaded.";
-				break;
-				case 1:
-					PluginData = "1 plugin is currently loaded:";
-				break;
-				default:
-					format(PluginData, "%i plugins are currently loaded:", PluginCount);
-			}
-
-			if (PluginCount > 0)
-			{
-				WindowerPlugins::const_iterator PluginIt;
-				string_t PluginDescW;				
-
-				InjectText(PluginData);
-
-				for (PluginIt = m_Plugins.begin(); PluginIt != m_Plugins.end(); ++PluginIt)
-				{
-					PluginDescW = PluginIt->second->GetInfo().ToString();
-					
-					InjectText(convert_ansi(PluginDescW, PluginData));
-				}
-
-				return true;
-			}
-			else
-				return InjectText(PluginData);
-		}
-
-		return false;
 	}
 
 	/*! \brief Unload plugin command callback ("unload")
@@ -376,12 +269,31 @@ namespace Windower
 				else
 					format(Feedback, "The plugin '%s' couldn't be loaded.", pParam->Value.c_str());
 
-				pEngine->AddFeedbackMessage(Feedback);
+				// pEngine->AddFeedbackMessage(Feedback);
 
 				return DISPATCHER_RESULT_SUCCESS;
 			}
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	const char* WindowerEngine::OnCreateString(const char *pText_in, std::string &Text_out)
+	{
+// 		OutputDebugStringA(pText_in);
+// 		OutputDebugStringA("\n");
+
+		if (m_bInjectVersion == false && strstr(pText_in, "Game Version") != NULL)
+		{
+			format(Text_out, "%s\nWindower x14 Version: %i.%i.%i.%i",
+				   pText_in, MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
+				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);
+
+			m_bInjectVersion = (Text_out.find("Windower") != std::string::npos);
+
+			return Text_out.c_str();
+		}
+
+		return pText_in;
 	}
 }

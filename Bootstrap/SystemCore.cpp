@@ -62,7 +62,6 @@ namespace Bootstrap
 		BOOL Result = FALSE;
 		TCHAR* pDLL32Path;
 
-#ifndef _DEBUG
 		TCHAR *pDirPath = new TCHAR[MAX_PATH];
 		pDLL32Path = new TCHAR[MAX_PATH];
 
@@ -74,13 +73,6 @@ namespace Bootstrap
 			_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\bootstrap.dll"), pDirPath);
 
 		delete[] pDirPath;
-#else
-		if ((lpCommandLine != NULL && _tcsstr(lpCommandLine, TARGET_PROCESS_GAME) != NULL)
-		 || (lpApplicationName != NULL && _tcsstr(lpApplicationName, TARGET_PROCESS_GAME) != NULL))
-			pDLL32Path = _tcsdup(_T("F:\\~dev\\cpp\\Windowerx14\\Debug\\windowerx14.dll"));
-		else
-			pDLL32Path = _tcsdup(_T("F:\\~dev\\cpp\\Windowerx14\\Debug\\bootstrap.dll"));
-#endif // _DEBUG
 
 		sprintf_s(DLLPath, "%S", pDLL32Path);
 		// attach the DLL to the next process in the chain
@@ -89,11 +81,8 @@ namespace Bootstrap
 											 lpEnvironment, lpCurrentDirectory, lpStartupInfo,
 											 lpProcessInformation, NULL, DLLPath,
 											 m_pCreateProcessTrampoline);
-#ifdef _DEBUG
-		delete pDLL32Path;
-#else
+
 		delete[] pDLL32Path;
-#endif // _DEBUG
 
 		return Result;
 	}

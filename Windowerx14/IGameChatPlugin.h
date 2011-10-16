@@ -18,12 +18,12 @@ namespace Windower
 		IGameChatPlugin() : PluginFramework::IPlugin() {}
 		virtual ~IGameChatPlugin() {}
 
-		virtual int FilterCommands(GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+		virtual int FilterCommands(StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 								   DWORD dwOriginalMsgSize, char **pBuffer_in_out) { return -1; }
 		virtual bool DispatchCommand(const std::queue<std::string> &Arguments_in,
 									 const PluginFramework::IPluginServices *pServices_in) { return true; }
-		virtual bool FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-									   GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+		virtual bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+									   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 									   DWORD dwOriginalMsgSize, char **pBuffer_in_out) =0;
 	};
 }

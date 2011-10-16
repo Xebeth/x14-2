@@ -49,15 +49,11 @@ namespace Windower
 
 		void AddFeedbackMessage(const std::string &Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
 
-		// Command implementations
-		bool InjectText(const std::string& Text_in, USHORT MessageType_in = 0x20); // CHAT_MESSAGE_TYPE_ECHO_MESSAGE
-		bool ListPlugins();
-
 		// Command callbacks
 		static int UnloadPlugin(const WindowerCommand *pCommand_in);
 		static int LoadPlugin(const WindowerCommand *pCommand_in);
-		static int ListPlugins(const WindowerCommand *pCommand_in);
-		static int InjectText(const WindowerCommand *pCommand_in);
+
+		const char* OnCreateString(const char *pText_in, std::string &Text_out);
 
 	private:
 		SettingsManager		*m_pSettingsManager;
@@ -69,6 +65,7 @@ namespace Windower
 		CommandDispatcher	*m_pCommandDispatcher;
 		CommandParser		*m_pCommandParser;
 
+		bool				 m_bInjectVersion;
 		bool				 m_bThreadInit;
 		bool				 m_bShutdown;
 		HWND				 m_hGameWnd;

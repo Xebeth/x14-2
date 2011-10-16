@@ -157,7 +157,7 @@ namespace Windower
 			// register the RegisterClassExW hook
 			pHookManager->RegisterHook("RegisterClassExW", "user32.dll", NULL, ::RegisterClassExWHook);
 			// register the CreateWindowExA hook 
-			// pHookManager->RegisterHook("CreateWindowExA", "user32.dll", NULL, ::CreateWindowExAHook);
+			pHookManager->RegisterHook("CreateWindowExA", "user32.dll", NULL, ::CreateWindowExAHook);
 		}
 	}
 
@@ -166,7 +166,7 @@ namespace Windower
 		if (pHookManager != NULL)
 		{
  			m_pRegisterClassExWTrampoline = (fnRegisterClassExW)pHookManager->GetTrampolineFunc("RegisterClassExW");
- 			// m_pCreateWindowExATrampoline = (fnCreateWindowExA)pHookManager->GetTrampolineFunc("CreateWindowExA");
+ 			m_pCreateWindowExATrampoline = (fnCreateWindowExA)pHookManager->GetTrampolineFunc("CreateWindowExA");
 		}
 	}
 }

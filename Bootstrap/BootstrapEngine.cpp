@@ -56,9 +56,6 @@ namespace Bootstrap
 		// load plugins
 		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
 		Windower::ICoreModule::SetPluginManager(m_pPluginManager);
-		// load plugins
-		if (m_pSettingsManager->GetAutoLogin())
-			LoadPlugin(_T("AutoLogin"));
 	}
 	
 	BootstrapEngine::~BootstrapEngine()
@@ -82,6 +79,9 @@ namespace Bootstrap
 
 		delete m_pSettingsManager;
 		m_pSettingsManager = NULL;
+
+		delete m_pPluginManager;
+		m_pPluginManager = NULL;
 	}
 
 	bool BootstrapEngine::Attach()
@@ -121,17 +121,21 @@ namespace Bootstrap
 	{
 		if (m_pCommandDispatcher != NULL)
 		{
-			// check if the AutoLogin plugin is loaded
-			if (GetPluginInstance(_T("AutoLogin")) != NULL)
+			// load plugins
+			if (m_pSettingsManager->GetAutoLogin())
 			{
-				Windower::RegisteredCommands Commands = m_pCommandDispatcher->GetRegisteredCommands();
-				Windower::RegisteredCommands::iterator Iter = Commands.find("autologin::startthread");
-				Windower::WindowerCommand *pAutoLoginCmd;
-
-				if (Iter != Commands.end() && (pAutoLoginCmd = Iter->second) != NULL)
+				// check if the AutoLogin plugin is loaded
+				if (LoadPlugin(_T("AutoLogin")))
 				{
-					 format(pAutoLoginCmd->Parameters["hwnd"].Value, "%ld", hParentWnd_in);
-					 m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);
+					Windower::RegisteredCommands Commands = m_pCommandDispatcher->GetRegisteredCommands();
+					Windower::RegisteredCommands::iterator Iter = Commands.find("autologin::startthread");
+					Windower::WindowerCommand *pAutoLoginCmd;
+
+					if (Iter != Commands.end() && (pAutoLoginCmd = Iter->second) != NULL)
+					{
+						 format(pAutoLoginCmd->Parameters["hwnd"].Value, "%ld", hParentWnd_in);
+						 m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);
+					}
 				}
 			}
 		}

@@ -34,8 +34,8 @@ namespace Windower
 {
 	/*! \brief default constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
-		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pGameChatObject(NULL), m_pLastSender(NULL),
-		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL), m_pChatHead(NULL)
+		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pChatHead(NULL),
+		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL)
 	{
 		RegisterService(_T("FormatChatMessage"), false);
 		// add compatible plugins
@@ -54,18 +54,33 @@ namespace Windower
 	{
 		if (pHookManager != NULL)
 		{
-			SigScan::InitializeSigScan(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
-			m_dwFormatChatMessageAddr = SigScan::Scan(FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
-													+ FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET);
-			// set m_pFormatChatMessageTrampoline with the address of the original function in case of failure
-			m_pFormatChatMessageTrampoline = (fnFormatChatMessage)m_dwFormatChatMessageAddr;
-			SigScan::TerminateSigScan();
+			DWORD_PTR dwFuncAddr;
 
-			if (m_dwFormatChatMessageAddr != NULL)
+			SigScan::InitializeSigScan(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
+
+			dwFuncAddr = SigScan::Scan(FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
+									   FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET);
+			// set m_pFormatChatMessageTrampoline with the address of the original function in case of failure
+			m_pFormatChatMessageTrampoline = (fnFormatChatMessage)dwFuncAddr;
+
+			if (dwFuncAddr != NULL)
 			{
-				pHookManager->RegisterHook("FormatChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)m_dwFormatChatMessageAddr,
+				pHookManager->RegisterHook("FormatChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										   ::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 			}
+
+			dwFuncAddr = SigScan::Scan(CREATESTRING_OPCODES_SIGNATURE,
+									   CREATESTRING_OPCODES_SIGNATURE_OFFSET);
+			// set m_pCreateStringTrampoline with the address of the original function in case of failure
+			m_pCreateStringTrampoline = (fnCreateString)dwFuncAddr;
+
+			if (dwFuncAddr != NULL)
+			{
+				pHookManager->RegisterHook("CreateString", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
+										   ::CreateStringHook, CREATESTRING_OPCODES_HOOK_SIZE);
+			}
+
+			SigScan::TerminateSigScan();
 		}
 	}
 
@@ -74,12 +89,13 @@ namespace Windower
 		if (pHookManager != NULL)
 		{
 			m_pFormatChatMessageTrampoline	= (fnFormatChatMessage)pHookManager->GetTrampolineFunc("FormatChatMessage");
+			m_pCreateStringTrampoline = (fnCreateString)pHookManager->GetTrampolineFunc("CreateString");
 		}
 	}
 
 	bool GameChatCore::FilterCommands(LPVOID _this, USHORT MessageType_in,
-									  const GameChatTextObject* pSender_in,
-									  GameChatTextObject* pMessage_in)
+									  const StringObject* pSender_in,
+									  StringObject* pMessage_in)
 	{
 		if (pMessage_in != NULL && pMessage_in->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_INVALID_MESSAGE)
 		{
@@ -121,57 +137,10 @@ namespace Windower
 		return false;
 	}
 
-	bool GameChatCore::DisplayWindowerVersion()
-	{
-		if (m_pGameChatObject != NULL && m_pLastSender != NULL)
-		{
-			GameChatTextObject Message;
-			std::string MessageText;
-
-			format(MessageText, "[ Windower x14 version %i.%i.%i.%i ]\n",
-				   MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
-				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);
-
-			Message.dwSize = MessageText.length() + 1;
-			Message.pResBuf = MessageText.c_str();
-			Message.dwUnknown = 0x0220;
-
-			return m_pFormatChatMessageTrampoline(m_pGameChatObject, CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE, m_pLastSender, &Message);
-		}
-
-		return false;
-	}
-
 	bool GameChatCore::FormatChatMessageHook(LPVOID _this, USHORT MessageType,
-											 const GameChatTextObject* pSender,
-											 GameChatTextObject* pMessage)
+											 const StringObject* pSender,
+											 StringObject* pMessage)
 	{
-		// if _this is NULL, we're probably trying to inject text in the chat
-		if (_this == NULL)
-		{
-			// use the saved object
-			if (m_pGameChatObject != NULL)
-			{
-				// restore the chat objects
-				_this = m_pGameChatObject;
-				pSender = m_pLastSender;
-			}
-			else
-				return false;
-		}
-		else
-		{
-			m_pLastSender = pSender;
-
-			if (m_pGameChatObject == NULL)
-			{
-				// save the chat objects
-				m_pGameChatObject = _this;
-
-				DisplayWindowerVersion();
-			}
-		}
-
 		// update the chat head & tail
 		UpdateChatData(_this);
 
@@ -231,5 +200,12 @@ namespace Windower
 	void GameChatCore::OnUnsubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
 	{
 		OnSubscribe(ServiceName_in, Subscribers_in);
+	}
+
+	StringObject* GameChatCore::CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
+	{
+		pText_in = static_cast<WindowerEngine&>(m_Engine).OnCreateString(pText_in, m_InjectVersion);
+
+		return m_pCreateStringTrampoline(pTextObject_out, pText_in, TextLength_in);
 	}
 }

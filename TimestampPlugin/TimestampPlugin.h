@@ -27,8 +27,8 @@ namespace Windower
 		static int SetFormat(const WindowerCommand *pCommand_in);
 		bool SetFormat(const std::string& Format_in);
 
-		bool FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-							   GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
 	private:
 		std::string		m_TimestampFormat;

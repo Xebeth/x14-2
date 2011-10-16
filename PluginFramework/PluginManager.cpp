@@ -26,9 +26,7 @@ namespace PluginFramework
 	/*! \brief PluginManager default constructor */
 	PluginManager::PluginManager(const IPluginServices *pServices_in)
 		: m_pServices(pServices_in) {}
-	
-	/*! \brief 
-	*/
+
 	PluginManager::~PluginManager()
 	{
 		if (m_LoadedPlugins.empty() == false)
@@ -72,7 +70,7 @@ namespace PluginFramework
 
 		if ((hPlugin = LoadDLL(pPluginPath_in)) != NULL)
 		{
-			fnQuery QueryFunc;
+			fnQuery QueryFunc = NULL;
 			PluginInfo Info;
 
 			bResult  = CheckDLLExports(hPlugin, &QueryFunc);
@@ -109,7 +107,7 @@ namespace PluginFramework
 	*/
 	bool PluginManager::CheckDLLExports(HMODULE hModule_in, fnQuery *pQueryFunc_out) const
 	{
-		if (hModule_in != NULL && *pQueryFunc_out != NULL && pQueryFunc_out != NULL)
+		if (hModule_in != NULL && pQueryFunc_out != NULL && *pQueryFunc_out == NULL)
 		{
 			fnInitialize pInitialize = (fnInitialize)::GetProcAddress(hModule_in, "InitPlugin");
 			fnTerminate pTerminate = (fnTerminate)::GetProcAddress(hModule_in, "TerminatePlugin");
@@ -166,13 +164,7 @@ namespace PluginFramework
 			return true;
 		}
 		else
-		{
-#ifdef _DEBUG
-			_tprintf(_T("'%s' is already registered.\n"), Info_in_out.Name.c_str());
-#endif // _DEBUG
-
 			return false;
-		}
 	}
 
 	/*! \brief Returns the version of the framework as a string

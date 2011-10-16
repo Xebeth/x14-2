@@ -87,8 +87,8 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B"));
 	}
 
-	bool TimestampPlugin::FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-											GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+	bool TimestampPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+											StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 											DWORD dwOriginalMsgSize, char **pBuffer_in_out)
 	{
 		if (pMessage_in_out->pResBuf != NULL)

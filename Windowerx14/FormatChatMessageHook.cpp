@@ -23,7 +23,12 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-bool WINAPI FormatChatMessageHook(void* _this, USHORT MessageType, const GameChatTextObject* pSender, GameChatTextObject* pMessage)
+bool WINAPI FormatChatMessageHook(void* _this, USHORT MessageType, const StringObject* pSender, StringObject* pMessage)
 {
 	return g_pEngine->GameChat().FormatChatMessageHook(_this, MessageType, pSender, pMessage);
+}
+
+StringObject* WINAPI CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
+{
+	return g_pEngine->GameChat().CreateStringHook(pTextObject_out, pText_in, TextLength_in);
 }

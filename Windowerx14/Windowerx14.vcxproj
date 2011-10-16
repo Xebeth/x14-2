@@ -62,7 +62,8 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)plugins\*.dll" "E:\Final Fantasy XIV\plugins"</Command>
+      <Command>copy "$(OutDir)plugins\*.dll" "E:\Final Fantasy XIV\plugins"
+copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,7 +85,8 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)plugins\*.dll" "E:\Final Fantasy XIV\plugins"</Command>
+      <Command>copy "$(OutDir)plugins\*.dll" "E:\Final Fantasy XIV\plugins"
+copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
