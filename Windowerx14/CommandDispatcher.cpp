@@ -30,6 +30,7 @@ namespace Windower
 		m_ValidKeys.insert(0xDEADBEEF); // Windower Engine
 		m_ValidKeys.insert(0xAF8B3EE1); // Timestamp 1.0.0
 		m_ValidKeys.insert(0x18E5F530); // AutoLogin 1.0.0
+		m_ValidKeys.insert(0xEB71A021); // ExpWatch 1.0.0
 
 		m_Commands["help"] = NULL;
 	}
@@ -136,5 +137,15 @@ namespace Windower
 			return Command_in.CommandCallbackFunc(&Command_in);
 		else
 			return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	WindowerCommand* CommandDispatcher::FindCommand(const std::string &Name_in)
+	{
+		RegisteredCommands::const_iterator CmdIter = m_Commands.find(Name_in);
+
+		if (CmdIter != m_Commands.end())
+			return CmdIter->second;
+
+		return NULL;
 	}
 }

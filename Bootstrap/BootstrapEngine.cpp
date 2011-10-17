@@ -127,11 +127,9 @@ namespace Bootstrap
 				// check if the AutoLogin plugin is loaded
 				if (LoadPlugin(_T("AutoLogin")))
 				{
-					Windower::RegisteredCommands Commands = m_pCommandDispatcher->GetRegisteredCommands();
-					Windower::RegisteredCommands::iterator Iter = Commands.find("autologin::startthread");
 					Windower::WindowerCommand *pAutoLoginCmd;
 
-					if (Iter != Commands.end() && (pAutoLoginCmd = Iter->second) != NULL)
+					if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::startthread")) != NULL)
 					{
 						 format(pAutoLoginCmd->Parameters["hwnd"].Value, "%ld", hParentWnd_in);
 						 m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);

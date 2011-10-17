@@ -81,13 +81,24 @@ namespace Windower
 
 		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
 		ICoreModule::SetPluginManager(m_pPluginManager);
+
 		// load plugins
 		PluginEngine::LoadPlugin(_T("Tell detect"));
 		PluginEngine::LoadPlugin(_T("Timestamp"));
 
+		if (PluginEngine::LoadPlugin(_T("ExpWatch")))
+		{
+			m_pExpWatchQuery = m_pCommandDispatcher->FindCommand("expwatch::query");
+
+			if (m_pExpWatchQuery != NULL)
+				format(m_pExpWatchQuery->Parameters["pointer"].Value, "%08x", &m_ExpWatchData);
+		}
+		else
+			m_pExpWatchQuery = NULL;
+
 		// register commands
 		CallerParam Caller("WindowerEngine", this);
-
+	
 		// register the "load" command
 		const char *pParamName = "plugin_name";
 		CommandParameters PluginParams;
@@ -292,6 +303,15 @@ namespace Windower
 			m_bInjectVersion = (Text_out.find("Windower") != std::string::npos);
 
 			return Text_out.c_str();
+		}
+		else if (strstr(pText_in, " Level:") != NULL)
+		{
+			if (m_pExpWatchQuery != NULL && m_pCommandDispatcher->Dispatch(*m_pExpWatchQuery) == DISPATCHER_RESULT_SUCCESS && m_ExpWatchData.empty() == false)
+			{
+				format(Text_out, "%s ~ %s", pText_in, m_ExpWatchData.c_str());
+
+				return Text_out.c_str();
+			}
 		}
 
 		return pText_in;

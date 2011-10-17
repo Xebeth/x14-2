@@ -64,6 +64,8 @@ namespace Windower
 		GameChatCore		*m_pGameChatCore;
 		CommandDispatcher	*m_pCommandDispatcher;
 		CommandParser		*m_pCommandParser;
+		WindowerCommand		*m_pExpWatchQuery;
+		std::string			 m_ExpWatchData;
 
 		bool				 m_bInjectVersion;
 		bool				 m_bThreadInit;

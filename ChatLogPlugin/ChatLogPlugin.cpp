@@ -37,7 +37,7 @@ namespace Windower
 	/*! \brief Creates an instance of ChatLogPlugin
 		\return a pointer to the new ChatLogPlugin instance
 	*/
-	void* ChatLogPlugin::Create()
+	PluginFramework::IPlugin* ChatLogPlugin::Create()
 	{
 		ChatLogPlugin *pNewInst = new ChatLogPlugin;
 		ChatLogPlugin::Query(pNewInst->m_BasePluginInfo);
@@ -54,13 +54,13 @@ namespace Windower
 	/*! \brief Destroys an instance of ChatLogPlugin
 		\param[in] pInstance_in : an instance of ChatLogPlugin
 	*/
-	void ChatLogPlugin::Destroy(void *pInstance_in)
+	void ChatLogPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), (IPlugin*)pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
 
-			delete (ChatLogPlugin *)pInstance_in;
+			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}
@@ -78,8 +78,8 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
 	}
 
-	bool ChatLogPlugin::FormatChatMessage(USHORT MessageType, const GameChatTextObject* pSender_in_out,
-										  GameChatTextObject* pMessage_in_out, const char *pOriginalMsg_in,
+	bool ChatLogPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
+										  StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 										  DWORD dwOriginalMsgSize, char **pBuffer_in_out)
 	{
 		if (m_bOpened == false && m_pFile == NULL)

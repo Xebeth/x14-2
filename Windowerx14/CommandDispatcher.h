@@ -16,11 +16,10 @@ namespace Windower
 
 	class CommandDispatcher : public WindowerCore
 	{
+		friend class CommandParser;
 	public:
 		CommandDispatcher(PluginEngine &Engine_in);
 		~CommandDispatcher();
-
-		const RegisteredCommands& GetRegisteredCommands() { return m_Commands; }
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager *pHookManager){}
@@ -32,9 +31,12 @@ namespace Windower
 							 CallerParam Caller_in, fnCommandCallback CallbackFunc_in, unsigned int MinParamsCount_in = 0,
 							 unsigned int MaxParamsCount = 0, const CommandParameters &Parameters_in = CommandParameters(),
 							 bool Public_in = true, bool Restricted_in = false);
+		WindowerCommand* FindCommand(const std::string &Name_in);
 		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in, PluginFramework::ServiceParam &Results_out);
 
 	protected:
+		const RegisteredCommands& GetRegisteredCommands() { return m_Commands; }
+
 		inline bool RegisterCommand(const WindowerCommand &Command_in)
 		{
 			return RegisterCommand(Command_in.RegistrationKey, Command_in.Name, Command_in.Description, Command_in.Caller,

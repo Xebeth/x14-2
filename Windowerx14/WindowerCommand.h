@@ -15,6 +15,7 @@ namespace Windower
 	enum COMMAND_PARAM_TYPE
 	{
 		COMMAND_PARAM_TYPE_STRING = 0,
+		COMMAND_PARAM_TYPE_POINTER,
 		COMMAND_PARAM_TYPE_INTEGER,
 		COMMAND_PARAM_TYPE_FLOAT,
 		COMMAND_PARAM_TYPE_COUNT
@@ -69,6 +70,15 @@ namespace Windower
 			return strtod(Value.c_str(), NULL);
 		}
 
+		long GetPointerValue() const
+		{
+			long Pointer = NULL;
+
+			sscanf_s(Value.c_str(), "%08x", &Pointer);
+
+			return Pointer;
+		}
+
 		string_t& GetWideStringValue(string_t &Result_out) const
 		{
 			return convert_utf8(Value, Result_out);
@@ -83,7 +93,7 @@ namespace Windower
 		WindowerCommand(unsigned long RegistrationKey_in, const std::string &Name_in,
 						const std::string &Description_in, CallerParam Caller_in,
 						fnCommandCallback CallbackFunc_in, const CommandParameters &Parameters_in,
-						unsigned int MinParamsCount_in, unsigned int MaxParamsCount_in,
+						unsigned int MinParamsCount_in = 0U, unsigned int MaxParamsCount_in = 0U,
 						bool Public_in = true, bool Restricted_in = false)
 			: CommandCallbackFunc(CallbackFunc_in), Restricted(Restricted_in), Description(Description_in),
 			  Public(Public_in), Caller(Caller_in), Name(Name_in), MinParamsCount(MinParamsCount_in),

@@ -33,11 +33,11 @@ namespace Windower
 	int CommandParser::ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
 									char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out)
 	{
-		RegisteredCommands Commands = m_CommandDispatcher.GetRegisteredCommands();
 		std::string RawCommand, FeedbackMsg, CommandName;
-		int Result = PARSER_RESULT_INVALID_COMMAND;
 		RegisteredCommands::const_iterator Iter;
 		std::queue<std::string> Params;
+		WindowerCommand *pCommand;
+		int Result;
 
 		// shouldn't happen but skip the // if they're still present
 		if (strstr(pRawCommand_in, "//") == pRawCommand_in)
@@ -46,14 +46,13 @@ namespace Windower
 			RawCommand = pRawCommand_in;
 
 		Result = Tokenize(RawCommand, CommandName, Params);
-		Iter = Commands.find(CommandName);
 
-		if (Iter != Commands.end())
+		if ((pCommand = m_CommandDispatcher.FindCommand(CommandName)) != NULL)
 		{
 			size_t ParamsCount = Params.size();
 
-			if (Iter->second != NULL)
-				Command_out = *(Iter->second);
+			if (pCommand != NULL)
+				Command_out = *pCommand;
 			else if (ParamsCount == 0 && CommandName.compare("help") == 0)
 				Result = PARSER_RESULT_IMPLICIT_HELP;
 			else
