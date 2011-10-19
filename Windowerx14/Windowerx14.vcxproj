@@ -117,6 +117,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClCompile Include="WindowerCore.cpp" />
     <ClCompile Include="WindowerEngine.cpp" />
     <ClCompile Include="WindowerSettingsManager.cpp" />
+    <ClCompile Include="WindowerVersionInjector.cpp" />
     <ClCompile Include="WndProcHook.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +131,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="Font.h" />
     <ClInclude Include="GameChatCore.h" />
     <ClInclude Include="GraphicsCore.h" />
+    <ClInclude Include="IAllocStringPlugin.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
     <ClInclude Include="IGameChatPlugin.h" />
@@ -146,6 +148,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="WindowerEngine.h" />
     <ClInclude Include="WindowerSettings.h" />
     <ClInclude Include="WindowerSettingsManager.h" />
+    <ClInclude Include="WindowerVersionInjector.h" />
     <ClInclude Include="WndProcHook.h" />
   </ItemGroup>
   <ItemGroup>

@@ -29,7 +29,7 @@ namespace Windower
 		//! \brief FormatChatMessage hook
 		bool FormatChatMessageHook(LPVOID _this, USHORT MessageType, const StringObject* pSender, StringObject* pMessage);
 
-		StringObject* CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
+		StringObject* AllocStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
 
 	protected:
 		bool DisplayWindowerVersion();
@@ -43,7 +43,7 @@ namespace Windower
 							StringObject* pMessage_in);
 
 		fnFormatChatMessage	m_pFormatChatMessageTrampoline;
-		fnCreateString		m_pCreateStringTrampoline;
+		fnAllocString		m_pAllocStringTrampoline;
 
 		//! pointer to the start of the chat memory
 		char			 **m_pChatHead;
@@ -58,7 +58,9 @@ namespace Windower
 	private:
 		void UpdateChatData(const void *pChatObj_in);
 
+		bool						 m_bAllocStringSubEmpty;
 		PluginSet					 m_ChatFormatSubscribers;
+		PluginSet					 m_AllocStringSubscribers;
 		CommandDispatcher			&m_CommandDispatcher;
 		CommandParser				&m_CommandParser;
 		std::string					 m_InjectVersion;

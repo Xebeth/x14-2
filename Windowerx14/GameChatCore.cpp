@@ -19,6 +19,7 @@
 #include "FormatChatMessageHook.h"
 
 #include "IGameChatPlugin.h"
+#include "IAllocStringPlugin.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
@@ -35,9 +36,11 @@ namespace Windower
 	/*! \brief default constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
 		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pChatHead(NULL),
-		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL)
+		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL),
+		  m_bAllocStringSubEmpty(true)
 	{
 		RegisterService(_T("FormatChatMessage"), false);
+		RegisterService(_T("AllocString"), false);
 		// add compatible plugins
 		PluginFramework::PluginUUID UUID;
 
@@ -45,6 +48,7 @@ namespace Windower
 		m_CompatiblePlugins.insert(UUID.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B")));	// Timestamp
 		m_CompatiblePlugins.insert(UUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// Tell detect
 		m_CompatiblePlugins.insert(UUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// Tell detect
+		m_CompatiblePlugins.insert(UUID.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90")));	// Version inject
 	}
 
 	/*! \brief destructor */
@@ -70,15 +74,15 @@ namespace Windower
 										   ::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 			}
 
-			dwFuncAddr = SigScan::Scan(CREATESTRING_OPCODES_SIGNATURE,
-									   CREATESTRING_OPCODES_SIGNATURE_OFFSET);
-			// set m_pCreateStringTrampoline with the address of the original function in case of failure
-			m_pCreateStringTrampoline = (fnCreateString)dwFuncAddr;
+			dwFuncAddr = SigScan::Scan(ALLOCSTRING_OPCODES_SIGNATURE,
+									   ALLOCSTRING_OPCODES_SIGNATURE_OFFSET);
+			// set m_pAllocStringTrampoline with the address of the original function in case of failure
+			m_pAllocStringTrampoline = (fnAllocString)dwFuncAddr;
 
 			if (dwFuncAddr != NULL)
 			{
-				pHookManager->RegisterHook("CreateString", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
-										   ::CreateStringHook, CREATESTRING_OPCODES_HOOK_SIZE);
+				pHookManager->RegisterHook("AllocString", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
+										   ::AllocStringHook, ALLOCSTRING_OPCODES_HOOK_SIZE);
 			}
 
 			SigScan::TerminateSigScan();
@@ -90,7 +94,7 @@ namespace Windower
 		if (pHookManager != NULL)
 		{
 			m_pFormatChatMessageTrampoline	= (fnFormatChatMessage)pHookManager->GetTrampolineFunc("FormatChatMessage");
-			m_pCreateStringTrampoline = (fnCreateString)pHookManager->GetTrampolineFunc("CreateString");
+			m_pAllocStringTrampoline = (fnAllocString)pHookManager->GetTrampolineFunc("AllocString");
 		}
 	}
 
@@ -196,6 +200,11 @@ namespace Windower
 	{
 		if (ServiceName_in.compare(_T("FormatChatMessage")) == 0)
 			m_ChatFormatSubscribers = Subscribers_in;
+		if (ServiceName_in.compare(_T("AllocString")) == 0)
+		{
+			m_bAllocStringSubEmpty = Subscribers_in.empty();
+			m_AllocStringSubscribers = Subscribers_in;
+		}
 	}
 
 	void GameChatCore::OnUnsubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
@@ -203,10 +212,34 @@ namespace Windower
 		OnSubscribe(ServiceName_in, Subscribers_in);
 	}
 
-	StringObject* GameChatCore::CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
+	StringObject* GameChatCore::AllocStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
 	{
-		pText_in = static_cast<WindowerEngine&>(m_Engine).OnCreateString(pText_in, m_InjectVersion);
+		if (m_bAllocStringSubEmpty == false)
+		{
+			PluginSet::iterator Iter = m_AllocStringSubscribers.begin();
+			IAllocStringPlugin* pPlugin;
+			bool Unsubscribe;
 
-		return m_pCreateStringTrampoline(pTextObject_out, pText_in, TextLength_in);
+			for (; Iter != m_AllocStringSubscribers.end(); ++Iter)
+			{
+				pPlugin = static_cast<IAllocStringPlugin*>(*Iter);
+					
+				if (pPlugin != NULL)
+					pText_in = pPlugin->OnAllocString(pText_in, Unsubscribe);
+
+				if (Unsubscribe)
+				{
+					Iter = m_AllocStringSubscribers.erase(Iter);
+
+					if (m_AllocStringSubscribers.empty())
+					{
+						m_bAllocStringSubEmpty = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return m_pAllocStringTrampoline(pTextObject_out, pText_in, TextLength_in);
 	}
 }

@@ -28,7 +28,7 @@ bool WINAPI FormatChatMessageHook(void* _this, USHORT MessageType, const StringO
 	return g_pEngine->GameChat().FormatChatMessageHook(_this, MessageType, pSender, pMessage);
 }
 
-StringObject* WINAPI CreateStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
+StringObject* WINAPI AllocStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
 {
-	return g_pEngine->GameChat().CreateStringHook(pTextObject_out, pText_in, TextLength_in);
+	return g_pEngine->GameChat().AllocStringHook(pTextObject_out, pText_in, TextLength_in);
 }

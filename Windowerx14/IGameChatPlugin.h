@@ -10,6 +10,8 @@
 
 #include <queue>
 
+class StringObject;
+
 namespace Windower
 {
 	class IGameChatPlugin : public PluginFramework::IPlugin

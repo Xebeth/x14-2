@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <FormatChatMessageHook.h>
+#include <IAllocStringPlugin.h>
 #include <IGameChatPlugin.h>
 #include "WindowerCommand.h"
 #include "ExpWatchPlugin.h"
@@ -16,8 +17,9 @@ const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServi
 
 namespace Windower
 {
-	ExpWatchPlugin::ExpWatchPlugin() : IGameChatPlugin(), m_TotalExp(0.f), m_bStarted(false),
-		m_KillCounter(0L), m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL) {}
+	ExpWatchPlugin::ExpWatchPlugin() : IAllocStringPlugin("Next"),
+		m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L),
+		m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL) {}
 
 	/*! \brief Creates an instance of ExpWatchPlugin
 		\return a pointer to the new ExpWatchPlugin instance
@@ -42,19 +44,9 @@ namespace Windower
 		WindowerCommand StopCommand(PLUGIN_REGKEY, "expwatch::stop", "stops gathering statistics on experience points gained", Caller, Stop, Params);
 		PluginFramework::ServiceParam InvokeArgStop(_T("WindowerCommand"), &StopCommand);
 
-		const char *pParamName = "pointer";
-
-		Params[pParamName].Name = pParamName;
-		Params[pParamName].Type = COMMAND_PARAM_TYPE_POINTER;
-		Params[pParamName].Value = "00000000";
-		Params[pParamName].Description = "pointer receiving the result of the query";
-		WindowerCommand QueryCommand(PLUGIN_REGKEY, "expwatch::query", "", Caller, Query, Params, 1U, 1U, false, true);
-		PluginFramework::ServiceParam InvokeArgQuery(_T("WindowerCommand"), &QueryCommand);
-
 		if (m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgStart, PluginFramework::ServiceParam()) == false
 		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgReset, PluginFramework::ServiceParam()) == false
-		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgStop, PluginFramework::ServiceParam()) == false
-		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgQuery, PluginFramework::ServiceParam()) == false)
+		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgStop, PluginFramework::ServiceParam()) == false)
 		{
 			delete pNewInst;
 			pNewInst = NULL;
@@ -165,24 +157,13 @@ namespace Windower
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
-	int ExpWatchPlugin::Query(const WindowerCommand *pCommand_in)
-	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
-		{
-			ExpWatchPlugin *pExpWatch = reinterpret_cast<ExpWatchPlugin*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("pointer");
-
-			if (pExpWatch != NULL && pParam != NULL && pExpWatch->Query(reinterpret_cast<std::string*>(pParam->GetPointerValue())))
-				return DISPATCHER_RESULT_SUCCESS;
-		}
-
-		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
 	bool ExpWatchPlugin::Start()
 	{
+		m_pTargetPtr = NULL;
+
 		if (m_bStarted == false)
 		{
+			m_pPluginServices->SubscribeService(_T("GameChat"), _T("AllocString"), this);
 			m_bStarted = true;
 			Reset();
 		}
@@ -192,8 +173,13 @@ namespace Windower
 
 	bool ExpWatchPlugin::Stop()
 	{
+		m_pTargetPtr = NULL;
+
 		if (m_bStarted)
+		{
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("AllocString"), this);
 			m_bStarted = false;
+		}
 
 		return true;
 	}
@@ -210,30 +196,37 @@ namespace Windower
 		return true;
 	}
 
-	bool ExpWatchPlugin::Query(std::string *pText_out)
+	const char* ExpWatchPlugin::OnAllocString(const char *pText_in, bool &Unsubscribe_out)
 	{
+		Unsubscribe_out = false;
+
 		if (m_bStarted)
 		{
-			float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
-			int iHours = (int)Hours;
-			int iMinutes = (int)(60 * (Hours - iHours));
+			if (m_pTargetPtr == NULL && strcmp(pText_in, m_TargetText.c_str()) == 0)
+				m_pTargetPtr = pText_in;
 
-			if (m_KillCounter > 0)
+			if (pText_in == m_pTargetPtr)
 			{
-				m_AvgExpPerHour = m_TotalExp / Hours;
-				m_AvgExpPerKill = m_TotalExp / m_KillCounter;
-				format(*pText_out, "%.2f exp/hr %.2f exp/kill (%.0f / %02d:%02d)",
-					   m_AvgExpPerHour, m_AvgExpPerKill, m_TotalExp, iHours, iMinutes);
+				float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
+				int iHours = (int)Hours;
+				int iMinutes = (int)(60 * (Hours - iHours));
+
+				if (m_KillCounter > 0)
+				{
+					m_AvgExpPerHour = m_TotalExp / Hours;
+					m_AvgExpPerKill = m_TotalExp / m_KillCounter;
+					format(m_InjectedText, "%s\t\t  %.2f exp/hr %.2f exp/kill (%.0f / %02d:%02d)",
+						   pText_in, m_AvgExpPerHour, m_AvgExpPerKill, m_TotalExp, iHours, iMinutes);
+				}
+				else
+					format(m_InjectedText, "%s\t\t  0.00 exp/hr 0.00 exp/kill (0 / %02d:%02d)", pText_in, iHours, iMinutes);
+
+				return m_InjectedText.c_str();
 			}
-			else
-				format(*pText_out, "0.00 exp/hr 0.00 exp/kill (0 / %02d:%02d)", iHours, iMinutes);
 		}
-		else
-			pText_out->empty();
 
-		return true;
+		return pText_in;
 	}
-
 }
 
 using Windower::ExpWatchPlugin;

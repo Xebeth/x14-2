@@ -38,6 +38,9 @@
 #include "CommandParser.h"
 #include "CommandDispatcher.h"
 
+#include "IAllocStringPlugin.h"
+#include "WindowerVersionInjector.h"
+
 namespace Windower
 {
 	PluginManager* ICoreModule::m_pPluginManager = NULL;
@@ -111,6 +114,9 @@ namespace Windower
 		// register the "unload" command
 		PluginParams[pParamName].Description = "the name of the plugin to unload";
 		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "unload", "Unloads a plugin given its name.", Caller, UnloadPlugin, 1, 1, PluginParams);
+
+		// injects the windower version on the main menu
+		m_pWindowerVersionInjector = new WindowerVersionInjector(m_pPluginServices);
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -141,6 +147,9 @@ namespace Windower
 
 		delete m_pSettingsManager;
 		m_pSettingsManager = NULL;
+
+		delete m_pWindowerVersionInjector;
+		m_pWindowerVersionInjector = NULL;
 	}
 
 	/*! \brief Installs the internal hooks used by the windower
@@ -287,33 +296,5 @@ namespace Windower
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
-	const char* WindowerEngine::OnCreateString(const char *pText_in, std::string &Text_out)
-	{
-// 		OutputDebugStringA(pText_in);
-// 		OutputDebugStringA("\n");
-
-		if (m_bInjectVersion == false && strstr(pText_in, "Game Version") != NULL)
-		{
-			format(Text_out, "%s\nWindower x14 Version: %i.%i.%i.%i",
-				   pText_in, MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
-				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);
-
-			m_bInjectVersion = (Text_out.find("Windower") != std::string::npos);
-
-			return Text_out.c_str();
-		}
-		else if (strstr(pText_in, " Level:") != NULL)
-		{
-			if (m_pExpWatchQuery != NULL && m_pCommandDispatcher->Dispatch(*m_pExpWatchQuery) == DISPATCHER_RESULT_SUCCESS && m_ExpWatchData.empty() == false)
-			{
-				format(Text_out, "%s ~ %s", pText_in, m_ExpWatchData.c_str());
-
-				return Text_out.c_str();
-			}
-		}
-
-		return pText_in;
 	}
 }

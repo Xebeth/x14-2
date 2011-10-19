@@ -12,6 +12,7 @@
 
 namespace Windower
 {
+	class WindowerVersionInjector;
 	class CommandDispatcher;
 	class WindowerProfile;
 	class WindowerCommand;
@@ -53,9 +54,8 @@ namespace Windower
 		static int UnloadPlugin(const WindowerCommand *pCommand_in);
 		static int LoadPlugin(const WindowerCommand *pCommand_in);
 
-		const char* OnCreateString(const char *pText_in, std::string &Text_out);
-
 	private:
+		WindowerVersionInjector *m_pWindowerVersionInjector;
 		SettingsManager		*m_pSettingsManager;
 		WindowerProfile		*m_pSettings;
 		HookEngine			*m_pHookManager;

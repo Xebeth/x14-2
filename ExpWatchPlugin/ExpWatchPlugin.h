@@ -12,7 +12,7 @@
 
 namespace Windower
 {
-	class ExpWatchPlugin : public Windower::IGameChatPlugin
+	class ExpWatchPlugin : public Windower::IAllocStringPlugin
 	{
 	public:
 		ExpWatchPlugin();
@@ -31,12 +31,12 @@ namespace Windower
 		static int Reset(const WindowerCommand *pCommand_in);
 		bool Reset();
 
-		static int Query(const WindowerCommand *pCommand_in);
-		bool Query(std::string *pText_out);
-
 		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
 							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
+
+		const char* OnAllocString(const char *pText_in, bool &Unsubscribe_out);
+
 	protected:
 		DWORD m_StartTime;
 		bool m_bStarted;

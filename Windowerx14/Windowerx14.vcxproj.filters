@@ -118,6 +118,9 @@
     <ClCompile Include="utf8_convert.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="WindowerVersionInjector.cpp">
+      <Filter>Windower\Plugins</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -200,6 +203,12 @@
     </ClInclude>
     <ClInclude Include="utf8_convert.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IAllocStringPlugin.h">
+      <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerVersionInjector.h">
+      <Filter>Windower\Plugins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

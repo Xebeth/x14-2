@@ -14,11 +14,6 @@
 	#define PLUGIN_API __declspec(dllexport)
 #endif
 
-namespace PluginFramework
-{
-	class IPlugin;
-}
-
 extern "C"
 {
 	class PluginInfo
