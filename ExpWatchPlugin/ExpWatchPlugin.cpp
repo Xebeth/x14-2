@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <FormatChatMessageHook.h>
-#include <IAllocStringPlugin.h>
+#include <ICreateXmlNodePlugin.h>
 #include <IGameChatPlugin.h>
 #include "WindowerCommand.h"
 #include "ExpWatchPlugin.h"
@@ -17,7 +17,7 @@ const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServi
 
 namespace Windower
 {
-	ExpWatchPlugin::ExpWatchPlugin() : IAllocStringPlugin("Next"),
+	ExpWatchPlugin::ExpWatchPlugin() : ICreateXmlNodePlugin("Next"),
 		m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L),
 		m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL) {}
 
@@ -163,7 +163,7 @@ namespace Windower
 
 		if (m_bStarted == false)
 		{
-			m_pPluginServices->SubscribeService(_T("GameChat"), _T("AllocString"), this);
+			m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateXmlNode"), this);
 			m_bStarted = true;
 			Reset();
 		}
@@ -177,7 +177,7 @@ namespace Windower
 
 		if (m_bStarted)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("AllocString"), this);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("CreateXmlNode"), this);
 			m_bStarted = false;
 		}
 
@@ -196,7 +196,7 @@ namespace Windower
 		return true;
 	}
 
-	const char* ExpWatchPlugin::OnAllocString(const char *pText_in, bool &Unsubscribe_out)
+	const char* ExpWatchPlugin::OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out)
 	{
 		Unsubscribe_out = false;
 

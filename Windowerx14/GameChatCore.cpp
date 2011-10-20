@@ -19,7 +19,7 @@
 #include "FormatChatMessageHook.h"
 
 #include "IGameChatPlugin.h"
-#include "IAllocStringPlugin.h"
+#include "ICreateXmlNodePlugin.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
@@ -37,10 +37,10 @@ namespace Windower
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
 		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pChatHead(NULL),
 		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL),
-		  m_bAllocStringSubEmpty(true)
+		  m_bCreateXmlNodeSubEmpty(true)
 	{
 		RegisterService(_T("FormatChatMessage"), false);
-		RegisterService(_T("AllocString"), false);
+		RegisterService(_T("CreateXmlNode"), false);
 		// add compatible plugins
 		PluginFramework::PluginUUID UUID;
 
@@ -74,15 +74,15 @@ namespace Windower
 										   ::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 			}
 
-			dwFuncAddr = SigScan::Scan(ALLOCSTRING_OPCODES_SIGNATURE,
-									   ALLOCSTRING_OPCODES_SIGNATURE_OFFSET);
-			// set m_pAllocStringTrampoline with the address of the original function in case of failure
-			m_pAllocStringTrampoline = (fnAllocString)dwFuncAddr;
+			dwFuncAddr = SigScan::Scan(CREATEXMLNODE_OPCODES_SIGNATURE,
+									   CREATEXMLNODE_OPCODES_SIGNATURE_OFFSET);
+			// set m_pCreateXmlNodeTrampoline with the address of the original function in case of failure
+			m_pCreateXmlNodeTrampoline = (fnCreateXmlNode)dwFuncAddr;
 
 			if (dwFuncAddr != NULL)
 			{
-				pHookManager->RegisterHook("AllocString", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
-										   ::AllocStringHook, ALLOCSTRING_OPCODES_HOOK_SIZE);
+				pHookManager->RegisterHook("CreateXmlNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
+										   ::CreateXmlNodeHook, CREATEXMLNODE_OPCODES_HOOK_SIZE);
 			}
 
 			SigScan::TerminateSigScan();
@@ -94,7 +94,7 @@ namespace Windower
 		if (pHookManager != NULL)
 		{
 			m_pFormatChatMessageTrampoline	= (fnFormatChatMessage)pHookManager->GetTrampolineFunc("FormatChatMessage");
-			m_pAllocStringTrampoline = (fnAllocString)pHookManager->GetTrampolineFunc("AllocString");
+			m_pCreateXmlNodeTrampoline = (fnCreateXmlNode)pHookManager->GetTrampolineFunc("CreateXmlNode");
 		}
 	}
 
@@ -200,10 +200,10 @@ namespace Windower
 	{
 		if (ServiceName_in.compare(_T("FormatChatMessage")) == 0)
 			m_ChatFormatSubscribers = Subscribers_in;
-		if (ServiceName_in.compare(_T("AllocString")) == 0)
+		if (ServiceName_in.compare(_T("CreateXmlNode")) == 0)
 		{
-			m_bAllocStringSubEmpty = Subscribers_in.empty();
-			m_AllocStringSubscribers = Subscribers_in;
+			m_bCreateXmlNodeSubEmpty = Subscribers_in.empty();
+			m_CreateXmlNodeSubscribers = Subscribers_in;
 		}
 	}
 
@@ -212,34 +212,34 @@ namespace Windower
 		OnSubscribe(ServiceName_in, Subscribers_in);
 	}
 
-	StringObject* GameChatCore::AllocStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
+	StringObject* GameChatCore::CreateXmlNodeHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
 	{
-		if (m_bAllocStringSubEmpty == false)
+		if (m_bCreateXmlNodeSubEmpty == false)
 		{
-			PluginSet::iterator Iter = m_AllocStringSubscribers.begin();
-			IAllocStringPlugin* pPlugin;
+			PluginSet::iterator Iter = m_CreateXmlNodeSubscribers.begin();
+			ICreateXmlNodePlugin* pPlugin;
 			bool Unsubscribe;
 
-			for (; Iter != m_AllocStringSubscribers.end(); ++Iter)
+			for (; Iter != m_CreateXmlNodeSubscribers.end(); ++Iter)
 			{
-				pPlugin = static_cast<IAllocStringPlugin*>(*Iter);
+				pPlugin = static_cast<ICreateXmlNodePlugin*>(*Iter);
 					
 				if (pPlugin != NULL)
-					pText_in = pPlugin->OnAllocString(pText_in, Unsubscribe);
+					pText_in = pPlugin->OnCreateXmlNode(pText_in, Unsubscribe);
 
 				if (Unsubscribe)
 				{
-					Iter = m_AllocStringSubscribers.erase(Iter);
+					Iter = m_CreateXmlNodeSubscribers.erase(Iter);
 
-					if (m_AllocStringSubscribers.empty())
+					if (m_CreateXmlNodeSubscribers.empty())
 					{
-						m_bAllocStringSubEmpty = true;
+						m_bCreateXmlNodeSubEmpty = true;
 						break;
 					}
 				}
 			}
 		}
 
-		return m_pAllocStringTrampoline(pTextObject_out, pText_in, TextLength_in);
+		return m_pCreateXmlNodeTrampoline(pTextObject_out, pText_in, TextLength_in);
 	}
 }

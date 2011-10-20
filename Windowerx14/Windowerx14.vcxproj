@@ -131,7 +131,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="Font.h" />
     <ClInclude Include="GameChatCore.h" />
     <ClInclude Include="GraphicsCore.h" />
-    <ClInclude Include="IAllocStringPlugin.h" />
+    <ClInclude Include="ICreateXmlNodePlugin.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
     <ClInclude Include="IGameChatPlugin.h" />

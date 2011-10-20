@@ -44,12 +44,12 @@ enum CHAT_MESSAGE_TYPE
 	CHAT_MESSAGE_TYPE_BATTLE_MESSAGE			= 0x0067,
 };
 
-#define ALLOCSTRING_OPCODES_SIGNATURE				"@@538B5C2408568BF1BA01000000"
-#define ALLOCSTRING_OPCODES_HOOK_SIZE				8
-#define ALLOCSTRING_OPCODES_SIGNATURE_OFFSET		-13
+#define CREATEXMLNODE_OPCODES_SIGNATURE				"@@538B5C2408568BF1BA01000000"
+#define CREATEXMLNODE_OPCODES_HOOK_SIZE				8
+#define CREATEXMLNODE_OPCODES_SIGNATURE_OFFSET		-13
 
 // int __thiscall sub_4470E0(int this, const char *a2, unsigned int a3)
-typedef StringObject* (WINAPI *fnAllocString)(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in);
-StringObject* WINAPI AllocStringHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
+typedef StringObject* (WINAPI *fnCreateXmlNode)(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in);
+StringObject* WINAPI CreateXmlNodeHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
 
 #endif//__CHAT_MESSAGE_FORMAT_HOOK_H__

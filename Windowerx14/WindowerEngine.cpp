@@ -38,7 +38,7 @@
 #include "CommandParser.h"
 #include "CommandDispatcher.h"
 
-#include "IAllocStringPlugin.h"
+#include "ICreateXmlNodePlugin.h"
 #include "WindowerVersionInjector.h"
 
 namespace Windower

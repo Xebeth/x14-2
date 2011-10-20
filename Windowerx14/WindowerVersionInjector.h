@@ -10,12 +10,12 @@
 
 namespace Windower
 {
-	class WindowerVersionInjector : public IAllocStringPlugin
+	class WindowerVersionInjector : public ICreateXmlNodePlugin
 	{
 	public:
 		explicit WindowerVersionInjector(PluginFramework::IPluginServices *pPluginServices_in);
 
-		const char* OnAllocString(const char *pText_in, bool &Unsubscribe_out);
+		const char* OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out);
 
 		virtual bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
 									   StringObject* pMessage_in_out, const char *pOriginalMsg_in,

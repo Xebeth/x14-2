@@ -9,7 +9,7 @@
 #include "version.h"
 #include <PluginFramework.h>
 
-#include "IAllocStringPlugin.h"
+#include "ICreateXmlNodePlugin.h"
 #include "WindowerVersionInjector.h"
 
 using namespace Windower;
@@ -17,7 +17,7 @@ using namespace Windower;
 const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServices = NULL;
 
 Windower::WindowerVersionInjector::WindowerVersionInjector(PluginFramework::IPluginServices *pPluginServices_in)
-	: IAllocStringPlugin("Game Version:")
+	: ICreateXmlNodePlugin("Game Version:")
 {
 	m_pPluginServices = pPluginServices_in;
 	m_BasePluginInfo.Descritpion = _T("");
@@ -26,10 +26,10 @@ Windower::WindowerVersionInjector::WindowerVersionInjector(PluginFramework::IPlu
 	m_BasePluginInfo.PluginVersion.FromString(_T("1.0.0"));
 	m_BasePluginInfo.FrameworkVersion.FromString(_T("1.0.0"));
 	m_BasePluginInfo.PluginIdentifier.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90"));
-	m_pPluginServices->SubscribeService(_T("GameChat"), _T("AllocString"), this);
+	m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateXmlNode"), this);
 }
 
-const char* WindowerVersionInjector::OnAllocString(const char *pText_in, bool &Unsubscribe_out)
+const char* WindowerVersionInjector::OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out)
 {
 	Unsubscribe_out = false;
 

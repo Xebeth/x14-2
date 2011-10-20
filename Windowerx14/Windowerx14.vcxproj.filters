@@ -204,10 +204,10 @@
     <ClInclude Include="utf8_convert.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="IAllocStringPlugin.h">
+    <ClInclude Include="WindowerVersionInjector.h">
       <Filter>Windower\Plugins</Filter>
     </ClInclude>
-    <ClInclude Include="WindowerVersionInjector.h">
+    <ClInclude Include="ICreateXmlNodePlugin.h">
       <Filter>Windower\Plugins</Filter>
     </ClInclude>
   </ItemGroup>

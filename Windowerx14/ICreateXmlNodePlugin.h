@@ -1,6 +1,6 @@
 /**************************************************************************
 	created		:	2011-06-04
-	filename	: 	IAllocStringPlugin.h
+	filename	: 	ICreateXmlNodePlugin.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
 	purpose		:	Alloc string plugin interface
@@ -14,15 +14,15 @@
 
 namespace Windower
 {
-	class IAllocStringPlugin : public IGameChatPlugin
+	class ICreateXmlNodePlugin : public IGameChatPlugin
 	{
 	public:
-		explicit IAllocStringPlugin(const std::string &TargetText_in)
+		explicit ICreateXmlNodePlugin(const std::string &TargetText_in)
 			: m_TargetText(TargetText_in), m_pTargetPtr(NULL) {}
 
-		virtual ~IAllocStringPlugin() { m_pTargetPtr = NULL; }
+		virtual ~ICreateXmlNodePlugin() { m_pTargetPtr = NULL; }
 
-		virtual const char* OnAllocString(const char *pText_in, bool &Unsubscribe_out) =0;
+		virtual const char* OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out) =0;
 
 	protected:
 		std::string m_InjectedText;

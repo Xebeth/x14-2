@@ -12,7 +12,7 @@
 
 namespace Windower
 {
-	class ExpWatchPlugin : public Windower::IAllocStringPlugin
+	class ExpWatchPlugin : public Windower::ICreateXmlNodePlugin
 	{
 	public:
 		ExpWatchPlugin();
@@ -35,7 +35,7 @@ namespace Windower
 							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
 							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
 
-		const char* OnAllocString(const char *pText_in, bool &Unsubscribe_out);
+		const char* OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out);
 
 	protected:
 		DWORD m_StartTime;
