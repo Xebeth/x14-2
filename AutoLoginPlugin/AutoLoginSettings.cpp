@@ -3,7 +3,7 @@
 	filename	: 	AutoLoginSettings.cpp
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	AutoLogin plugin settings
 **************************************************************************/
 #include "stdafx.h"
 
@@ -16,26 +16,30 @@ namespace Windower
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in)
-		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_AutoValidate(false), m_hParentWnd(NULL)
+		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL)
 	{
 		if (pSettingsFile_in != NULL && Load() == false)
 			Save();
 	}
 
+	/*! \brief Saves the settings to the INI file
+		\return true if the settings were saved successfully; false otherwise
+	*/
 	bool AutoLoginSettings::Save()
 	{
-		SetLong(_T("AutoLogin"), _T("AutoValidate"), m_AutoValidate ? 1L : 0L);
 		SetString(_T("AutoLogin"), _T("Password"), m_Password);
 		SetHex(_T("AutoLogin"), _T("KeyHash"), m_KeyHash);
 
 		return SettingsIniFile::Save();
 	}
 
+	/*! \brief Loads the settings from the INI file
+		\return true if the settings were loaded successfully; false otherwise
+	*/
 	bool AutoLoginSettings::Load()
 	{
 		if (SettingsIniFile::Load())
 		{
-			m_AutoValidate = (GetLong(_T("AutoLogin"), _T("AutoValidate")) == 1);
 			m_Password = GetString(_T("AutoLogin"), _T("Password"));
 			m_KeyHash = GetUnsignedLong(_T("AutoLogin"), _T("KeyHash"));
 

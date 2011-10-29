@@ -26,9 +26,9 @@ IHTMLElement* HTMLFormIterator::Next()
 		{
 			pElemDispatch->QueryInterface(IID_IHTMLElement, (void**)&m_pCurrentForm);
 			pElemDispatch->Release();
+		}
 
-			m_CurrentIndex.lVal++;
-		}		
+		++m_CurrentIndex.lVal;
 	}
 
 	return m_pCurrentForm;
@@ -53,10 +53,10 @@ void HTMLFormIterator::Reset()
 	if (m_pCurrentForm != NULL)
 	{
 		m_pCurrentForm->Release();
-		InitForms();
+		m_pCurrentForm = NULL;
 	}
-	
-	m_pCurrentForm = NULL;
+
+	InitForms();
 }
 
 void HTMLFormIterator::Release()

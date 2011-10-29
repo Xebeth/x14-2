@@ -3,15 +3,20 @@
 	filename	: 	AutoLogin.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Monitors the forms during the login process
+					and automatically fills the password field
 **************************************************************************/
 #ifndef __AUTO_LOGIN_H__
 #define __AUTO_LOGIN_H__
 
+//! the class name of the IE server
 #define IE_SERVER_CLASSNAME _T("Internet Explorer_Server")
+//! function pointer on ObjectFromLresult defined in OleAcc.dll
+typedef HRESULT (STDAPICALLTYPE *LPFNOBJECTFROMLRESULT)(LRESULT lResult, REFIID riid, WPARAM wParam, void** ppvObject);
 
-DWORD WINAPI AutoLoginThread(LPVOID pParam);
+DWORD WINAPI AutoLoginThread(LPVOID pUserData_in);
 
+// forward declarations
 namespace Windower
 {
 	class AutoLoginSettings;
@@ -25,14 +30,16 @@ struct IHTMLFormElement;
 struct IHTMLDocument2;
 struct IHTMLElement;
 
+/*! \brief Monitors the forms during the login process
+		   and automatically fills the password field
+*/
 class AutoLogin
 {
 public:
-	AutoLogin(Windower::AutoLoginSettings *pSettings_in);
+	explicit AutoLogin(Windower::AutoLoginSettings &Settings_in);
 	~AutoLogin();
 
 	void MonitorForms();
-	void OnSubmit();
 
 protected:
 	bool SetPasswordInput(const TCHAR *pPassword_in);
@@ -42,32 +49,30 @@ protected:
 	bool WaitUntilDocumentComplete(long Timeout_in);
 	bool IsStatus(const TCHAR *pStatus_in);
 	bool UpdateDocumentState();
-	bool SetEventSink(IHTMLElement *pForm_in);
-	bool RemoveEventSink();
 
+	LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
 	HWND GetIEServerWindow(long Timeout_in);
-	bool GetHTMLDocument(long Timeout_in);
-	FARPROC GetObjectFromLParamAddr();
+	bool GetHTMLDocument(long Timeout_in);	
 
+	//! the password field
 	IHTMLInputElement *m_pPasswordInput;
-	IHTMLFormElement *m_pLoginForm;
+	//! the HTML document
 	IHTMLDocument2 *m_pHTMLDoc;
 
-	Windower::AutoLoginSettings *m_pSettings;
+	//! the settings of the AutoLogin plugin
+	Windower::AutoLoginSettings &m_Settings;
+	//! an iterator of HTML forms
 	HTMLFormIterator *m_pFormIterator;
+	//! the state of the document
 	string_t m_DocumentState;
-	string_t m_FormPassword;
-	string_t m_CurrentForm;
+	//! flag specifying if the login process is complete
 	bool m_LoginComplete;
+	//! flag specifying if the password field is set
 	bool m_PasswordSet;
-
-	IConnectionPoint* m_pConnectionPoint;
-	HTMLEventSink m_EventSink;
-	DWORD m_dwCookie;
-
+	//! the handle on the parent window
 	HWND m_hParentWnd;
+	//! the handle on the IE server window
 	HWND m_hIEServer;
-	
 };
 
 #endif//__AUTO_LOGIN_H__

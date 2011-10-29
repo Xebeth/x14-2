@@ -3,49 +3,58 @@
 	filename	: 	AutoLogin.cpp
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Monitors the forms during the login process
+					and automatically fills the password field
 **************************************************************************/
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <MsHTML.h>
 
-#include "HTMLEventSink.h"
 #include "CryptUtils.h"
 #include "AutoLogin.h"
 
 #include "AutoLoginSettings.h"
 #include "HTMLFormIterator.h"
 
-typedef HRESULT (STDAPICALLTYPE *LPFNOBJECTFROMLRESULT)(LRESULT lResult, REFIID riid, WPARAM wParam, void** ppvObject);
-
-DWORD WINAPI AutoLoginThread(LPVOID pParam)
+/*! \brief global function used to start the working thread
+	\param[in] pUserData_in : thread user data holding a pointer to the settings
+	\return the thread exit code (0 on success; -1 otherwise)
+*/
+DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 {
-	AutoLogin Login((Windower::AutoLoginSettings*)pParam);
+	if (pUserData_in != NULL)
+	{
+		AutoLogin Login(*((Windower::AutoLoginSettings*)pUserData_in));
 
-	CoInitialize(NULL);
-	Login.MonitorForms();
-	CoUninitialize();
+		Login.MonitorForms();
 
-	return 0L;
+		return 0L;
+	}
+
+	return -1;
 }
 
-AutoLogin::AutoLogin(Windower::AutoLoginSettings *pSettings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_pLoginForm(NULL), m_pHTMLDoc(NULL),
-	  m_pPasswordInput(NULL), m_pFormIterator(NULL), m_pSettings(pSettings_in),
-	  m_LoginComplete(false), m_PasswordSet(false), m_pConnectionPoint(NULL),
-	  m_dwCookie(0)
+/*! \brief AutoLogin constructor
+	\param[in] Settings_in : the settings of the AutoLogin plugin
+*/
+AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
+	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in),
+	  m_pPasswordInput(NULL), m_pFormIterator(NULL), m_pHTMLDoc(NULL),
+	  m_LoginComplete(false), m_PasswordSet(false)
 {
-	m_EventSink.AddRef();
-
-	if (m_pSettings != NULL)
-		m_hParentWnd = pSettings_in->GetParentWnd();
+	m_hParentWnd = Settings_in.GetParentWnd();
+	// initialize COM
+	::CoInitialize(NULL);
 }
 
+//! \brief AutoLogin destructor
 AutoLogin::~AutoLogin()
 {
-	m_EventSink.Release();
+	// shutdown COM
+	::CoUninitialize();
 }
 
+//! \brief Monitors the forms during the login process and automatically fills the password field
 void AutoLogin::MonitorForms()
 {
 	m_hIEServer = GetIEServerWindow(5000);
@@ -70,12 +79,12 @@ void AutoLogin::MonitorForms()
 					if (m_pFormIterator != NULL)
 					{
 						m_pFormIterator->Reset();
+						m_PasswordSet = false;
 						// invalidate the password
 						if (m_pPasswordInput != NULL)
 						{
 							m_pPasswordInput->Release();
 							m_pPasswordInput = NULL;
-							m_PasswordSet = false;
 						}
 					}
 				}
@@ -92,27 +101,9 @@ void AutoLogin::MonitorForms()
 	}
 }
 
-void AutoLogin::OnSubmit()
-{
-	if (m_dwCookie != 0)
-		RemoveEventSink();
-
-	// the password wasn't set by the plugin
-	if (m_PasswordSet == false && m_pPasswordInput != NULL)
-	{
-		BSTR Passwd = SysAllocString(_T(""));
-		
-		if (SUCCEEDED(m_pPasswordInput->get_value(&Passwd)))
-		{
-			// we retrieved a password so store it
-			// at this point we're not sure if it's valid
-			m_FormPassword = Passwd;
-		}
-
-		SysFreeString(Passwd);
-	}
-}
-
+/*! \brief Automatically fills the password field
+	\return true if the password field was filled; false otherwise
+*/
 bool AutoLogin::AutoCompleteForm()
 {
 	IHTMLElement *pCurrentForm = NULL;
@@ -135,13 +126,6 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (pElement != NULL)
 				{
-					BSTR FormID = SysAllocString(_T(""));
-
-					// retrieve the ID of the form
-					pCurrentForm->get_id(&FormID);
-					m_CurrentForm = FormID;
-					SysFreeString(FormID);
-
 					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (void**)&m_pPasswordInput)) && m_pPasswordInput != NULL)
 					{
 						string_t Key;
@@ -152,12 +136,12 @@ bool AutoLogin::AutoCompleteForm()
 						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
-						if (m_pSettings->GetKeyHash() == KeyHash)
+						if (m_Settings.GetKeyHash() == KeyHash)
 						{
 							string_t CryptedPassword;
 
 							// retrieve the password from the settings
-							CryptUtils::HexToString(m_pSettings->GetPassword(), CryptedPassword);
+							CryptUtils::HexToString(m_Settings.GetPassword(), CryptedPassword);
 
 							if (CryptedPassword.empty() == false)
 							{
@@ -173,16 +157,10 @@ bool AutoLogin::AutoCompleteForm()
 							// we've made it so far but failed, give up
 							m_PasswordSet = true;
 							// reset the config
-							m_pSettings->SetKeyHash(0);
-							m_pSettings->SetAutoValidate(0);
-							m_pSettings->SetPassword(_T(""));
+							m_Settings.SetKeyHash(0);
+							m_Settings.SetPassword(_T(""));
 
-							m_pSettings->Save();
-
-							// since we couldn't set the password, try to retrieve it 
-							// by listening to the submit event
-							if (m_dwCookie == 0)
-								SetEventSink(pCurrentForm);
+							m_Settings.Save();
 						}
 
 						m_pPasswordInput->Release();
@@ -200,6 +178,11 @@ bool AutoLogin::AutoCompleteForm()
 	return m_PasswordSet;
 }
 
+/*! \brief Retrieves and HTML element given its ID
+	\param[in] pParent_in : the parent of the element
+	\param[in] pID_in : the ID of the element
+	\return a pointer to the element if found; NULL otherwise
+*/
 IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in)
 {
 	IHTMLElement *pElement = NULL;
@@ -261,6 +244,10 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 	return pElement;
 }
 
+/*! \brief Fills the password field with the specified password
+	\param[in] pPassword_in : the password
+	\return true if the field was filled successfully; false otherwise
+*/
 bool AutoLogin::SetPasswordInput(const TCHAR *pPassword_in)
 {
 	bool Result = false;
@@ -281,6 +268,10 @@ bool AutoLogin::SetPasswordInput(const TCHAR *pPassword_in)
 	return Result;
 }
 
+/*! \brief Retrieves the top window of the IE server
+	\param[in] Timeout_in : a timeout value
+	\return a handle on the window if found; NULL otherwise
+*/
 HWND AutoLogin::GetIEServerWindow(long Timeout_in)
 {
 	HWND Result = NULL;
@@ -299,6 +290,10 @@ HWND AutoLogin::GetIEServerWindow(long Timeout_in)
 	return Result;
 }
 
+/*! \brief Waits until the document is complete
+	\param[in] Timeout_in : a timeout value
+	\return true if the document is complete; false otherwise
+*/
 bool AutoLogin::WaitUntilDocumentComplete(long Timeout_in)
 {
 	bool Result = false;
@@ -317,14 +312,17 @@ bool AutoLogin::WaitUntilDocumentComplete(long Timeout_in)
 	return Result;
 }
 
-FARPROC AutoLogin::GetObjectFromLParamAddr()
+/*! \brief Retrieves the function pointer on ObjectFromLresult
+	\return the function pointer on ObjectFromLresult
+*/
+LPFNOBJECTFROMLRESULT AutoLogin::GetObjectFromLParamAddr()
 {
 	HINSTANCE hInst = ::LoadLibrary(_T("OleAcc.dll"));
-	FARPROC pResult = NULL;
+	LPFNOBJECTFROMLRESULT pResult = NULL;
 
 	if (hInst != NULL)
 	{
-		pResult = ::GetProcAddress(hInst, "ObjectFromLresult");
+		pResult = (LPFNOBJECTFROMLRESULT)::GetProcAddress(hInst, "ObjectFromLresult");
 
 		::FreeLibrary(hInst);
 	}
@@ -332,15 +330,17 @@ FARPROC AutoLogin::GetObjectFromLParamAddr()
 	return pResult;
 }
 
+/*! \brief Retrieves the HTML document
+	\param[in] Timeout_in : a timeout value
+	\return true if the document was found; false otherwise
+*/
 bool AutoLogin::GetHTMLDocument(long Timeout_in)
 {
 	bool Result = false;
 
 	if (m_pHTMLDoc == NULL && m_hIEServer != NULL)
 	{
-		LPFNOBJECTFROMLRESULT fnObjectFromLRESULT;
-
-		fnObjectFromLRESULT = (LPFNOBJECTFROMLRESULT)GetObjectFromLParamAddr();
+		LPFNOBJECTFROMLRESULT fnObjectFromLRESULT = GetObjectFromLParamAddr();
 
 		if (fnObjectFromLRESULT != NULL)
 		{
@@ -364,12 +364,19 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 	return Result;
 }
 
+/*! \brief Checks if the specified status matches the status of the document
+	\param[in] pStatus_in : the status to check against the status of the document
+	\return true if the statuses match
+*/
 bool AutoLogin::IsStatus(const TCHAR *pStatus_in)
 {
 	return (pStatus_in != NULL && UpdateDocumentState() 
 		 && m_DocumentState.compare(pStatus_in) == 0);
 }
 
+/*! \brief Retrieves the status of the document
+	\return true if the status was retrieved successfully; false otherwise
+*/
 bool AutoLogin::UpdateDocumentState()
 {
 	BSTR DocState = SysAllocString(_T(""));
@@ -384,49 +391,4 @@ bool AutoLogin::UpdateDocumentState()
 	SysFreeString(DocState);
 
 	return Result;
-}
-
-bool AutoLogin::SetEventSink(IHTMLElement *pForm_in)
-{
-	// try to attach an onsubmit event
-	IConnectionPointContainer* pCPC = NULL;
-	bool Result = false;
-
-	// Check that this is a connectable object.
-	if (SUCCEEDED(pForm_in->QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC)) && pCPC != NULL)        
-	{
-		// Find the connection point.
-		if (SUCCEEDED(pCPC->FindConnectionPoint(DIID_HTMLFormElementEvents2, &m_pConnectionPoint)) && m_pConnectionPoint != NULL)
-		{
-			// pUnk is the IUnknown interface pointer for your event sink
-			if (SUCCEEDED(m_pConnectionPoint->Advise(static_cast<IUnknown*>(&m_EventSink), &m_dwCookie)))
-			{
-				// Successfully advised
-				m_EventSink.SetAutoLogin(this);
-
-				Result = true;
-			}
-
-			m_pConnectionPoint->Release();
-		}
-
-		pCPC->Release();        
-	}
-
-	return Result;
-}
-
-bool AutoLogin::RemoveEventSink()
-{
-	if (m_dwCookie != 0 && m_pConnectionPoint != NULL)
-	{
-		m_pConnectionPoint->Unadvise(m_dwCookie);
-		m_pConnectionPoint->Release();
-		m_pConnectionPoint = NULL;
-		m_dwCookie = 0;
-
-		return true;
-	}
-
-	return false;
 }
