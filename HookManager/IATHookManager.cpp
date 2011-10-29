@@ -24,9 +24,12 @@
 
 namespace HookEngineLib
 {
+	/*! \brief Installs all the hooks currently registered in the manager
+		\return true if all the hooks were installed successfully; false otherwise
+	*/
 	bool IATHookManager::InstallRegisteredHooks()
 	{
-		HookPtrIterator Iter;
+		HookPtrMap::const_iterator Iter;
 		bool bResult = true;
 
 		if (m_bInit == false)
@@ -45,9 +48,12 @@ namespace HookEngineLib
 		return (m_bInit && bResult);
 	}
 
+	/*! \brief Uninstalls all the hooks currently registered in the manager
+		\return true if all the hooks were uninstalled successfully; false otherwise
+	*/
 	bool IATHookManager::UninstallRegisteredHooks()
 	{
-		HookPtrIterator Iter;
+		HookPtrMap::const_iterator Iter;
 		bool bResult = true;
 
 		if (m_bInit)
@@ -63,66 +69,74 @@ namespace HookEngineLib
 		return (!m_bInit && bResult);
 	}
 
-	bool IATHookManager::InstallHook(Hook *pHook)
+	/*! \brief Installs the specified hook using IAT Patcher
+		\param[in,out] pHook_in_out : a pointer to the hook to be installed
+		\return true if successful; false otherwise
+	*/
+	bool IATHookManager::InstallHook(Hook *pHook_in_out)
 	{
-		if (pHook != NULL && pHook->m_pOriginalFunc != NULL && pHook->m_pHookFunc != NULL)
+		if (pHook_in_out != NULL && pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
 		{
 			// if the hook isn't already installed
-			if (pHook->m_bInstalled == false)
+			if (pHook_in_out->m_bInstalled == false)
 			{
 				// if we're not hooking a class member
-				if (pHook->m_dwOpCodesSize == 0)
+				if (pHook_in_out->m_dwOpCodesSize == 0)
 				{
 					// flag the hook has installed if no error occurred
-					pHook->m_bInstalled = IATPatcher::PatchIAT(m_hProcess, pHook->m_sModuleName.c_str(),
-															   pHook->m_sFuncName.c_str(),
-															   &pHook->m_pTrampolineFunc,
-															   pHook->m_pHookFunc);
+					pHook_in_out->m_bInstalled = IATPatcher::PatchIAT(m_hProcess, pHook_in_out->m_sModuleName.c_str(),
+															   pHook_in_out->m_sFuncName.c_str(),
+															   &pHook_in_out->m_pTrampolineFunc,
+															   pHook_in_out->m_pHookFunc);
 				}
 				else
 				{
 					// use DetourClassFunc (Azorbix@Game Deception)
-					pHook->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook->m_pOriginalFunc,
-						(LPBYTE)pHook->m_pHookFunc,
-						pHook->m_dwOpCodesSize);
+					pHook_in_out->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+						(LPBYTE)pHook_in_out->m_pHookFunc,
+						pHook_in_out->m_dwOpCodesSize);
 					// flag the hook has been installed (no real way to check success)
-					pHook->m_bInstalled = (pHook->m_pTrampolineFunc != NULL);
+					pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
 				}
 			}
 
-			return pHook->m_bInstalled;
+			return pHook_in_out->m_bInstalled;
 		}
 
 		return false;
 	}
 
-	bool IATHookManager::UninstallHook(Hook *pHook)
+	/*! \brief Uninstalls the specified hook using IAT Patcher
+		\param[in,out] pHook_in_out : a pointer to the hook to be uninstalled
+		\return true if successful; false otherwise
+	*/
+	bool IATHookManager::UninstallHook(Hook *pHook_in_out)
 	{
-		if (pHook != NULL && pHook->m_pOriginalFunc != NULL && pHook->m_pHookFunc != NULL)
+		if (pHook_in_out != NULL && pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
 		{
 			// if the hook is installed
-			if (pHook->m_bInstalled)
+			if (pHook_in_out->m_bInstalled)
 			{
 				// if we're not unhooking a class member
-				if (pHook->m_dwOpCodesSize == 0)
+				if (pHook_in_out->m_dwOpCodesSize == 0)
 				{
 					// flag the hook has uninstalled if no error occurred
-					pHook->m_bInstalled = !IATPatcher::RestoreIAT(m_hProcess, pHook->m_sModuleName.c_str(),
-																  pHook->m_sFuncName.c_str(),
-																  pHook->m_pTrampolineFunc);
+					pHook_in_out->m_bInstalled = !IATPatcher::RestoreIAT(m_hProcess, pHook_in_out->m_sModuleName.c_str(),
+																  pHook_in_out->m_sFuncName.c_str(),
+																  pHook_in_out->m_pTrampolineFunc);
 				}
 				else
 				{
 					// use RetourClassFunc (Azorbix@Game Deception)
-					RetourClassFunc((LPBYTE)pHook->m_pOriginalFunc,
-						(LPBYTE)pHook->m_pTrampolineFunc,
-						pHook->m_dwOpCodesSize);
+					RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+						(LPBYTE)pHook_in_out->m_pTrampolineFunc,
+						pHook_in_out->m_dwOpCodesSize);
 					// flag the hook has been uninstalled (no real way to check success)
-					pHook->m_bInstalled = false;
+					pHook_in_out->m_bInstalled = false;
 				}
 			}
 
-			return !pHook->m_bInstalled;
+			return !pHook_in_out->m_bInstalled;
 		}
 
 		return false;

@@ -3,7 +3,7 @@
 	filename	: 	HookEngine.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Hook engine header
 **************************************************************************/
 #ifndef __HOOK_ENGINE_H__
 #define __HOOK_ENGINE_H__

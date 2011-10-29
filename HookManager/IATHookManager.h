@@ -10,19 +10,21 @@
 
 namespace HookEngineLib
 {
+	//! \brief Hook manager using IAT Patcher
 	class IATHookManager : public IHookManager
 	{
 	public:
+		//! \brief IATHookManager default constructor
 		IATHookManager() : m_bInit(false), m_hProcess(NULL) {}
 
 		virtual bool InstallRegisteredHooks();
 		virtual bool UninstallRegisteredHooks();
-	protected:
-		virtual bool InstallHook(Hook *pHook);
-		virtual bool UninstallHook(Hook *pHook);
 
-		HMODULE m_hProcess;
-		bool m_bInit;
+	protected:
+		virtual bool InstallHook(Hook *pHook_in_out);
+		virtual bool UninstallHook(Hook *pHook_in_out);
+		//! the handle of the target process
+		HMODULE m_hProcess;		
 	};
 }
 #endif//__IAT_HOOK_MANAGER_H__

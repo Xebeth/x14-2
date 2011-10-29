@@ -16,9 +16,12 @@
 
 namespace HookEngineLib
 {
+	/*! \brief Installs all the hooks currently registered in the manager
+		\return true if all the hooks were installed successfully; false otherwise
+	*/
 	bool DetoursManager::InstallRegisteredHooks()
 	{
-		HookPtrIterator Iter;
+		HookPtrMap::const_iterator Iter;
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
@@ -30,9 +33,12 @@ namespace HookEngineLib
 		return (DetourTransactionCommit() == NO_ERROR);
 	}
 
+	/*! \brief Uninstalls all the hooks currently registered in the manager
+		\return true if all the hooks were uninstalled successfully; false otherwise
+	*/
 	bool DetoursManager::UninstallRegisteredHooks()
 	{
-		HookPtrIterator Iter;
+		HookPtrMap::const_iterator Iter;
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
@@ -45,47 +51,47 @@ namespace HookEngineLib
 	}
 
 	/*! \brief Installs the specified hook using Detours
-		\param[in,out] pHook : a pointer to the hook to be installed
+		\param[in,out] pHook_in_out : a pointer to the hook to be installed
 		\return true if successful; false otherwise
 	*/
-	bool DetoursManager::InstallHook(Hook *pHook)
+	bool DetoursManager::InstallHook(Hook *pHook_in_out)
 	{
-		if (pHook != NULL)
+		if (pHook_in_out != NULL)
 		{
 			// if the original function was left NULL
-			if (pHook->m_pOriginalFunc == NULL)
+			if (pHook_in_out->m_pOriginalFunc == NULL)
 			{
 				// try to find it in the module
-				pHook->m_pOriginalFunc = DetourFindFunction(pHook->m_sModuleName.c_str(),
-															pHook->m_sFuncName.c_str());
+				pHook_in_out->m_pOriginalFunc = DetourFindFunction(pHook_in_out->m_sModuleName.c_str(),
+															pHook_in_out->m_sFuncName.c_str());
 			}
 
-			if (pHook->m_pOriginalFunc != NULL && pHook->m_pHookFunc != NULL)
+			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
 			{
 				// if the hook isn't already installed
-				if (pHook->m_bInstalled == false)
+				if (pHook_in_out->m_bInstalled == false)
 				{
 					// if we're not hooking a class member
-					if (pHook->m_dwOpCodesSize == 0)
+					if (pHook_in_out->m_dwOpCodesSize == 0)
 					{
 						// use Detours to install the hook
-						LONG AttachResult = DetourAttachEx(&(LPVOID&)pHook->m_pOriginalFunc, pHook->m_pHookFunc,
-														   &(DETOUR_TRAMPOLINE*&)pHook->m_pTrampolineFunc, NULL, NULL);
+						LONG AttachResult = DetourAttachEx(&(LPVOID&)pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc,
+														   &(DETOUR_TRAMPOLINE*&)pHook_in_out->m_pTrampolineFunc, NULL, NULL);
 						// flag the hook has installed if no error occurred
-						pHook->m_bInstalled = (AttachResult == NO_ERROR);
+						pHook_in_out->m_bInstalled = (AttachResult == NO_ERROR);
 					}
 					else
 					{
 						// use DetourClassFunc (Azorbix@Game Deception)
-						pHook->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook->m_pOriginalFunc,
-																   (LPBYTE)pHook->m_pHookFunc,
-																   pHook->m_dwOpCodesSize);
+						pHook_in_out->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+																   (LPBYTE)pHook_in_out->m_pHookFunc,
+																   pHook_in_out->m_dwOpCodesSize);
 						// flag the hook has been installed (no real way to check success)
-						pHook->m_bInstalled = (pHook->m_pTrampolineFunc != NULL);
+						pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
 					}
 				}
 
-				return pHook->m_bInstalled;
+				return pHook_in_out->m_bInstalled;
 			}
 		}
 
@@ -93,38 +99,38 @@ namespace HookEngineLib
 	}
 
 	/*! \brief Uninstalls the specified hook using Detours
-		\param[in,out] pHook : a pointer to the hook to be uninstalled
+		\param[in,out] pHook_in_out : a pointer to the hook to be uninstalled
 		\return true if successful; false otherwise
 	*/
-	bool DetoursManager::UninstallHook(Hook *pHook)
+	bool DetoursManager::UninstallHook(Hook *pHook_in_out)
 	{
-		if (pHook != NULL)
+		if (pHook_in_out != NULL)
 		{
-			if (pHook->m_pOriginalFunc != NULL && pHook->m_pHookFunc != NULL)
+			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
 			{
 				// if the hook is installed
-				if (pHook->m_bInstalled)
+				if (pHook_in_out->m_bInstalled)
 				{
 					// if we're not unhooking a class member
-					if (pHook->m_dwOpCodesSize == 0)
+					if (pHook_in_out->m_dwOpCodesSize == 0)
 					{
 						// use Detours to remove the hook
-						LONG DetachResult = DetourDetach(&(LPVOID&)pHook->m_pOriginalFunc, pHook->m_pHookFunc);
+						LONG DetachResult = DetourDetach(&(LPVOID&)pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc);
 						// flag the hook has uninstalled if no error occurred
-						pHook->m_bInstalled = !(DetachResult == NO_ERROR);
+						pHook_in_out->m_bInstalled = !(DetachResult == NO_ERROR);
 					}
 					else
 					{
 						// use RetourClassFunc (Azorbix@Game Deception)
-						RetourClassFunc((LPBYTE)pHook->m_pOriginalFunc,
-										(LPBYTE)pHook->m_pTrampolineFunc,
-										pHook->m_dwOpCodesSize);
+						RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+										(LPBYTE)pHook_in_out->m_pTrampolineFunc,
+										pHook_in_out->m_dwOpCodesSize);
 						// flag the hook has been uninstalled (no real way to check success)
-						pHook->m_bInstalled = false;
+						pHook_in_out->m_bInstalled = false;
 					}
 				}
 
-				return !pHook->m_bInstalled;
+				return !pHook_in_out->m_bInstalled;
 			}
 		}
 

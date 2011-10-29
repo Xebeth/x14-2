@@ -15,9 +15,10 @@ namespace HookEngineLib
 	public:
 		virtual bool InstallRegisteredHooks();
 		virtual bool UninstallRegisteredHooks();
+
 	protected:
-		virtual bool InstallHook(Hook *pHook);
-		virtual bool UninstallHook(Hook *pHook);
+		virtual bool InstallHook(Hook *pHook_in_out);
+		virtual bool UninstallHook(Hook *pHook_in_out);
 	};
 }
 

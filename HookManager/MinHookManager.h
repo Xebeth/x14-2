@@ -10,18 +10,19 @@
 
 namespace HookEngineLib
 {
+	//! \brief Hook manager using MinHook
 	class MinHookManager : public IHookManager
 	{
 	public:
+		//! MinHookManager default constructor
 		MinHookManager() : m_bInit(false) {}
 
 		virtual bool InstallRegisteredHooks();
 		virtual bool UninstallRegisteredHooks();
-	protected:
-		virtual bool InstallHook(Hook *pHook);
-		virtual bool UninstallHook(Hook *pHook);
 
-		bool m_bInit;
+	protected:
+		virtual bool InstallHook(Hook *pHook_in_out);
+		virtual bool UninstallHook(Hook *pHook_in_out);
 	};
 }
 
