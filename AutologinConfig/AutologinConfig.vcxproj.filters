@@ -18,23 +18,8 @@
     <ClInclude Include="version.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="AutoLoginSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingsIniFile.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingsInterface.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleIni.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled headers</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\CryptUtils.h">
       <Filter>Common</Filter>
@@ -42,27 +27,33 @@
     <ClInclude Include="..\Common\string_t.h">
       <Filter>Common</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="config.rc">
+    <ClInclude Include="..\AutoLoginPlugin\AutoLoginSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
-    </ResourceCompile>
+    </ClInclude>
+    <ClInclude Include="AutoLoginConfigApp.h" />
+    <ClInclude Include="AutoLoginConfigDlg.h" />
+    <ClInclude Include="..\SettingsManager\SimpleIni.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SettingsManager\SettingsIniFile.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SettingsManager\SettingsInterface.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\config.ico">
+    <None Include="res\AutoLoginConfig.rc2">
       <Filter>Resources</Filter>
     </None>
-    <None Include="res\config.rc2">
+    <None Include="res\AutoLoginConfig.ico">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AutoLoginSettings.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="SettingsIniFile.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Precompiled headers</Filter>
     </ClCompile>
@@ -72,5 +63,18 @@
     <ClCompile Include="..\Common\string_t.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\AutoLoginPlugin\AutoLoginSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoLoginConfigDlg.cpp" />
+    <ClCompile Include="AutoLoginConfigApp.cpp" />
+    <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AutoLoginConfig.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -62,7 +62,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\config.ico"
+IDR_MAINFRAME           ICON                    "res\\AutoLoginConfig.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -75,9 +75,9 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "AutoLogin Configurator"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    EDITTEXT        IDC_EDIT1,17,32,293,14,ES_PASSWORD | ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT2,17,58,293,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_EDIT3,17,83,293,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_PASSWORD,17,32,293,14,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASSWORD_HASH,17,58,293,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_ENCRYPTION_KEY_HASH,17,83,293,14,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Password :",IDC_STATIC,17,22,36,8
     LTEXT           "Encryption key hash :",IDC_STATIC,17,73,70,8
     LTEXT           "Password hash :",IDC_STATIC,18,48,54,8
@@ -161,7 +161,7 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
 LANGUAGE 12, 1
 #pragma code_page(1252)
-#include "res\config.rc2"  // non-Microsoft Visual C++ edited resources
+#include "res\AutoLoginConfig.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"     // Standard components
 #endif
 

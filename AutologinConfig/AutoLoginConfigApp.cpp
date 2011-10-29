@@ -1,33 +1,21 @@
-// config.cpp : Defines the class behaviors for the application.
-//
-
+/**************************************************************************
+	created		:	2011-10-29
+	filename	: 	AutoLoginConfigApp.cpp
+	author		:	Xebeth`
+	copyright	:	North Edge (2011)
+	purpose		:	AutoLogin config application
+**************************************************************************/
 #include "stdafx.h"
+#include "resource.h"
 #include <vector>
 
-#include "SettingsManager.h"
-#include "AutoLoginSettings.h"
+#include <SettingsManager.h>
+#include <AutoLoginSettings.h>
 
-#include "config.h"
+#include "AutoLoginConfigDlg.h"
+#include "AutoLoginConfigApp.h"
 
-#include "CryptUtils.h"
-#include "configDlg.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
-using namespace std;
-
-AutologingConfigApp g_pApp;
-
-// CconfigApp
-
-BEGIN_MESSAGE_MAP(AutologingConfigApp, CWinApp)
-	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
-END_MESSAGE_MAP()
-
-
-BOOL AutologingConfigApp::InitInstance()
+BOOL AutoLoginConfigApp::InitInstance()
 {
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
@@ -41,7 +29,7 @@ BOOL AutologingConfigApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	CconfigDlg ConfigDlg;
+	AutoLoginConfigDlg ConfigDlg;
 	m_pMainWnd = &ConfigDlg;
 
 	ConfigDlg.DoModal();

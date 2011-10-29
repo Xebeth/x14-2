@@ -27,6 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\AutoLoginPlugin\AutoLoginSettings.cpp" />
     <ClCompile Include="..\Common\CryptUtils.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -35,34 +36,33 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="AutoLoginSettings.cpp" />
-    <ClCompile Include="config.cpp" />
-    <ClCompile Include="configDlg.cpp" />
-    <ClCompile Include="SettingsIniFile.cpp" />
+    <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp" />
+    <ClCompile Include="AutoLoginConfigApp.cpp" />
+    <ClCompile Include="AutoLoginConfigDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\AutoLoginPlugin\AutoLoginSettings.h" />
     <ClInclude Include="..\Common\CryptUtils.h" />
     <ClInclude Include="..\Common\string_t.h" />
-    <ClInclude Include="AutoLoginSettings.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="configDlg.h" />
+    <ClInclude Include="..\SettingsManager\SettingsIniFile.h" />
+    <ClInclude Include="..\SettingsManager\SettingsInterface.h" />
+    <ClInclude Include="..\SettingsManager\SimpleIni.h" />
+    <ClInclude Include="AutoLoginConfigApp.h" />
+    <ClInclude Include="AutoLoginConfigDlg.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SettingsIniFile.h" />
-    <ClInclude Include="SettingsInterface.h" />
-    <ClInclude Include="SimpleIni.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="config.rc" />
+    <ResourceCompile Include="AutoLoginConfig.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\config.ico" />
-    <None Include="res\config.rc2" />
+    <None Include="res\AutoLoginConfig.ico" />
+    <None Include="res\AutoLoginConfig.rc2" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C54F3E41-5D63-44EF-954E-FE82A2B2A486}</ProjectGuid>
@@ -170,6 +170,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>../SettingsManager;../AutoLoginPlugin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -218,7 +219,7 @@
       <ValidateAllParameters>false</ValidateAllParameters>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(CPP_SDK_PATH)\DirectX9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../SettingsManager;../AutoLoginPlugin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -292,7 +293,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="config.rc" />
+      <UserProperties RESOURCE_FILE="AutoLoginConfig.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
