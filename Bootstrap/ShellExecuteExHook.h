@@ -8,9 +8,7 @@
 #ifndef _SHELL_EXECUTE_EX_HOOK_H__
 #define _SHELL_EXECUTE_EX_HOOK_H__
 
-// ShellExecuteExW hook
-typedef BOOL (WINAPI *fnShellExecuteEx)(LPSHELLEXECUTEINFO lpExecInfo);
-
-BOOL WINAPI ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo);
+typedef BOOL (WINAPI *fnShellExecuteEx)(LPSHELLEXECUTEINFO lpExecInfo_in);
+BOOL WINAPI ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in);
 
 #endif//_SHELL_EXECUTE_EX_HOOK_H__

@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 
 #include "BaseEngine.h"
@@ -24,7 +23,11 @@
 
 extern Bootstrap::BootstrapEngine *g_pEngine;
 
-BOOL WINAPI ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo)
+/*! \brief Performs an operation on a specified file
+	\param[in] lpExecInfo_in : a SHELLEXECUTEINFO structure that contains and receives information about the application being executed
+	\return TRUE if successful; FALSE otherwise
+*/
+BOOL WINAPI ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in)
 {
-	return g_pEngine->System().ShellExecuteExHook(lpExecInfo);
+	return g_pEngine->System().ShellExecuteExHook(lpExecInfo_in);
 }

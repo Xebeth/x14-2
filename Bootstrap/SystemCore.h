@@ -3,7 +3,7 @@
 	filename	: 	SystemCore.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2010)
-	purpose		:	Interface with the Win32 API
+	purpose		:	Core module used for Win32 API hooking
 **************************************************************************/
 #ifndef __SYSTEM_CORE_H__
 #define __SYSTEM_CORE_H__
@@ -14,27 +14,33 @@ namespace Bootstrap
 
 	#define TARGET_CLASSNAME _T("Shell DocObject View")
 
+	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public Windower::WindowerCore
 	{
 	public:
-		SystemCore(Windower::PluginEngine &Engine_in);
+		SystemCore(Windower::PluginEngine &Engine_in_out);
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager *pHookManager);
-		void OnHookInstall(IHookManager *pHookManager);
+		void RegisterHooks(IHookManager *pHookManager_in);
+		void OnHookInstall(IHookManager *pHookManager_in);
 
-		HWND CreateWindowExWHook(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
-								 int nWidth, int nHeight,HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
-		BOOL CreateProcessHook(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
-							   LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
-							   LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo,
-							   LPPROCESS_INFORMATION lpProcessInformation);
-		BOOL ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo);
-
+		// hooks
+		HWND CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,
+								 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in);
+		BOOL CreateProcessHook(LPCTSTR lpApplicationName_in, LPTSTR lpCommandLine_in_out, LPSECURITY_ATTRIBUTES lpProcessAttributes_in,
+							   LPSECURITY_ATTRIBUTES lpThreadAttributes_in, BOOL bInheritHandles_in, DWORD dwCreationFlags_in,
+							   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
+							   LPPROCESS_INFORMATION lpProcessInformation_out);
+		BOOL ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in);
 
 	protected:
+		//! flag specifying if the AutoLogin is active
+		bool m_AutoLogin;
+		//! function pointer to the original CreateWindowExW function
 		fnCreateWindowExW		m_pCreateWindowExWTrampoline;
+		//! function pointer to the original CreateProcess function
 		fnCreateProcess			m_pCreateProcessTrampoline;
+		//! function pointer to the original ShellExecuteEx function
 		fnShellExecuteEx		m_pShellExecuteExTrampoline;
 	};
 }

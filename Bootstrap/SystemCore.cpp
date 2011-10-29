@@ -3,11 +3,10 @@
 	filename	: 	SystemCore.cpp
 	author		:	xebeth`
 	copyright	:	North Edge (2010)
-	purpose		:	Interface with the Win32 API
+	purpose		:	Core module used for Win32 API hooking
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 #include <IATPatcher.h>
 
@@ -27,25 +26,42 @@
 
 namespace Bootstrap
 {
-	/*! \brief System constructor
+	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
-	SystemCore::SystemCore(Windower::PluginEngine &Engine_in)
-		: Windower::WindowerCore(Engine_in)
+	SystemCore::SystemCore(Windower::PluginEngine &Engine_in_out)
+		: Windower::WindowerCore(Engine_in_out)
 	{
+		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
+
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
 		m_pShellExecuteExTrampoline = ShellExecuteExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
 	}
 
-	HWND SystemCore::CreateWindowExWHook(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
-										 int nWidth, int nHeight,HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+	/*! \brief CreateWindowExW hook used to start the AutoLogin thread
+		\param[in] dwExStyle_in : extended window style of the window being created
+		\param[in] lpClassName_in : a null-terminated string or a class atom
+		\param[in] lpWindowName_in : the window name
+		\param[in] dwStyle_in : the style of the window being created
+		\param[in] X_in : the initial horizontal position of the window
+		\param[in] Y_in : the initial vertical position of the window
+		\param[in] nWidth_in : the width, in device units, of the window
+		\param[in] nHeight_in : the height, in device units, of the window
+		\param[in] hWndParent_in : handle to the parent or owner window of the window being created
+		\param[in] hMenu_in : handle to a menu, or specifies a child-window identifier, depending on the window style
+		\param[in] hInstance_in : handle to the instance of the module to be associated with the window
+		\param[in] lpParam_in : value to be passed to the window through the CREATESTRUCT structure
+		\return a handle to the new window; NULL otherwise
+	*/
+	HWND SystemCore::CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,
+										 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in)
 	{
-		HWND hWndResult = m_pCreateWindowExWTrampoline(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y,
-													   nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
-		DWORD_PTR ClassAtom = (DWORD_PTR)lpClassName;
+		HWND hWndResult = m_pCreateWindowExWTrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
+													   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
+		DWORD_PTR ClassAtom = (DWORD_PTR)lpClassName_in;
 
-		if (lpClassName != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName) == 0)
+		if (lpClassName_in != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName_in) == 0)
 		{
 			static_cast<BootstrapEngine&>(m_Engine).InvokeAutoLogin(hWndResult);
 		}
@@ -53,10 +69,23 @@ namespace Bootstrap
 		return hWndResult;
 	}
 
-	BOOL SystemCore::CreateProcessHook(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
-									   LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
-									   LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo,
-									   LPPROCESS_INFORMATION lpProcessInformation)
+	/*! \brief CreateProcess hook used to inject the bootstrap/windower DLL into the game process
+		\param[in] lpApplicationName_in : the name of the module to be executed
+		\param[in,out] lpCommandLine_in_out : the command line to be executed
+		\param[in] lpProcessAttributes_in : pointer to a SECURITY_ATTRIBUTES structure
+		\param[in] lpThreadAttributes_in : pointer to a SECURITY_ATTRIBUTES structure
+		\param[in] bInheritHandles_in : flag specifying if each inheritable handle in the calling process is inherited by the new process
+		\param[in] dwCreationFlags_in : the flags that control the priority class and the creation of the process
+		\param[in] lpEnvironment_in : pointer to the environment block for the new process
+		\param[in] lpCurrentDirectory_in : the full path to the current directory for the process
+		\param[in] lpStartupInfo_in : pointer to a STARTUPINFO or STARTUPINFOEX structure
+		\param[out] lpProcessInformation_out : pointer to a PROCESS_INFORMATION structure that receives identification information about the new process
+		\return Non-zero if the process was created successfully; FALSE otherwise
+	*/
+	BOOL SystemCore::CreateProcessHook(LPCTSTR lpApplicationName_in, LPTSTR lpCommandLine_in_out, LPSECURITY_ATTRIBUTES lpProcessAttributes_in,
+									   LPSECURITY_ATTRIBUTES lpThreadAttributes_in, BOOL bInheritHandles_in, DWORD dwCreationFlags_in,
+									   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
+									   LPPROCESS_INFORMATION lpProcessInformation_out)
 	{
 		char DLLPath[MAX_PATH];
 		BOOL Result = FALSE;
@@ -67,7 +96,7 @@ namespace Bootstrap
 
 		GetCurrentDirectory(MAX_PATH, pDirPath);
 
-		if (_tcsstr(lpCommandLine, TARGET_PROCESS_GAME) != NULL || _tcsstr(lpApplicationName, TARGET_PROCESS_GAME) != NULL)
+		if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL || _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL)
 			_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\windowerx14.dll"), pDirPath);
 		else
 			_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\bootstrap.dll"), pDirPath);
@@ -76,50 +105,59 @@ namespace Bootstrap
 
 		sprintf_s(DLLPath, "%S", pDLL32Path);
 		// attach the DLL to the next process in the chain
-		Result = DetourCreateProcessWithDllW(lpApplicationName, lpCommandLine, lpProcessAttributes,
-											 lpThreadAttributes, bInheritHandles, dwCreationFlags,
-											 lpEnvironment, lpCurrentDirectory, lpStartupInfo,
-											 lpProcessInformation, NULL, DLLPath,
-											 m_pCreateProcessTrampoline);
-
+		Result = DetourCreateProcessWithDllW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+											 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
+											 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
+											 lpProcessInformation_out, NULL, DLLPath, m_pCreateProcessTrampoline);
 		delete[] pDLL32Path;
 
 		return Result;
 	}
 
-	BOOL SystemCore::ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo)
+	/*! \brief ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (redirected to CreateProcessHook)
+		\param[in] lpExecInfo_in : a SHELLEXECUTEINFO structure that contains and receives information about the application being executed
+		\return TRUE if successful; FALSE otherwise
+	*/
+	BOOL SystemCore::ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in)
 	{
-		if (lpExecInfo->lpVerb == NULL || _tcsicmp(lpExecInfo->lpVerb, _T("open")) != 0)
+		if (lpExecInfo_in->lpVerb == NULL || _tcsicmp(lpExecInfo_in->lpVerb, _T("open")) != 0)
 		{
 			PROCESS_INFORMATION ProcessInfo;
 			STARTUPINFO StartupInfo;
 			string_t CommandLine;
 
-			format(CommandLine, _T("\"%s\" %s"), lpExecInfo->lpFile, lpExecInfo->lpParameters);
+			format(CommandLine, _T("\"%s\" %s"), lpExecInfo_in->lpFile, lpExecInfo_in->lpParameters);
 			SecureZeroMemory(&StartupInfo, sizeof(StartupInfo));
 
 			StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
 			StartupInfo.wShowWindow = SW_SHOWNORMAL;
 			StartupInfo.cb = sizeof(StartupInfo);
 
-			return CreateProcessHook(lpExecInfo->lpFile, (LPTSTR)CommandLine.c_str(), NULL, NULL, FALSE,
+			return CreateProcessHook(lpExecInfo_in->lpFile, const_cast<LPTSTR>(CommandLine.c_str()), NULL, NULL, FALSE,
 									 CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-									 NULL, lpExecInfo->lpDirectory, &StartupInfo, &ProcessInfo);
+									 NULL, lpExecInfo_in->lpDirectory, &StartupInfo, &ProcessInfo);
 		}
 		else
 		{
-			return m_pShellExecuteExTrampoline(lpExecInfo);
+			return m_pShellExecuteExTrampoline(lpExecInfo_in);
 		}
 	}
 
-	void SystemCore::RegisterHooks(IHookManager *pHookManager)
+	/*! \brief Register the hooks for this module
+		\param[in] pHookManager : 
+		\return void
+	*/
+	void SystemCore::RegisterHooks(IHookManager *pHookManager_in)
 	{
-		if (pHookManager != NULL)
+		if (pHookManager_in != NULL)
 		{
-			pHookManager->RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
-			pHookManager->RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
+			// CreateWindowEx hook used to start the AutoLogin thread
+			if (m_AutoLogin)
+				pHookManager_in->RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
+			// ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (Windows XP)
+			pHookManager_in->RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
+			// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
 			IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
-			// pHookManager->RegisterHook("CreateProcess", "Kernel32.dll", CreateProcessW, ::CreateProcessHook);
 		}
 	}
 
@@ -127,9 +165,9 @@ namespace Bootstrap
 	{
 		if (pHookManager != NULL)
 		{
-			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)pHookManager->GetTrampolineFunc("CreateWindowEx");
+			if (m_AutoLogin)
+				m_pCreateWindowExWTrampoline = (fnCreateWindowExW)pHookManager->GetTrampolineFunc("CreateWindowEx");
 			m_pShellExecuteExTrampoline = (fnShellExecuteEx)pHookManager->GetTrampolineFunc("ShellExecuteEx");
-			// m_pCreateProcessTrampoline = (fnCreateProcess)pHookManager->GetTrampolineFunc("CreateProcess");
 		}
 	}
 }

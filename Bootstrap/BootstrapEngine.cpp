@@ -3,7 +3,8 @@
 	filename	: 	BootstrapEngine.cpp
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Plugin engine used during the game starting process
+					Handles the AutoLogin plugin during the login process
 **************************************************************************/
 #include "stdafx.h"
 #include <SettingsManager.h>
@@ -30,11 +31,15 @@
 
 namespace Windower
 {
+	//! pointer to the plugin manager
 	PluginManager* ICoreModule::m_pPluginManager = NULL;
 }
 
 namespace Bootstrap
 {
+	/*! \brief BootstrapEngine constructor
+		\param[in] pConfigFile_in : the name of the configuration file
+	*/
 	BootstrapEngine::BootstrapEngine(const TCHAR *pConfigFile_in)
 		: PluginEngine(pConfigFile_in)
 	{
@@ -58,6 +63,7 @@ namespace Bootstrap
 		Windower::ICoreModule::SetPluginManager(m_pPluginManager);
 	}
 	
+	//! \brief BootstrapEngine destructor
 	BootstrapEngine::~BootstrapEngine()
 	{
 		Detach();
@@ -84,6 +90,9 @@ namespace Bootstrap
 		m_pPluginManager = NULL;
 	}
 
+	/*! \brief Attaches the engine to the target process through hooking
+		\return true if all the hooks were installed successfully; false otherwise
+	*/
 	bool BootstrapEngine::Attach()
 	{
 		if (m_pHookManager != NULL)
@@ -107,6 +116,9 @@ namespace Bootstrap
 		return false;
 	}
 
+	/*! \brief Detaches the engine from the target process and removes all the installed hooks
+		\return true if all the hooks were removed successfully; false otherwise
+	*/
 	bool BootstrapEngine::Detach()
 	{
 		PluginEngine::Detach();
@@ -117,23 +129,35 @@ namespace Bootstrap
 		return false;
 	}
 
+	/*! \brief Checks if the AutoLogin plugin is active
+		\return true if the plugin is active; false otherwise
+	*/
+	bool BootstrapEngine::IsAutoLoginActive() const
+	{
+		if (m_pSettingsManager != NULL)
+			return m_pSettingsManager->GetAutoLogin();
+
+		return false;
+	}
+
+	/*! \brief Loads the AutoLogin plugin and starts the HMTL forms monitoring thread
+		\param[in] hParentWnd_in : the handle to the parent window containing the IE server
+	*/
 	void BootstrapEngine::InvokeAutoLogin(HWND hParentWnd_in)
 	{
 		if (m_pCommandDispatcher != NULL)
 		{
-			// load plugins
-			if (m_pSettingsManager->GetAutoLogin())
+			// check if the AutoLogin plugin is loaded
+			if (LoadPlugin(_T("AutoLogin")))
 			{
-				// check if the AutoLogin plugin is loaded
-				if (LoadPlugin(_T("AutoLogin")))
-				{
-					Windower::WindowerCommand *pAutoLoginCmd;
+				Windower::WindowerCommand *pAutoLoginCmd;
 
-					if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::startthread")) != NULL)
-					{
-						 format(pAutoLoginCmd->Parameters["hwnd"].Value, "%ld", hParentWnd_in);
-						 m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);
-					}
+				if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::startthread")) != NULL)
+				{
+					// set the handle value of the command
+					format(pAutoLoginCmd->Parameters["hwnd"].Value, "%08x", hParentWnd_in);
+					// dispatch the command
+					m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);
 				}
 			}
 		}
