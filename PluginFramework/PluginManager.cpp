@@ -21,12 +21,15 @@
 
 namespace PluginFramework
 {
-	PluginVersion PluginManager::m_Version(_T("1.0.0"));
+	const PluginVersion PluginManager::m_Version(_T("1.0.0"));
 
-	/*! \brief PluginManager default constructor */
-	PluginManager::PluginManager(const IPluginServices *pServices_in)
-		: m_pServices(pServices_in) {}
+	/*! \brief PluginManager constructor 
+		\param[in] Services_in : plugin services
+	*/
+	PluginManager::PluginManager(const IPluginServices &Services_in)
+		: m_Services(Services_in) {}
 
+	//! \brief PluginManager destructor
 	PluginManager::~PluginManager()
 	{
 		if (m_LoadedPlugins.empty() == false)
@@ -110,10 +113,9 @@ namespace PluginFramework
 		if (hModule_in != NULL && pQueryFunc_out != NULL && *pQueryFunc_out == NULL)
 		{
 			fnInitialize pInitialize = (fnInitialize)::GetProcAddress(hModule_in, "InitPlugin");
-			fnTerminate pTerminate = (fnTerminate)::GetProcAddress(hModule_in, "TerminatePlugin");
 			*pQueryFunc_out = (fnQuery)::GetProcAddress(hModule_in, "QueryPlugin");
 
-			return (pTerminate != NULL && pInitialize != NULL && *pQueryFunc_out != NULL);
+			return (pInitialize != NULL && *pQueryFunc_out != NULL);
 		}
 
 		return false;
@@ -175,8 +177,10 @@ namespace PluginFramework
 		return (Version_out = m_Version.ToString());
 	}
 
-	/*! \brief 
-	\param[] PluginName_in : 
+
+	/*! \brief Loads a plugin given its name
+		\param[in] PluginName_in : the name of the plugin to load
+		\return a pointer to the plugin instance if successful; NULL otherwise
 	*/
 	IPlugin* PluginManager::LoadPlugin(const string_t &PluginName_in)
 	{
@@ -221,6 +225,10 @@ namespace PluginFramework
 		return NULL;
 	}
 
+	/*! \brief Creates an instance of a loaded plugin given its name
+		\param[in] PluginName_in : the name of the plugin to instantiate
+		\return a pointer to the plugin instance if successful; NULL otherwise
+	*/
 	IPlugin* PluginManager::CreateObject(const string_t &PluginName_in)
 	{
 		PluginObjects::iterator ObjIter = m_PluginObjects.find(PluginName_in);
@@ -252,6 +260,10 @@ namespace PluginFramework
 			return ObjIter->second;
 	}
 
+	/*! \brief Unloads a plugin given its name
+		\param[in] PluginName_in : the name of the plugin to unload
+		\return true if successful; false otherwise
+	*/
 	bool PluginManager::UnloadPlugin(const string_t &PluginName_in)
 	{
 		LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
@@ -273,6 +285,9 @@ namespace PluginFramework
 		return false;
 	}
 
+	/*! \brief Destroys an instance of a loaded plugin given its name
+		\param[in] PluginName_in : the name of the plugin to destroy
+	*/
 	void PluginManager::DestroyObject(const string_t &PluginName_in)
 	{
 		PluginObjects::iterator ObjIter = m_PluginObjects.find(PluginName_in);
@@ -291,13 +306,17 @@ namespace PluginFramework
 		}
 	}
 
+	/*! \brief Initializes a plugin given its DLL handle
+		\param[in] hModule_in : the DLL handle of the plugin to initialize
+		\return a pointer to the plugin registration parameters if successful; NULL otherwise
+	*/
 	RegisterParams* PluginManager::InitializePlugin(HMODULE hModule_in)
 	{
-		fnInitialize pInitFunc = (fnInitialize)::GetProcAddress(hModule_in, "InitPlugin");
+		fnInitialize pInitialize = (fnInitialize)::GetProcAddress(hModule_in, "InitPlugin");
 
-		if (pInitFunc != NULL)
+		if (pInitialize != NULL)
 		{
-			RegisterParams *pResult = pInitFunc(m_pServices);
+			RegisterParams *pResult = pInitialize(m_Services);
 
 			if (pResult != NULL)
 			{

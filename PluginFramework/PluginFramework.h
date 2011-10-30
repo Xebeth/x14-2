@@ -3,7 +3,7 @@
 	filename	: 	PluginFramework.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	Plugin framework inclusions
+	purpose		:	Plugin framework header
 **************************************************************************/
 #ifndef __PLUGIN_FRAMEWORK_H__
 #define __PLUGIN_FRAMEWORK_H__

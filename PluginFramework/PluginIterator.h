@@ -19,7 +19,9 @@ namespace PluginFramework
 
 		virtual bool IsValid();
 	protected:
+		//! a reference to the plugin manager
 		PluginManager	&m_PluginManager;
+		//! function pointer on the query function exposed by the plugins
 		fnQuery			*m_pQueryFunc;
 	};
 }

@@ -10,15 +10,15 @@
 
 namespace PluginFramework
 {
-	typedef std::vector<PluginUUID> Blacklist;
 	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 	typedef stdext::hash_map<string_t, RegisterParams*> LoadedPlugins;
 	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;
+	typedef std::vector<PluginUUID> Blacklist;
 
 	class PluginManager
 	{
 	public:
-		PluginManager(const IPluginServices *pServices_in);
+		explicit PluginManager(const IPluginServices &Services_in);
 		virtual ~PluginManager();
 
 		IPlugin* LoadPlugin(const string_t &PluginName_in);
@@ -29,10 +29,6 @@ namespace PluginFramework
 		string_t& GetVersionStr(string_t &Version_out) const;
 		bool RegisterPlugin(PluginInfo &Info_in_out, string_t PluginPath_in);
 
-		const RegisteredPlugins& GetRegisteredPlugins() const { return m_RegisteredPlugins; }
-
-		static PluginVersion m_Version;
-
 	private:
 		IPlugin* CreateObject(const string_t &PluginName_in);
 		void DestroyObject(const string_t &PluginName_in);
@@ -41,11 +37,19 @@ namespace PluginFramework
 		bool CheckPluginInfo(fnQuery pQueryFunc_in, PluginInfo &Info_out) const;
 		bool CheckDLLExports(HMODULE hModule_in, fnQuery *pQueryFunc_out) const;
 		RegisterParams* InitializePlugin(HMODULE hModule_in);
+
+		//! hash map of registered plugins
 		RegisteredPlugins m_RegisteredPlugins;
+		//! hash map of plugin instances
 		PluginObjects m_PluginObjects;
+		//! hash map of loaded plugins
 		LoadedPlugins m_LoadedPlugins;
+		//! hash map of blacklisted plugins
 		Blacklist m_Blacklist;
-		const IPluginServices *m_pServices;
+		//! plugin services used to (un)subscribe to services and invoke them
+		const IPluginServices &m_Services;
+		//! plugin manager versions
+		static const PluginVersion m_Version;
 	};
 }
 

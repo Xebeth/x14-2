@@ -14,17 +14,29 @@ namespace PluginFramework
 	class IPlugin
 	{
 	public:
+		//! \brief IPlugin destructor
 		virtual ~IPlugin() {}
 
-		static void SetPluginServices(const PluginFramework::IPluginServices *pPluginServices_in)
-			{ m_pPluginServices = pPluginServices_in; }
+		/*! \brief Sets the services for all instances of the plugin
+			\param[in] pPluginServices_in : plugin services
+		*/
+		static void SetPluginServices(const PluginFramework::IPluginServices &PluginServices_in)
+			{ m_pPluginServices = &PluginServices_in; }
 
-		const PluginInfo& GetInfo() { return m_BasePluginInfo; }
-		void SetInfo(const PluginInfo &PluginInfo_in) { m_BasePluginInfo = PluginInfo_in; }
+		/*! \brief Retrieves the plugin information (version, etc.)
+			\return the plugin information
+		*/
+		const PluginInfo& GetInfo() { return m_PluginInfo; }
+		/*! \brief Sets the plugin information (version, etc.)
+			\param[in] PluginInfo_in : the plugin information
+		*/
+		void SetInfo(const PluginInfo &PluginInfo_in) { m_PluginInfo = PluginInfo_in; }
 
 	protected:
+		//! the plugin services
 		static const PluginFramework::IPluginServices *m_pPluginServices;
-		PluginInfo m_BasePluginInfo;
+		//! the plugin information (version, etc.)
+		PluginInfo m_PluginInfo;
 	};
 }
 
