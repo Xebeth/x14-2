@@ -16,17 +16,17 @@ namespace InjectModule
 										 BOOL CreateSuspended, DWORD dwStackSize, LPVOID Unknown1, LPVOID Unknown2, LPVOID Unknown3); 
 
 	/*! \brief Creates a suspended process, injects the DLL and resumes the execution
-		\param[in]			ExePath_in : the path to the target process
-		\param[out]			ProcessInfo_out : a PROCESS_INFORMATION structure receiving the result of CreateProcess(...)
-		\param[in,out,opt]	pCmdLine_in_out_opt : the command line to be executed
-		\param[in,opt]		CreateProcessFlags_in_opt : user-defined to be passed to the dwCreationFlags parameter of CreateProcess(...)
-		\param[in,opt]		pDllPathX86_in_opt : the path to the injected DLL for an x86 target
-		\param[in,opt]		pDllPathX64_in_opt : the path to the injected DLL for an x64 target
+		\param[in]		ExePath_in : the path to the target process
+		\param[out]		ProcessInfo_out : a PROCESS_INFORMATION structure receiving the result of CreateProcess(...)
+		\param[in,out]	pCmdLine_in_out : the command line to be executed
+		\param[in]		CreateProcessFlags_in : user-defined to be passed to the dwCreationFlags parameter of CreateProcess(...)
+		\param[in]		pDllPathX86_in : the path to the injected DLL for an x86 target
+		\param[in]		pDllPathX64_in : the path to the injected DLL for an x64 target
 		\return TRUE if the injection succeeded; FALSE otherwise
 	*/
 	BOOL CreateProcessEx(const string_t &ExePath_in, PROCESS_INFORMATION &ProcessInfo_out,
-						 TCHAR *pCmdLine_in_out_opt, DWORD CreateProcessFlags_in_opt,
-						 const TCHAR *pDllPathX86_in_opt, const TCHAR *pDllPathX64_in_opt)
+						 TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in,
+						 const TCHAR *pDllPathX86_in, const TCHAR *pDllPathX64_in)
 	{
 		BOOL Result;
 
@@ -38,11 +38,11 @@ namespace InjectModule
 		//
 
 #ifdef _M_X64
-		const TCHAR* pDllPath(pDllPathX64_in_opt);
+		const TCHAR* pDllPath(pDllPathX64_in);
 #else
-		const TCHAR* pDllPath(pDllPathX86_in_opt);
+		const TCHAR* pDllPath(pDllPathX86_in);
 #endif
-		if ((Result = CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out_opt, CreateProcessFlags_in_opt)) && pDllPath != NULL)
+		if ((Result = CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out, CreateProcessFlags_in)) && pDllPath != NULL)
 		{
 			////////////////////////////////////////////////////////////////////
 			// Inject the DLL by creating a thread in the target process
@@ -113,14 +113,14 @@ namespace InjectModule
 	}
 
 	/*! \brief Creates a suspended process
-		\param[in]			ExePath_in : the path to the target process
-		\param[out]			ProcessInfo_out : a PROCESS_INFORMATION structure receiving the result of CreateProcess(...)
-		\param[in,out,opt]	pCmdLine_in_out_opt : the command line to be executed
-		\param[in,opt]		CreateProcessFlags_in_opt : user-defined to be passed to the dwCreationFlags parameter of CreateProcess(...)
+		\param[in]		ExePath_in : the path to the target process
+		\param[out]		ProcessInfo_out : a PROCESS_INFORMATION structure receiving the result of CreateProcess(...)
+		\param[in,out]	pCmdLine_in_out : the command line to be executed
+		\param[in]		CreateProcessFlags_in : user-defined to be passed to the dwCreationFlags parameter of CreateProcess(...)
 		\return the result of the CreateProcess(...) call
 	*/
 	BOOL CreateSuspendedProcess(const string_t &ExePath_in, PROCESS_INFORMATION &ProcessInfo_out,
-								TCHAR *pCmdLine_in_out_opt, DWORD CreateProcessFlags_in_opt)
+								TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in)
 	{
 		STARTUPINFO StartupInfo;
 
@@ -136,13 +136,20 @@ namespace InjectModule
 
 		CurrentDirectory = (IndexOf != STRING_T_NPOS) ? ExePath_in.substr(0, IndexOf + 1) : _T(".");
 
-		return CreateProcess(ExePath_in.c_str(), pCmdLine_in_out_opt, NULL, NULL, FALSE,
-							 CreateProcessFlags_in_opt | CREATE_SUSPENDED | NORMAL_PRIORITY_CLASS,
+		return CreateProcess(ExePath_in.c_str(), pCmdLine_in_out, NULL, NULL, FALSE,
+							 CreateProcessFlags_in | CREATE_SUSPENDED | NORMAL_PRIORITY_CLASS,
 							 NULL, CurrentDirectory.c_str(), &StartupInfo, &ProcessInfo_out);
 	}
 
+	/*! \brief Imports 'NtCreateThreadEx' from 'ntdll.dll' and calls it to create a thread
+		\param[in] hProcess_in : handle to the process in which the thread is to be created
+		\param[in] pRemoteRoutine_in : function pointer to be executed by the thread
+		\param[in] lpThreadData_in : pointer to a variable to be passed to the thread function
+		\param[in] CreateSuspended_in : flag specifying if the the thread is created in a suspended state
+		\return the handle to the new thread
+	*/
 	HANDLE NtCreateThreadEx(HANDLE hProcess_in, LPTHREAD_START_ROUTINE pRemoteRoutine_in,
-							void* pfnCallback_in, bool CreateSuspended_in)
+							void* lpThreadData_in, bool CreateSuspended_in)
 	{
 		fnCreateThreadEx *pNtCreateThreadEx;
 		HANDLE hRemoteThread = NULL;
@@ -155,7 +162,7 @@ namespace InjectModule
 			if (pNtCreateThreadEx != NULL)
 			{
 				pNtCreateThreadEx(&hRemoteThread, SPECIFIC_RIGHTS_ALL, NULL, hProcess_in,
-								  (LPTHREAD_START_ROUTINE)pRemoteRoutine_in, pfnCallback_in,
+								  (LPTHREAD_START_ROUTINE)pRemoteRoutine_in, lpThreadData_in,
 								  CreateSuspended_in, 0, NULL, NULL, NULL);
 			}
 		}
