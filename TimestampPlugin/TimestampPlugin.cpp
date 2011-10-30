@@ -16,11 +16,10 @@ const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServi
 
 namespace Windower
 {
+	// TimestampPlugin default constructor
 	TimestampPlugin::TimestampPlugin() : IGameChatPlugin()
-	{
-		m_TimestampFormat = TIMESTAMP_DEFAULT_FORMAT;
-		m_TimestampLength = TIMESTAMP_DEFAULT_LENGTH;
-	}
+		: m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT),
+		m_TimestampLength(TIMESTAMP_DEFAULT_LENGTH) {}
 
 	/*! \brief Creates an instance of TimestampPlugin
 		\return a pointer to the new TimestampPlugin instance
@@ -28,9 +27,9 @@ namespace Windower
 	PluginFramework::IPlugin* TimestampPlugin::Create()
 	{
 		TimestampPlugin *pNewInst = new TimestampPlugin;
-		TimestampPlugin::Query(pNewInst->m_BasePluginInfo);
+		TimestampPlugin::Query(pNewInst->m_PluginInfo);
 
-		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("FormatChatMessage"), pNewInst) == false)
+		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
 		{
 			delete pNewInst;
 			pNewInst = NULL;
@@ -67,7 +66,7 @@ namespace Windower
 			PluginFramework::ServiceParam InvokeArg(_T("UnregisterParam"), &UnregParam);
 
 			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg, PluginFramework::ServiceParam());
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
 
 			delete pInstance_in;
 			pInstance_in = NULL;
@@ -87,9 +86,20 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B"));
 	}
 
-	bool TimestampPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-											StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-											DWORD dwOriginalMsgSize, char **pBuffer_in_out)
+	/*! \brief Callback invoked when the game chat receives a new line
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
+		\param[in] pOriginalMsg_in : a pointer to the unmodified message
+		\param[in] dwOriginalMsgSize : the size of the original message
+		\param[in] pBuffer_in_out : the resulting text modified by the plugin
+		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
+		\return true if the message was logged; false otherwise
+	*/
+	bool TimestampPlugin::OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+										StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+										DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+										bool &Unsubscribe_out)
 	{
 		if (pMessage_in_out->pResBuf != NULL)
 		{
@@ -117,6 +127,10 @@ namespace Windower
 		return false;
 	}
 
+	/*! \brief SetFormat command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
 	int TimestampPlugin::SetFormat(const WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("TimestampPlugin") == 0)
@@ -124,13 +138,22 @@ namespace Windower
 			TimestampPlugin *pTimestamp = reinterpret_cast<TimestampPlugin*>(pCommand_in->Caller.pData);
 			const WindowerCommandParam *pParam = pCommand_in->GetParameter("format");
 
-			if (pTimestamp != NULL && pParam != NULL && pTimestamp->SetFormat(pParam->Value))
-				return DISPATCHER_RESULT_SUCCESS;
+			if (pTimestamp != NULL && pParam != NULL)
+			{
+				if (pTimestamp->SetFormat(pParam->Value))
+					return DISPATCHER_RESULT_SUCCESS;
+			}
+
+			return DISPATCHER_RESULT_INVALID_PARAMETERS;
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
+	/*! \brief Sets the format of the timestamp
+		\param[in] Format_in : the new format of the timestamp
+		\return true if the timestamp format is valid; false otherwise
+	*/
 	bool TimestampPlugin::SetFormat(const std::string& Format_in)
 	{
 		if (Format_in.empty() == false)
@@ -147,32 +170,29 @@ namespace Windower
 
 using Windower::TimestampPlugin;
 
+/*! \brief Function exposed by the plugin DLL to retrieve the plugin information
+	\param[in] PluginInfo_out : the plugin information
+*/
 extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
 {
 	TimestampPlugin::Query(Info_out);
 }
 
-extern "C" PLUGIN_API int TerminatePlugin()
+/*! \brief Function exposed by the plugin DLL to initialize the plugin object
+	\param[in] PluginServices_in : the plugin services
+	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+*/
+extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &ServicesParams_in)
 {
-	return 0;
-}
+	RegisterParams *pParams = new RegisterParams;
 
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices *pServicesParams_in)
-{
-	if (pServicesParams_in != NULL)
-	{
-		RegisterParams *pParams = new RegisterParams;
+	TimestampPlugin::Query(pParams->Info);
 
-		TimestampPlugin::Query(pParams->Info);
+	pParams->QueryFunc = TimestampPlugin::Query;
+	pParams->CreateFunc = TimestampPlugin::Create;
+	pParams->DestroyFunc = TimestampPlugin::Destroy;
 
-		pParams->QueryFunc = TimestampPlugin::Query;
-		pParams->CreateFunc = TimestampPlugin::Create;
-		pParams->DestroyFunc = TimestampPlugin::Destroy;
+	TimestampPlugin::SetPluginServices(ServicesParams_in);
 
-		TimestampPlugin::SetPluginServices(pServicesParams_in);
-
-		return pParams;
-	}
-
-	return NULL;
+	return pParams;
 }

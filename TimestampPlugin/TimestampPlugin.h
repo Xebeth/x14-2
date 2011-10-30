@@ -18,7 +18,6 @@ namespace Windower
 	{
 	public:
 		TimestampPlugin();
-		virtual ~TimestampPlugin() {}
 
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
@@ -27,11 +26,14 @@ namespace Windower
 		static int SetFormat(const WindowerCommand *pCommand_in);
 		bool SetFormat(const std::string& Format_in);
 
-		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
+		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   bool &Unsubscribe_out);
 	private:
+		//! the format of the timestamp plugin
 		std::string		m_TimestampFormat;
+		//! the length of the formatted timestamp
 		unsigned int	m_TimestampLength;
 	};
 }
