@@ -24,9 +24,9 @@ namespace Windower
 	PluginFramework::IPlugin* TellDetectPlugin::Create()
 	{
 		TellDetectPlugin *pNewInst = new TellDetectPlugin;
-		TellDetectPlugin::Query(pNewInst->m_BasePluginInfo);
+		TellDetectPlugin::Query(pNewInst->m_PluginInfo);
 
-		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("FormatChatMessage"), pNewInst) == false)
+		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
 		{
 			delete pNewInst;
 			pNewInst = NULL;
@@ -42,7 +42,7 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
 
 			delete pInstance_in;
 			pInstance_in = NULL;
@@ -62,9 +62,20 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
 	}
 
-	bool TellDetectPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-											 StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-											 DWORD dwOriginalMsgSize, char **pBuffer_in_out)
+	/*! \brief Callback invoked when the game chat receives a new line
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
+		\param[in] pOriginalMsg_in : a pointer to the unmodified message
+		\param[in] dwOriginalMsgSize : the size of the original message
+		\param[in] pBuffer_in_out : the resulting text modified by the plugin
+		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
+		\return true if the message was logged; false otherwise
+	*/
+	bool TellDetectPlugin::OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+										 StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+										 DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+										 bool &Unsubscribe_out)
 	{
 		if (MessageType == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
 			PlaySound(_T("tell.wav"), NULL, SND_FILENAME | SND_ASYNC);
@@ -75,32 +86,29 @@ namespace Windower
 
 using Windower::TellDetectPlugin;
 
+/*! \brief Function exposed by the plugin DLL to retrieve the plugin information
+	\param[in] PluginInfo_out : the plugin information
+*/
 extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
 {
 	TellDetectPlugin::Query(Info_out);
 }
 
-extern "C" PLUGIN_API int TerminatePlugin()
+/*! \brief Function exposed by the plugin DLL to initialize the plugin object
+	\param[in] PluginServices_in : the plugin services
+	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+*/
+extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &ServicesParams_in)
 {
-	return 0;
-}
+	RegisterParams *pParams = new RegisterParams;
 
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices *pServicesParams_in)
-{
-	if (pServicesParams_in != NULL)
-	{
-		RegisterParams *pParams = new RegisterParams;
+	TellDetectPlugin::Query(pParams->Info);
 
-		TellDetectPlugin::Query(pParams->Info);
+	pParams->QueryFunc = TellDetectPlugin::Query;
+	pParams->CreateFunc = TellDetectPlugin::Create;
+	pParams->DestroyFunc = TellDetectPlugin::Destroy;
 
-		pParams->QueryFunc = TellDetectPlugin::Query;
-		pParams->CreateFunc = TellDetectPlugin::Create;
-		pParams->DestroyFunc = TellDetectPlugin::Destroy;
+	TellDetectPlugin::SetPluginServices(ServicesParams_in);
 
-		TellDetectPlugin::SetPluginServices(pServicesParams_in);
-
-		return pParams;
-	}
-
-	return NULL;
+	return pParams;
 }

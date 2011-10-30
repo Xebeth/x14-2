@@ -13,16 +13,14 @@ namespace Windower
 	class TellDetectPlugin : public Windower::IGameChatPlugin
 	{
 	public:
-		TellDetectPlugin() : IGameChatPlugin() {}
-		virtual ~TellDetectPlugin() {}
-
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
-		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
+		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   bool &Unsubscribe_out);
 	};
 }
 
