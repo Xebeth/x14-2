@@ -12,11 +12,10 @@
 
 namespace Windower
 {
-	class ExpWatchPlugin : public Windower::ICreateXmlNodePlugin
+	class ExpWatchPlugin : public Windower::ICreateTextNodePlugin
 	{
 	public:
 		ExpWatchPlugin();
-		virtual ~ExpWatchPlugin() {}
 
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
@@ -31,18 +30,25 @@ namespace Windower
 		static int Reset(const WindowerCommand *pCommand_in);
 		bool Reset();
 
-		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
+		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   bool &Unsubscribe_out);
 
-		const char* OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out);
+		const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
 
 	protected:
+		//! the time at which data collection started
 		DWORD m_StartTime;
+		//! flag specifying if the data collection started
 		bool m_bStarted;
+		//! the number of defeated enemies since the data collection started
 		long m_KillCounter;
+		//! the total amount of experience gained since the data collection started
 		float m_TotalExp;
+		//! the average experience rate per kill
 		float m_AvgExpPerKill;
+		//! the average experience rate per hour
 		float m_AvgExpPerHour;
 	};
 }

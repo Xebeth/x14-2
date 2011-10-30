@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <FormatChatMessageHook.h>
-#include <ICreateXmlNodePlugin.h>
+#include <ICreateTextNodePlugin.h>
 #include <IGameChatPlugin.h>
 #include "WindowerCommand.h"
 #include "ExpWatchPlugin.h"
@@ -17,7 +17,8 @@ const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServi
 
 namespace Windower
 {
-	ExpWatchPlugin::ExpWatchPlugin() : ICreateXmlNodePlugin("Next"),
+	//! \brief ExpWatchPlugin constructor
+	ExpWatchPlugin::ExpWatchPlugin() : ICreateTextNodePlugin("Next"),
 		m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L),
 		m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL) {}
 
@@ -27,9 +28,9 @@ namespace Windower
 	PluginFramework::IPlugin* ExpWatchPlugin::Create()
 	{
 		ExpWatchPlugin *pNewInst = new ExpWatchPlugin;
-		ExpWatchPlugin::Query(pNewInst->m_BasePluginInfo);
+		ExpWatchPlugin::Query(pNewInst->m_PluginInfo);
 
-		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("FormatChatMessage"), pNewInst) == false)
+		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
 		{
 			delete pNewInst;
 			pNewInst = NULL;
@@ -78,7 +79,7 @@ namespace Windower
 			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArgStop, PluginFramework::ServiceParam());
 			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArgQuery, PluginFramework::ServiceParam());
 
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("FormatChatMessage"), pInstance_in);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
 
 			delete pInstance_in;
 			pInstance_in = NULL;
@@ -98,9 +99,20 @@ namespace Windower
 		Info_out.PluginIdentifier.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF"));
 	}
 
-	bool ExpWatchPlugin::FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-										   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-										   DWORD dwOriginalMsgSize, char **pBuffer_in_out)
+	/*! \brief Callback invoked when the game chat receives a new line
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
+		\param[in] pOriginalMsg_in : a pointer to the unmodified message
+		\param[in] dwOriginalMsgSize : the size of the original message
+		\param[in] pBuffer_in_out : the resulting text modified by the plugin
+		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
+		\return true if the message was logged; false otherwise
+	*/
+	bool ExpWatchPlugin::OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+									   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+									   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+									   bool &Unsubscribe_out)
 	{
 		if (m_bStarted)
 		{
@@ -118,6 +130,10 @@ namespace Windower
 		return true;
 	}
 
+	/*! \brief Start command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
 	int ExpWatchPlugin::Start(const WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
@@ -131,6 +147,10 @@ namespace Windower
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
+	/*! \brief Stop command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
 	int ExpWatchPlugin::Stop(const WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
@@ -144,6 +164,10 @@ namespace Windower
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
+	/*! \brief Reset command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
 	int ExpWatchPlugin::Reset(const WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
@@ -157,13 +181,16 @@ namespace Windower
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
+	/*! \brief Starts the experience counter
+		\return true
+	*/
 	bool ExpWatchPlugin::Start()
 	{
 		m_pTargetPtr = NULL;
 
 		if (m_bStarted == false)
 		{
-			m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateXmlNode"), this);
+			m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateTextNode"), this);
 			m_bStarted = true;
 			Reset();
 		}
@@ -171,19 +198,25 @@ namespace Windower
 		return true;
 	}
 
+	/*! \brief Stops the experience counter
+		\return true
+	*/
 	bool ExpWatchPlugin::Stop()
 	{
 		m_pTargetPtr = NULL;
 
 		if (m_bStarted)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("CreateXmlNode"), this);
+			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("CreateTextNode"), this);
 			m_bStarted = false;
 		}
 
 		return true;
 	}
 
+	/*! \brief Resets the experience counter
+		\return true
+	*/
 	bool ExpWatchPlugin::Reset()
 	{
 		if (m_bStarted)
@@ -196,7 +229,12 @@ namespace Windower
 		return true;
 	}
 
-	const char* ExpWatchPlugin::OnCreateXmlNode(const char *pText_in, bool &Unsubscribe_out)
+	/*! \brief Callback function invoked when the game creates a string object
+		\param[in] pText_in : the text used to create the string node
+		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
+		\return the modified version of the text
+	*/
+	const char* ExpWatchPlugin::OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out)
 	{
 		Unsubscribe_out = false;
 
@@ -231,32 +269,29 @@ namespace Windower
 
 using Windower::ExpWatchPlugin;
 
+/*! \brief Function exposed by the plugin DLL to retrieve the plugin information
+	\param[in] PluginInfo_out : the plugin information
+*/
 extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
 {
 	ExpWatchPlugin::Query(Info_out);
 }
 
-extern "C" PLUGIN_API int TerminatePlugin()
+/*! \brief Function exposed by the plugin DLL to initialize the plugin object
+	\param[in] PluginServices_in : the plugin services
+	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+*/
+extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &PluginServices_in)
 {
-	return 0;
-}
+	RegisterParams *pParams = new RegisterParams;
 
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices *pServicesParams_in)
-{
-	if (pServicesParams_in != NULL)
-	{
-		RegisterParams *pParams = new RegisterParams;
+	ExpWatchPlugin::Query(pParams->Info);
 
-		ExpWatchPlugin::Query(pParams->Info);
+	pParams->QueryFunc = ExpWatchPlugin::Query;
+	pParams->CreateFunc = ExpWatchPlugin::Create;
+	pParams->DestroyFunc = ExpWatchPlugin::Destroy;
 
-		pParams->QueryFunc = ExpWatchPlugin::Query;
-		pParams->CreateFunc = ExpWatchPlugin::Create;
-		pParams->DestroyFunc = ExpWatchPlugin::Destroy;
+	ExpWatchPlugin::SetPluginServices(PluginServices_in);
 
-		ExpWatchPlugin::SetPluginServices(pServicesParams_in);
-
-		return pParams;
-	}
-
-	return NULL;
+	return pParams;
 }
