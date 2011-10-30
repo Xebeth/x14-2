@@ -3,7 +3,7 @@
 	filename	: 	SettingsManager.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Settings manager header
 **************************************************************************/
 #ifndef __SETTINGS_MANAGER_H__
 #define __SETTINGS_MANAGER_H__

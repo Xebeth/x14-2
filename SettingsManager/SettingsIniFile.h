@@ -3,7 +3,7 @@
 	filename	: 	SettingsIniFile.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	
+	purpose		:	Implementation of the settings interface using an INI file
 **************************************************************************/
 #ifndef __SETTINGS_INI_FILE_H__
 #define __SETTINGS_INI_FILE_H__
@@ -12,10 +12,11 @@
 
 namespace Settings
 {
+	//! \brief Implementation of the settings interface using an INI file
 	class SettingsIniFile : public SettingsInterface
 	{
 	public:
-		SettingsIniFile(const string_t &SourceFile_in);
+		explicit SettingsIniFile(const string_t &SourceFile_in);
 		virtual ~SettingsIniFile();
 
 		// Data source functions
@@ -26,7 +27,7 @@ namespace Settings
 		// Sections functions
 		virtual bool CreateSection(const string_t &SectionName_in);
 		virtual bool DeleteSection(const string_t &SectionName_in);
-		virtual void getSections(CSimpleIni::TNamesDepend &Sections) const;
+		virtual void getSections(CSimpleIni::TNamesDepend &Sections_out) const;
 
 		// Settings accessors
 		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in) const;
@@ -36,7 +37,9 @@ namespace Settings
 		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in) const;
 		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
 	protected:
+		//! the path of the INI file
 		string_t m_SourceFile;
+		//! the INI object
 		CSimpleIni *m_pIni;
 	};
 }
