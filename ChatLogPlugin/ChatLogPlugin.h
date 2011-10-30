@@ -20,14 +20,21 @@ namespace Windower
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginInfo& Info_out);
 
-		bool FormatChatMessage(USHORT MessageType, const StringObject* pSender_in_out,
-							   StringObject* pMessage_in_out, const char *pOriginalMsg_in,
-							   DWORD dwOriginalMsgSize, char **pBuffer_in_out);
-	protected:
-		bool WriteLine(string_t& Line_in);
+		bool StartLog();
+		void StopLog();
 
+		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   bool &Unsubscribe_out);
+	protected:
+		bool WriteLine(const string_t &Line_in);
+
+		//! string buffer used to write in the log file
 		string_t	 m_Buffer;
+		//! flag specifying if the log file is open
 		bool		 m_bOpened;
+		//! handle of the log file
 		FILE		*m_pFile;
 	};
 }
