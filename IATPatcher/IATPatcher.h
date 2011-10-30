@@ -32,8 +32,8 @@ namespace IATPatcher
 	bool PatchIAT(HMODULE hmMod, const char *psImportedModuleName,
 				  const char *psImportedProcName, 
 				  PVOID *ppvOriginalProc, PVOID pvHookingProc);
-	bool RestoreIAT(HMODULE hmMod, const char *psImportedModuleName,
-					const char *psImportedProcName, PVOID pvOriginalProc);
+	bool RestoreIAT(HMODULE hmMod_in, const char *psImportedModuleName_in,
+					const char *psImportedProcName_in, PVOID pvOriginalProc_in);
 }
 
 #endif//__IAT_PATCHER_H__
