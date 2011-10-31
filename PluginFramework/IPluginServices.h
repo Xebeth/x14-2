@@ -23,7 +23,7 @@ namespace PluginFramework
 			\param[in] DataType_in : the type of the data
 			\param[in] pData_in : a pointer to the data
 		*/
-		ServiceParam(string_t DataType_in, void *pData_in)
+		ServiceParam(string_t DataType_in, LPVOID pData_in)
 		{
 			DataType = DataType_in;
 			pData = pData_in;
@@ -31,7 +31,7 @@ namespace PluginFramework
 		//! the type of the data
 		string_t	DataType;
 		//! a pointer to the data
-		void*		pData;
+		LPVOID		pData;
 	};
 
 	//! \brief Plugin services interface

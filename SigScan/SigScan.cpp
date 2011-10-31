@@ -206,7 +206,7 @@ namespace SigScan
 			for(size_t c = 0; c < cmpcount; ++c)
 			{
 				//Compare the memory.
-				if(memcmp(buffer + memchecks[c].Start,(void*)(pAddr + memchecks[c].Start),memchecks[c].Size) != 0)
+				if(memcmp(buffer + memchecks[c].Start,(LPVOID)(pAddr + memchecks[c].Start),memchecks[c].Size) != 0)
 				{
 					//Did not match, try next byte.
 					bMatching = false;
@@ -217,10 +217,10 @@ namespace SigScan
 			if(bMatching)
 			{
 				// Find address wanted in the target memory space - not ours.
-				void * Address = NULL;
+				LPVOID Address = NULL;
 
 				if(Dereference)
-					Address = *((void **)(pAddr + PtrOffset));
+					Address = *((LPVOID*)(pAddr + PtrOffset));
 				else
 					Address = m_pBaseAddress + ((pAddr + PtrOffset) - m_pProcessMemory);
 				//Clear buffer and return result.

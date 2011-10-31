@@ -145,7 +145,7 @@ namespace HookEngineLib
 									the instructions so at least 8 bytes are overwritten
 		\return the trampoline (detoured) function pointer
 	*/
-	void* IHookManager::DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in)
+	LPVOID IHookManager::DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in)
 	{
 		LPBYTE pTrampoline = (LPBYTE)malloc(OpCodesSize_in+8);
 		DWORD dwPageAccess;

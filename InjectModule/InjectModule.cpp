@@ -52,7 +52,7 @@ namespace InjectModule
 			HANDLE hThread = NULL;
 			DWORD RetCode = 0UL;
 			// allocate enough space in the target process to hold the path to the DLL
-			void* pReservedSpace = VirtualAllocEx(ProcessInfo_out.hProcess, NULL, DataSize,
+			LPVOID pReservedSpace = VirtualAllocEx(ProcessInfo_out.hProcess, NULL, DataSize,
 												  MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (pReservedSpace != NULL)
 			{
@@ -149,7 +149,7 @@ namespace InjectModule
 		\return the handle to the new thread
 	*/
 	HANDLE NtCreateThreadEx(HANDLE hProcess_in, LPTHREAD_START_ROUTINE pRemoteRoutine_in,
-							void* lpThreadData_in, bool CreateSuspended_in)
+							LPVOID lpThreadData_in, bool CreateSuspended_in)
 	{
 		fnCreateThreadEx *pNtCreateThreadEx;
 		HANDLE hRemoteThread = NULL;
