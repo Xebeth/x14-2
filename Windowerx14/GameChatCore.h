@@ -14,56 +14,50 @@ namespace Windower
 
 	typedef HookEngineLib::IHookManager IHookManager;
 
+	//! \brief Game chat module
 	class GameChatCore : public WindowerCore
 	{
 	public:
-		GameChatCore(WindowerEngine &Engine_in,
-					 CommandParser &Parser_in,
-					 CommandDispatcher &Dispatcher_in);
-		~GameChatCore();
+		GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in);
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager *pHookManager);
-		void OnHookInstall(IHookManager *pHookManager);
+		void RegisterHooks(IHookManager &HookManager_in);
+		void OnHookInstall(IHookManager &HookManager_in);
 
-		//! \brief FormatChatMessage hook
-		bool FormatChatMessageHook(LPVOID _this, USHORT MessageType, const StringObject* pSender, StringObject* pMessage);
+		//! \brief OnChatMessage hook
+		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
 
-		StringObject* CreateXmlNodeHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
+		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
 
 	protected:
 		bool DisplayWindowerVersion();
 
-		void OnSubscribe(const string_t &ServiceName_in,
-						 const PluginSet &Subscribers_in);
-		void OnUnsubscribe(const string_t &ServiceName_in,
-						   const PluginSet &Subscribers_in);
-		bool FilterCommands(LPVOID _this, USHORT MessageType_in,
-							const StringObject* pSender_in,
-							StringObject* pMessage_in);
-
+		virtual void OnSubscribe(const string_t &ServiceName_in,
+								 const PluginSet &Subscribers_in);
+		virtual void OnUnsubscribe(const string_t &ServiceName_in,
+								   const PluginSet &Subscribers_in);
+		bool FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
+							const StringNode* pSender_in,
+							StringNode* pMessage_in);
+		//! function pointer to the original FormatChatMessage function
 		fnFormatChatMessage	m_pFormatChatMessageTrampoline;
-		fnCreateXmlNode		m_pCreateXmlNodeTrampoline;
+		//! function pointer to the original CreateTextNode function
+		fnCreateTextNode m_pCreateTextNodeTrampoline;
 
-		//! pointer to the start of the chat memory
-		char			 **m_pChatHead;
-		//! pointer to the previous start of the chat memory
-		char			  *m_pPrevChatHead;
-		//! pointer to the write position in the chat memory
-		char			 **m_pChatTail;
-		//! pointer to the previous write position in the chat memory
-		char			  *m_pPrevChatTail;
-		//! vector keeping track of the chat head positions
-		std::vector<char*> m_ChatHeadVector;
 	private:
-		void UpdateChatData(const void *pChatObj_in);
-
-		bool						 m_bCreateXmlNodeSubEmpty;
 		PluginSet					 m_ChatFormatSubscribers;
-		PluginSet					 m_CreateXmlNodeSubscribers;
-		CommandDispatcher			&m_CommandDispatcher;
-		CommandParser				&m_CommandParser;
-		std::string					 m_InjectVersion;
+		PluginSet					 m_CreateTextNodeSubscribers;
+		bool						 m_bCreateTextNodeSubEmpty;
+		//! the module service for the chat message formatting method
+		ModuleService *m_pFormatChatMessage;
+		//! the module service for the text node creation method
+		ModuleService *m_pCreateTextNode;
+		//! the command dispatcher
+		CommandDispatcher &m_CommandDispatcher;
+		//! the command parser
+		CommandParser &m_CommandParser;
+		//! the windower version injected in the start screen
+		std::string	m_InjectVersion;
 	};
 }
 

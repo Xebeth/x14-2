@@ -1,29 +1,55 @@
+/**************************************************************************
+	created		:	2011-10-30
+	filename	: 	Font.cpp
+	author		:	Xebeth`
+	copyright	:	North Edge (2011)
+	purpose		:	Font class
+**************************************************************************/
 #include "stdafx.h"
-#include <d3dx9.h>
+
 #include <d3d9.h>
 #include <vector>
 
 #include "Font.h"
 
-/*! \brief Default constructor. */
+/*! \brief Font default constructor */
 Font::Font()
 {
 	m_pTextSprite = NULL;
 	m_pFont = NULL; 
 }
 
-bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName, int Size_in, bool Antialising_in, bool Bold_in, bool Italic_in)
+/*! \brief Initializes the font
+	\param[in] pDevice_in : the Direct3D device
+	\param[in] pFaceName_in : the name of the font face
+	\param[in] Size_in : the size of the font
+	\param[in] Antialising_in : flag specifying if the font is anti-aliased
+	\param[in] Bold_in : flag specifying if the font is bold
+	\param[in] Italic_in : flag specifying if the font is italic
+	\return true if the font was created successfully; false otherwise
+*/
+bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in, bool Antialising_in, bool Bold_in, bool Italic_in)
 {
 	Release();
 
+	// create the sprite
 	D3DXCreateSprite(pDevice_in, &m_pTextSprite);
 
 	return D3DXCreateFont(pDevice_in, -Size_in, 0, Bold_in ? FW_BOLD : FW_NORMAL,
 						  1, Italic_in, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, 
 						  DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, 
-						  pFaceName, &m_pFont) == D3D_OK;
+						  pFaceName_in, &m_pFont) == D3D_OK;
 }
 
+/*! \brief Displays text at the specified position
+	\param[in] pText_in : the text to be displayed
+	\param[in] xPosition_in : the x-coordinate of the text
+	\param[in] yPosition_in : the y-coordinate of the text
+	\param[in] Color_in : the color of the text
+	\param[in] BoxWidth_in : the width of the box used for alignment
+	\param[in] BoxHeight_in : the height of the box used for alignment 
+	\param[in] Alignment_in : the alignment of the text
+*/
 void Font::Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWORD Color_in,
 				 int BoxWidth_in, int BoxHeight_in, FONTALIGNMENT Alignment_in)
 {
@@ -76,8 +102,18 @@ void Font::Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWOR
 	m_pTextSprite->End();
 }
 
+//! \brief Destroys the font data
 void Font::Release()
 {
-	m_pFont = NULL;
-	m_pTextSprite = NULL;
+	if (m_pFont != NULL)
+	{
+		m_pFont->Release();
+		m_pFont = NULL;
+	}
+
+	if (m_pTextSprite != NULL)
+	{
+		m_pTextSprite->Release();
+		m_pTextSprite = NULL;
+	}
 }

@@ -1,7 +1,6 @@
 #ifndef __IDIRECT3D9_WRAPPER_H
 #define __IDIRECT3D9_WRAPPER_H
 
-
 class IDirect3DDevice9Wrapper;
 
 typedef std::vector<IDirect3DDevice9Wrapper**> DeviceSubscribers;
@@ -9,7 +8,7 @@ typedef std::vector<IDirect3DDevice9Wrapper**> DeviceSubscribers;
 class IDirect3D9Wrapper : public IDirect3D9
 {
 public:
-	IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9, LONG ResX, LONG ResY, BOOL VSync); 
+	IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Direct3D9Ex_in); 
 	virtual ~IDirect3D9Wrapper();
 
 	IDirect3DDevice9Wrapper* GetDevice() { return m_pWrappedDevice; }
@@ -48,6 +47,7 @@ protected:
 	const LONG m_ResX;
 	const LONG m_ResY;
 	const BOOL m_VSync;
+	const BOOL m_Direct3D9Ex;
 };
 
 #endif//__IDIRECT3D9_WRAPPER_H

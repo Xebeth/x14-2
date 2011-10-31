@@ -10,13 +10,9 @@ public:
 	virtual ~IDirect3DDevice9Wrapper();
 
 	bool IsRendering() { return m_bRender; }
-	void SuspendRendering() { m_bRender = false; }
-	void ResumeRendering()  { m_bRender = true; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
 	void ToggleWireframe()  { m_FillMode = (m_FillMode == D3DFILL_SOLID) ? D3DFILL_WIREFRAME : D3DFILL_SOLID;
 							  m_pDirect3dDevice->SetRenderState(D3DRS_FILLMODE, m_FillMode); }
-	void Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWORD Color_in,
-			   int BoxWidth_in = 0, int BoxHeight_in = 0, FONTALIGNMENT Alignment_in = FA_LEFT);
 
 	/*** IUnknown methods ***/
 	HRESULT __stdcall QueryInterface(REFIID iid, void ** ppvObject);
@@ -140,10 +136,27 @@ public:
 	HRESULT __stdcall DrawTriPatch(UINT Handle,CONST float* pNumSegs,CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	HRESULT __stdcall DeletePatch(UINT Handle);
 	HRESULT __stdcall CreateQuery(D3DQUERYTYPE Type,IDirect3DQuery9** ppQuery);
+/*
+	HRESULT __stdcall SetConvolutionMonoKernel(UINT width,UINT height,float* rows,float* columns);
+	HRESULT __stdcall ComposeRects(IDirect3DSurface9* pSrc,IDirect3DSurface9* pDst,IDirect3DVertexBuffer9* pSrcRectDescs,UINT NumRects,IDirect3DVertexBuffer9* pDstRectDescs,D3DCOMPOSERECTSOP Operation,int Xoffset,int Yoffset);
+	HRESULT __stdcall PresentEx(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion,DWORD dwFlags);
+	HRESULT __stdcall GetGPUThreadPriority(INT* pPriority);
+	HRESULT __stdcall SetGPUThreadPriority(INT Priority);
+	HRESULT __stdcall WaitForVBlank(UINT iSwapChain);
+	HRESULT __stdcall CheckResourceResidency(IDirect3DResource9** pResourceArray,UINT32 NumResources);
+	HRESULT __stdcall SetMaximumFrameLatency(UINT MaxLatency);
+	HRESULT __stdcall GetMaximumFrameLatency(UINT* pMaxLatency);
+	HRESULT __stdcall CheckDeviceState(HWND hDestinationWindow);
+	HRESULT __stdcall CreateRenderTargetEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Lockable,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage);
+	HRESULT __stdcall CreateOffscreenPlainSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DPOOL Pool,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage);
+	HRESULT __stdcall CreateDepthStencilSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Discard,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage);
+	HRESULT __stdcall ResetEx(D3DPRESENT_PARAMETERS* pPresentationParameters,D3DDISPLAYMODEEX *pFullscreenDisplayMode);
+	HRESULT __stdcall GetDisplayModeEx(UINT iSwapChain,D3DDISPLAYMODEEX* pMode,D3DDISPLAYROTATION* pRotation);
+*/
 	//Internal Method and member variables
 protected:
 	LPDIRECT3DDEVICE9		 m_pDirect3dDevice;
-	//HiResTimer				*m_pRenderTimer;
+//	HiResTimer				*m_pRenderTimer;
 	DWORD					 m_FillMode;
 	TCHAR					*m_pFps;
 	Font					*m_pFont;

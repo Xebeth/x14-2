@@ -8,7 +8,7 @@
 #ifndef __DIRECT3D9_HOOK_H__
 #define __DIRECT3D9_HOOK_H__
 
-typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion);
-IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion);
+typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion_in);
+IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in);
 
 #endif//__DIRECT3D9_HOOK_H__

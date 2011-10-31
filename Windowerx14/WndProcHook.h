@@ -8,6 +8,6 @@
 #ifndef __WND_PROC_HOOK_H__
 #define __WND_PROC_HOOK_H__
 
-LRESULT WINAPI WndProcHook (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT WINAPI WndProcHook (HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 
 #endif//__WND_PROC_HOOK_H__

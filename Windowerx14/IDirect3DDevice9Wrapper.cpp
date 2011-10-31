@@ -11,7 +11,7 @@
 IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice)
 {
 	m_pDirect3dDevice = *pDirect3dDevice;
-	//m_pRenderTimer = new HiResTimer();
+//	m_pRenderTimer = new HiResTimer();
 	m_pFont = new Font();
 	m_bRender = false;
 	m_FillMode = 0;
@@ -29,7 +29,7 @@ IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDev
 */
 IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 {
-	/*
+/*
 	if (m_pRenderTimer != NULL)
 	{
 		delete m_pRenderTimer;
@@ -656,3 +656,79 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::CreateQuery(D3DQUERYTYPE Type, IDirec
 {
 	return m_pDirect3dDevice->CreateQuery(Type, ppQuery);
 }
+/*
+HRESULT __stdcall IDirect3DDevice9Wrapper::SetConvolutionMonoKernel(UINT width,UINT height,float* rows,float* columns)
+{
+	return m_pDirect3dDevice->SetConvolutionMonoKernel(width, height, rows, columns);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::ComposeRects(IDirect3DSurface9* pSrc,IDirect3DSurface9* pDst,IDirect3DVertexBuffer9* pSrcRectDescs,UINT NumRects,IDirect3DVertexBuffer9* pDstRectDescs,D3DCOMPOSERECTSOP Operation,int Xoffset,int Yoffset)
+{
+	return ComposeRects(pSrc, pDst, pSrcRectDescs, NumRects, pDstRectDescs, Operation, Xoffset, Yoffset);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::PresentEx(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion,DWORD dwFlags)
+{
+	return PresentEx(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::GetGPUThreadPriority(INT* pPriority)
+{
+	return GetGPUThreadPriority(pPriority);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::SetGPUThreadPriority(INT Priority)
+{
+	return SetGPUThreadPriority(Priority);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::WaitForVBlank(UINT iSwapChain)
+{
+	return WaitForVBlank(iSwapChain);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::CheckResourceResidency(IDirect3DResource9** pResourceArray,UINT32 NumResources)
+{
+	return CheckResourceResidency(pResourceArray, NumResources);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::SetMaximumFrameLatency(UINT MaxLatency)
+{
+	return SetMaximumFrameLatency(MaxLatency);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::GetMaximumFrameLatency(UINT* pMaxLatency)
+{
+	return GetMaximumFrameLatency(pMaxLatency);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::CheckDeviceState(HWND hDestinationWindow)
+{
+	return CheckDeviceState(hDestinationWindow);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::CreateRenderTargetEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Lockable,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
+{
+	return CreateRenderTargetEx(Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle, Usage);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::CreateOffscreenPlainSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DPOOL Pool,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
+{
+	return CreateOffscreenPlainSurfaceEx(Width, Height, Format, Pool, ppSurface, pSharedHandle, Usage);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::CreateDepthStencilSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Discard,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
+{
+	return CreateDepthStencilSurfaceEx(Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle, Usage);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::ResetEx(D3DPRESENT_PARAMETERS* pPresentationParameters,D3DDISPLAYMODEEX *pFullscreenDisplayMode)
+{
+	return ResetEx(pPresentationParameters, pFullscreenDisplayMode);
+}
+
+HRESULT __stdcall IDirect3DDevice9Wrapper::GetDisplayModeEx(UINT iSwapChain,D3DDISPLAYMODEEX* pMode,D3DDISPLAYROTATION* pRotation)
+{
+	return GetDisplayModeEx(iSwapChain, pMode, pRotation);
+}
+*/

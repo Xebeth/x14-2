@@ -8,7 +8,7 @@
 #ifndef __REGISTER_CLASS_EX_HOOK_H__
 #define __REGISTER_CLASS_EX_HOOK_H__
 
-typedef ATOM (WINAPI *fnRegisterClassExW)(const WNDCLASSEXW *pWndClass);
-ATOM WINAPI RegisterClassExWHook(const WNDCLASSEXW *pWndClass);
+typedef ATOM (WINAPI *fnRegisterClassExW)(const WNDCLASSEXW *pWndClass_in);
+ATOM WINAPI RegisterClassExWHook(const WNDCLASSEXW *pWndClass_in);
 
 #endif//__REGISTER_CLASS_EX_HOOK_H__

@@ -7,9 +7,9 @@
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
-IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9, LONG ResX, LONG ResY, BOOL VSync)
-	: m_ResX(ResX), m_ResY(ResY), m_VSync(VSync), m_pDirect3D9(pDirect3D9),
-	  m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
+IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Direct3D9Ex_in)
+	: m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
+	  m_Direct3D9Ex(Direct3D9Ex_in), m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
 
 /*! \brief IDirect3D9Wrapper destructor */
 IDirect3D9Wrapper::~IDirect3D9Wrapper()
@@ -35,7 +35,7 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 	// force vertical sync
 	if (m_VSync)
 	{
-		//pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 		pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_FLIP;
 	}

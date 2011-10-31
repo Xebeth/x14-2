@@ -1,15 +1,33 @@
+/**************************************************************************
+	created		:	2011-10-30
+	filename	: 	Font.h
+	author		:	Xebeth`
+	copyright	:	North Edge (2011)
+	purpose		:	Font class
+**************************************************************************/
 #ifndef __GFX_FONT_H__
 #define __GFX_FONT_H__
 
-#include "stdafx.h"
+#include <d3dx9.h>
 
-// Font alignment
-enum FONTALIGNMENT { FA_LEFT, FA_CENTER, FA_RIGHT, FA_TOPRIGHT, FA_TOPLEFT, FA_BOTTOMRIGHT, FA_BOTTOMLEFT };
+//! Font alignment
+enum FONTALIGNMENT
+{
+	FA_LEFT = 0,		// left
+	FA_CENTER,			// center
+	FA_RIGHT,			// right
+	FA_TOPRIGHT,		// top-right
+	FA_TOPLEFT,			// top-left
+	FA_BOTTOMRIGHT,		// bottom-right
+	FA_BOTTOMLEFT		// bottom-left
+};
 
+//! \brief Font class
 class Font
 {
 public:
 	Font();
+	//! Font destructor
 	virtual ~Font() { Release(); }
 
 	bool Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in,
@@ -18,7 +36,9 @@ public:
 			   int BoxWidth_in = 0, int BoxHeight_in = 0, FONTALIGNMENT Alignment_in = FA_LEFT);
 	void Release();
 private:
+	//! the sprite used to draw text
 	ID3DXSprite		*m_pTextSprite;
+	//! the font
 	LPD3DXFONT		 m_pFont;
 };
 

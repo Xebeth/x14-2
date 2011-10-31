@@ -8,11 +8,12 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
-#include <d3dx9.h>
 #include <d3d9.h>
 #include <queue>
+
+#include "WindowerSettings.h"
+#include "WindowerSettingsManager.h"
 
 #include "version.h"
 #include "BaseEngine.h"
@@ -31,15 +32,12 @@
 #include "GraphicsCore.h"
 #include "SystemCore.h"
 
-#include "WindowerSettings.h"
-#include "WindowerSettingsManager.h"
-
 #include "WindowerCommand.h"
 #include "CommandParser.h"
 #include "CommandDispatcher.h"
 
-#include "ICreateXmlNodePlugin.h"
-#include "WindowerVersionInjector.h"
+#include "ICreateTextNodePlugin.h"
+#include "InjectVersion.h"
 
 namespace Windower
 {
@@ -51,18 +49,14 @@ namespace Windower
 	WindowerEngine::WindowerEngine(const TCHAR *pConfigFile_in)
 		: PluginEngine(pConfigFile_in)
 	{
-		m_bInjectVersion = false;
 		m_bThreadInit = false;
 		m_bShutdown = false;
 		m_hGameWnd = NULL;
 
 		// create the settings
 		m_pSettingsManager = new SettingsManager(pConfigFile_in);
-		m_pSettings = new WindowerProfile;
 		// create the hook manager
-		m_pHookManager = new HookEngine;
-
-		m_pSettingsManager->LoadDefaultProfile(&m_pSettings);
+		m_pSettingsManager->LoadDefaultProfile(m_Settings);
 
 		// create the services
 
@@ -79,25 +73,17 @@ namespace Windower
 		m_pGameChatCore = new GameChatCore(*this, *m_pCommandParser, *m_pCommandDispatcher);
 		RegisterModule(_T("GameChat"), m_pGameChatCore);
 		// Direct3D related hooks
-		m_pGraphicsCore = new GraphicsCore(*this, m_pSettings->GetResX(), m_pSettings->GetResY(), m_pSettings->GetVSync());
+		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(),
+										   m_Settings.GetVSync(), m_Settings.GetDirect3DEx());
 		RegisterModule(_T("Graphics"), m_pGraphicsCore);
 
-		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
-		ICoreModule::SetPluginManager(m_pPluginManager);
+		m_pPluginManager->ListPlugins(m_Settings.GetPluginsAbsoluteDir());
+		ICoreModule::SetPluginManager(*m_pPluginManager);
 
 		// load plugins
-		PluginEngine::LoadPlugin(_T("Tell detect"));
+		PluginEngine::LoadPlugin(_T("TellDetect"));
 		PluginEngine::LoadPlugin(_T("Timestamp"));
-
-		if (PluginEngine::LoadPlugin(_T("ExpWatch")))
-		{
-			m_pExpWatchQuery = m_pCommandDispatcher->FindCommand("expwatch::query");
-
-			if (m_pExpWatchQuery != NULL)
-				format(m_pExpWatchQuery->Parameters["pointer"].Value, "%08x", &m_ExpWatchData);
-		}
-		else
-			m_pExpWatchQuery = NULL;
+		PluginEngine::LoadPlugin(_T("ExpWatch"));
 
 		// register commands
 		CallerParam Caller("WindowerEngine", this);
@@ -116,7 +102,7 @@ namespace Windower
 		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "unload", "Unloads a plugin given its name.", Caller, UnloadPlugin, 1, 1, PluginParams);
 
 		// injects the windower version on the main menu
-		m_pWindowerVersionInjector = new WindowerVersionInjector(m_pPluginServices);
+		m_pInjectVersion = new InjectVersion(m_pPluginServices);
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -139,17 +125,11 @@ namespace Windower
 		delete m_pSystemCore;
 		m_pSystemCore = NULL;
 
-		delete m_pHookManager;
-		m_pHookManager = NULL;
-
-		delete m_pSettings;
-		m_pSettings = NULL;
-
 		delete m_pSettingsManager;
 		m_pSettingsManager = NULL;
 
-		delete m_pWindowerVersionInjector;
-		m_pWindowerVersionInjector = NULL;
+		delete m_pInjectVersion;
+		m_pInjectVersion = NULL;
 	}
 
 	/*! \brief Installs the internal hooks used by the windower
@@ -157,22 +137,19 @@ namespace Windower
 	*/
 	bool WindowerEngine::Attach()
 	{
-		if (m_pHookManager != NULL)
-		{
-			CoreModules::const_iterator Iter;
+		CoreModules::const_iterator Iter;
 
+		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+			if (Iter->second != NULL)
+				Iter->second->RegisterHooks(m_HookManager);
+
+		if (m_HookManager.InstallRegisteredHooks())
+		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 				if (Iter->second != NULL)
-					Iter->second->RegisterHooks(m_pHookManager);
+					Iter->second->OnHookInstall(m_HookManager);
 
-			if (m_pHookManager->InstallRegisteredHooks())
-			{
-				for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-					if (Iter->second != NULL)
-						Iter->second->OnHookInstall(m_pHookManager);
-
-				return true;
-			}
+			return true;
 		}
 
 		return false;
@@ -185,28 +162,27 @@ namespace Windower
 	{
 		PluginEngine::Detach();
 
-		if (m_pHookManager != NULL)
-			return m_pHookManager->UninstallRegisteredHooks();
-
-		return false;
+		return m_HookManager.UninstallRegisteredHooks();
 	}
 
+	/*! \brief The engine main thread
+		\return the exit code of the thread
+	*/
 	DWORD WindowerEngine::MainThread()
 	{
-		if (InitializeEngine())
+		m_bThreadInit = true;
+		InitializeEngine();
+		
+		while (m_bShutdown == false)
 		{
-			m_bThreadInit = true;
-
-			while (!m_bShutdown)
-			{
-				UpdateEngine();
-				Sleep(100);
-			}
+			UpdateEngine();
+			Sleep(100);
 		}
 
 		return 0L;
 	}
 
+	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
 		if (m_FeedbackMessages.empty() == false)
@@ -216,17 +192,17 @@ namespace Windower
 		}
 	}
 
-	bool WindowerEngine::InitializeEngine()
+	//! \brief Initializes the engine
+	void WindowerEngine::InitializeEngine()
 	{
 		if (m_pSystemCore != NULL)
 		{
 			m_hGameWnd = m_pSystemCore->GameHWND();
 			m_dwPID = m_pSystemCore->GamePID();
 		}
-
-		return true;
 	}
 
+	//! \brief Shuts the engine down
 	void WindowerEngine::ShutdownEngine()
 	{
 
@@ -251,18 +227,17 @@ namespace Windower
 
 			if (pEngine != NULL && pParam != NULL)
 			{
-				std::string Feedback;
 				string_t PluginName;
 
 				if (static_cast<PluginEngine*>(pEngine)->UnloadPlugin(pParam->GetWideStringValue(PluginName)))
-					format(Feedback,"The plugin '%s' was unloaded successfully.", pParam->Value.c_str());
+					format(pCommand_in->ResultMsg, "The plugin '%s' was unloaded successfully.", pParam->Value.c_str());
 				else
-					format(Feedback, "The plugin '%s' couldn't be unloaded.", pParam->Value.c_str());
-
-				// pEngine->AddFeedbackMessage(Feedback);
+					format(pCommand_in->ResultMsg, "The plugin '%s' couldn't be unloaded.", pParam->Value.c_str());
 
 				return DISPATCHER_RESULT_SUCCESS;
 			}
+
+			return DISPATCHER_RESULT_INVALID_PARAMETERS;
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;
@@ -285,14 +260,14 @@ namespace Windower
 				string_t PluginName;
 
 				if (static_cast<PluginEngine*>(pEngine)->LoadPlugin(pParam->GetWideStringValue(PluginName)))
-					format(Feedback, "The plugin '%s' was loaded successfully.", pParam->Value.c_str());
+					format(pCommand_in->ResultMsg, "The plugin '%s' was loaded successfully.", pParam->Value.c_str());
 				else
-					format(Feedback, "The plugin '%s' couldn't be loaded.", pParam->Value.c_str());
-
-				// pEngine->AddFeedbackMessage(Feedback);
+					format(pCommand_in->ResultMsg, "The plugin '%s' couldn't be loaded.", pParam->Value.c_str());
 
 				return DISPATCHER_RESULT_SUCCESS;
 			}
+
+			return DISPATCHER_RESULT_INVALID_PARAMETERS;
 		}
 
 		return DISPATCHER_RESULT_INVALID_CALL;

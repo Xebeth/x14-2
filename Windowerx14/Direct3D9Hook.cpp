@@ -7,10 +7,11 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 #include <d3dx9.h>
 #include <d3d9.h>
+
+#include "WindowerSettings.h"
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -28,7 +29,11 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion)
+/*! \brief Creates a Direct3D device given a DirectX SDK version
+	\param[in] SDKVersion : the DirectX SDK version
+	\return a pointer to the new device
+*/
+IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in)
 {
-	return g_pEngine->Graphics().Direct3DCreate9Hook(SDKVersion);
+	return g_pEngine->Graphics().Direct3DCreate9Hook(SDKVersion_in);
 }

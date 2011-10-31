@@ -11,16 +11,26 @@
 
 namespace Windower
 {
+	//! strings representing the parameter types
 	char* WindowerCommand::CommandParamTypes[COMMAND_PARAM_TYPE_COUNT] =
 	{
-		"string", "integer", "float"
+		"string",	// string
+		"pointer",	// pointer
+		"integer",	// integer
+		"float"		// float
 	};
 
+	//! \brief WindowerCommand default constructor
 	WindowerCommand::WindowerCommand()
 	{
 		Invalidate();
 	}
 
+	/*! \brief Formats the help message for the command
+		\param[out] Help_out : a string receiving the formatted help message
+		\param[in] ShowValues_in : flag specifying if the description or value is displayed
+		\return the formatted help message
+	*/
 	std::string& WindowerCommand::Output(std::string &Help_out, bool ShowValues_in)
 	{
 		if (Public && Parameters.empty() == false)
@@ -37,7 +47,7 @@ namespace Windower
 
 			Help_out.append("\n");
 
-			// if the descriptions aren't empty, their keys must match the parameters type ones
+			// if the descriptions aren't empty, their keys must match the parameter type ones
 			for(Iter = Parameters.begin(); Iter != Parameters.end(); ++Iter)
 			{
 				if (ShowValues_in)
@@ -72,16 +82,17 @@ namespace Windower
 		}
 		else if (Description.empty() == false)
 		{
-			Help_out = Name + " : " + Description;
+			append_format(Help_out, "%s : %s", Name.c_str(), Description.c_str());
 		}
 		else
 		{
-			Help_out = "No help available for command " + Name;
+			append_format(Help_out, "No help available for command '%s'", Name.c_str());
 		}
 
 		return Help_out;
 	}
 
+	//! \brief Sets a command to its default state
 	void WindowerCommand::Invalidate()
 	{
 		MinParamsCount = MaxParamsCount = 0;
@@ -91,10 +102,5 @@ namespace Windower
 		Parameters.clear();
 		Restricted = true;
 		Public = false;		
-	}
-
-	int WindowerCommand::DefaultFunc(const WindowerCommand *pCommand_in)
-	{
-		return DISPATCHER_RESULT_DEFAULT_FUNC_INVOKED;
 	}
 }

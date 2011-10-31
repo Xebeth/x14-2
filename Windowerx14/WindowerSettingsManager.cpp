@@ -14,13 +14,16 @@
 
 namespace Windower
 {
-	SettingsManager::SettingsManager(const TCHAR *pIniFile) : m_AutoLogin(false)
+	/*! \brief SettingsManager constructor
+		\param[in] pIniFile_in : the path of the configuration file
+	*/
+	SettingsManager::SettingsManager(const TCHAR *pIniFile_in) : m_AutoLogin(false)
 	{
 		bool bEmpty = true;
 
-		if (pIniFile != NULL)
+		if (pIniFile_in != NULL)
 		{
-			m_pSettingsFile = new SettingsIniFile(pIniFile);
+			m_pSettingsFile = new SettingsIniFile(pIniFile_in);
 
 			if (m_pSettingsFile->Load())
 				bEmpty = !Load();
@@ -35,6 +38,7 @@ namespace Windower
 		}
 	}
 
+	//! \brief SettingsManager destructor
 	SettingsManager::~SettingsManager()
 	{
 		SettingsIterator SettingsIter;
@@ -57,11 +61,16 @@ namespace Windower
 		}
 	}
 
-	WindowerProfile* SettingsManager::CreateProfile(const TCHAR *pProfileName, const WindowerProfile *pSettings)
+	/*! \brief Creates a copy of the specified profile
+		\param[in] pProfileName_in : the name of the profile
+		\param[in] Settings_in : the settings being copied
+		\return the newly created profile if successful; NULL otherwise
+	*/
+	WindowerProfile* SettingsManager::CreateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
 	{
-		if (m_pSettingsFile != NULL && pProfileName != NULL && pSettings != NULL)
+		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			WindowerProfile *pNewSettings = new WindowerProfile(pSettings);
+			WindowerProfile *pNewSettings = new WindowerProfile(Settings_in);
 
 			m_Profiles.push_back(pNewSettings);
 
@@ -71,14 +80,21 @@ namespace Windower
 		return NULL;
 	}
 
-	bool SettingsManager::DeleteProfile(const TCHAR *pProfileName)
+	/*! \brief Deletes the profile specified by its name
+		\param[in] pProfileName_in : the name of the profile
+		\return true if the profile was deleted successfully; false otherwise
+	*/
+	bool SettingsManager::DeleteProfile(const TCHAR *pProfileName_in)
 	{
-		if (m_pSettingsFile != NULL && pProfileName != NULL)
-			return m_pSettingsFile->DeleteSection(pProfileName);
+		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+			return m_pSettingsFile->DeleteSection(pProfileName_in);
 
 		return false;
 	}
 
+	/*! \brief Saves the configuration
+		\return true if successful; false otherwise
+	*/
 	bool SettingsManager::Save()
 	{
 		if (m_pSettingsFile != NULL)
@@ -86,6 +102,7 @@ namespace Windower
 			SettingsIterator SettingsIter;
 
 			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
+			m_pSettingsFile->SetLong(_T("General"), _T("AutoLogin"), m_AutoLogin);
 
 			for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
 			{
@@ -103,15 +120,20 @@ namespace Windower
 		return false;
 	}
 
-	bool SettingsManager::LoadProfile(const TCHAR *pProfileName, WindowerProfile *pSettings)
+	/*! \brief Loads profile specified by its name
+		\param[in] pProfileName_in : the name of the profile to load
+		\param[out] Settings_out : the settings being loaded
+		\return true if the profile exits and was loaded successfully; false otherwise
+	*/
+	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out)
 	{
-		if (m_pSettingsFile != NULL && pProfileName != NULL && pSettings != NULL)
+		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			pSettings->SetVSync(m_pSettingsFile->GetLong(pProfileName, _T("VSync")));
-			pSettings->SetResolution(m_pSettingsFile->GetLong(pProfileName, _T("ResX")),
-										m_pSettingsFile->GetLong(pProfileName, _T("ResY")));
-			pSettings->SetPluginsDir(m_pSettingsFile->GetString(pProfileName, _T("PluginsDir")));
-			pSettings->SetName(pProfileName);
+			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync")));
+			Settings_out.SetResolution(m_pSettingsFile->GetLong(pProfileName_in, _T("ResX")),
+									   m_pSettingsFile->GetLong(pProfileName_in, _T("ResY")));
+			Settings_out.SetPluginsDir(m_pSettingsFile->GetString(pProfileName_in, _T("PluginsDir")));
+			Settings_out.SetName(pProfileName_in);
 
 			return true;
 		}
@@ -119,11 +141,18 @@ namespace Windower
 		return false;
 	}
 
-	bool SettingsManager::LoadDefaultProfile(WindowerProfile **pSettings_out)
+	/*! \brief Loads the default profile
+		\param[in] Settings_out : the settings receiving the default profile
+		\return true if the default profile was loaded successfully; false otherwise
+	*/
+	bool SettingsManager::LoadDefaultProfile(WindowerProfile &Settings_out)
 	{
-		return LoadProfile(GetDefaultProfile().c_str(), *pSettings_out);
+		return LoadProfile(GetDefaultProfile().c_str(), Settings_out);
 	}
 
+	/*! \brief Loads the configuration
+		\return true if successful; false otherwise
+	*/
 	bool SettingsManager::Load()
 	{
 		if (m_pSettingsFile != NULL)
@@ -142,7 +171,7 @@ namespace Windower
 				{
 					WindowerProfile *pSettings = new WindowerProfile();
 
-					if (LoadProfile(SectionIter->pItem, pSettings))
+					if (LoadProfile(SectionIter->pItem, *pSettings))
 						m_Profiles.push_back(pSettings);
 					else
 						delete pSettings;
@@ -155,6 +184,9 @@ namespace Windower
 		return false;
 	}
 
+	/*! \brief Creates the default profile
+		\return true if successful; false otherwise
+	*/
 	bool SettingsManager::CreateDefaultProfile()
 	{
 		if (m_pSettingsFile == NULL)
@@ -166,17 +198,22 @@ namespace Windower
 
 		SetDefaultProfile(DEFAULT_PROFILE_NAME);
 		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
+		m_pSettingsFile->SetLong(_T("General"), _T("AutoLogin"), m_AutoLogin);
 
-		return CreateProfile(DEFAULT_PROFILE_NAME, &Settings) != NULL;
+		return CreateProfile(DEFAULT_PROFILE_NAME, Settings) != NULL;
 	}
 	
-	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName)
+	/*! \brief Retrieves the profile specified by its name
+		\param[in] pProfileName_in : the name of the profile
+		\return a pointer to the profile if found; NULL otherwise
+	*/
+	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName_in)
 	{
 		SettingsIterator SettingsIter;
 
 		for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
 		{
-			if (_tcsicmp((*SettingsIter)->GetName(), pProfileName) == 0)
+			if (_tcsicmp((*SettingsIter)->GetName(), pProfileName_in) == 0)
 			{
 				return *SettingsIter;
 			}
@@ -185,16 +222,21 @@ namespace Windower
 		return NULL;
 	}
 
-	bool SettingsManager::CopyProfile(const TCHAR *pDstProfile, const WindowerProfile &Src)
+	/*! \brief Copy a profile to another given its name
+		\param[in] pDstProfile_in : the name of the destination profile
+		\param[in] Src_in : the source profile
+		\return true if the profile was copied successfully; false otherwise
+	*/
+	bool SettingsManager::CopyProfile(const TCHAR *pDstProfile_in, const WindowerProfile &Src_in)
 	{
-		WindowerProfile *pProfile = GetSettings(pDstProfile);
+		WindowerProfile *pProfile = GetSettings(pDstProfile_in);
 
 		if (pProfile != NULL)
 		{
-			pProfile->SetResolution(Src.GetResX(), Src.GetResY());
-			pProfile->SetPluginsDir(Src.GetPluginsDir());
-			pProfile->SetVSync(Src.GetVSync());
-			pProfile->SetName(Src.GetName());
+			pProfile->SetResolution(Src_in.GetResX(), Src_in.GetResY());
+			pProfile->SetPluginsDir(Src_in.GetPluginsDir());
+			pProfile->SetVSync(Src_in.GetVSync());
+			pProfile->SetName(Src_in.GetName());
 		}
 
 		return (pProfile != NULL);

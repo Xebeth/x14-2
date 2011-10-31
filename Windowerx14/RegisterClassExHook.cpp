@@ -7,8 +7,9 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
+
+#include "WindowerSettings.h"
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -23,7 +24,11 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-ATOM WINAPI RegisterClassExWHook(const WNDCLASSEXW *pWndClass)
+/*! \brief Registers a window class
+	\param[in] pWndClass_in : pointer to a WNDCLASSEX structure
+	\return class atom that uniquely identifies the class being registered if successfuly; NULL otherwise
+*/
+ATOM WINAPI RegisterClassExWHook(const WNDCLASSEXW *pWndClass_in)
 {
-	return g_pEngine->System().RegisterClassExWHook(const_cast<WNDCLASSEXW*>(pWndClass));
+	return g_pEngine->System().RegisterClassExWHook(const_cast<WNDCLASSEXW*>(pWndClass_in));
 }

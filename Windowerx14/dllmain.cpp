@@ -7,8 +7,9 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
+
+#include "WindowerSettings.h"
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -30,9 +31,6 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 	{
 		if (g_pEngine == NULL)
 		{
-#ifdef _DEBUG
-			Sleep(5000);
-#endif // _DEBUG
 			g_pEngine = new Windower::WindowerEngine(_T("config.ini"));
 			bResult = g_pEngine->Attach();
 		}

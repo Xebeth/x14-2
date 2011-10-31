@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 
 #include "PluginsServices.h"
@@ -22,7 +21,7 @@ namespace Windower
 		// create the plugin services
 		m_pPluginServices = new PluginServices(_T("1.0.0"), m_Modules);
 		// create the plugin manager
-		m_pPluginManager = new PluginManager(m_pPluginServices);											 
+		m_pPluginManager = new PluginManager(*m_pPluginServices);											 
 	}
 
 	PluginEngine::~PluginEngine()

@@ -7,9 +7,10 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 #include <queue>
+
+#include "WindowerSettings.h"
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -24,10 +25,31 @@
 
 namespace Windower
 {
-	CommandParser::CommandParser(WindowerEngine &Engine_in, CommandDispatcher &Dispatcher_in)
-		: WindowerCore(Engine_in), m_CommandDispatcher(Dispatcher_in) {}
+	/*! \brief CommandParser constructor
+		\param[in] Engine_in_out : the windower engine
+		\param[in] Dispatcher_in : the command dispatcher
+	*/
+	CommandParser::CommandParser(WindowerEngine &Engine_in_out, CommandDispatcher &Dispatcher_in)
+		: WindowerCore(Engine_in_out), m_CommandDispatcher(Dispatcher_in)
+	{
+		CallerParam Caller("CommandParser", this);
+		const char *pParamName = "command";
+		CommandParameters Params;
+
+		Params[pParamName].Name = pParamName;
+		Params[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
+		Params[pParamName].Value = "";
+		Params[pParamName].Description = "the name of the command for which to obtain help";
+
+		m_CommandDispatcher.RegisterCommand(PLUGIN_REGKEY, "help", "Displays the help messages of all the available commands",
+											Caller, ShowCommandHelp, 0, 1, Params);
+	}
 
 	/*! \brief Parses a raw command (e.g. chat line) and returns the arguments and a feedback message
+		\param[in] pRawCommand_in : the raw command buffer
+		\param[out] Command_out : the resulting command after parsing
+		\param[out] pFeedbackMsg_out : feedback message as a result of the command parsing
+		\param[out] FeedbackMsgSize_out : the size of the feedback message
 		\return the number of parameters found for the command or a value <0 otherwise if parsing failed
 	*/
 	int CommandParser::ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
@@ -53,16 +75,11 @@ namespace Windower
 
 			if (pCommand != NULL)
 				Command_out = *pCommand;
-			else if (ParamsCount == 0 && CommandName.compare("help") == 0)
-				Result = PARSER_RESULT_IMPLICIT_HELP;
 			else
 				return PARSER_RESULT_INVALID_COMMAND;
 
-			// check if the implicit help command was invoked
-			if (ParamsCount == 1 && Params.front().compare("help") == 0)
-				Result = PARSER_RESULT_IMPLICIT_HELP;
 			// validate the number of parameters for the command
-			else if (ParamsCount < Command_out.MinParamsCount)
+			if (ParamsCount < Command_out.MinParamsCount)
 				Result = PARSER_RESULT_TOO_FEW_PARAMETERS;
 			else if (ParamsCount > Command_out.MaxParamsCount)
 				Result = PARSER_RESULT_TOO_MANY_PARAMETERS;
@@ -128,6 +145,75 @@ namespace Windower
 		return Result;
 	}
 
+	/*! \brief Help command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int CommandParser::ShowCommandHelp(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("CommandParser") == 0)
+		{
+			CommandParser *pParser = reinterpret_cast<CommandParser*>(pCommand_in->Caller.pData);
+			const WindowerCommandParam *pParam = pCommand_in->GetParameter("command");
+
+			if (pParser != NULL && pParam != NULL)
+			{
+				if (pParser->ShowCommandHelp(pParam->Value, pCommand_in->ResultMsg))
+					return DISPATCHER_RESULT_SUCCESS;
+			}
+
+			return DISPATCHER_RESULT_INVALID_PARAMETERS;
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	/*! \brief Displays the help message for the specified command
+			   or all the commands if no command is specified
+		\param[in] CommandName_in : the name of the command for which to obtain help
+		\param[out] HelpMsg_out : a string receiving the help message
+		\return true if successful; false otherwise
+	*/
+	bool CommandParser::ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out)
+	{
+		if (CommandName_in.empty() == false)
+		{
+			WindowerCommand *pCommand;
+
+			if ((pCommand = m_CommandDispatcher.FindCommand(CommandName_in)) != NULL)
+			{
+				pCommand->Output(HelpMsg_out);
+
+				return true;
+			}
+		}
+
+		const RegisteredCommands &Commands = m_CommandDispatcher.GetRegisteredCommands();
+		RegisteredCommands::const_iterator Iter;
+
+		for (Iter = Commands.begin(); Iter != Commands.end(); ++Iter)
+		{
+			if (Iter->second != NULL)
+			{
+				if (HelpMsg_out.empty() == false)
+					HelpMsg_out += '\n';
+
+				Iter->second->Output(HelpMsg_out);
+			}
+		}
+	
+		return true;
+	}
+
+	/*! \brief Sets the feedback message given the command and error code
+		\param[in] ErrorCode_in : the error code from the parsing
+		\param[in,out] Command_in_out : the command 
+		\param[in] ParamCount_in : the number of parameters expected by the command
+		\param[in] pCommandParam_in : the command parameter that provoked the error
+		\param[out] pFeedbackMsg_out : the string receiving the error message
+		\param[out] MsgSize_out : the size of the error message
+		\return the error code
+	*/
 	int CommandParser::SetFeedback(int ErrorCode_in, WindowerCommand &Command_in_out, size_t ParamCount_in,
 								   const WindowerCommandParam *pCommandParam_in, char **pFeedbackMsg_out,
 								   DWORD &MsgSize_out)
@@ -162,28 +248,6 @@ namespace Windower
 				format(Feedback, "Too few parameters (%u) : expecting at least %u",
 					   ParamCount_in, Command_in_out.MinParamsCount);
 			break;
-			case PARSER_RESULT_IMPLICIT_HELP:
-				if (ParamCount_in == 1)
-				{
-					Command_in_out.Output(Feedback);
-				}
-				else
-				{
-					const RegisteredCommands &Commands = m_CommandDispatcher.GetRegisteredCommands();
-					RegisteredCommands::const_iterator Iter;
-
-					for (Iter = Commands.begin(); Iter != Commands.end(); ++Iter)
-					{
-						if (Iter->second != NULL)
-						{
-							if (Feedback.empty() == false)
-								Feedback += '\n';
-
-							Iter->second->Output(Feedback);
-						}
-					}
-				}
-			break;
 		}
 
 		if (Feedback.empty() == false)
@@ -191,16 +255,19 @@ namespace Windower
 			*pFeedbackMsg_out = _strdup(Feedback.c_str());
 			MsgSize_out = Feedback.size();
 		}
-		// if the code is not for the implicit help command
-		if (ErrorCode_in < PARSER_RESULT_IMPLICIT_HELP)
-		{
-			// invalidate the command
-			Command_in_out.Invalidate();
-		}
+
+		// invalidate the command
+		Command_in_out.Invalidate();
 
 		return ErrorCode_in;
 	}
 
+	/*! \brief Tokenizes a command and sets the resulting command and its parameters
+		\param[in] pRawCommand_in : the raw command buffer
+		\param[out] Command_out : the resulting command
+		\param[out] Params_out : the parameters of the command
+		\return the number of parameters
+	*/
 	int CommandParser::Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out)
 	{
 		std::string::size_type DelimiterPos = 0, SeparatorPos = 0, NotSeparatorPos = 0, LastPos;

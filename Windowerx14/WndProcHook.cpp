@@ -7,8 +7,9 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
+
+#include "WindowerSettings.h"
 
 #include "BaseEngine.h"
 #include "PluginEngine.h"
@@ -24,7 +25,14 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-LRESULT WINAPI WndProcHook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*! \brief Processes messages sent to a window
+	\param[in] hWnd_in : handle to the window
+	\param[in] uMsg_in : message
+	\param[in] wParam_in : additional message information
+	\param[in] lParam_in : additional message information
+	\return result of the message processing that depends on the message sent
+*/
+LRESULT WINAPI WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in)
 {
-	return g_pEngine->System().WndProcHook(hWnd, uMsg, wParam, lParam);
+	return g_pEngine->System().WndProcHook(hWnd_in, uMsg_in, wParam_in, lParam_in);
 }

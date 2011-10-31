@@ -7,9 +7,10 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 #include <queue>
+
+#include "WindowerSettings.h"
 
 #include "version.h"
 #include "BaseEngine.h"
@@ -19,7 +20,7 @@
 #include "FormatChatMessageHook.h"
 
 #include "IGameChatPlugin.h"
-#include "ICreateXmlNodePlugin.h"
+#include "ICreateTextNodePlugin.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
@@ -33,14 +34,15 @@
 
 namespace Windower
 {
-	/*! \brief default constructor */
-	GameChatCore::GameChatCore(WindowerEngine &Engine_in, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
-		: WindowerCore(Engine_in), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), m_pChatHead(NULL),
-		  m_pFormatChatMessageTrampoline(NULL), m_pPrevChatHead(NULL), m_pPrevChatTail(NULL), m_pChatTail(NULL),
-		  m_bCreateXmlNodeSubEmpty(true)
+	/*! \brief GameChatCore constructor */
+	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
+		: WindowerCore(Engine_in_out), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), 
+		  m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL), m_pCreateTextNode(NULL),
+		  m_bCreateTextNodeSubEmpty(true)
 	{
-		RegisterService(_T("FormatChatMessage"), false);
-		RegisterService(_T("CreateXmlNode"), false);
+		// create the services
+		m_pFormatChatMessage = RegisterService(_T("OnChatMessage"), false);
+		m_pCreateTextNode = RegisterService(_T("CreateTextNode"), false);
 		// add compatible plugins
 		PluginFramework::PluginUUID UUID;
 
@@ -51,124 +53,164 @@ namespace Windower
 		m_CompatiblePlugins.insert(UUID.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90")));	// Version inject
 	}
 
-	/*! \brief destructor */
-	GameChatCore::~GameChatCore() {}
-
-	/*! \brief Initializes the chat hook */
-	void GameChatCore::RegisterHooks(IHookManager *pHookManager)
+	/*! \brief Register the hooks for this module
+		\param[in] HookManager_in : the hook manager
+	*/
+	void GameChatCore::RegisterHooks(IHookManager &HookManager_in)
 	{
-		if (pHookManager != NULL)
+		SigScan::SigScan MemScan;
+		DWORD_PTR dwFuncAddr;
+
+		MemScan.Initialize(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
+
+		dwFuncAddr = MemScan.Scan(FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
+								  FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET);
+		// set m_pFormatChatMessageTrampoline with the address of the original function in case of failure
+		m_pFormatChatMessageTrampoline = (fnFormatChatMessage)dwFuncAddr;
+
+		if (dwFuncAddr != NULL)
 		{
-			DWORD_PTR dwFuncAddr;
+			HookManager_in.RegisterHook("OnChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
+										::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
+		}
 
-			SigScan::InitializeSigScan(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
+		dwFuncAddr = MemScan.Scan(CREATETEXTNODE_OPCODES_SIGNATURE,
+								  CREATETEXTNODE_OPCODES_SIGNATURE_OFFSET);
+		// set m_pCreateTextNodeTrampoline with the address of the original function in case of failure
+		m_pCreateTextNodeTrampoline = (fnCreateTextNode)dwFuncAddr;
 
-			dwFuncAddr = SigScan::Scan(FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
-									   FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET);
-			// set m_pFormatChatMessageTrampoline with the address of the original function in case of failure
-			m_pFormatChatMessageTrampoline = (fnFormatChatMessage)dwFuncAddr;
-
-			if (dwFuncAddr != NULL)
-			{
-				pHookManager->RegisterHook("FormatChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
-										   ::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
-			}
-
-			dwFuncAddr = SigScan::Scan(CREATEXMLNODE_OPCODES_SIGNATURE,
-									   CREATEXMLNODE_OPCODES_SIGNATURE_OFFSET);
-			// set m_pCreateXmlNodeTrampoline with the address of the original function in case of failure
-			m_pCreateXmlNodeTrampoline = (fnCreateXmlNode)dwFuncAddr;
-
-			if (dwFuncAddr != NULL)
-			{
-				pHookManager->RegisterHook("CreateXmlNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
-										   ::CreateXmlNodeHook, CREATEXMLNODE_OPCODES_HOOK_SIZE);
-			}
-
-			SigScan::TerminateSigScan();
+		if (dwFuncAddr != NULL)
+		{
+			HookManager_in.RegisterHook("CreateTextNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
+										::CreateTextNodeHook, CREATETEXTNODE_OPCODES_HOOK_SIZE);
 		}
 	}
 
-	void GameChatCore::OnHookInstall(IHookManager *pHookManager)
+	/*! \brief Callback invoked when the hooks of the module are installed
+		\param[in] HookManager_in : the hook manager
+	*/
+	void GameChatCore::OnHookInstall(IHookManager &HookManager_in)
 	{
-		if (pHookManager != NULL)
+		m_pFormatChatMessageTrampoline	= (fnFormatChatMessage)HookManager_in.GetTrampolineFunc("OnChatMessage");
+		m_pCreateTextNodeTrampoline = (fnCreateTextNode)HookManager_in.GetTrampolineFunc("CreateTextNode");
+	}
+
+	/*! \brief Callback function invoked when a plugin subscribes to a service
+		\param[in] ServiceName_in : the name of the service
+		\param[in] Subscribers_in : the service subscribers
+	*/
+	void GameChatCore::OnSubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
+	{
+		if (ServiceName_in.compare(_T("OnChatMessage")) == 0)
+			m_ChatFormatSubscribers = Subscribers_in;
+		if (ServiceName_in.compare(_T("CreateTextNode")) == 0)
 		{
-			m_pFormatChatMessageTrampoline	= (fnFormatChatMessage)pHookManager->GetTrampolineFunc("FormatChatMessage");
-			m_pCreateXmlNodeTrampoline = (fnCreateXmlNode)pHookManager->GetTrampolineFunc("CreateXmlNode");
+			m_bCreateTextNodeSubEmpty = Subscribers_in.empty();
+			m_CreateTextNodeSubscribers = Subscribers_in;
 		}
 	}
 
-	bool GameChatCore::FilterCommands(LPVOID _this, USHORT MessageType_in,
-									  const StringObject* pSender_in,
-									  StringObject* pMessage_in)
+	/*! \brief Callback function invoked when a plugin subscription to a service is revoked
+		\param[in] ServiceName_in : the name of the service
+		\param[in] Subscribers_in : the service subscribers
+	*/
+	void GameChatCore::OnUnsubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
 	{
-		if (pMessage_in != NULL && pMessage_in->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_INVALID_MESSAGE)
+		OnSubscribe(ServiceName_in, Subscribers_in);
+	}
+
+	/*! \brief Filters commands received by the chat log and processes them
+		\param[in] pThis_in_out : a pointer to the class containing the hooked method
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in,out] pMessage_in_out : the message
+		\return true if the message was formatted successfully; false otherwise
+	*/
+	bool GameChatCore::FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
+									  const StringNode* pSender_in, StringNode* pMessage_in_out)
+	{
+		if (pMessage_in_out != NULL && pMessage_in_out->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_INVALID_MESSAGE)
 		{
 			// the message starts with 2 forward slashes => expect a command
-			if (strstr(pMessage_in->pResBuf, "//") == pMessage_in->pResBuf)
+			if (strstr(pMessage_in_out->pResBuf, "//") == pMessage_in_out->pResBuf)
 			{
-				if (pMessage_in->dwSize > 2)
+				bool Result = false;
+
+				if (pMessage_in_out->dwSize > 2)
 				{
-					DWORD dwOriginalSize = pMessage_in->dwSize, dwNewSize = 0;
-					const char *pOriginalMsg = pMessage_in->pResBuf;
+					DWORD dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = 0;
+					const char *pOriginalMsg = pMessage_in_out->pResBuf;
 					char *pFeedbackMsg = NULL;
 					WindowerCommand Command;
-					std::string HelpMsg;
 					int ParseResult;
 
-					if ((ParseResult = m_CommandParser.ParseCommand(pMessage_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
+					if ((ParseResult = m_CommandParser.ParseCommand(pMessage_in_out->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
 					{
-						m_CommandDispatcher.Dispatch(Command);
-					}
-					else if (pFeedbackMsg != NULL)
-					{
+						Result = (m_CommandDispatcher.Dispatch(Command) == DISPATCHER_RESULT_SUCCESS);
 
-						pMessage_in->dwSize = dwNewSize;
-						pMessage_in->pResBuf = pFeedbackMsg;
+						if (Command.ResultMsg.empty() == false)
+						{
+							pFeedbackMsg = _strdup(Command.ResultMsg.c_str());
+							dwNewSize = Command.ResultMsg.length() + 1;
+						}
+					}
+					
+					if (pFeedbackMsg != NULL)
+					{
+						pMessage_in_out->dwSize = dwNewSize;
+						pMessage_in_out->pResBuf = pFeedbackMsg;
 						// display the error message instead of the typed command
-						m_pFormatChatMessageTrampoline(_this, MessageType_in, pSender_in, pMessage_in);
+						Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
 						// restore the original message
-						pMessage_in->dwSize = dwOriginalSize;
-						pMessage_in->pResBuf = pOriginalMsg;
+						pMessage_in_out->dwSize = dwOriginalSize;
+						pMessage_in_out->pResBuf = pOriginalMsg;
 						// cleanup
 						free(pFeedbackMsg);
 					}
 				}
 
-				return true;
+				return Result;
 			}
 		}
 
 		return false;
 	}
 
-	bool GameChatCore::FormatChatMessageHook(LPVOID _this, USHORT MessageType,
-											 const StringObject* pSender,
-											 StringObject* pMessage)
+	/*! \brief Formats a message received by the game chat log
+		\param[in] pThis_in_out : a pointer to the class containing the hooked method
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in,out] pMessage_in_out : the message
+		\return true if the message was formatted successfully; false otherwise
+	*/
+	bool GameChatCore::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in,
+											 const StringNode* pSender_in,
+											 StringNode* pMessage_in_out)
 	{
-		// update the chat head & tail
-		UpdateChatData(_this);
-
-		if (FilterCommands(_this, MessageType, pSender, pMessage) == false && m_pFormatChatMessageTrampoline != NULL)
+		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
 		{
-			const char *pOriginalMsg = pMessage->pResBuf;
-			DWORD dwOriginalSize = pMessage->dwSize;
+			const char *pOriginalMsg = pMessage_in_out->pResBuf;
+			DWORD dwOriginalSize = pMessage_in_out->dwSize;
+			PluginSet::const_iterator PluginIt;
+			IGameChatPlugin *pPlugin;
 			char *pModifiedMsg = NULL;
-			PluginSet::iterator Iter;
-			bool bResult;
-		
-			for (Iter = m_ChatFormatSubscribers.begin(); Iter != m_ChatFormatSubscribers.end(); ++Iter)
+			bool bResult, bUnsubscribe;
+
+			for (PluginIt = m_ChatFormatSubscribers.begin(); PluginIt != m_ChatFormatSubscribers.end(); ++PluginIt)
 			{
-				if (*Iter != NULL)
-					static_cast<IGameChatPlugin*>(*Iter)->FormatChatMessage(MessageType, pSender, pMessage,
-																			pOriginalMsg, dwOriginalSize,
-																			&pModifiedMsg);
+				pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
+
+				if (pPlugin != NULL)
+				{
+					pPlugin->OnChatMessage(MessageType_in, pSender_in, pMessage_in_out, pOriginalMsg,
+										   dwOriginalSize, &pModifiedMsg, bUnsubscribe);
+				}
 			}
 			// call the original function
-			bResult = m_pFormatChatMessageTrampoline(_this, MessageType, pSender, pMessage);
+			bResult = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
 			// restore the original pointer and size of the message object
-			pMessage->pResBuf = pOriginalMsg;
-			pMessage->dwSize = dwOriginalSize;
+			pMessage_in_out->pResBuf = pOriginalMsg;
+			pMessage_in_out->dwSize = dwOriginalSize;
 			// cleanup
 			if (pModifiedMsg != NULL)
 				free(pModifiedMsg);
@@ -179,67 +221,42 @@ namespace Windower
 		return false;
 	}
 
-	void GameChatCore::UpdateChatData(const void *pChatObj_in)
+	/*! \brief Creates a text node from the specified string
+		\param[out] pTextObject_out : a pointer to the class containing the hooked method
+		\param[in] pText_in : the text used to initialize the node
+		\param[in] TextLength_in : the length of the text
+		\return a pointer to the text node
+	*/
+	StringNode* GameChatCore::CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in)
 	{
-		// pointer to the start of the chat
-		if (m_pChatHead != NULL)
-			m_pPrevChatHead = *m_pChatHead;
-
-		m_pChatHead = (char**)((char*)pChatObj_in + FORMAT_CHAT_HEAD_POINTER_OFFSET);
-		// pointer to the end of the chat
-		if (m_pChatTail != NULL)
-			m_pPrevChatTail = *m_pChatTail;
-
-		m_pChatTail = (char**)((char*)pChatObj_in + FORMAT_CHAT_TAIL_POINTER_OFFSET);
-
-		if (m_pChatHead != NULL && m_pPrevChatHead != *m_pChatHead)
-			m_ChatHeadVector.push_back(*m_pChatHead);
-	}
-
-	void GameChatCore::OnSubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
-	{
-		if (ServiceName_in.compare(_T("FormatChatMessage")) == 0)
-			m_ChatFormatSubscribers = Subscribers_in;
-		if (ServiceName_in.compare(_T("CreateXmlNode")) == 0)
+		if (m_bCreateTextNodeSubEmpty == false)
 		{
-			m_bCreateXmlNodeSubEmpty = Subscribers_in.empty();
-			m_CreateXmlNodeSubscribers = Subscribers_in;
-		}
-	}
+			PluginSet::iterator Iter = m_CreateTextNodeSubscribers.begin();
+			ICreateTextNodePlugin* pPlugin;
+			bool bUnsubscribe;
 
-	void GameChatCore::OnUnsubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
-	{
-		OnSubscribe(ServiceName_in, Subscribers_in);
-	}
-
-	StringObject* GameChatCore::CreateXmlNodeHook(StringObject *pTextObject_out, const char *pText_in, UINT TextLength_in)
-	{
-		if (m_bCreateXmlNodeSubEmpty == false)
-		{
-			PluginSet::iterator Iter = m_CreateXmlNodeSubscribers.begin();
-			ICreateXmlNodePlugin* pPlugin;
-			bool Unsubscribe;
-
-			for (; Iter != m_CreateXmlNodeSubscribers.end(); ++Iter)
+			for (; Iter != m_CreateTextNodeSubscribers.end(); ++Iter)
 			{
-				pPlugin = static_cast<ICreateXmlNodePlugin*>(*Iter);
-					
+				pPlugin = static_cast<ICreateTextNodePlugin*>(*Iter);
+
 				if (pPlugin != NULL)
-					pText_in = pPlugin->OnCreateXmlNode(pText_in, Unsubscribe);
-
-				if (Unsubscribe)
 				{
-					Iter = m_CreateXmlNodeSubscribers.erase(Iter);
+					pText_in = pPlugin->OnCreateTextNode(pText_in, bUnsubscribe);
 
-					if (m_CreateXmlNodeSubscribers.empty())
+					if (bUnsubscribe)
 					{
-						m_bCreateXmlNodeSubEmpty = true;
-						break;
+						Iter = m_CreateTextNodeSubscribers.erase(Iter);
+
+						if (m_CreateTextNodeSubscribers.empty())
+						{
+							m_bCreateTextNodeSubEmpty = true;
+							break;
+						}
 					}
 				}
 			}
 		}
 
-		return m_pCreateXmlNodeTrampoline(pTextObject_out, pText_in, TextLength_in);
+		return m_pCreateTextNodeTrampoline(pTextObject_out, pText_in, TextLength_in);
 	}
 }

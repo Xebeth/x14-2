@@ -10,27 +10,37 @@
 
 namespace Windower
 {
+	//! \brief Command parser
 	class CommandParser : public WindowerCore
 	{
 	public:
+		//! Result of command parsing
 		enum PARSER_RESULT
 		{
-			PARSER_RESULT_INVALID_FLOAT_PARAMETER = -6,
+			PARSER_RESULT_INVALID_FLOAT_PARAMETER = 0,
 			PARSER_RESULT_INVALID_INT_PARAMETER,
 			PARSER_RESULT_TOO_MANY_PARAMETERS,
 			PARSER_RESULT_TOO_FEW_PARAMETERS,
-			PARSER_RESULT_INVALID_COMMAND,
-			PARSER_RESULT_IMPLICIT_HELP
+			PARSER_RESULT_INVALID_COMMAND
 		};
 
-		CommandParser(WindowerEngine &Engine_in, CommandDispatcher &Dispatcher_in);
+		CommandParser(WindowerEngine &Engine_in_out, CommandDispatcher &Dispatcher_in);
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager *pHookManager){}
-		void OnHookInstall(IHookManager *pHookManager){}
+		/*! \brief Register the hooks for this module
+			\param[in] HookManager_in : the hook manager
+		*/
+		void RegisterHooks(IHookManager &HookManager_in) {}
+		/*! \brief Callback invoked when the hooks of the module are installed
+			\param[in] HookManager_in : the hook manager
+		*/
+		void OnHookInstall(IHookManager &HookManager_in) {}
 
 		int ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
 						 char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out);
+
+		bool ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out);
+		static int ShowCommandHelp(const WindowerCommand *pCommand_in);
 
 	protected:
 		int Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out);
@@ -38,6 +48,7 @@ namespace Windower
 						const WindowerCommandParam *pCommandParam_in, char **pFeedbackMsg_out,
 						DWORD &MsgSize_out);
 
+		//! the command dispatcher
 		CommandDispatcher &m_CommandDispatcher;
 	};
 }

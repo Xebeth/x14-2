@@ -10,20 +10,29 @@
 
 namespace Windower
 {
+	//! hash map of registered commands
 	typedef stdext::hash_map<std::string, WindowerCommand*> RegisteredCommands;
+	//! set of plugin keys
 	typedef std::set<DWORD> AuthorizedKeys;
-	//typedef std::queue<WindowerCommand*> CommandQueue;
 
+	//! \brief Command dispatcher
 	class CommandDispatcher : public WindowerCore
 	{
 		friend class CommandParser;
 	public:
-		CommandDispatcher(PluginEngine &Engine_in);
+		explicit CommandDispatcher(PluginEngine &Engine_in_out);
 		~CommandDispatcher();
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager *pHookManager){}
-		void OnHookInstall(IHookManager *pHookManager){}
+
+		/*! \brief Register the hooks for this module
+			\param[in] HookManager_in : the hook manager
+		*/
+		void RegisterHooks(IHookManager &HookManager_in) {}
+		/*! \brief Callback invoked when the hooks of the module are installed
+			\param[in] HookManager_in : the hook manager
+		*/
+		void OnHookInstall(IHookManager &HookManager_in) {}
 
 		int Dispatch(const WindowerCommand &Command_in);
 		bool UnregisterCommand(unsigned long RegistrationKey_in, const std::string &CommandName_in);
@@ -35,8 +44,14 @@ namespace Windower
 		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in, PluginFramework::ServiceParam &Results_out);
 
 	protected:
+		/*! \brief Retrieves a collection of registered commands
+			\return a collection of registered commands
+		*/
 		const RegisteredCommands& GetRegisteredCommands() { return m_Commands; }
-
+		/*! \brief Registers the specified command in the dispatcher
+			\param[in] Command_in : the command to register
+			\return true if the command was registered successfully; false otherwise
+		*/
 		inline bool RegisterCommand(const WindowerCommand &Command_in)
 		{
 			return RegisterCommand(Command_in.RegistrationKey, Command_in.Name, Command_in.Description, Command_in.Caller,
@@ -46,9 +61,15 @@ namespace Windower
 
 		void InsertCommand(WindowerCommand *pCommand_in);
 		void RemoveCommand(WindowerCommand *pCommand_in);
+		/*! \brief Checks if the specified key is authorized with the command dispatcher
+			\param[in] Key_in : the key to check
+			\return true if the key is authorized; false otherwise
+		*/
 		bool IsKeyAuthorized(DWORD Key_in) { return (m_ValidKeys.find(Key_in) != m_ValidKeys.end()); }
 
+		//! hash map of registered commands
 		RegisteredCommands m_Commands;
+		//! set of authorized keys
 		AuthorizedKeys	   m_ValidKeys;
 	};
 }

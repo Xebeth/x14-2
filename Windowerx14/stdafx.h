@@ -12,7 +12,7 @@
 #include <stdhdr.h>
 
 #include <string_t.h>
-#include <list>
+#include <set>
 
 #define __USE_DETOURS
 // #define __USE_MINHOOK
