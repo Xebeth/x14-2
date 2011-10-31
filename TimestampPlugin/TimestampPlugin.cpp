@@ -17,8 +17,8 @@ const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServi
 namespace Windower
 {
 	// TimestampPlugin default constructor
-	TimestampPlugin::TimestampPlugin() : IGameChatPlugin()
-		: m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT),
+	TimestampPlugin::TimestampPlugin() : IGameChatPlugin(),
+		m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT),
 		m_TimestampLength(TIMESTAMP_DEFAULT_LENGTH) {}
 
 	/*! \brief Creates an instance of TimestampPlugin
@@ -91,14 +91,14 @@ namespace Windower
 		\param[in] pSender_in : the sender of the message
 		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
-		\param[in] dwOriginalMsgSize : the size of the original message
+		\param[in] dwOriginalMsgSize_in : the size of the original message
 		\param[in] pBuffer_in_out : the resulting text modified by the plugin
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return true if the message was logged; false otherwise
 	*/
-	bool TimestampPlugin::OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+	bool TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 										StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-										DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+										DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 										bool &Unsubscribe_out)
 	{
 		if (pMessage_in_out->pResBuf != NULL)
