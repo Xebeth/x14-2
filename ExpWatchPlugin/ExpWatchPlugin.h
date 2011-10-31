@@ -22,17 +22,17 @@ namespace Windower
 		static void Query(PluginInfo& Info_out);
 
 		static int Start(const WindowerCommand *pCommand_in);
-		bool Start();
+		bool Start(std::string *pFeedback_in_out = NULL);
 
 		static int Stop(const WindowerCommand *pCommand_in);
-		bool Stop();
+		bool Stop(std::string *pFeedback_in_out = NULL);
 
 		static int Reset(const WindowerCommand *pCommand_in);
-		bool Reset();
+		bool Reset(std::string *pFeedback_in_out = NULL);
 
-		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   bool &Unsubscribe_out);
 
 		const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
