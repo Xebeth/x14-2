@@ -55,7 +55,7 @@ namespace Windower
 	void TellDetectPlugin::Query(PluginInfo& Info_out)
 	{
 		Info_out.Author = _T("Xebeth`");
-		Info_out.Name = _T("Tell detect");
+		Info_out.Name = _T("TellDetect");
 		Info_out.PluginVersion.FromString(_T("1.0.0"));
 		Info_out.FrameworkVersion.FromString(_T("1.0.0"));
 		Info_out.Descritpion = _T("This plugin will play a sound whenever the player receives a tell");
@@ -67,17 +67,17 @@ namespace Windower
 		\param[in] pSender_in : the sender of the message
 		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
-		\param[in] dwOriginalMsgSize : the size of the original message
+		\param[in] dwOriginalMsgSize_in : the size of the original message
 		\param[in] pBuffer_in_out : the resulting text modified by the plugin
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return true if the message was logged; false otherwise
 	*/
-	bool TellDetectPlugin::OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+	bool TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 										 StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-										 DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+										 DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 										 bool &Unsubscribe_out)
 	{
-		if (MessageType == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
+		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
 			PlaySound(_T("tell.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
 		return true;
