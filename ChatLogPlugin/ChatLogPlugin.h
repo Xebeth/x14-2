@@ -23,9 +23,9 @@ namespace Windower
 		bool StartLog();
 		void StopLog();
 
-		bool OnChatMessage(USHORT MessageType, const StringNode* pSender_in_out,
+		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize, char **pBuffer_in_out,
+						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   bool &Unsubscribe_out);
 	protected:
 		bool WriteLine(const string_t &Line_in);
