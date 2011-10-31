@@ -45,7 +45,7 @@ namespace Windower
 	PluginFramework::IPlugin* AutoLoginPlugin::Create()
 	{
 		AutoLoginPlugin *pNewInst = new AutoLoginPlugin;
-		AutoLoginPlugin::Query(pNewInst->m_BasePluginInfo);
+		AutoLoginPlugin::Query(pNewInst->m_PluginInfo);
 
 		CallerParam Caller("AutoLoginPlugin", pNewInst);
 		const char *pParamName = "hwnd";
@@ -53,7 +53,7 @@ namespace Windower
 
 		// create the 'autologin::startthread' command
 		Params[pParamName].Name = pParamName;
-		Params[pParamName].Type = COMMAND_PARAM_TYPE_INTEGER;
+		Params[pParamName].Type = COMMAND_PARAM_TYPE_POINTER;
 		Params[pParamName].Value = "0";
 		Params[pParamName].Description = "fills the password field automatically during login ";
 		WindowerCommand Command(PLUGIN_REGKEY, "autologin::startthread", "starts the thread to monitor HTML forms during the login process", Caller, AutoLoginThread, Params, 1, 1);
@@ -80,10 +80,15 @@ namespace Windower
 
 				if (pParam != NULL)
 				{
-					m_pSettings->SetParentWnd((HWND)pParam->GetIntegerValue());
-					CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL);	
+					HWND hParentWnd = (HWND)pParam->GetPointerValue();
 
-					return DISPATCHER_RESULT_SUCCESS;
+					if (hParentWnd != NULL)
+					{
+						m_pSettings->SetParentWnd(hParentWnd);
+						CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL);	
+
+						return DISPATCHER_RESULT_SUCCESS;
+					}
 				}
 
 				return DISPATCHER_RESULT_INVALID_PARAMETERS;
@@ -133,22 +138,18 @@ extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
 	\param[in] pServicesParams_in : a pointer to the plugin framework services
 	\return a pointer to the plugin registration parameters
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices *pServicesParams_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &ServicesParams_in)
 {
-	if (pServicesParams_in != NULL)
-	{
-		RegisterParams *pParams = new RegisterParams;
+	
+	RegisterParams *pParams = new RegisterParams;
 
-		AutoLoginPlugin::Query(pParams->Info);
+	AutoLoginPlugin::Query(pParams->Info);
 
-		pParams->QueryFunc = AutoLoginPlugin::Query;
-		pParams->CreateFunc = AutoLoginPlugin::Create;
-		pParams->DestroyFunc = AutoLoginPlugin::Destroy;
+	pParams->QueryFunc = AutoLoginPlugin::Query;
+	pParams->CreateFunc = AutoLoginPlugin::Create;
+	pParams->DestroyFunc = AutoLoginPlugin::Destroy;
 
-		AutoLoginPlugin::SetPluginServices(pServicesParams_in);
+	AutoLoginPlugin::SetPluginServices(ServicesParams_in);
 
-		return pParams;
-	}
-
-	return NULL;
+	return pParams;
 }

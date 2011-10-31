@@ -19,4 +19,6 @@ public:
 	virtual BOOL InitInstance();
 };
 
+extern AutoLoginConfigApp g_pApp;
+
 #endif//__AUTOLOGIN_CONFIG_APP_H__

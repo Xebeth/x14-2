@@ -9,7 +9,6 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 
 #include <BaseEngine.h>
@@ -51,7 +50,7 @@ namespace Bootstrap
 		// create the hook manager
 		m_pHookManager = new HookEngine;
 
-		m_pSettingsManager->LoadDefaultProfile(&m_pSettings);
+		m_pSettingsManager->LoadDefaultProfile(*m_pSettings);
 		// Win32 related hooks
 		m_pSystemCore = new SystemCore(*this);
 		RegisterModule(_T("System"), m_pSystemCore);
@@ -60,7 +59,7 @@ namespace Bootstrap
 		RegisterModule(_T("CommandDispatcher"), m_pCommandDispatcher);
 		// load plugins
 		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
-		Windower::ICoreModule::SetPluginManager(m_pPluginManager);
+		Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
 	}
 	
 	//! \brief BootstrapEngine destructor
@@ -101,13 +100,13 @@ namespace Bootstrap
 
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 				if (Iter->second != NULL)
-					Iter->second->RegisterHooks(m_pHookManager);
+					Iter->second->RegisterHooks(*m_pHookManager);
 
 			if (m_pHookManager->InstallRegisteredHooks())
 			{
 				for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 					if (Iter->second != NULL)
-						Iter->second->OnHookInstall(m_pHookManager);
+						Iter->second->OnHookInstall(*m_pHookManager);
 
 				return true;
 			}

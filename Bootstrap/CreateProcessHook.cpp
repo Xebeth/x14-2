@@ -8,7 +8,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <NonCopyable.h>
 #include <HookEngine.h>
 
 #include "BaseEngine.h"

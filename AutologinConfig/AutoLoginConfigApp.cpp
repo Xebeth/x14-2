@@ -15,6 +15,8 @@
 #include "AutoLoginConfigDlg.h"
 #include "AutoLoginConfigApp.h"
 
+AutoLoginConfigApp g_pApp;
+
 BOOL AutoLoginConfigApp::InitInstance()
 {
 	// InitCommonControlsEx() is required on Windows XP if an application

@@ -12,6 +12,7 @@ namespace Bootstrap
 {
 	typedef HookEngineLib::IHookManager IHookManager;
 
+	//! the class name of the target window
 	#define TARGET_CLASSNAME _T("Shell DocObject View")
 
 	//! \brief Core module used for Win32 API hooking
@@ -21,8 +22,8 @@ namespace Bootstrap
 		SystemCore(Windower::PluginEngine &Engine_in_out);
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager *pHookManager_in);
-		void OnHookInstall(IHookManager *pHookManager_in);
+		void RegisterHooks(IHookManager &HookManager_in);
+		void OnHookInstall(IHookManager &HookManager_in);
 
 		// hooks
 		HWND CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,

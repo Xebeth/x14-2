@@ -12,7 +12,7 @@
 //! the class name of the IE server
 #define IE_SERVER_CLASSNAME _T("Internet Explorer_Server")
 //! function pointer on ObjectFromLresult defined in OleAcc.dll
-typedef HRESULT (STDAPICALLTYPE *LPFNOBJECTFROMLRESULT)(LRESULT lResult, REFIID riid, WPARAM wParam, void** ppvObject);
+typedef HRESULT (STDAPICALLTYPE *LPFNOBJECTFROMLRESULT)(LRESULT lResult, REFIID riid, WPARAM wParam, LPVOID* ppvObject);
 
 DWORD WINAPI AutoLoginThread(LPVOID pUserData_in);
 

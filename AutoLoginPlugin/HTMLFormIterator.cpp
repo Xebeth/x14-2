@@ -24,7 +24,7 @@ IHTMLElement* HTMLFormIterator::Next()
 
 		if (SUCCEEDED(m_pForms->item(m_CurrentIndex, m_CurrentIndex, &pElemDispatch)) && pElemDispatch != NULL)
 		{
-			pElemDispatch->QueryInterface(IID_IHTMLElement, (void**)&m_pCurrentForm);
+			pElemDispatch->QueryInterface(IID_IHTMLElement, (LPVOID*)&m_pCurrentForm);
 			pElemDispatch->Release();
 		}
 

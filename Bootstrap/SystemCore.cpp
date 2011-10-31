@@ -144,30 +144,27 @@ namespace Bootstrap
 	}
 
 	/*! \brief Register the hooks for this module
-		\param[in] pHookManager : 
-		\return void
+		\param[in] HookManager_in : the hook manager
 	*/
-	void SystemCore::RegisterHooks(IHookManager *pHookManager_in)
+	void SystemCore::RegisterHooks(IHookManager &HookManager_in)
 	{
-		if (pHookManager_in != NULL)
-		{
-			// CreateWindowEx hook used to start the AutoLogin thread
-			if (m_AutoLogin)
-				pHookManager_in->RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
-			// ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (Windows XP)
-			pHookManager_in->RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
-			// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
-			IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
-		}
+		// CreateWindowEx hook used to start the AutoLogin thread
+		if (m_AutoLogin)
+			HookManager_in.RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
+		// ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (Windows XP)
+		HookManager_in.RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
+		// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
+		IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
 	}
 
-	void SystemCore::OnHookInstall(IHookManager *pHookManager)
+	/*! \brief Callback invoked when the hooks of the module are installed
+		\param[in] HookManager_in : the hook manager
+	*/
+	void SystemCore::OnHookInstall(IHookManager &HookManager_in)
 	{
-		if (pHookManager != NULL)
-		{
-			if (m_AutoLogin)
-				m_pCreateWindowExWTrampoline = (fnCreateWindowExW)pHookManager->GetTrampolineFunc("CreateWindowEx");
-			m_pShellExecuteExTrampoline = (fnShellExecuteEx)pHookManager->GetTrampolineFunc("ShellExecuteEx");
-		}
+		if (m_AutoLogin)
+			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowEx");
+
+		m_pShellExecuteExTrampoline = (fnShellExecuteEx)HookManager_in.GetTrampolineFunc("ShellExecuteEx");
 	}
 }

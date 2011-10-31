@@ -126,7 +126,7 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (pElement != NULL)
 				{
-					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (void**)&m_pPasswordInput)) && m_pPasswordInput != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&m_pPasswordInput)) && m_pPasswordInput != NULL)
 					{
 						string_t Key;
 						long KeyHash;
@@ -166,6 +166,8 @@ bool AutoLogin::AutoCompleteForm()
 						m_pPasswordInput->Release();
 						m_pPasswordInput = NULL;
 					}
+					else
+						m_LoginComplete = true;
 
 					pElement->Release();
 				}
@@ -194,7 +196,7 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 		if (SUCCEEDED(pParent_in->get_all(&pElemDispatch)) && pElemDispatch != NULL)
 		{
 			IHTMLElementCollection *pElements = NULL;
-			HRESULT hr = pElemDispatch->QueryInterface(IID_IHTMLElementCollection, (void**)&pElements);
+			HRESULT hr = pElemDispatch->QueryInterface(IID_IHTMLElementCollection, (LPVOID*)&pElements);
 
 			if (SUCCEEDED(hr) && pElements != NULL)
 			{
@@ -213,7 +215,7 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 
 					if (SUCCEEDED(pElements->item(Index, Index, &pInputDispatch)) && pInputDispatch != NULL)
 					{
-						if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, (void**)&pElement)) && pElement != NULL)
+						if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, (LPVOID*)&pElement)) && pElement != NULL)
 						{
 							pElement->get_id(&EltID);
 
@@ -350,7 +352,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			while (Timeout_in >= 0 && Result == false)
 			{
 				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD*)&lRes);
-				Result = SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (void**)&m_pHTMLDoc));
+				Result = SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pHTMLDoc));
 
 				if (Result == false)
 				{
