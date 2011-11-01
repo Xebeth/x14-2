@@ -27,8 +27,8 @@ namespace Windower
 	*/
 	bool AutoLoginSettings::Save()
 	{
-		SetString(_T("AutoLogin"), _T("Password"), m_Password);
-		SetHex(_T("AutoLogin"), _T("KeyHash"), m_KeyHash);
+		SetString(_T("Plugin:AutoLogin"), _T("Password"), m_Password);
+		SetHex(_T("Plugin:AutoLogin"), _T("KeyHash"), m_KeyHash);
 
 		return SettingsIniFile::Save();
 	}
@@ -40,8 +40,8 @@ namespace Windower
 	{
 		if (SettingsIniFile::Load())
 		{
-			m_Password = GetString(_T("AutoLogin"), _T("Password"));
-			m_KeyHash = GetUnsignedLong(_T("AutoLogin"), _T("KeyHash"));
+			m_Password = GetString(_T("Plugin:AutoLogin"), _T("Password"));
+			m_KeyHash = GetUnsignedLong(_T("Plugin:AutoLogin"), _T("KeyHash"));
 
 			return true;
 		}

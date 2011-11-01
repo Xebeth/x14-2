@@ -58,7 +58,7 @@ namespace Bootstrap
 		m_pCommandDispatcher = new Windower::CommandDispatcher(*this);
 		RegisterModule(_T("CommandDispatcher"), m_pCommandDispatcher);
 		// load plugins
-		m_pPluginManager->ListPlugins(m_pSettings->GetPluginsAbsoluteDir());
+		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir());
 		Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
 	}
 	

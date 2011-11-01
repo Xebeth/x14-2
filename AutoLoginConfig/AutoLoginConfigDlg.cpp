@@ -26,7 +26,7 @@ END_MESSAGE_MAP()
 	\param[in] : the parent window of the dialog
  */
 AutoLoginConfigDlg::AutoLoginConfigDlg(CWnd* pParentWnd_in) : CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	m_pSettings(new Windower::AutoLoginSettings(_T("autologin.ini")))
+	m_pSettings(new Windower::AutoLoginSettings(_T("config.ini")))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	// generate the encryption key

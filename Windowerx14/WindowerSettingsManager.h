@@ -9,16 +9,14 @@
 #define __WINDOWER_SETTINGS_MANAGER_H__
 
 #include <SimpleIni.h>
+#include <hash_map>
 
 namespace Windower
 {
-	#define DEFAULT_PROFILE_NAME _T("Default")
-	#define DEFAULT_PLUGINS_DIR _T("plugins")
+	#define DEFAULT_PROFILE_NAME	PROFILE_PREFIX _T("Default")
+	#define DEFAULT_PLUGINS_DIR		_T("plugins")
 
-	typedef std::vector<WindowerProfile*> WindowerSettings;
-	typedef WindowerSettings::const_iterator SettingsConstIterator;
-	typedef WindowerSettings::iterator SettingsIterator;
-
+	typedef stdext::hash_map<string_t, WindowerProfile*> WindowerSettings;
 	typedef CSimpleIni::TNamesDepend::iterator SectionsIterator;
 
 	typedef Settings::SettingsIniFile SettingsIniFile;
@@ -34,18 +32,39 @@ namespace Windower
 		bool LoadDefaultProfile(WindowerProfile &Settings_out);
 		bool LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_in);
 		bool CopyProfile(const TCHAR *pDstProfile_in, const WindowerProfile &Src_in);
+		WindowerSettings::const_iterator GetSettingsPos(const TCHAR *pProfileName_in);
 		WindowerProfile* GetSettings(const TCHAR *pProfileName_in);
 		bool DeleteProfile(const TCHAR *pProfileName_in);
 		bool CreateDefaultProfile();
 
+		/*! \brief Retrieves the relative directory of the plugins
+			\return the relative directory of the plugins
+		*/
+		const TCHAR* GetPluginsDir() const { return m_PluginsDir.c_str(); }
+		/*! \brief Retrieves the absolute directory of the plugins
+			\return the absolute directory of the plugins
+		*/
+		const string_t& GetPluginsAbsoluteDir()
+		{
+			TCHAR CurrentDir[MAX_PATH];
+
+			GetCurrentDirectory(MAX_PATH, CurrentDir);
+			format(m_PluginsAbsDir, _T("%s\\%s\\"), CurrentDir, m_PluginsDir.c_str());
+
+			return m_PluginsAbsDir;
+		}
+		/*! \brief Sets the relative directory of the plugins
+			\param[in] pPluginsDir_in : the relative directory of the plugins
+		*/
+		void SetPluginsDir(const TCHAR *pPluginsDir_in) { if (pPluginsDir_in != NULL) m_PluginsDir = pPluginsDir_in; }
 		/*! \brief Sets the name of the default profile
 			\param[in] pProfileName_in : the new default profile
 		*/
-		void SetDefaultProfile(const TCHAR *pProfileName_in) { m_DefaultProfile = pProfileName_in; }
+		void SetDefaultProfile(const TCHAR *pProfileName_in) { format(m_DefaultProfile, _T("%s%s"), PROFILE_PREFIX, pProfileName_in); }
 		/*! \brief Retrieves the name of the default profile
 			\return the name of the default profile
 		*/
-		const string_t& GetDefaultProfile() const { return m_DefaultProfile; }
+		const TCHAR* GetDefaultProfile() const { return (m_DefaultProfile.c_str() + PROFILE_PREFIX_LENGTH); }
 		/*! \brief Sets the flag specifying if the AutoLogin plugin is in use
 			\param[in] AutoLogin_in : the new value of the flag
 		*/
@@ -54,18 +73,27 @@ namespace Windower
 			\return the flag specifying if the AutoLogin plugin is in use
 		*/
 		bool GetAutoLogin() const { return m_AutoLogin; }
+		/*! \brief Retrieves the profiles from the windower configuration file
+			\return the profiles from the windower configuration file
+		*/
+		const WindowerSettings& GetProfiles() const { return m_Profiles; }
 
 		bool Load();
 		bool Save();
+
 	protected:
 		//! the profiles from the windower configuration file
-		WindowerSettings	 m_Profiles;
+		WindowerSettings m_Profiles;
 		//! the windower configuration file
-		SettingsIniFile		*m_pSettingsFile;
+		SettingsIniFile *m_pSettingsFile;
 		//! the name of the default profile
-		string_t			 m_DefaultProfile;
+		string_t m_DefaultProfile;
 		//! flag specifying if the AutoLogin plugin is in use
-		bool				 m_AutoLogin;
+		bool m_AutoLogin;
+		//! the absolute directory of the plugins
+		string_t m_PluginsAbsDir;
+		//! the relative directory of the plugins
+		string_t m_PluginsDir;
 	};
 }
 

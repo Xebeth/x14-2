@@ -46,7 +46,7 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)\r\n"
     "LANGUAGE 12, 1\r\n"
     "#pragma code_page(1252)\r\n"
-    "#include ""res\\config.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""res\\AutoLoginConfig.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""     // Standard components\r\n"
     "#endif\r\n"
     "\0"

@@ -26,7 +26,7 @@ namespace Windower
 	//! \brief AutoLoginPlugin default constructor
 	AutoLoginPlugin::AutoLoginPlugin()
 	{
-		m_pSettings = new AutoLoginSettings(_T("autologin.ini"));
+		m_pSettings = new AutoLoginSettings(_T("config.ini"));
 	}
 	
 	//! \brief AutoLoginPlugin destructor
