@@ -19,7 +19,7 @@ public:
 	const char  *pUnknown;		// +18
 };
 
-// int _pThis_in_outcall sub_504EA0(int this, unsigned __int16 a2, int a3, int a4) => search for %04X in disassembly
+// int __thiscall sub_4CCB50(void *this, unsigned __int16 a2, int a3, int a4) => search for %04X in disassembly
 typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
 bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
 

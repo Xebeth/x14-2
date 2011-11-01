@@ -36,10 +36,9 @@ namespace Windower
 		\param[in] ResX_in : the width of the rendering surface
 		\param[in] ResY_in : the height of the rendering surface
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
-		\param[in] Direct3DEx_in : flag specifying if Direct3D9Ex should be used
 	*/
-	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Direct3DEx_in)
-		: WindowerCore(Engine_in_out), m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_Direct3D9Ex(Direct3DEx_in)
+	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in)
+		: WindowerCore(Engine_in_out), m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in)
 	{
 		m_pDirect3DCreate9Trampoline = Direct3DCreate9;
 		m_pDirect3DWrapper = NULL;
@@ -70,7 +69,7 @@ namespace Windower
 
 			if (pDirect3D != NULL)
 			{
-				m_pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_ResX, m_ResY, m_VSync, m_Direct3D9Ex);
+				m_pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_ResX, m_ResY, m_VSync);
 				// subscribe for a pointer to the Direct3DDevice wrapper
 				m_pDirect3DWrapper->Subscribe(&m_pDeviceWrapper);
 			}

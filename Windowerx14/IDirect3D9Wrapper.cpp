@@ -7,9 +7,9 @@
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
-IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Direct3D9Ex_in)
+IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, LONG ResX_in, LONG ResY_in, BOOL VSync_in)
 	: m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
-	  m_Direct3D9Ex(Direct3D9Ex_in), m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
+	  m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
 
 /*! \brief IDirect3D9Wrapper destructor */
 IDirect3D9Wrapper::~IDirect3D9Wrapper()

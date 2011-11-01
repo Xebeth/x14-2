@@ -18,7 +18,7 @@ namespace Windower
 	class GraphicsCore : public WindowerCore
 	{
 	public:
-		GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Direct3DEx_in);
+		GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in);
 		~GraphicsCore();
 
 		void ToggleRendering();
@@ -46,8 +46,6 @@ namespace Windower
 		LONG m_ResY;
 		//! flag specifying if vertical synchronization is in use
 		BOOL m_VSync;
-		//! flag specifying if Direct3D9Ex should be used
-		BOOL m_Direct3D9Ex;
 	};
 }
 
