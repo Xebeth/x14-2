@@ -25,12 +25,18 @@
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
 #include "Direct3D9Hook.h"
+#ifdef _DEBUG
+	#include "TestHook.h"
+#endif // _DEBUG
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "GameChatCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
+#ifdef _DEBUG
+	#include "TestCore.h"
+#endif // _DEBUG
 
 #include "WindowerCommand.h"
 #include "CommandParser.h"
@@ -60,6 +66,11 @@ namespace Windower
 
 		// create the services
 
+		// testing
+#ifdef _DEBUG
+		m_pTestCore = new TestCore(*this);
+		RegisterModule(_T("Testing"), m_pTestCore);
+#endif // _DEBUG
 		// Win32 related hooks
  		m_pSystemCore = NULL; // new SystemCore(*this);
 // 		RegisterModule(_T("System"), m_pSystemCore);
@@ -73,11 +84,10 @@ namespace Windower
 		m_pGameChatCore = new GameChatCore(*this, *m_pCommandParser, *m_pCommandDispatcher);
 		RegisterModule(_T("GameChat"), m_pGameChatCore);
 		// Direct3D related hooks
-		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(),
-										   m_Settings.GetVSync(), m_Settings.GetDirect3DEx());
+		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(), m_Settings.GetVSync());
 		RegisterModule(_T("Graphics"), m_pGraphicsCore);
 
-		m_pPluginManager->ListPlugins(m_Settings.GetPluginsAbsoluteDir());
+		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir());
 		ICoreModule::SetPluginManager(*m_pPluginManager);
 
 		// load plugins
@@ -130,6 +140,11 @@ namespace Windower
 
 		delete m_pInjectVersion;
 		m_pInjectVersion = NULL;
+
+#ifdef _DEBUG
+		delete m_pTestCore;
+		m_pTestCore = NULL;
+#endif // _DEBUG
 	}
 
 	/*! \brief Installs the internal hooks used by the windower

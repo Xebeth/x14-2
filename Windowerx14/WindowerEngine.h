@@ -23,6 +23,9 @@ namespace Windower
 	class GraphicsCore;
 	class ICoreModule;
 	class SystemCore;
+#ifdef _DEBUG
+	class TestCore;
+#endif // _DEBUG
 
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
@@ -46,11 +49,16 @@ namespace Windower
 
 		void OnShutdown();
 
-		
+#ifdef _DEBUG
+		/*! \brief Retrieves the test core module
+			\return the test core module
+		*/
+		TestCore& Test() const { return *m_pTestCore; }
+#endif // _DEBUG
 		/*! \brief Retrieves the system core module
 			\return the system core module
 		*/
-		SystemCore&	System() const { return *m_pSystemCore; }
+		SystemCore& System() const { return *m_pSystemCore; }
 		/*! \brief Retrieves the graphics core module
 			\return the graphics core module
 		*/
@@ -81,6 +89,10 @@ namespace Windower
 		WindowerProfile m_Settings;
 		//! the hook engine
 		HookEngine m_HookManager;
+		//! the test core module
+#ifdef _DEBUG
+		TestCore *m_pTestCore;
+#endif // _DEBUG
 		//! the system core module
 		SystemCore *m_pSystemCore;
 		//! the graphics core module

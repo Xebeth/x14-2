@@ -49,6 +49,12 @@
     <Filter Include="Windower\Hooks\Chat">
       <UniqueIdentifier>{f2e9f9ae-3632-426a-91fa-d65a4c76604b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Windower\Modules\Test">
+      <UniqueIdentifier>{e91f83bc-7d20-4b25-9e65-e3100bed4572}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks\Test">
+      <UniqueIdentifier>{a36cfda0-c52c-4a11-a42f-3f0a11991591}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -120,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="InjectVersion.cpp">
       <Filter>Windower\Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCore.cpp">
+      <Filter>Windower\Modules\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TestHook.cpp">
+      <Filter>Windower\Hooks\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="InjectVersion.h">
       <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCore.h">
+      <Filter>Windower\Modules\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="TestHook.h">
+      <Filter>Windower\Hooks\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

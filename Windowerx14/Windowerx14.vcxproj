@@ -112,6 +112,12 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SystemCore.cpp" />
+    <ClCompile Include="TestCore.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="TestHook.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="utf8_convert.cpp" />
     <ClCompile Include="WindowerCommand.cpp" />
     <ClCompile Include="WindowerCore.cpp" />
@@ -141,6 +147,12 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="RegisterClassExHook.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemCore.h" />
+    <ClInclude Include="TestCore.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="TestHook.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="utf8_convert.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerCommand.h" />
