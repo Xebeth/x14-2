@@ -39,9 +39,10 @@ namespace Settings
 		/*! \brief Retrieves the long value corresponding to the specified key and section
 			\param[in] SectionName_in : the section containing the key
 			\param[in] Key_in : the name of the key
-			\return the long value of the key if valid; 0 otherwise
+			\param[in] DefaultValue : the default value if the key wasn't found
+			\return the long value of the key if valid; DefaultValue otherwise
 		*/
-		virtual LONG GetLong(const string_t &SectionName_in, const string_t &Key_in) const =0;
+		virtual LONG GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue = 0L) const =0;
 		/*! \brief Sets the specified key value as a long in the specified section
 			\param[in] SectionName_in : the section containing the key
 			\param[in] Key_in : the name of the key
@@ -51,9 +52,10 @@ namespace Settings
 		/*! \brief Retrieves the string value corresponding to the specified key and section
 			\param[in] SectionName_in : the section containing the key
 			\param[in] Key_in : the name of the key
-			\return the string value of the key if valid; 0 otherwise
+			\param[in] pDefaultValue : the default value if the key wasn't found
+			\return the string value of the key if valid; pDefaultValue otherwise
 		*/
-		virtual const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in) const =0;
+		virtual const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR *pDefaultValue = _T("")) const =0;
 		/*! \brief Sets the specified key value as string in the specified section
 			\param[in] SectionName_in : the section containing the key
 			\param[in] Key_in : the name of the key

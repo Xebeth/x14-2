@@ -30,11 +30,11 @@ namespace Settings
 		virtual void getSections(CSimpleIni::TNamesDepend &Sections_out) const;
 
 		// Settings accessors
-		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in) const;
-		ULONG GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in) const;
+		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue = 0L) const;
+		ULONG GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in, ULONG DefaultValue = 0UL) const;
 		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
 		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
-		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in) const;
+		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
 		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
 	protected:
 		//! the path of the INI file

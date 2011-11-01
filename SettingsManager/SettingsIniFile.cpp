@@ -86,11 +86,7 @@ namespace Settings
 	bool SettingsIniFile::DeleteSection(const string_t &SectionName_in)
 	{
 		if (m_pIni != NULL)
-		{
-			m_pIni->Delete(SectionName_in.c_str(), NULL);
-
-			return true;
-		}
+			return m_pIni->Delete(SectionName_in.c_str(), NULL);
 
 		return false;
 	}
@@ -98,27 +94,29 @@ namespace Settings
 	/*! \brief Retrieves the long value corresponding to the specified key and section
 		\param[in] SectionName_in : the section containing the key
 		\param[in] Key_in : the name of the key
-		\return the long value of the key if valid; 0 otherwise
+		\param[in] DefaultValue : the default value if the key wasn't found
+		\return the long value of the key if valid; DefaultValue otherwise
 	*/
-	LONG SettingsIniFile::GetLong(const string_t &SectionName_in, const string_t &Key_in) const
+	LONG SettingsIniFile::GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue) const
 	{
 		if (m_pIni != NULL)
-			return m_pIni->GetLongValue(SectionName_in.c_str(), Key_in.c_str());
+			return m_pIni->GetLongValue(SectionName_in.c_str(), Key_in.c_str(), DefaultValue);
 
-		return 0L;
+		return DefaultValue;
 	}
 
 	/*! \brief Retrieves the unsigned long value corresponding to the specified key and section
 		\param[in] SectionName_in : the section containing the key
 		\param[in] Key_in : the name of the key
-		\return the unsigned long value of the key if valid; 0 otherwise
+		\param[in] DefaultValue : the default value if the key wasn't found
+		\return the unsigned long value of the key if valid; DefaultValue otherwise
 	*/
-	ULONG SettingsIniFile::GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in) const
+	ULONG SettingsIniFile::GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in, ULONG DefaultValue) const
 	{
 		if (m_pIni != NULL)
-			return m_pIni->GetUnsignedLongValue(SectionName_in.c_str(), Key_in.c_str());
+			return m_pIni->GetUnsignedLongValue(SectionName_in.c_str(), Key_in.c_str(), DefaultValue);
 
-		return 0L;
+		return DefaultValue;
 	}
 
 	/*! \brief Sets the specified key value as a long in the specified section
@@ -146,14 +144,15 @@ namespace Settings
 	/*! \brief Retrieves the string value corresponding to the specified key and section
 		\param[in] SectionName_in : the section containing the key
 		\param[in] Key_in : the name of the key
-		\return the string value of the key if valid; 0 otherwise
+		\param[in] pDefaultValue : the default value if the key wasn't found
+		\return the string value of the key if valid; pDefaultValue otherwise
 	*/
-	const TCHAR* SettingsIniFile::GetString(const string_t &SectionName_in, const string_t &Key_in) const
+	const TCHAR* SettingsIniFile::GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR* pDefaultValue) const
 	{
 		if (m_pIni != NULL)
-			return m_pIni->GetValue(SectionName_in.c_str(), Key_in.c_str());
+			return m_pIni->GetValue(SectionName_in.c_str(), Key_in.c_str(), pDefaultValue);
 
-		return NULL;
+		return pDefaultValue;
 	}
 
 	/*! \brief Sets the specified key value as string in the specified section
