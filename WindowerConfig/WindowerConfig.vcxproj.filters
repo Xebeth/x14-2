@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{5ea2e4c9-04c4-42ec-abcf-242b71fb7e76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{d9f19d07-247a-4277-ac87-0e7b40250c67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{096a3ae5-1620-4aac-a0b8-4b8156cf5687}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{a701a9ad-9887-4922-9556-e13519b1a4e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CryptUtils.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\string_t.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerConfigApp.h" />
+    <ClInclude Include="WindowerConfigDlg.h" />
+    <ClInclude Include="..\SettingsManager\SimpleIni.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SettingsManager\SettingsIniFile.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SettingsManager\SettingsInterface.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\WindowerConfig.rc2">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Common\config.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CryptUtils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\string_t.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerConfigDlg.cpp" />
+    <ClCompile Include="WindowerConfigApp.cpp" />
+    <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WindowerConfig.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
