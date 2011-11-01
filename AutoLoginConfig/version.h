@@ -11,7 +11,7 @@
 #define MODULE_FILE_DESC			"Windower for Final Fantasy XIV\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
 #define MODULE_COPYRIGHT			"Copyright (C) 2011 North Edge.  All rights reserved.\0"
-#define MODULE_PRODUCT_NAME			"x14 AutoLogin Configurator\0"
+#define MODULE_PRODUCT_NAME			"AutoLogin x14 Configurator\0"
 
 #define MODULE_FILENAME				"AutoLoginConfig.exe\0"
 
