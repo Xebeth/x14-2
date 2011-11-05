@@ -218,7 +218,7 @@ namespace Windower
 				int iMinutes = (int)(60 * (Hours - iHours));
 
 				format(*pFeedback_in_out, "ExpWatch stopped gathering statistics on experience points gained.\n"
-					   "\tTotal experience points: %ld for %ld kills in %02d:%02d\n"
+					   "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
 					   "\tAverage experience per hour: %.2f\n\tAverage experience per kill: %.2f",
 					   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
 			}
