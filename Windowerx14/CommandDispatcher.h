@@ -18,7 +18,6 @@ namespace Windower
 	//! \brief Command dispatcher
 	class CommandDispatcher : public WindowerCore
 	{
-		friend class CommandParser;
 	public:
 		explicit CommandDispatcher(PluginEngine &Engine_in_out);
 		~CommandDispatcher();
@@ -43,11 +42,10 @@ namespace Windower
 		WindowerCommand* FindCommand(const std::string &Name_in);
 		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in, PluginFramework::ServiceParam &Results_out);
 
+		bool ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out);
+		static int ShowCommandHelp(const WindowerCommand *pCommand_in);
+
 	protected:
-		/*! \brief Retrieves a collection of registered commands
-			\return a collection of registered commands
-		*/
-		const RegisteredCommands& GetRegisteredCommands() { return m_Commands; }
 		/*! \brief Registers the specified command in the dispatcher
 			\param[in] Command_in : the command to register
 			\return true if the command was registered successfully; false otherwise

@@ -39,9 +39,6 @@ namespace Windower
 		int ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
 						 char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out);
 
-		bool ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out);
-		static int ShowCommandHelp(const WindowerCommand *pCommand_in);
-
 	protected:
 		int Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out);
 		int SetFeedback(int Code_in, WindowerCommand &Command_in_out, size_t ParamCount_in,

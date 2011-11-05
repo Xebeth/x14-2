@@ -35,6 +35,18 @@ namespace Windower
 		m_ValidKeys.insert(0xAF8B3EE1); // Timestamp 1.0.0
 		m_ValidKeys.insert(0x18E5F530); // AutoLogin 1.0.0
 		m_ValidKeys.insert(0xEB71A021); // ExpWatch 1.0.0
+
+		CallerParam Caller("CommandDispatcher", this);
+		const char *pParamName = "command";
+		CommandParameters Params;
+
+		Params[pParamName].Name = pParamName;
+		Params[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
+		Params[pParamName].Value = "";
+		Params[pParamName].Description = "the name of the command for which to obtain help";
+
+		RegisterCommand(PLUGIN_REGKEY, "help", "Displays the help messages of all the available commands",
+						Caller, ShowCommandHelp, 0, 1, Params);
 	}
 
 	//! \brief CommandDispatcher destructor
@@ -189,5 +201,64 @@ namespace Windower
 			return CmdIter->second;
 
 		return NULL;
+	}
+
+	/*! \brief Help command invocation
+		\param[in] pCommand_in : the command received from the command dispatcher
+		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	*/
+	int CommandDispatcher::ShowCommandHelp(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("CommandDispatcher") == 0)
+		{
+			CommandDispatcher *pParser = reinterpret_cast<CommandDispatcher*>(pCommand_in->Caller.pData);
+			const WindowerCommandParam *pParam = pCommand_in->GetParameter("command");
+
+			if (pParser != NULL && pParam != NULL)
+			{
+				if (pParser->ShowCommandHelp(pParam->Value, pCommand_in->ResultMsg))
+					return DISPATCHER_RESULT_SUCCESS;
+			}
+
+			return DISPATCHER_RESULT_INVALID_PARAMETERS;
+		}
+
+		return DISPATCHER_RESULT_INVALID_CALL;
+	}
+
+	/*! \brief Displays the help message for the specified command
+			   or all the commands if no command is specified
+		\param[in] CommandName_in : the name of the command for which to obtain help
+		\param[out] HelpMsg_out : a string receiving the help message
+		\return true if successful; false otherwise
+	*/
+	bool CommandDispatcher::ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out)
+	{
+		if (CommandName_in.empty() == false)
+		{
+			WindowerCommand *pCommand;
+
+			if ((pCommand = FindCommand(CommandName_in)) != NULL)
+			{
+				pCommand->Output(HelpMsg_out);
+
+				return true;
+			}
+		}
+
+		RegisteredCommands::const_iterator Iter;
+
+		for (Iter = m_Commands.begin(); Iter != m_Commands.end(); ++Iter)
+		{
+			if (Iter->second != NULL)
+			{
+				if (HelpMsg_out.empty() == false)
+					HelpMsg_out += '\n';
+
+				Iter->second->Output(HelpMsg_out);
+			}
+		}
+	
+		return true;
 	}
 }
