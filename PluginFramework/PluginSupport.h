@@ -26,15 +26,11 @@ public:
 	*/
 	string_t ToString() const
 	{
-		return format(_T("Plugin '%s v%s' [0x%08X]:\n")
-					  _T("\tFramework:\t%s\n")
+		return format(_T("Plugin '%s v%s':\n")
 					  _T("\tAuthor:\t\t%s\n")
-					  _T("\tDescritpion:\t%s\n")
-					  _T("\tPath:\t\t%s"),
+					  _T("\tDescritpion:\t%s\n"),
 					  Name.c_str(), PluginVersion.ToString().c_str(),
-					  Handle, FrameworkVersion.ToString().c_str(),
-					  Author.c_str(), Descritpion.c_str(),
-					  DLLPath.c_str());
+					  Author.c_str(), Descritpion.c_str());
 	}
 
 	//! the compatible framework version
@@ -51,6 +47,8 @@ public:
 	string_t						Descritpion;
 	//! the path of the DLL
 	string_t						DLLPath;
+	//! the URL used to check for updates
+	string_t						UpdateUrl;
 	//! the handle to the DLL
 	HMODULE							Handle;
 };
@@ -74,6 +72,8 @@ typedef struct _RegisterParams
 	fnDestroy	DestroyFunc;
 } RegisterParams;
 
+//! function pointer to an Initialize function
+typedef RegisterParams* (*fnInitialize)(const PluginFramework::IPluginServices&);
 //! function pointer to an InvokeService function
 typedef bool (PluginFramework::IPluginServices::*fnInvokeService)(const string_t&, const string_t&,
 																  const PluginFramework::ServiceParam&,
@@ -82,10 +82,6 @@ typedef bool (PluginFramework::IPluginServices::*fnInvokeService)(const string_t
 typedef bool (PluginFramework::IPluginServices::*fnSubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
 //! function pointer to an UnsubscribeService function
 typedef bool (PluginFramework::IPluginServices::*fnUnsubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
-//! function pointer to a Query function
-typedef void (*fnQuery)(PluginInfo&);
-//! function pointer to an Initialize function
-typedef RegisterParams* (*fnInitialize)(const PluginFramework::IPluginServices&);
 
 extern "C"
 {
