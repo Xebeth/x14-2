@@ -183,6 +183,7 @@ namespace Windower
 
 			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME) + PROFILE_PREFIX_LENGTH);
 			SetPluginsDir(m_pSettingsFile->GetString(_T("General"), _T("PluginsDir"), DEFAULT_PLUGINS_DIR));
+			SetAutoLogin(m_pSettingsFile->GetLong(_T("General"), _T("Autologin"), 0) == 1L);
 
 			m_pSettingsFile->getSections(Sections);
 

@@ -12,24 +12,18 @@
 #include "ICreateTextNodePlugin.h"
 #include "InjectVersion.h"
 
-const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServices = NULL;
-
 namespace Windower
 {
-	/*! \brief InjectVersion constructor
-		\param[in] pPluginServices_in : the plugin services
-	*/
-	InjectVersion::InjectVersion(PluginFramework::IPluginServices *pPluginServices_in)
+	//! \brief InjectVersion default constructor
+	InjectVersion::InjectVersion()
 		: ICreateTextNodePlugin("Game Version:")
 	{
-		m_pPluginServices = pPluginServices_in;
-		m_PluginInfo.Descritpion = _T("");
-		m_PluginInfo.Author = _T("Xebeth`");
-		m_PluginInfo.Name = _T("InjectVersion");
-		m_PluginInfo.PluginVersion.FromString(_T("1.0.0"));
-		m_PluginInfo.FrameworkVersion.FromString(_T("1.0.0"));
-		m_PluginInfo.PluginIdentifier.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90"));
-		m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateTextNode"), this);
+		m_PluginInfo.SetIdentifier(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90"));
+		m_PluginInfo.SetName(_T("InjectVersion"));
+		m_PluginInfo.SetAuthor(_T("Xebeth`"));
+		m_PluginInfo.SetVersion(_T("1.0.0"));
+
+		Subscribe();
 	}
 
 	/*! \brief Callback function invoked when the game creates a string object

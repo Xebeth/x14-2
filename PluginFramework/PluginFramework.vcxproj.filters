@@ -27,9 +27,6 @@
     <ClInclude Include="PluginUUID.h">
       <Filter>Plugins</Filter>
     </ClInclude>
-    <ClInclude Include="PluginVersion.h">
-      <Filter>Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled headers</Filter>
     </ClInclude>
@@ -46,12 +43,16 @@
       <Filter>Plugin Manager</Filter>
     </ClInclude>
     <ClInclude Include="PluginFramework.h" />
-    <ClInclude Include="PluginSupport.h">
-      <Filter>Plugin Services</Filter>
-    </ClInclude>
     <ClInclude Include="IPluginServices.h">
       <Filter>Plugin Services</Filter>
     </ClInclude>
+    <ClInclude Include="VersionInfo.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\utf8_convert.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameworkVersion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -68,6 +69,12 @@
     </ClCompile>
     <ClCompile Include="PluginManager.cpp">
       <Filter>Plugin Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="IPlugin.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\utf8_convert.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

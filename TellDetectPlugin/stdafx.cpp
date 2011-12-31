@@ -8,6 +8,7 @@
 #include "stdafx.h"
 
 #pragma comment(lib, "Winmm.lib")
+#pragma comment(lib, "WindowerPlugin.lib")
 
 #ifdef _DEBUG
 	#ifdef _M_X64

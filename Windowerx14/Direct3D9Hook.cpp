@@ -12,9 +12,6 @@
 #include <d3d9.h>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "Direct3D9Hook.h"

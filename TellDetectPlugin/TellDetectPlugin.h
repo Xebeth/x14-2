@@ -15,7 +15,7 @@ namespace Windower
 	public:
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static void Query(PluginInfo& Info_out);
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,

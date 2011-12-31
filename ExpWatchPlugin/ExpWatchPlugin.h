@@ -8,27 +8,28 @@
 #ifndef __EXP_WATCH_PLUGIN_H__
 #define __EXP_WATCH_PLUGIN_H__
 
-#define PLUGIN_REGKEY 0xEB71A021
-
 namespace Windower
 {
-	class ExpWatchPlugin : public Windower::ICreateTextNodePlugin
+	class ExpWatchPlugin : public Windower::ICreateTextNodePlugin, public CommandHandler
 	{
+		//! IDs of the commands registered with the plugin
+		enum CommandMap
+		{
+			CMD_START = 0,	//!< start expwatch
+			CMD_STOP,		//!< stop expwatch
+			CMD_RESET,		//!< reset data
+			CMD_COUNT		//!< number of registered commands
+		};
 	public:
 		ExpWatchPlugin();
 
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static void Query(PluginInfo& Info_out);
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
-		static int Start(const WindowerCommand *pCommand_in);
-		bool Start(std::string *pFeedback_in_out = NULL);
-
-		static int Stop(const WindowerCommand *pCommand_in);
-		bool Stop(std::string *pFeedback_in_out = NULL);
-
-		static int Reset(const WindowerCommand *pCommand_in);
 		bool Reset(std::string *pFeedback_in_out = NULL);
+		bool Start(std::string *pFeedback_in_out = NULL);		
+		bool Stop(std::string *pFeedback_in_out = NULL);		
 
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
@@ -36,6 +37,8 @@ namespace Windower
 						   bool &Unsubscribe_out);
 
 		const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
+
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
 	protected:
 		//! the time at which data collection started

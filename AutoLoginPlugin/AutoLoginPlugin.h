@@ -10,30 +10,36 @@
 #ifndef __AUTO_LOGIN_PLUGIN_H__
 #define __AUTO_LOGIN_PLUGIN_H__
 
-//! Plugin registration key
-#define PLUGIN_REGKEY 0x18E5F530
-
 namespace Windower
 {
 	class AutoLoginSettings;
-	class WindowerCommand;	
 
 	//! \brief Auto login plugin
-	class AutoLoginPlugin : public PluginFramework::IPlugin
+	class AutoLoginPlugin : public PluginFramework::IPlugin, public CommandHandler
 	{
+		//! IDs of the commands registered with the plugin
+		enum CommandMap
+		{
+			CMD_CREATE_THREAD = 0,	//!< creates the thread to monitor the forms
+			CMD_COUNT				//!< number of registered commands
+		};
+
 	public:
 		AutoLoginPlugin();
 		virtual ~AutoLoginPlugin();
 
-		static PluginFramework::IPlugin* Create();
-		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static void Query(PluginInfo& Info_out);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		bool CreateThread(HWND ParentHwnd_in);
 
-		static int AutoLoginThread(const WindowerCommand *pCommand_in);
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
+		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+		static IPlugin* Create();
 
 	protected:
 		//! AutoLogin plugin settings
-		static AutoLoginSettings *m_pSettings;
+		AutoLoginSettings *m_pSettings;
+		//! the handle of the thread used to monitor the forms during the login process
+		HANDLE m_hThread;
 	};
 }
 

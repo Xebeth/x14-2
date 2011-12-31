@@ -8,16 +8,14 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <PluginFramework.h>
+#include <PluginManager.h>
 #include <HookEngine.h>
 #include <d3d9.h>
-#include <queue>
+#include "version.h"
 
 #include "WindowerSettings.h"
 #include "WindowerSettingsManager.h"
 
-#include "version.h"
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 #include "PluginsServices.h"
 
@@ -39,6 +37,7 @@
 #endif // _DEBUG
 
 #include "WindowerCommand.h"
+#include "CommandHandler.h"
 #include "CommandParser.h"
 #include "CommandDispatcher.h"
 
@@ -72,20 +71,15 @@ namespace Windower
 		RegisterModule(_T("Testing"), m_pTestCore);
 #endif // _DEBUG
 		// Win32 related hooks
- 		m_pSystemCore = NULL; // new SystemCore(*this);
-// 		RegisterModule(_T("System"), m_pSystemCore);
+		m_pSystemCore = NULL; // new SystemCore(*this);
 		// Commander dispatcher
 		m_pCommandDispatcher = new CommandDispatcher(*this);
-		RegisterModule(_T("CommandDispatcher"), m_pCommandDispatcher);
 		// Commander parser
 		m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
-		RegisterModule(_T("CommandParser"), m_pCommandParser);
 		// Game chat related hooks
 		m_pGameChatCore = new GameChatCore(*this, *m_pCommandParser, *m_pCommandDispatcher);
-		RegisterModule(_T("GameChat"), m_pGameChatCore);
 		// Direct3D related hooks
 		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(), m_Settings.GetVSync());
-		RegisterModule(_T("Graphics"), m_pGraphicsCore);
 
 		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir());
 		ICoreModule::SetPluginManager(*m_pPluginManager);
@@ -95,24 +89,30 @@ namespace Windower
 		PluginEngine::LoadPlugin(_T("Timestamp"));
 		PluginEngine::LoadPlugin(_T("ExpWatch"));
 
-		// register commands
-		CallerParam Caller("WindowerEngine", this);
-	
+		WindowerCommand *pCommand;
+
 		// register the "load" command
-		const char *pParamName = "plugin_name";
-		CommandParameters PluginParams;
+		pCommand = new WindowerCommand(ENGINE_KEY, CMD_LOAD_PLUGIN, "load", "Loads a plugin given its name.", this);
 
-		PluginParams[pParamName].Name = pParamName;
-		PluginParams[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
-		PluginParams[pParamName].Value = "";
-		PluginParams[pParamName].Description = "the name of the plugin to load";
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "load", "Loads a plugin given its name.", Caller, LoadPlugin, 1, 1, PluginParams);
+		if (pCommand != NULL)
+		{
+			pCommand->AddStringParam("plugin", false, "", "the name of the plugin to load");
+
+			if (m_pCommandDispatcher->RegisterCommand(pCommand) == false)
+				delete pCommand;
+		}
 		// register the "unload" command
-		PluginParams[pParamName].Description = "the name of the plugin to unload";
-		m_pCommandDispatcher->RegisterCommand(PLUGIN_REGKEY, "unload", "Unloads a plugin given its name.", Caller, UnloadPlugin, 1, 1, PluginParams);
+		pCommand = new WindowerCommand(ENGINE_KEY, CMD_UNLOAD_PLUGIN, "unload", "Unloads a plugin given its name.", this);
 
+		if (pCommand != NULL)
+		{
+			pCommand->AddStringParam("plugin", false, "", "the name of the plugin to unload");
+
+			if (m_pCommandDispatcher->RegisterCommand(pCommand) == false)
+				delete pCommand;
+		}
 		// injects the windower version on the main menu
-		m_pInjectVersion = new InjectVersion(m_pPluginServices);
+		m_pInjectVersion = new InjectVersion();
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -229,62 +229,108 @@ namespace Windower
 		m_bShutdown = true;
 	}
 
-	/*! \brief Unload plugin command callback ("unload")
-		\param[in] pCommand_in : the command passed by the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	
+	/*! \brief Executes the command specified by its ID
+		\param[in] CmdID_in : the ID of the command to execute
+		\param[in] Command_in : the command to execute
+		\param[out] Feedback_out : the result of the execution
+		\return true if the command was executed successfully; false otherwise
 	*/
-	int WindowerEngine::UnloadPlugin(const WindowerCommand *pCommand_in)
+	bool WindowerEngine::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
 	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		switch(CmdID_in)
 		{
-			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("plugin_name");
-
-			if (pEngine != NULL && pParam != NULL)
+			case CMD_LOAD_PLUGIN:
 			{
-				string_t PluginName;
+				std::string PluginName = Command_in.GetStringValue("plugin");
+				string_t PluginNameW;
 
-				if (static_cast<PluginEngine*>(pEngine)->UnloadPlugin(pParam->GetWideStringValue(PluginName)))
-					format(pCommand_in->ResultMsg, "The plugin '%s' was unloaded successfully.", pParam->Value.c_str());
+				if (LoadPlugin(convert_utf8(PluginName, PluginNameW)))
+				{
+					format(Feedback_out, "The plugin '%s' was loaded successfully.", PluginName.c_str());
+
+					return true;
+				}
 				else
-					format(pCommand_in->ResultMsg, "The plugin '%s' couldn't be unloaded.", pParam->Value.c_str());
+				{
+					format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
 
-				return DISPATCHER_RESULT_SUCCESS;
+					return false;
+				}
 			}
+			break;
+			case CMD_UNLOAD_PLUGIN:
+			{
+				std::string PluginName = Command_in.GetStringValue("plugin");
+				string_t PluginNameW;
 
-			return DISPATCHER_RESULT_INVALID_PARAMETERS;
+				if (UnloadPlugin(convert_utf8(PluginName, PluginNameW)))
+				{
+					format(Feedback_out, "The plugin '%s' was unloaded successfully.", PluginName.c_str());
+
+					return true;
+				}
+				else
+				{
+					format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
+
+					return false;
+				}
+			}
+			break;
+			case CMD_LIST_PLUGINS:
+			{
+				return ListPlugins(Feedback_out);
+			}
+			break;
 		}
 
-		return DISPATCHER_RESULT_INVALID_CALL;
+		return false;
 	}
 
-	/*! \brief Load plugin command callback ("load")
-		\param[in] pCommand_in : the command passed by the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if the command was successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
+		\param[in] pCommand_in : the command to validate
+		\return true if the command is valid; false otherwise
 	*/
-	int WindowerEngine::LoadPlugin(const WindowerCommand *pCommand_in)
+	bool WindowerEngine::IsCommandValid(const WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("WindowerEngine") == 0)
+		if (m_pCommandDispatcher != NULL)
+			return m_pCommandDispatcher->IsCommandValid(pCommand_in);
+	
+		return false;
+	}
+
+	/*! \brief Lists all the available plugins and their state (loaded or not)
+		\param[out] Feedback_out : the string receiving the result
+		\return true if the list was retrieved successfully; false otherwise
+	*/
+	bool WindowerEngine::ListPlugins(std::string &Feedback_out) const
+	{
+		if  (m_pPluginManager != NULL)
 		{
-			WindowerEngine *pEngine = reinterpret_cast<WindowerEngine*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("plugin_name");
+			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
+			PluginFramework::RegisteredPlugins::const_iterator PluginIt = Plugins.begin();
+			Feedback_out = "List of plugins:\n";
+			std::string Info;
+			UINT Count = 0U;
 
-			if (pEngine != NULL && pParam != NULL)
+			for (; PluginIt != Plugins.end(); ++PluginIt)
 			{
-				std::string Feedback;
-				string_t PluginName;
+				convert_ansi(PluginIt->second.ToString(), Info);
 
-				if (static_cast<PluginEngine*>(pEngine)->LoadPlugin(pParam->GetWideStringValue(PluginName)))
-					format(pCommand_in->ResultMsg, "The plugin '%s' was loaded successfully.", pParam->Value.c_str());
-				else
-					format(pCommand_in->ResultMsg, "The plugin '%s' couldn't be loaded.", pParam->Value.c_str());
-
-				return DISPATCHER_RESULT_SUCCESS;
+				append_format(Feedback_out, "%s\nLoaded:\t%s\n", Info.c_str(),
+							  m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()) ? "yes" : "no");
+				++Count;
 			}
 
-			return DISPATCHER_RESULT_INVALID_PARAMETERS;
+			if (Count > 0U)
+				append_format(Feedback_out, "%u plugin(s) found.", Count);
+			else
+				append_format(Feedback_out, "No plugin found.");
+
+			return true;
 		}
 
-		return DISPATCHER_RESULT_INVALID_CALL;
+		return false;
 	}
 }

@@ -16,9 +16,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Windowerx14\CommandDispatcher.cpp" />
-    <ClCompile Include="..\Windowerx14\PluginEngine.cpp" />
-    <ClCompile Include="..\Windowerx14\PluginsServices.cpp" />
-    <ClCompile Include="..\Windowerx14\WindowerCommand.cpp" />
     <ClCompile Include="..\Windowerx14\WindowerCore.cpp" />
     <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp" />
     <ClCompile Include="BootstrapEngine.cpp" />
@@ -35,10 +32,6 @@
   <ItemGroup>
     <ClInclude Include="..\Common\string_t.h" />
     <ClInclude Include="..\Windowerx14\CommandDispatcher.h" />
-    <ClInclude Include="..\Windowerx14\ICoreModule.h" />
-    <ClInclude Include="..\Windowerx14\PluginEngine.h" />
-    <ClInclude Include="..\Windowerx14\PluginsServices.h" />
-    <ClInclude Include="..\Windowerx14\WindowerCommand.h" />
     <ClInclude Include="..\Windowerx14\WindowerCore.h" />
     <ClInclude Include="..\Windowerx14\WindowerSettings.h" />
     <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h" />
@@ -94,7 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;BOOTSTRAP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../PluginFramework/;../SettingsManager/;../AutoLoginPlugin/;../Windowerx14/;../HookManager/;../IATPatcher/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework/;../SettingsManager/;../AutoLoginPlugin/;../Windowerx14/;../HookManager/;../IATPatcher/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

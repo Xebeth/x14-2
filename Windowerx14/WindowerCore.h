@@ -25,11 +25,9 @@ namespace Windower
 		/*! \brief Invokes a command registered with the specified service
 			\param[in] ServiceName_in : the name of the service
 			\param[in] Params_in : the input parameters
-			\param[out] Results_out : the results from the invocation
 			\return true if the command was invoked successfully; false otherwise
 		*/
-		virtual bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in,
-							PluginFramework::ServiceParam &Results_out) { return false; }
+		virtual bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in) { return false; }
 
 	protected:
 		virtual void OnSubscribe(const string_t &ServiceName_in,

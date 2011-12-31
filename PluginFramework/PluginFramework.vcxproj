@@ -82,14 +82,15 @@
   <ItemGroup>
     <ClInclude Include="..\Common\FileIterator.h" />
     <ClInclude Include="..\Common\string_t.h" />
+    <ClInclude Include="..\Common\utf8_convert.h" />
+    <ClInclude Include="FrameworkVersion.h" />
     <ClInclude Include="IPlugin.h" />
     <ClInclude Include="IPluginServices.h" />
     <ClInclude Include="PluginFramework.h" />
     <ClInclude Include="PluginIterator.h" />
     <ClInclude Include="PluginManager.h" />
-    <ClInclude Include="PluginSupport.h" />
     <ClInclude Include="PluginUUID.h" />
-    <ClInclude Include="PluginVersion.h" />
+    <ClInclude Include="VersionInfo.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +99,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Common\utf8_convert.cpp" />
+    <ClCompile Include="IPlugin.cpp" />
     <ClCompile Include="PluginIterator.cpp" />
     <ClCompile Include="PluginManager.cpp" />
     <ClCompile Include="stdafx.cpp">

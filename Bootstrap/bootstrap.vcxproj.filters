@@ -16,9 +16,6 @@
     <Filter Include="Common">
       <UniqueIdentifier>{22d51dcf-4867-47e2-9f72-b4e330216c66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Bootstrap\Plugins">
-      <UniqueIdentifier>{d8650e7f-cbc1-42b8-8676-d60c213e1bf5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bootstrap\Modules">
       <UniqueIdentifier>{8432e5be-18f9-4cfa-b536-9f113d379356}</UniqueIdentifier>
     </Filter>
@@ -52,12 +49,6 @@
     <ClCompile Include="..\Common\string_t.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windowerx14\PluginEngine.cpp">
-      <Filter>Bootstrap</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windowerx14\PluginsServices.cpp">
-      <Filter>Bootstrap\Plugins</Filter>
-    </ClCompile>
     <ClCompile Include="..\Windowerx14\WindowerCore.cpp">
       <Filter>Bootstrap\Modules</Filter>
     </ClCompile>
@@ -68,9 +59,6 @@
       <Filter>Bootstrap\Modules\System</Filter>
     </ClCompile>
     <ClCompile Include="..\Windowerx14\CommandDispatcher.cpp">
-      <Filter>Bootstrap\Modules\Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windowerx14\WindowerCommand.cpp">
       <Filter>Bootstrap\Modules\Commands</Filter>
     </ClCompile>
   </ItemGroup>
@@ -96,12 +84,6 @@
     <ClInclude Include="..\Common\string_t.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windowerx14\PluginEngine.h">
-      <Filter>Bootstrap</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\PluginsServices.h">
-      <Filter>Bootstrap\Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="..\Windowerx14\WindowerCore.h">
       <Filter>Bootstrap\Modules</Filter>
     </ClInclude>
@@ -111,14 +93,8 @@
     <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
       <Filter>Settings</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windowerx14\ICoreModule.h">
-      <Filter>Bootstrap</Filter>
-    </ClInclude>
     <ClInclude Include="SystemCore.h">
       <Filter>Bootstrap\Modules\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerCommand.h">
-      <Filter>Bootstrap\Modules\Commands</Filter>
     </ClInclude>
     <ClInclude Include="..\Windowerx14\CommandDispatcher.h">
       <Filter>Bootstrap\Modules\Commands</Filter>

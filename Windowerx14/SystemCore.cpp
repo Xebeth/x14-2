@@ -10,9 +10,6 @@
 #include <HookEngine.h>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
@@ -34,13 +31,14 @@ namespace Windower
 	{
 		m_pRegisterClassExWTrampoline = RegisterClassExW;
 		m_pCreateWindowExATrampoline = CreateWindowExA;
+		m_dwPID = GetCurrentProcessId();
 		m_hMainThreadHandle = NULL;
 		m_MinimizeVKey = VK_F11;
 		m_pGameWndProc = NULL;
 		m_MainThreadID = 0;
-		m_hGameWnd = NULL;
-
-		m_dwPID = GetCurrentProcessId();
+		m_hGameWnd = NULL;		
+		// register the module
+		m_Engine.RegisterModule(_T("System"), this);
 	}
 
 	/*! \brief Starts the main thread of the windower engine
@@ -211,7 +209,7 @@ namespace Windower
 	*/
 	void SystemCore::OnHookInstall(IHookManager &HookManager_in)
 	{
- 		m_pRegisterClassExWTrampoline = (fnRegisterClassExW)HookManager_in.GetTrampolineFunc("RegisterClassExW");
- 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
+		m_pRegisterClassExWTrampoline = (fnRegisterClassExW)HookManager_in.GetTrampolineFunc("RegisterClassExW");
+		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
 	}
 }

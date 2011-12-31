@@ -35,7 +35,7 @@ namespace Bootstrap
 		virtual bool Detach();
 
 		bool IsAutoLoginActive() const;
-		void InvokeAutoLogin(HWND hParentWnd_in);
+		int InvokeAutoLogin(HWND hParentWnd_in);
 
 		/*! \brief Retrieves a reference to the system core module
 			\return a reference to the system core module

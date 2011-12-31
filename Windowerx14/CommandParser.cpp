@@ -8,12 +8,8 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <HookEngine.h>
-#include <queue>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "WindowerCommand.h"
@@ -30,7 +26,10 @@ namespace Windower
 		\param[in] Dispatcher_in : the command dispatcher
 	*/
 	CommandParser::CommandParser(WindowerEngine &Engine_in_out, CommandDispatcher &Dispatcher_in)
-		: WindowerCore(Engine_in_out), m_CommandDispatcher(Dispatcher_in) {}
+		: WindowerCore(Engine_in_out), m_CommandDispatcher(Dispatcher_in)
+	{
+		m_Engine.RegisterModule(_T("CommandParser"), this);
+	}
 
 	/*! \brief Parses a raw command (e.g. chat line) and returns the arguments and a feedback message
 		\param[in] pRawCommand_in : the raw command buffer
@@ -66,19 +65,20 @@ namespace Windower
 				return PARSER_RESULT_INVALID_COMMAND;
 
 			// validate the number of parameters for the command
-			if (ParamsCount < Command_out.MinParamsCount)
+			if (ParamsCount < Command_out.GetMinParams())
 				Result = PARSER_RESULT_TOO_FEW_PARAMETERS;
-			else if (ParamsCount > Command_out.MaxParamsCount)
+			else if (ParamsCount > Command_out.GetMaxParams())
 				Result = PARSER_RESULT_TOO_MANY_PARAMETERS;
 
 			if (Result < 0)
 			{
-				return SetFeedback(Result, Command_out, ParamsCount, NULL,
+				return SetFeedback(Result, Command_out, ParamsCount, NULL, NULL,
 								   pFeedbackMsg_out, FeedbackMsgSize_out);
 			}
 			else if (ParamsCount > 0)
 			{
-				CommandParameters::iterator ParamIter = Command_out.Parameters.begin();
+				const CommandParams &Parameters = Command_out.GetParameters();
+				CommandParams::const_iterator ParamIter = Parameters.begin();
 				char *pConvertTrail = NULL;
 				std::string CurrentParam;
 				int Error = 0;
@@ -89,43 +89,49 @@ namespace Windower
 					CurrentParam = Params.front();
 					Params.pop();
 
-					switch(ParamIter->second.Type)
+					switch(ParamIter->second->GetType())
 					{
 						case COMMAND_PARAM_TYPE_STRING:
 						default:
-							ParamIter->second.Value = CurrentParam;
+							ParamIter->second->SetStringValue(CurrentParam);
 						break;
 						case COMMAND_PARAM_TYPE_INTEGER:
+						{
 							_set_errno(0);
-							strtol(CurrentParam.c_str(), &pConvertTrail, 0);
+							long Value = strtol(CurrentParam.c_str(), &pConvertTrail, 0);
 							_get_errno(&Error);
-
-							ParamIter->second.Value = CurrentParam;
 
 							if (*pConvertTrail != NULL || Error != 0)
 							{
 								return SetFeedback(PARSER_RESULT_INVALID_INT_PARAMETER, Command_out, ParamsCount,
-												   &ParamIter->second, pFeedbackMsg_out, FeedbackMsgSize_out);
+												   ParamIter->second->GetName().c_str(), CurrentParam.c_str(), 
+												   pFeedbackMsg_out, FeedbackMsgSize_out);
 							}
+
+							ParamIter->second->SetIntegerValue(Value);
+						}
 						break;
 						case COMMAND_PARAM_TYPE_FLOAT:
+						{
 							_set_errno(0);
-							strtod(CurrentParam.c_str(), &pConvertTrail);
+							double Value = strtod(CurrentParam.c_str(), &pConvertTrail);
 							_get_errno(&Error);
-
-							ParamIter->second.Value = CurrentParam;
 
 							if (*pConvertTrail != NULL || Error != 0)
 							{
 								return SetFeedback(PARSER_RESULT_INVALID_FLOAT_PARAMETER, Command_out, ParamsCount,
-												   &ParamIter->second, pFeedbackMsg_out, FeedbackMsgSize_out);
+												   ParamIter->second->GetName().c_str(), CurrentParam.c_str(),
+												   pFeedbackMsg_out, FeedbackMsgSize_out);
 							}
+
+							ParamIter->second->SetFloatValue(Value);
+						}
 						break;
 					}
 
 					++ParamIter;
 				}
-				while (Params.empty() == false && ParamIter != Command_out.Parameters.end());
+				while (Params.empty() == false && ParamIter != Parameters.end());
 			}
 		}
 
@@ -136,44 +142,45 @@ namespace Windower
 		\param[in] ErrorCode_in : the error code from the parsing
 		\param[in,out] Command_in_out : the command 
 		\param[in] ParamCount_in : the number of parameters expected by the command
-		\param[in] pCommandParam_in : the command parameter that provoked the error
+		\param[in] pParamName_in : the name of the parameter that provoked the error
+		\param[in] pParamValue_in : the value of the parameter that provoked the error
 		\param[out] pFeedbackMsg_out : the string receiving the error message
 		\param[out] MsgSize_out : the size of the error message
 		\return the error code
 	*/
 	int CommandParser::SetFeedback(int ErrorCode_in, WindowerCommand &Command_in_out, size_t ParamCount_in,
-								   const WindowerCommandParam *pCommandParam_in, char **pFeedbackMsg_out,
-								   DWORD &MsgSize_out)
+								   const char *pParamName_in, const char *pParamValue_in,
+								   char **pFeedbackMsg_out, DWORD &MsgSize_out)
 	{
 		std::string Feedback;
 
 		switch(ErrorCode_in)
 		{
 			case PARSER_RESULT_INVALID_FLOAT_PARAMETER:
-				if (pCommandParam_in != NULL)
+				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
 					format(Feedback, "Parameter '%s' : invalid float value \u00AB%s\u00BB",
-						   pCommandParam_in->Name.c_str(), pCommandParam_in->Value.c_str());
+						   pParamName_in, pParamValue_in);
 				}
 				else
 					Feedback = "Invalid float parameter";
 			break;
 			case PARSER_RESULT_INVALID_INT_PARAMETER:
-				if (pCommandParam_in != NULL)
+				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
 					format(Feedback, "Parameter '%s' : invalid integer value \u00AB%s\u00BB",
-						   pCommandParam_in->Name.c_str(), pCommandParam_in->Value.c_str());
+						   pParamName_in, pParamValue_in);
 				}
 				else
 					Feedback = "Invalid float parameter";
 			break;
 			case PARSER_RESULT_TOO_MANY_PARAMETERS:
 				format(Feedback, "Too many parameters (%u) : expecting at most %u",
-					   ParamCount_in, Command_in_out.MaxParamsCount);
+					   ParamCount_in, Command_in_out.GetMaxParams());
 			break;
 			case PARSER_RESULT_TOO_FEW_PARAMETERS:
 				format(Feedback, "Too few parameters (%u) : expecting at least %u",
-					   ParamCount_in, Command_in_out.MinParamsCount);
+					   ParamCount_in, Command_in_out.GetMinParams());
 			break;
 		}
 

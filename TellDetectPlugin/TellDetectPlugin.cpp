@@ -8,25 +8,25 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 
-#include <FormatChatMessageHook.h>
 #include <IGameChatPlugin.h>
-#include "TellDetectPlugin.h"
+#include <PluginEngine.h>
 
+#include "TellDetectPlugin.h"
 #include <Mmsystem.h>
 
-const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServices = NULL;
+using namespace PluginFramework;
 
 namespace Windower
 {
 	/*! \brief Creates an instance of TellDetectPlugin
 		\return a pointer to the new TellDetectPlugin instance
 	*/
-	PluginFramework::IPlugin* TellDetectPlugin::Create()
+	IPlugin* TellDetectPlugin::Create()
 	{
 		TellDetectPlugin *pNewInst = new TellDetectPlugin;
 		TellDetectPlugin::Query(pNewInst->m_PluginInfo);
 
-		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
+		if (IPlugin::Services()->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
 		{
 			delete pNewInst;
 			pNewInst = NULL;
@@ -38,28 +38,29 @@ namespace Windower
 	/*! \brief Destroys an instance of TellDetectPlugin
 		\param[in] pInstance_in : an instance of TellDetectPlugin
 	*/
-	void TellDetectPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
+	void TellDetectPlugin::Destroy(IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
+			IPlugin::Services()->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
 
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}
 
-	/*! \brief Fills a PluginInfo structure with the plugin information
-		\param[out] Info_out : a PluginInfo structure
+	/*! \brief Fills a VersionInfo structure with the plugin information
+		\param[out] PluginInfo_out : a VersionInfo structure
 	*/
-	void TellDetectPlugin::Query(PluginInfo& Info_out)
+	void TellDetectPlugin::Query(PluginInfo& PluginInfo_out)
 	{
-		Info_out.Author = _T("Xebeth`");
-		Info_out.Name = _T("TellDetect");
-		Info_out.PluginVersion.FromString(_T("1.0.0"));
-		Info_out.FrameworkVersion.FromString(_T("1.0.0"));
-		Info_out.Descritpion = _T("This plugin will play a sound whenever the player receives a tell");
-		Info_out.PluginIdentifier.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
+		PluginInfo_out.SetDesc(_T("This plugin will play a sound whenever the player receives a tell"));
+		PluginInfo_out.SetIdentifier(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
+		PluginInfo_out.SetName(_T("TellDetect"));
+		PluginInfo_out.SetAuthor(_T("Xebeth`"));
+		PluginInfo_out.SetVersion(_T("1.0.0"));
+
+		IPlugin::Query(PluginInfo_out);
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -86,29 +87,20 @@ namespace Windower
 
 using Windower::TellDetectPlugin;
 
-/*! \brief Function exposed by the plugin DLL to retrieve the plugin information
-	\param[in] PluginInfo_out : the plugin information
-*/
-extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
-{
-	TellDetectPlugin::Query(Info_out);
-}
-
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[in] PluginServices_in : the plugin services
+	\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 	\return a pointer to the plugin registration parameters if successful; NULL otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &ServicesParams_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin(IPluginServices *pServices_in)
 {
 	RegisterParams *pParams = new RegisterParams;
 
 	TellDetectPlugin::Query(pParams->Info);
+	IPlugin::SetServices(pServices_in);
 
 	pParams->QueryFunc = TellDetectPlugin::Query;
 	pParams->CreateFunc = TellDetectPlugin::Create;
 	pParams->DestroyFunc = TellDetectPlugin::Destroy;
-
-	TellDetectPlugin::SetPluginServices(ServicesParams_in);
 
 	return pParams;
 }

@@ -33,6 +33,7 @@
 	#endif
 #endif
 
+#pragma comment(lib, "WindowerPlugin.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "d3d9.lib")
 

@@ -9,10 +9,6 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
-#include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 Windower::WindowerEngine *g_pEngine = NULL;
@@ -29,6 +25,9 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 	if (dwReason_in == DLL_PROCESS_ATTACH) 
 	{
+#ifdef _DEBUG
+		Sleep(5000);
+#endif // _DEBUG
 		if (g_pEngine == NULL)
 		{
 			g_pEngine = new Windower::WindowerEngine(_T("config.ini"));

@@ -12,7 +12,7 @@ namespace PluginFramework
 {
 	class IPlugin;
 
-	//! \brief Plugin services parameters
+	//! \brief Plugin services parameters structure
 	class ServiceParam
 	{
 	public:
@@ -24,10 +24,8 @@ namespace PluginFramework
 			\param[in] pData_in : a pointer to the data
 		*/
 		ServiceParam(string_t DataType_in, LPVOID pData_in)
-		{
-			DataType = DataType_in;
-			pData = pData_in;
-		}
+			: DataType(DataType_in), pData(pData_in) {}
+
 		//! the type of the data
 		string_t	DataType;
 		//! a pointer to the data
@@ -50,11 +48,10 @@ namespace PluginFramework
 			\param[in] ModuleName_in : the name of the module
 			\param[in] ServiceName_in : the name of the service
 			\param[in] Params_in : the parameters of the call
-			\param[out] Results_out : the result of the call
 			\return true if the service was invoked successfully; false otherwise
 		*/
 		virtual bool InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
-								   const ServiceParam &Params_in, ServiceParam &Results_out) const =0;
+								   const ServiceParam &Params_in) const =0;
 		/*! \brief Subscribes to a service by name in the specified module
 			\param[in] ModuleName_in : the name of the module
 			\param[in] ServiceName_in : the name of the service
@@ -75,8 +72,17 @@ namespace PluginFramework
 										IPlugin* pPlugin_in) const =0;
 
 		//! the version of the services
-		const PluginVersion m_Version;
+		const VersionInfo m_Version;
 	};
+
+	//! function pointer to an InvokeService function
+	typedef bool (PluginFramework::IPluginServices::*fnInvokeService)(const string_t&, const string_t&,
+																	  const PluginFramework::ServiceParam&,
+																	  PluginFramework::ServiceParam&) const;
+	//! function pointer to a SubscribeService function
+	typedef bool (PluginFramework::IPluginServices::*fnSubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
+	//! function pointer to an UnsubscribeService function
+	typedef bool (PluginFramework::IPluginServices::*fnUnsubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
 }
 
 #endif//__I_PLUGIN_SERVICES_H__

@@ -106,32 +106,23 @@
     <ClCompile Include="CommandParser.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="WindowerCommand.cpp">
-      <Filter>Windower\Modules\Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandDispatcher.cpp">
-      <Filter>Windower\Modules\Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="PluginEngine.cpp">
-      <Filter>Windower</Filter>
-    </ClCompile>
-    <ClCompile Include="PluginsServices.cpp">
-      <Filter>Windower\Plugins</Filter>
-    </ClCompile>
     <ClCompile Include="WindowerCore.cpp">
       <Filter>Windower\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="utf8_convert.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="InjectVersion.cpp">
-      <Filter>Windower\Plugins</Filter>
     </ClCompile>
     <ClCompile Include="TestCore.cpp">
       <Filter>Windower\Modules\Test</Filter>
     </ClCompile>
     <ClCompile Include="TestHook.cpp">
       <Filter>Windower\Hooks\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\utf8_convert.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="InjectVersion.cpp">
+      <Filter>Windower\Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandDispatcher.cpp">
+      <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -186,47 +177,26 @@
     <ClInclude Include="WndProcHook.h">
       <Filter>Windower\Hooks\System</Filter>
     </ClInclude>
-    <ClInclude Include="IGameChatPlugin.h">
-      <Filter>Windower\Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="CommandParser.h">
       <Filter>Windower\Modules\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="WindowerCommand.h">
-      <Filter>Windower\Modules\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandDispatcher.h">
-      <Filter>Windower\Modules\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseEngine.h">
-      <Filter>Windower</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginEngine.h">
-      <Filter>Windower</Filter>
-    </ClInclude>
-    <ClInclude Include="ICoreModule.h">
-      <Filter>Windower\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="WindowerCore.h">
       <Filter>Windower\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginsServices.h">
-      <Filter>Windower\Plugins</Filter>
-    </ClInclude>
-    <ClInclude Include="utf8_convert.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="ICreateTextNodePlugin.h">
-      <Filter>Windower\Plugins</Filter>
-    </ClInclude>
-    <ClInclude Include="InjectVersion.h">
-      <Filter>Windower\Plugins</Filter>
     </ClInclude>
     <ClInclude Include="TestCore.h">
       <Filter>Windower\Modules\Test</Filter>
     </ClInclude>
     <ClInclude Include="TestHook.h">
       <Filter>Windower\Hooks\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\utf8_convert.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="InjectVersion.h">
+      <Filter>Windower\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandDispatcher.h">
+      <Filter>Windower\Modules\Commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

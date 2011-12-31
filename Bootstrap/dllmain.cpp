@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
+#include <PluginsServices.h>
 #include <HookEngine.h>
 
 #include "BaseEngine.h"

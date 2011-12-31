@@ -7,52 +7,39 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <PluginFramework.h>
-#include <FormatChatMessageHook.h>
+
 #include <ICreateTextNodePlugin.h>
 #include <IGameChatPlugin.h>
-#include "WindowerCommand.h"
+#include <WindowerCommand.h>
+#include <CommandHandler.h>
+
 #include "ExpWatchPlugin.h"
 
-const PluginFramework::IPluginServices* PluginFramework::IPlugin::m_pPluginServices = NULL;
+using namespace PluginFramework;
 
 namespace Windower
 {
 	//! \brief ExpWatchPlugin constructor
 	ExpWatchPlugin::ExpWatchPlugin() : ICreateTextNodePlugin("Next"),
+		CommandHandler(0xEB71A021, "ExpWatchPlugin"),
 		m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L),
 		m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL) {}
 
 	/*! \brief Creates an instance of ExpWatchPlugin
 		\return a pointer to the new ExpWatchPlugin instance
 	*/
-	PluginFramework::IPlugin* ExpWatchPlugin::Create()
+	IPlugin* ExpWatchPlugin::Create()
 	{
 		ExpWatchPlugin *pNewInst = new ExpWatchPlugin;
+
+		// initialize the plugin
 		ExpWatchPlugin::Query(pNewInst->m_PluginInfo);
-
-		if (m_pPluginServices->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
-		{
-			delete pNewInst;
-			pNewInst = NULL;
-		}
-
-		CommandParameters Params;
-		PluginFramework::ServiceParam DummyResults;
-		CallerParam Caller("ExpWatchPlugin", pNewInst);
-		WindowerCommand StartCommand(PLUGIN_REGKEY, "expwatch::start", "starts gathering statistics on experience points gained", Caller, Start, Params);
-		PluginFramework::ServiceParam InvokeArgStart(_T("WindowerCommand"), &StartCommand);
-		WindowerCommand ResetCommand(PLUGIN_REGKEY, "expwatch::reset", "resets gathering statistics on experience points gained", Caller, Reset, Params);
-		PluginFramework::ServiceParam InvokeArgReset(_T("WindowerCommand"), &ResetCommand);
-		WindowerCommand StopCommand(PLUGIN_REGKEY, "expwatch::stop", "stops gathering statistics on experience points gained", Caller, Stop, Params);
-		PluginFramework::ServiceParam InvokeArgStop(_T("WindowerCommand"), &StopCommand);
-
-		if (m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgStart, DummyResults) == false
-		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgReset, DummyResults) == false
-		 || m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"), InvokeArgStop, DummyResults) == false)
-		{
-			delete pNewInst;
-			pNewInst = NULL;
-		}
+		// subscribe to the chat service
+		pNewInst->Subscribe();
+		// register the commands		
+		pNewInst->RegisterCommand(CMD_START, "expwatch::start", "starts gathering statistics on experience points gained");
+		pNewInst->RegisterCommand(CMD_RESET, "expwatch::reset", "resets gathering statistics on experience points gained");
+		pNewInst->RegisterCommand(CMD_STOP, "expwatch::stop", "stops gathering statistics on experience points gained");
 
 		return pNewInst;
 	}
@@ -60,42 +47,37 @@ namespace Windower
 	/*! \brief Destroys an instance of ExpWatchPlugin
 		\param[in] pInstance_in : an instance of ExpWatchPlugin
 	*/
-	void ExpWatchPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
+	void ExpWatchPlugin::Destroy(IPlugin *pInstance_in)
 	{
 		if (pInstance_in != NULL)
 		{
-			static_cast<ExpWatchPlugin*>(pInstance_in)->Stop();
+			ExpWatchPlugin *pExpWatch = static_cast<ExpWatchPlugin*>(pInstance_in);
 
-			PluginFramework::ServiceParam DummyResults;
-			UnregisterParam UnregParamStart(PLUGIN_REGKEY, "expwatch::start");
-			PluginFramework::ServiceParam InvokeArgStart(_T("UnregisterParam"), &UnregParamStart);
-			UnregisterParam UnregParamReset(PLUGIN_REGKEY, "expwatch::reset");
-			PluginFramework::ServiceParam InvokeArgReset(_T("UnregisterParam"), &UnregParamReset);
-			UnregisterParam UnregParamStop(PLUGIN_REGKEY, "expwatch::stop");
-			PluginFramework::ServiceParam InvokeArgStop(_T("UnregisterParam"), &UnregParamStop);
-
-			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArgStart, DummyResults);
-			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArgReset, DummyResults);
-			m_pPluginServices->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArgStop, DummyResults);
-
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
+			pExpWatch->Stop();
+			// revoke the commands
+			pExpWatch->RevokeCommand(CMD_START);
+			pExpWatch->RevokeCommand(CMD_RESET);
+			pExpWatch->RevokeCommand(CMD_STOP);
+			// unsubscribe from the chat service
+			pExpWatch->Unsubscribe();
 
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
 	}
 
-	/*! \brief Fills a PluginInfo structure with the plugin information
-		\param[out] Info_out : a PluginInfo structure
+	/*! \brief Fills a VersionInfo structure with the plugin information
+		\param[out] Info_out : a VersionInfo structure
 	*/
-	void ExpWatchPlugin::Query(PluginInfo& Info_out)
+	void ExpWatchPlugin::Query(PluginInfo& PluginInfo_out)
 	{
-		Info_out.Author = _T("Xebeth`");
-		Info_out.Name = _T("ExpWatch");
-		Info_out.PluginVersion.FromString(_T("1.0.0"));
-		Info_out.FrameworkVersion.FromString(_T("1.0.0"));
-		Info_out.Descritpion = _T("This plugin will gather statistics on experience points gained");
-		Info_out.PluginIdentifier.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF"));
+		PluginInfo_out.SetDesc(_T("This plugin will gather statistics on experience points gained"));
+		PluginInfo_out.SetIdentifier(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF"));
+		PluginInfo_out.SetAuthor(_T("Xebeth`"));
+		PluginInfo_out.SetName(_T("ExpWatch"));
+		PluginInfo_out.SetVersion(_T("1.0.0"));
+
+		IPlugin::Query(PluginInfo_out);
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -129,55 +111,25 @@ namespace Windower
 		return true;
 	}
 
-	/*! \brief Start command invocation
-		\param[in] pCommand_in : the command received from the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	/*! \brief Executes the command specified by its ID
+		\param[in] CmdID_in : the ID of the command to execute
+		\param[in] Command_in : the command to execute
+		\param[out] Feedback_out : the result of the execution
+		\return true if the command was executed successfully; false otherwise
 	*/
-	int ExpWatchPlugin::Start(const WindowerCommand *pCommand_in)
+	bool ExpWatchPlugin::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
 	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
+		switch(CmdID_in)
 		{
-			ExpWatchPlugin *pExpWatch = reinterpret_cast<ExpWatchPlugin*>(pCommand_in->Caller.pData);
-
-			if (pExpWatch != NULL && pExpWatch->Start(&pCommand_in->ResultMsg))
-				return DISPATCHER_RESULT_SUCCESS;
+			case CMD_START:
+				return Start(&Feedback_out);
+			case CMD_STOP:
+				return Stop(&Feedback_out);
+			case CMD_RESET:
+				return Reset(&Feedback_out);
 		}
 
-		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
-	/*! \brief Stop command invocation
-		\param[in] pCommand_in : the command received from the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
-	*/
-	int ExpWatchPlugin::Stop(const WindowerCommand *pCommand_in)
-	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
-		{
-			ExpWatchPlugin *pExpWatch = reinterpret_cast<ExpWatchPlugin*>(pCommand_in->Caller.pData);
-
-			if (pExpWatch != NULL && pExpWatch->Stop(&pCommand_in->ResultMsg))
-				return DISPATCHER_RESULT_SUCCESS;
-		}
-
-		return DISPATCHER_RESULT_INVALID_CALL;
-	}
-
-	/*! \brief Reset command invocation
-		\param[in] pCommand_in : the command received from the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
-	*/
-	int ExpWatchPlugin::Reset(const WindowerCommand *pCommand_in)
-	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("ExpWatchPlugin") == 0)
-		{
-			ExpWatchPlugin *pExpWatch = reinterpret_cast<ExpWatchPlugin*>(pCommand_in->Caller.pData);
-
-			if (pExpWatch != NULL && pExpWatch->Reset(&pCommand_in->ResultMsg))
-				return DISPATCHER_RESULT_SUCCESS;
-		}
-
-		return DISPATCHER_RESULT_INVALID_CALL;
+		return false;
 	}
 
 	/*! \brief Starts the experience counter
@@ -193,8 +145,8 @@ namespace Windower
 			if (pFeedback_in_out != NULL)
 				*pFeedback_in_out = "ExpWatch started gathering statistics on experience points gained.";
 
-			m_pPluginServices->SubscribeService(_T("GameChat"), _T("CreateTextNode"), this);
 			m_bStarted = true;
+			Subscribe();
 			Reset();			
 		}
 
@@ -223,8 +175,8 @@ namespace Windower
 					   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
 			}
 
-			m_pPluginServices->UnsubscribeService(_T("GameChat"), _T("CreateTextNode"), this);
 			m_bStarted = false;
+			Unsubscribe();			
 		}
 
 		return true;
@@ -289,29 +241,20 @@ namespace Windower
 
 using Windower::ExpWatchPlugin;
 
-/*! \brief Function exposed by the plugin DLL to retrieve the plugin information
-	\param[in] PluginInfo_out : the plugin information
-*/
-extern "C" PLUGIN_API void QueryPlugin(PluginInfo &Info_out)
-{
-	ExpWatchPlugin::Query(Info_out);
-}
-
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[in] PluginServices_in : the plugin services
+	\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 	\return a pointer to the plugin registration parameters if successful; NULL otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(const PluginFramework::IPluginServices &PluginServices_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin(IPluginServices *pServices_in)
 {
 	RegisterParams *pParams = new RegisterParams;
 
 	ExpWatchPlugin::Query(pParams->Info);
+	IPlugin::SetServices(pServices_in);
 
 	pParams->QueryFunc = ExpWatchPlugin::Query;
 	pParams->CreateFunc = ExpWatchPlugin::Create;
 	pParams->DestroyFunc = ExpWatchPlugin::Destroy;
-
-	ExpWatchPlugin::SetPluginServices(PluginServices_in);
 
 	return pParams;
 }

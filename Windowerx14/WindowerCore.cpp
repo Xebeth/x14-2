@@ -10,9 +10,6 @@
 #include <HookEngine.h>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "ICoreModule.h"
@@ -52,7 +49,7 @@ namespace Windower
 	*/
 	bool WindowerCore::IsPluginCompatible(PluginFramework::IPlugin* pPlugin_in)
 	{
-		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetInfo().PluginIdentifier) != m_CompatiblePlugins.end());
+		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.end());
 	}
 
 	/*! \brief Revokes all the subscriptions of the specified plugin

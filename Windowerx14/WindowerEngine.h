@@ -8,8 +8,12 @@
 #ifndef __WINDOWER_ENGINE_H__
 #define __WINDOWER_ENGINE_H__
 
-//! Engine plugin key
-#define PLUGIN_REGKEY	0xDEADBEEF
+#include "WindowerSettings.h"
+#include "WindowerCommand.h"
+#include "ICommandHandler.h"
+#include "PluginEngine.h"
+
+#define ENGINE_KEY 0xDEADBEEF
 
 namespace Windower
 {
@@ -29,12 +33,18 @@ namespace Windower
 
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
-	//! a map of registered plugin info
-	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 
 	//! \brief Windower x14 engine
-	class WindowerEngine : public PluginEngine
+	class WindowerEngine : public PluginEngine, public ICommandHandler
 	{
+		//! IDs of the commands registered with the plugin
+		enum CommandMap
+		{
+			CMD_LOAD_PLUGIN = 0,	//!< loads a plugin
+			CMD_UNLOAD_PLUGIN,		//!< unloads a plugin
+			CMD_LIST_PLUGINS,		//!< list all plugins
+			CMD_COUNT				//!< number of registered commands
+		};
 	public:
 		explicit WindowerEngine(const TCHAR *pConfigFile_in);
 		virtual ~WindowerEngine();
@@ -76,9 +86,10 @@ namespace Windower
 		*/
 		void AddFeedbackMessage(const std::string &Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
 
-		// Command callbacks
-		static int UnloadPlugin(const WindowerCommand *pCommand_in);
-		static int LoadPlugin(const WindowerCommand *pCommand_in);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in);
+
+		bool ListPlugins(std::string &Feedback_out) const;
 
 	private:
 		//! internal plugin used to inject the windower version in the main menu screen

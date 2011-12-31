@@ -8,19 +8,33 @@
 #ifndef __COMMAND_DISPATCHER_H__
 #define __COMMAND_DISPATCHER_H__
 
+#include "ICoreModule.h"
+#include "WindowerCore.h"
+
+#include "WindowerCommand.h"
+#include "ICommandHandler.h"
+
 namespace Windower
 {
+	class WindowerCommand;
+
 	//! hash map of registered commands
 	typedef stdext::hash_map<std::string, WindowerCommand*> RegisteredCommands;
 	//! set of plugin keys
 	typedef std::set<DWORD> AuthorizedKeys;
 
 	//! \brief Command dispatcher
-	class CommandDispatcher : public WindowerCore
+	class CommandDispatcher : public WindowerCore, public ICommandHandler
 	{
+		//! IDs of the commands registered with the plugin
+		enum CommandMap
+		{
+			CMD_HELP = 0,	//!< displays help for commands
+			CMD_COUNT		//!< number of registered commands
+		};
+
 	public:
 		explicit CommandDispatcher(PluginEngine &Engine_in_out);
-		~CommandDispatcher();
 
 		// ICoreModule interface implementation
 
@@ -33,30 +47,21 @@ namespace Windower
 		*/
 		void OnHookInstall(IHookManager &HookManager_in) {}
 
-		int Dispatch(const WindowerCommand &Command_in);
-		bool UnregisterCommand(unsigned long RegistrationKey_in, const std::string &CommandName_in);
-		bool RegisterCommand(unsigned long RegistrationKey_in, const std::string &Name_in, const std::string &Description_in,
-							 CallerParam Caller_in, fnCommandCallback CallbackFunc_in, unsigned int MinParamsCount_in = 0,
-							 unsigned int MaxParamsCount = 0, const CommandParameters &Parameters_in = CommandParameters(),
-							 bool Public_in = true, bool Restricted_in = false);
+		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in);
+		bool RegisterCommand(WindowerCommand *pCommand_in);
+
 		WindowerCommand* FindCommand(const std::string &Name_in);
-		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in, PluginFramework::ServiceParam &Results_out);
+
+		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in);
 
 		bool ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out);
-		static int ShowCommandHelp(const WindowerCommand *pCommand_in);
+		int ShowCommandHelp(WindowerCommand *pCommand_in);
+
+		// ICommandHandler interface implementation
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in);
 
 	protected:
-		/*! \brief Registers the specified command in the dispatcher
-			\param[in] Command_in : the command to register
-			\return true if the command was registered successfully; false otherwise
-		*/
-		inline bool RegisterCommand(const WindowerCommand &Command_in)
-		{
-			return RegisterCommand(Command_in.RegistrationKey, Command_in.Name, Command_in.Description, Command_in.Caller,
-								   Command_in.CommandCallbackFunc, Command_in.MinParamsCount, Command_in.MaxParamsCount,
-								   Command_in.Parameters, Command_in.Public, Command_in.Restricted);
-		}
-
 		void InsertCommand(WindowerCommand *pCommand_in);
 		void RemoveCommand(WindowerCommand *pCommand_in);
 		/*! \brief Checks if the specified key is authorized with the command dispatcher

@@ -12,9 +12,6 @@
 #include <d3d9.h>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "Direct3D9Hook.h"
@@ -43,6 +40,8 @@ namespace Windower
 		m_pDirect3DCreate9Trampoline = Direct3DCreate9;
 		m_pDirect3DWrapper = NULL;
 		m_pDeviceWrapper = NULL;
+
+		m_Engine.RegisterModule(_T("Graphics"), this);
 	}
 
 	//! \brief GraphicsCore destructor

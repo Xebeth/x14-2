@@ -20,13 +20,13 @@ namespace PluginFramework
 		/*! \brief PluginUUID constructor
 			\param[in] pUID_in : the string version of the UUID
 		*/
-		explicit PluginUUID(TCHAR* pUID_in) { FromString(pUID_in); }
+		explicit PluginUUID(const TCHAR* pUID_in) { FromString(pUID_in); }
 
 		/*! \brief Initializes the UUID from a string
 			\param[in] pUID_in : the string representation of the UUID
 			\return a reference to the UUID
 		*/
-		PluginUUID& FromString(TCHAR* pUID_in)
+		PluginUUID& FromString(const TCHAR* pUID_in)
 		{
 			// ex : BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9
 			_stscanf_s(pUID_in, _T("%08X-%04X-%04X-%04X-%08X%04X"),

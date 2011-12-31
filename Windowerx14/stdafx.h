@@ -12,6 +12,9 @@
 #include <stdhdr.h>
 
 #include <string_t.h>
+#include <hash_map>
+#include <queue>
+#include <map>
 #include <set>
 
 #define __USE_DETOURS

@@ -18,7 +18,7 @@ namespace Windower
 
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static void Query(PluginInfo& Info_out);
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
 		bool StartLog();
 		void StopLog();

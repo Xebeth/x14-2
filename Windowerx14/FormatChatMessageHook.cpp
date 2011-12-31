@@ -8,12 +8,8 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <HookEngine.h>
-#include <queue>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "FormatChatMessageHook.h"

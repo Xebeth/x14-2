@@ -54,7 +54,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
-      <AdditionalIncludeDirectories>../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,7 +75,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,6 +93,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClCompile Include="..\Common\string_t.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Common\utf8_convert.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="FormatChatMessageHook.cpp" />
@@ -104,8 +105,7 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="IDirect3D9Wrapper.cpp" />
     <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
-    <ClCompile Include="PluginEngine.cpp" />
-    <ClCompile Include="PluginsServices.cpp" />
+    <ClCompile Include="InjectVersion.cpp" />
     <ClCompile Include="RegisterClassExHook.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -118,17 +118,14 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClCompile Include="TestHook.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="utf8_convert.cpp" />
-    <ClCompile Include="WindowerCommand.cpp" />
     <ClCompile Include="WindowerCore.cpp" />
     <ClCompile Include="WindowerEngine.cpp" />
     <ClCompile Include="WindowerSettingsManager.cpp" />
-    <ClCompile Include="InjectVersion.cpp" />
     <ClCompile Include="WndProcHook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\string_t.h" />
-    <ClInclude Include="BaseEngine.h" />
+    <ClInclude Include="..\Common\utf8_convert.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
     <ClInclude Include="FormatChatMessageHook.h" />
@@ -137,13 +134,9 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="Font.h" />
     <ClInclude Include="GameChatCore.h" />
     <ClInclude Include="GraphicsCore.h" />
-    <ClInclude Include="ICreateTextNodePlugin.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
-    <ClInclude Include="IGameChatPlugin.h" />
-    <ClInclude Include="ICoreModule.h" />
-    <ClInclude Include="PluginEngine.h" />
-    <ClInclude Include="PluginsServices.h" />
+    <ClInclude Include="InjectVersion.h" />
     <ClInclude Include="RegisterClassExHook.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemCore.h" />
@@ -153,14 +146,11 @@ copy "$(OutDir)WindowerX14.dll" "E:\Final Fantasy XIV\"</Command>
     <ClInclude Include="TestHook.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="utf8_convert.h" />
     <ClInclude Include="version.h" />
-    <ClInclude Include="WindowerCommand.h" />
     <ClInclude Include="WindowerCore.h" />
     <ClInclude Include="WindowerEngine.h" />
     <ClInclude Include="WindowerSettings.h" />
     <ClInclude Include="WindowerSettingsManager.h" />
-    <ClInclude Include="InjectVersion.h" />
     <ClInclude Include="WndProcHook.h" />
   </ItemGroup>
   <ItemGroup>

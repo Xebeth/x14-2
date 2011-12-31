@@ -8,13 +8,9 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <HookEngine.h>
-#include <queue>
+#include "version.h"
 
 #include "WindowerSettings.h"
-
-#include "version.h"
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "FormatChatMessageHook.h"
@@ -43,6 +39,8 @@ namespace Windower
 		// create the services
 		m_pFormatChatMessage = RegisterService(_T("OnChatMessage"), false);
 		m_pCreateTextNode = RegisterService(_T("CreateTextNode"), false);
+		// register the module
+		m_Engine.RegisterModule(_T("GameChat"), this);
 		// add compatible plugins
 		PluginFramework::PluginUUID UUID;
 
@@ -146,12 +144,14 @@ namespace Windower
 
 					if ((ParseResult = m_CommandParser.ParseCommand(pMessage_in_out->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
 					{
-						Result = (m_CommandDispatcher.Dispatch(Command) == DISPATCHER_RESULT_SUCCESS);
+						std::string Feedback;
 
-						if (Command.ResultMsg.empty() == false)
+						Result = (Command.Execute(Feedback) == DISPATCHER_RESULT_SUCCESS);
+
+						if (Feedback.empty() == false)
 						{
-							pFeedbackMsg = _strdup(Command.ResultMsg.c_str());
-							dwNewSize = Command.ResultMsg.length() + 1;
+							pFeedbackMsg = _strdup(Feedback.c_str());
+							dwNewSize = Feedback.length() + 1;
 						}
 					}
 					
@@ -245,13 +245,15 @@ namespace Windower
 
 					if (bUnsubscribe)
 					{
-						Iter = m_CreateTextNodeSubscribers.erase(Iter);
+						m_CreateTextNodeSubscribers.erase(Iter);
 
 						if (m_CreateTextNodeSubscribers.empty())
 						{
 							m_bCreateTextNodeSubEmpty = true;
 							break;
 						}
+						else
+							Iter = m_CreateTextNodeSubscribers.begin();
 					}
 				}
 			}

@@ -8,22 +8,28 @@
 #ifndef __TIMESTAMP_PLUGIN_H__
 #define __TIMESTAMP_PLUGIN_H__
 
-#define PLUGIN_REGKEY	0xAF8B3EE1
 #define TIMESTAMP_DEFAULT_FORMAT	"[HH:mm:ss] "
 #define TIMESTAMP_DEFAULT_LENGTH	11
 
 namespace Windower
 {
-	class TimestampPlugin : public Windower::IGameChatPlugin
+	class TimestampPlugin : public Windower::IGameChatPlugin, public CommandHandler
 	{
+		//! IDs of the commands registered with the plugin
+		enum CommandMap
+		{
+			CMD_FORMAT = 0,	//!< sets the format of the timestamp
+			CMD_COUNT		//!< number of registered commands
+		};
+
 	public:
 		TimestampPlugin();
 
 		static PluginFramework::IPlugin* Create();
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static void Query(PluginInfo& Info_out);
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
-		static int SetFormat(const WindowerCommand *pCommand_in);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
 
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,

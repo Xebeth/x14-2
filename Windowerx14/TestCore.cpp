@@ -10,9 +10,6 @@
 #include <HookEngine.h>
 
 #include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
@@ -47,6 +44,6 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(IHookManager &HookManager_in)
 	{
- 		
+		
 	}
 }

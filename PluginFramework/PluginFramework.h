@@ -8,18 +8,17 @@
 #ifndef __PLUGIN_FRAMEWORK_H__
 #define __PLUGIN_FRAMEWORK_H__
 
+#include <stdhdr.h>
+#include <string_t.h>
 #include <hash_map>
 #include <vector>
+#include <map>
 
-#include "PluginVersion.h"
-#include "PluginUUID.h"
+#include <VersionInfo.h>
+#include <PluginUUID.h>
+#include <IPlugin.h>
 
-#include "IPluginServices.h"
-#include "PluginSupport.h"
-#include "IPlugin.h"
-
-#include <FileIterator.h>
-#include "PluginManager.h"
-#include "PluginIterator.h"
+#include <IPluginServices.h>
+#include <FrameworkVersion.h>
 
 #endif//__PLUGIN_FRAMEWORK_H__

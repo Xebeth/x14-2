@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <PluginFramework.h>
+#include <PluginManager.h>
 #include <HookEngine.h>
 
 #include <BaseEngine.h>
@@ -53,12 +54,11 @@ namespace Bootstrap
 		m_pSettingsManager->LoadDefaultProfile(*m_pSettings);
 		// Win32 related hooks
 		m_pSystemCore = new SystemCore(*this);
-		RegisterModule(_T("System"), m_pSystemCore);
 		// Commander dispatcher
 		m_pCommandDispatcher = new Windower::CommandDispatcher(*this);
-		RegisterModule(_T("CommandDispatcher"), m_pCommandDispatcher);
 		// load plugins
 		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir());
+
 		Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
 	}
 	
@@ -141,8 +141,9 @@ namespace Bootstrap
 
 	/*! \brief Loads the AutoLogin plugin and starts the HMTL forms monitoring thread
 		\param[in] hParentWnd_in : the handle to the parent window containing the IE server
+		\return the result of the command invocation
 	*/
-	void BootstrapEngine::InvokeAutoLogin(HWND hParentWnd_in)
+	int BootstrapEngine::InvokeAutoLogin(HWND hParentWnd_in)
 	{
 		if (m_pCommandDispatcher != NULL)
 		{
@@ -151,14 +152,18 @@ namespace Bootstrap
 			{
 				Windower::WindowerCommand *pAutoLoginCmd;
 
-				if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::startthread")) != NULL)
+				if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::create_thread")) != NULL)
 				{
-					// set the handle value of the command
-					format(pAutoLoginCmd->Parameters["hwnd"].Value, "%08x", hParentWnd_in);
-					// dispatch the command
-					m_pCommandDispatcher->Dispatch(*pAutoLoginCmd);
+					if (pAutoLoginCmd->SetPointerValue("hwnd", (long)hParentWnd_in))
+					{
+						std::string Feedback;
+						// execute the command
+						return pAutoLoginCmd->Execute(Feedback);
+					}
 				}
 			}
 		}
+
+		return Windower::DISPATCHER_RESULT_INVALID_CALL;
 	}
 }

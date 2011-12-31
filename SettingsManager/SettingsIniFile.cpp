@@ -105,11 +105,11 @@ namespace Settings
 		return DefaultValue;
 	}
 
-	/*! \brief Retrieves the unsigned long value corresponding to the specified key and section
+	/*! \brief Retrieves the DWORD value corresponding to the specified key and section
 		\param[in] SectionName_in : the section containing the key
 		\param[in] Key_in : the name of the key
 		\param[in] DefaultValue : the default value if the key wasn't found
-		\return the unsigned long value of the key if valid; DefaultValue otherwise
+		\return the DWORD value of the key if valid; DefaultValue otherwise
 	*/
 	ULONG SettingsIniFile::GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in, ULONG DefaultValue) const
 	{

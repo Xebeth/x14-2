@@ -22,8 +22,6 @@
 #include "WindowerCore.h"
 #include "SystemCore.h"
 
-#include <AutoLoginPlugin.h>
-
 namespace Bootstrap
 {
 	/*! \brief SystemCore constructor
@@ -37,6 +35,8 @@ namespace Bootstrap
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
 		m_pShellExecuteExTrampoline = ShellExecuteExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
+
+		m_Engine.RegisterModule(_T("System"), this);
 	}
 
 	/*! \brief CreateWindowExW hook used to start the AutoLogin thread

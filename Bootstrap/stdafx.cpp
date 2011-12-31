@@ -8,6 +8,8 @@
 #include "stdafx.h"
 #include <detours.h>
 
+#pragma comment(lib, "WindowerPlugin.lib")
+
 #ifdef _DEBUG
 	#ifdef _M_X64
 		#pragma comment(lib, "PluginFramework.x64d.lib")

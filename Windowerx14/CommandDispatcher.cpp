@@ -9,15 +9,7 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
-#include "WindowerSettings.h"
-
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "WindowerEngine.h"
-
-#include "ICoreModule.h"
-#include "WindowerCore.h"
-#include "WindowerCommand.h"
 #include "CommandDispatcher.h"
 
 namespace Windower
@@ -28,71 +20,50 @@ namespace Windower
 	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out)
 		: WindowerCore(Engine_in_out)
 	{
-		RegisterService(_T("RegisterCommand"), true);
+		CommandParams Params;
+
 		RegisterService(_T("UnregisterCommand"), true);
+		RegisterService(_T("RegisterCommand"), true);
+		// register the module
+		m_Engine.RegisterModule(_T("CommandDispatcher"), this);
 
-		m_ValidKeys.insert(0xDEADBEEF); // Windower Engine
-		m_ValidKeys.insert(0xAF8B3EE1); // Timestamp 1.0.0
-		m_ValidKeys.insert(0x18E5F530); // AutoLogin 1.0.0
-		m_ValidKeys.insert(0xEB71A021); // ExpWatch 1.0.0
+		m_ValidKeys.insert(0xDEADBEEF);	// Windower Engine
+		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
+		m_ValidKeys.insert(0x18E5F530);	// AutoLogin
+		m_ValidKeys.insert(0xEB71A021);	// ExpWatch
 
-		CallerParam Caller("CommandDispatcher", this);
-		const char *pParamName = "command";
-		CommandParameters Params;
+		WindowerCommand *pCommand = new WindowerCommand(0xDEADBEEF, CMD_HELP, "help",
+														"Provides help with the specified command (all by default)", this);
 
-		Params[pParamName].Name = pParamName;
-		Params[pParamName].Type = COMMAND_PARAM_TYPE_STRING;
-		Params[pParamName].Value = "";
-		Params[pParamName].Description = "the name of the command for which to obtain help";
-
-		RegisterCommand(PLUGIN_REGKEY, "help", "Displays the help messages of all the available commands",
-						Caller, ShowCommandHelp, 0, 1, Params);
-	}
-
-	//! \brief CommandDispatcher destructor
-	CommandDispatcher::~CommandDispatcher()
-	{
-		if (m_Commands.empty() == false)
+		if (pCommand != NULL)
 		{
-			RegisteredCommands::iterator Iter;
+			// register the parameter
+			pCommand->AddStringParam("command", true, "", "the name of the command for which to obtain help");
 
-			for (Iter = m_Commands.begin(); Iter != m_Commands.end(); ++Iter)
-				delete Iter->second;
+			if (RegisterCommand(pCommand) == false)
+				delete pCommand;
 		}
 	}
 
-	/*! \brief Registers a command with the command dispatcher
-		\param[in] RegistrationKey_in : the key of the plugin registering the command
-		\param[in] Name_in : the name of the command
-		\param[in] Description_in : the description of the command
-		\param[in] Caller_in : the caller parameters (typically a plugin instance)
-		\param[in] CallbackFunc_in : function pointer to call when the command is invoked
-		\param[in] MinParamsCount_in : minimal number of parameters for the command
-		\param[in] MaxParamsCount_in : maximal number of parameters for the command
-		\param[in] Parameters_in : a collection of parameters
-		\param[in] Public_in : flag specifying if the command is listed with //help
-		\param[in] Restricted_in : flag specifying if the command can be called by the user
+	/*! \brief Registers the specified command in the dispatcher
+		\param[in] Command_in : the command to register
 		\return true if the command was registered successfully; false otherwise
 	*/
-	bool CommandDispatcher::RegisterCommand(unsigned long RegistrationKey_in, const std::string &Name_in, const std::string &Description_in,
-											CallerParam Caller_in, fnCommandCallback CallbackFunc_in, unsigned int MinParamsCount_in, 
-											unsigned int MaxParamsCount_in, const CommandParameters &Parameters_in, bool Public_in, bool Restricted_in)
+	bool CommandDispatcher::RegisterCommand(WindowerCommand *pCommand_in)
 	{
-		RegisteredCommands::const_iterator Iter = m_Commands.find(Name_in);
-
-		if (Iter == m_Commands.end() || Iter->second == NULL)
+		if (pCommand_in != NULL)
 		{
-			size_t ParamsCount = Parameters_in.size();
+			RegisteredCommands::const_iterator Iter = m_Commands.find(pCommand_in->GetName());
 
-			// parameters validation
-			if (MinParamsCount_in <= MaxParamsCount_in
-				&& MaxParamsCount_in >= MinParamsCount_in
-				&& ParamsCount >= MaxParamsCount_in
-				&& IsKeyAuthorized(RegistrationKey_in))
+			if (Iter == m_Commands.end() || Iter->second == NULL)
 			{
-				InsertCommand(new WindowerCommand(RegistrationKey_in, Name_in, Description_in, Caller_in, CallbackFunc_in,
-												  Parameters_in, MinParamsCount_in, MaxParamsCount_in, Public_in, Restricted_in));
-				return true;
+				// parameters validation
+				if (pCommand_in->ValidateParameters() && IsKeyAuthorized(pCommand_in->GetKey()))
+				{
+					InsertCommand(pCommand_in);
+
+					return true;
+				}
 			}
 		}
 
@@ -104,13 +75,13 @@ namespace Windower
 		\param[in] CommandName_in : the name of the command
 		\return true if the command registration was revoked; false otherwise
 	*/
-	bool CommandDispatcher::UnregisterCommand(unsigned long RegistrationKey_in, const std::string &CommandName_in)
+	bool CommandDispatcher::UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in)
 	{
 		RegisteredCommands::const_iterator Iter = m_Commands.find(CommandName_in);
 
 		if (Iter != m_Commands.end() && Iter->second != NULL)
 		{
-			if (Iter->second->RegistrationKey == RegistrationKey_in)
+			if (Iter->second->IsKeyMatching(RegistrationKey_in))
 			{
 				RemoveCommand(Iter->second);
 
@@ -127,7 +98,7 @@ namespace Windower
 	void CommandDispatcher::InsertCommand(WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL)
-			m_Commands[pCommand_in->Name] = pCommand_in;
+			m_Commands[pCommand_in->GetName()] = pCommand_in;
 	}
 
 	/*! \brief Removes a command from the collection of registered commands
@@ -136,21 +107,16 @@ namespace Windower
 	void CommandDispatcher::RemoveCommand(WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL)
-		{
-			m_Commands.erase(pCommand_in->Name);
-			delete pCommand_in;
-		}
+			m_Commands.erase(pCommand_in->GetName());
 	}
 
 	/*! \brief Invokes a command registered with the specified module
 		\param[in] ServiceName_in : the name of the service
 		\param[in] Params_in : the input parameters
-		\param[out] Results_out : the results from the invocation
 		\return true if the command was invoked successfully; false otherwise
 	*/
 	bool CommandDispatcher::Invoke(const string_t &ServiceName_in,
-								   const PluginFramework::ServiceParam &Params_in,
-								   PluginFramework::ServiceParam &Results_out)
+								   const PluginFramework::ServiceParam &Params_in)
 	{
 		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
 
@@ -161,32 +127,21 @@ namespace Windower
 			 && Params_in.DataType.compare(_T("WindowerCommand")) == 0
 			 && Params_in.pData != NULL)
 			{
-				return RegisterCommand(*(WindowerCommand*)Params_in.pData);
+				WindowerCommand *pCommand = reinterpret_cast<WindowerCommand*>(Params_in.pData);
+
+				return RegisterCommand(pCommand);
 			}
 			else if (ServiceName_in.compare(_T("UnregisterCommand")) == 0
 				  && Params_in.DataType.compare(_T("UnregisterParam")) == 0
 				  && Params_in.pData != NULL)
 			{
-				UnregisterParam Param = *(UnregisterParam*)Params_in.pData;
+				UnregisterParam Param = *reinterpret_cast<UnregisterParam*>(Params_in.pData);
 
 				return UnregisterCommand(Param.RegistrationKey, Param.CommandName);
 			}
 		}
 
 		return false;
-	}
-
-	/*! \brief Dispatches the specified command
-		\param[in] Command_in : the command to dispatch
-		\return DISPATCHER_RESULT_SUCCESS if the command was dispatched successfully; an error code otherwise
-		\sa the DISPATCHER_RESULT enumeration
-	*/
-	int CommandDispatcher::Dispatch(const WindowerCommand &Command_in)
-	{
-		if (Command_in.CommandCallbackFunc != NULL)
-			return Command_in.CommandCallbackFunc(&Command_in);
-		else
-			return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
 	/*! \brief Retrieves the command specified by its name
@@ -203,28 +158,23 @@ namespace Windower
 		return NULL;
 	}
 
-	/*! \brief Help command invocation
-		\param[in] pCommand_in : the command received from the command dispatcher
-		\return DISPATCHER_RESULT_SUCCESS if successful; DISPATCHER_RESULT_INVALID_CALL otherwise
+	/*! \brief Executes the command specified by its ID
+		\param[in] CmdID_in : the ID of the command to execute
+		\param[in] Command_in : the command to execute
+		\param[out] Feedback_out : the result of the execution
+		\return true if the command was executed successfully; false otherwise
 	*/
-	int CommandDispatcher::ShowCommandHelp(const WindowerCommand *pCommand_in)
+	bool CommandDispatcher::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
 	{
-		if (pCommand_in != NULL && pCommand_in->Caller.DataType.compare("CommandDispatcher") == 0)
+		switch(CmdID_in)
 		{
-			CommandDispatcher *pParser = reinterpret_cast<CommandDispatcher*>(pCommand_in->Caller.pData);
-			const WindowerCommandParam *pParam = pCommand_in->GetParameter("command");
-
-			if (pParser != NULL && pParam != NULL)
-			{
-				if (pParser->ShowCommandHelp(pParam->Value, pCommand_in->ResultMsg))
-					return DISPATCHER_RESULT_SUCCESS;
-			}
-
-			return DISPATCHER_RESULT_INVALID_PARAMETERS;
+			case CMD_HELP:
+				return ShowCommandHelp(Command_in.GetStringValue("command"), Feedback_out);
 		}
 
-		return DISPATCHER_RESULT_INVALID_CALL;
+		return false;
 	}
+
 
 	/*! \brief Displays the help message for the specified command
 			   or all the commands if no command is specified
@@ -260,5 +210,21 @@ namespace Windower
 		}
 	
 		return true;
+	}
+
+	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
+		\param[in] pCommand_in : the command to validate
+		\return true if the command is valid; false otherwise
+	*/
+	bool CommandDispatcher::IsCommandValid(const WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL)
+		{
+			const WindowerCommand *pCmd = FindCommand(pCommand_in->GetName());
+
+			return (pCmd != NULL);
+		}
+
+		return false;
 	}
 }
