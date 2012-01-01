@@ -138,16 +138,29 @@ namespace Windower
 	*/
 	bool ExpWatchPlugin::Start(std::string *pFeedback_in_out)
 	{
-		m_pTargetPtr = NULL;
-
 		if (m_bStarted == false)
 		{
 			if (pFeedback_in_out != NULL)
 				*pFeedback_in_out = "ExpWatch started gathering statistics on experience points gained.";
 
+			m_pTargetPtr = NULL;
 			m_bStarted = true;
 			Subscribe();
 			Reset();			
+		}
+		else if (pFeedback_in_out != NULL)
+		{
+			float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
+			int iHours = (int)Hours;
+			int iMinutes = (int)(60 * (Hours - iHours));
+
+			m_AvgExpPerHour = m_TotalExp / Hours;
+			m_AvgExpPerKill = m_TotalExp / m_KillCounter;
+
+			format(*pFeedback_in_out, "ExpWatch statistics on experience points gained:\n"
+				   "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
+				   "\tAverage experience per hour: %.2f\n\tAverage experience per kill: %.2f",
+				   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
 		}
 
 		return true;
@@ -159,8 +172,6 @@ namespace Windower
 	*/
 	bool ExpWatchPlugin::Stop(std::string *pFeedback_in_out)
 	{
-		m_pTargetPtr = NULL;
-
 		if (m_bStarted)
 		{
 			if (pFeedback_in_out != NULL)
@@ -175,6 +186,7 @@ namespace Windower
 					   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
 			}
 
+			m_pTargetPtr = NULL;
 			m_bStarted = false;
 			Unsubscribe();			
 		}

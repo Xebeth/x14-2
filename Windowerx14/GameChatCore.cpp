@@ -36,6 +36,7 @@ namespace Windower
 		  m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL), m_pCreateTextNode(NULL),
 		  m_bCreateTextNodeSubEmpty(true)
 	{
+		InitializeCriticalSection(&m_Lock);
 		// create the services
 		m_pFormatChatMessage = RegisterService(_T("OnChatMessage"), false);
 		m_pCreateTextNode = RegisterService(_T("CreateTextNode"), false);
@@ -49,6 +50,13 @@ namespace Windower
 		m_CompatiblePlugins.insert(UUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// Tell detect
 		m_CompatiblePlugins.insert(UUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// Tell detect
 		m_CompatiblePlugins.insert(UUID.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90")));	// Version inject
+	}
+
+	
+	//! \brief GameChatCore destructor
+	GameChatCore::~GameChatCore()
+	{
+		DeleteCriticalSection(&m_Lock);
 	}
 
 	/*! \brief Register the hooks for this module
@@ -71,7 +79,7 @@ namespace Windower
 			HookManager_in.RegisterHook("OnChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 		}
-
+/*
 		dwFuncAddr = MemScan.Scan(CREATETEXTNODE_OPCODES_SIGNATURE,
 								  CREATETEXTNODE_OPCODES_SIGNATURE_OFFSET);
 		// set m_pCreateTextNodeTrampoline with the address of the original function in case of failure
@@ -82,6 +90,7 @@ namespace Windower
 			HookManager_in.RegisterHook("CreateTextNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::CreateTextNodeHook, CREATETEXTNODE_OPCODES_HOOK_SIZE);
 		}
+*/
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -99,6 +108,8 @@ namespace Windower
 	*/
 	void GameChatCore::OnSubscribe(const string_t &ServiceName_in, const PluginSet &Subscribers_in)
 	{
+		EnterCriticalSection(&m_Lock);
+
 		if (ServiceName_in.compare(_T("OnChatMessage")) == 0)
 			m_ChatFormatSubscribers = Subscribers_in;
 		if (ServiceName_in.compare(_T("CreateTextNode")) == 0)
@@ -106,6 +117,8 @@ namespace Windower
 			m_bCreateTextNodeSubEmpty = Subscribers_in.empty();
 			m_CreateTextNodeSubscribers = Subscribers_in;
 		}
+
+		LeaveCriticalSection(&m_Lock);
 	}
 
 	/*! \brief Callback function invoked when a plugin subscription to a service is revoked
@@ -227,10 +240,12 @@ namespace Windower
 		\param[in] TextLength_in : the length of the text
 		\return a pointer to the text node
 	*/
-	StringNode* GameChatCore::CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in)
+	StringNode* GameChatCore::CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in)
 	{
 		if (m_bCreateTextNodeSubEmpty == false)
 		{
+			EnterCriticalSection(&m_Lock);
+
 			PluginSet::iterator Iter = m_CreateTextNodeSubscribers.begin();
 			ICreateTextNodePlugin* pPlugin;
 			bool bUnsubscribe;
@@ -257,6 +272,8 @@ namespace Windower
 					}
 				}
 			}
+
+			LeaveCriticalSection(&m_Lock);
 		}
 
 		return m_pCreateTextNodeTrampoline(pTextObject_out, pText_in, TextLength_in);

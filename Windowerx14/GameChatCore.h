@@ -19,6 +19,7 @@ namespace Windower
 	{
 	public:
 		GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in);
+		~GameChatCore();
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
@@ -27,7 +28,7 @@ namespace Windower
 		//! \brief OnChatMessage hook
 		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
 
-		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
+		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in = -1);
 
 	protected:
 		bool DisplayWindowerVersion();
@@ -58,6 +59,8 @@ namespace Windower
 		CommandParser &m_CommandParser;
 		//! the windower version injected in the start screen
 		std::string	m_InjectVersion;
+		//! critical section for thread synchronization
+		CRITICAL_SECTION m_Lock;
 	};
 }
 

@@ -27,12 +27,12 @@ namespace Windower
 		// register the module
 		m_Engine.RegisterModule(_T("CommandDispatcher"), this);
 
-		m_ValidKeys.insert(0xDEADBEEF);	// Windower Engine
+		m_ValidKeys.insert(ENGINE_KEY);	// Windower Engine
 		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
 		m_ValidKeys.insert(0x18E5F530);	// AutoLogin
 		m_ValidKeys.insert(0xEB71A021);	// ExpWatch
 
-		WindowerCommand *pCommand = new WindowerCommand(0xDEADBEEF, CMD_HELP, "help",
+		WindowerCommand *pCommand = new WindowerCommand(ENGINE_KEY, CMD_HELP, "help",
 														"Provides help with the specified command (all by default)", this);
 
 		if (pCommand != NULL)
@@ -80,14 +80,8 @@ namespace Windower
 		RegisteredCommands::const_iterator Iter = m_Commands.find(CommandName_in);
 
 		if (Iter != m_Commands.end() && Iter->second != NULL)
-		{
 			if (Iter->second->IsKeyMatching(RegistrationKey_in))
-			{
-				RemoveCommand(Iter->second);
-
-				return true;
-			}
-		}
+				return RemoveCommand(Iter->second);
 
 		return false;
 	}
@@ -98,16 +92,25 @@ namespace Windower
 	void CommandDispatcher::InsertCommand(WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL)
+		{
 			m_Commands[pCommand_in->GetName()] = pCommand_in;
+			pCommand_in->OnRegister();
+		}
 	}
 
 	/*! \brief Removes a command from the collection of registered commands
 		\param[in] pCommand_in : the command to remove
 	*/
-	void CommandDispatcher::RemoveCommand(WindowerCommand *pCommand_in)
+	bool CommandDispatcher::RemoveCommand(WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL)
+		{
 			m_Commands.erase(pCommand_in->GetName());
+
+			return pCommand_in->OnUnregister();
+		}
+
+		return false;
 	}
 
 	/*! \brief Invokes a command registered with the specified module

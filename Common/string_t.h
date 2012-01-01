@@ -27,10 +27,14 @@ string_t format(const TCHAR* pFormat_in, ...);
 
 string_t& append_format(string_t &String_out, const TCHAR* pFormat_in, ...);
 
+string_t& replace (string_t &String_in_out, const string_t &Find_in, const string_t &Replace_in);
+
 std::string& format(std::string &String_out, const char* pFormat_in, va_list ArgList_in);
 std::string& format(std::string &String_out, const char* pFormat_in, ...);
 std::string format(const char* pFormat_in, ...);
 
 std::string& append_format(std::string &String_out, const char* pFormat_in, ...);
+
+std::string& replace (std::string &String_in_out, const std::string &Find_in, const std::string &Replace_in);
 
 #endif//__STRING_T_H__

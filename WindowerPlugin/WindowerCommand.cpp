@@ -103,7 +103,8 @@ namespace Windower
 	void WindowerCommand::Invalidate()
 	{
 		m_MinParamsCount = m_MaxParamsCount = 0U;
-		m_Name = m_Description = "";
+		m_Name = "%empty%";
+		m_Description = "";
 		m_RegistrationKey = 0UL;
 		m_Parameters.clear();
 		m_Restricted = true;
@@ -118,7 +119,7 @@ namespace Windower
 	int WindowerCommand::Execute(std::string &Feedback_out)
 	{
 		if (m_pHandler != NULL)
-			m_pHandler->DefaultHandler(this, Feedback_out);
+			return m_pHandler->DefaultHandler(this, Feedback_out);
 		else
 			format(Feedback_out, "The command '%s' is not associated with any action.", m_Name.c_str());
 

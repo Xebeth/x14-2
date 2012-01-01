@@ -105,6 +105,10 @@ namespace Windower
 			\return the name of the command
 		*/
 		const std::string& GetName() const { return m_Name; }
+		/*! \brief Sets the name of the command
+			\param[in] Name_in : the name of the command
+		*/
+		void SetName(const std::string &Name_in) { m_Name = Name_in; }
 		/*! \brief Retrieves the key used to register the command
 			\return the key used to register the command
 		*/

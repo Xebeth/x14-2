@@ -71,10 +71,12 @@ namespace Windower
 			UnregisterParam UnregParam(m_RegistrationKey, CmdIt->second->GetName());
 			ServiceParam InvokeArg(_T("UnregisterParam"), &UnregParam);
 
-			//delete CmdIt->second;
+			if (IPlugin::Services()->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg))
+				delete CmdIt->second;
+
 			m_Commands.erase(CmdIt);
 
-			return IPlugin::Services()->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg);
+			return true;
 		}
 
 		return false;

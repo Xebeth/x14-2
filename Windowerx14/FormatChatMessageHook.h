@@ -26,7 +26,7 @@ bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, co
 #define CREATETEXTNODE_OPCODES_HOOK_SIZE				 8
 
 // int _pThis_in_outcall sub_4470E0(int this, const char *a2, unsigned int a3)
-typedef StringNode* (WINAPI *fnCreateTextNode)(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in);
-StringNode* WINAPI CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in = -1);
+typedef StringNode* (WINAPI *fnCreateTextNode)(StringNode *pTextObject_out, const char *pText_in, int TextLength_in);
+StringNode* WINAPI CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in);
 
 #endif//__CHAT_MESSAGE_FORMAT_HOOK_H__

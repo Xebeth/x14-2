@@ -63,7 +63,7 @@ namespace Windower
 
 	protected:
 		void InsertCommand(WindowerCommand *pCommand_in);
-		void RemoveCommand(WindowerCommand *pCommand_in);
+		bool RemoveCommand(WindowerCommand *pCommand_in);
 		/*! \brief Checks if the specified key is authorized with the command dispatcher
 			\param[in] Key_in : the key to check
 			\return true if the key is authorized; false otherwise

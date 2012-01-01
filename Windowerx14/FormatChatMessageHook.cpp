@@ -38,7 +38,7 @@ bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, co
 	\param[in] TextLength_in : the length of the text
 	\return a pointer to the text node
 */
-StringNode* WINAPI CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, UINT TextLength_in)
+StringNode* WINAPI CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in)
 {
 	return g_pEngine->GameChat().CreateTextNodeHook(pTextObject_out, pText_in, TextLength_in);
 }

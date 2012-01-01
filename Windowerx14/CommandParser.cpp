@@ -54,6 +54,8 @@ namespace Windower
 			RawCommand = pRawCommand_in;
 
 		Result = Tokenize(RawCommand, CommandName, Params);
+		// set the name of the command
+		Command_out.SetName(CommandName);
 
 		if ((pCommand = m_CommandDispatcher.FindCommand(CommandName)) != NULL)
 		{
