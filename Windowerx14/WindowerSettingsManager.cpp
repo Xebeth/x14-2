@@ -63,16 +63,13 @@ namespace Windower
 	*/
 	WindowerProfile* SettingsManager::CreateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
 	{
-		string_t ProfileName;
-
-		format(ProfileName, _T("%s%s"), PROFILE_PREFIX, pProfileName_in);
-		WindowerSettings::const_iterator ProfileIt = m_Profiles.find(ProfileName.c_str());
+		WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
 
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL && ProfileIt == m_Profiles.end())
 		{
 			WindowerProfile *pNewSettings = new WindowerProfile(Settings_in);
 
-			m_Profiles[ProfileName] = pNewSettings;
+			m_Profiles[pProfileName_in] = pNewSettings;
 
 			return pNewSettings;
 		}
@@ -88,17 +85,14 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			string_t ProfileName;
-
-			format(ProfileName, _T("%s%s"), PROFILE_PREFIX, pProfileName_in);
-			WindowerSettings::const_iterator ProfileIt = m_Profiles.find(ProfileName.c_str());
+			WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
 
 			if (ProfileIt != m_Profiles.end())
 			{
 				delete ProfileIt->second;
 				m_Profiles.erase(ProfileIt);
 
-				return m_pSettingsFile->DeleteSection(ProfileName);
+				return m_pSettingsFile->DeleteSection(pProfileName_in);
 			}
 		}
 
@@ -114,7 +108,6 @@ namespace Windower
 		{
 			WindowerSettings::const_iterator SettingsIter;
 			WindowerProfile *pProfile;
-			string_t ProfileName;
 			const TCHAR *pName;
 
 			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
@@ -126,8 +119,7 @@ namespace Windower
 
 				if (pProfile != NULL)
 				{
-					format(ProfileName, _T("%s%s"), PROFILE_PREFIX, pProfile->GetName());
-					pName = ProfileName.c_str();
+					pName = pProfile->GetName();
 
 					m_pSettingsFile->SetLong(pName, _T("ResX"),  pProfile->GetResX());
 					m_pSettingsFile->SetLong(pName, _T("ResY"),  pProfile->GetResY());
@@ -153,7 +145,7 @@ namespace Windower
 			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync")));
 			Settings_out.SetResolution(m_pSettingsFile->GetLong(pProfileName_in, _T("ResX")),
 									   m_pSettingsFile->GetLong(pProfileName_in, _T("ResY")));
-			Settings_out.SetName(pProfileName_in + PROFILE_PREFIX_LENGTH);
+			Settings_out.SetName(pProfileName_in);
 
 			return true;
 		}
@@ -181,7 +173,7 @@ namespace Windower
 			SectionsIterator SectionIter;
 			bool Result = false;
 
-			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME) + PROFILE_PREFIX_LENGTH);
+			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME));
 			SetPluginsDir(m_pSettingsFile->GetString(_T("General"), _T("PluginsDir"), DEFAULT_PLUGINS_DIR));
 			SetAutoLogin(m_pSettingsFile->GetLong(_T("General"), _T("Autologin"), 0) == 1L);
 
@@ -233,11 +225,7 @@ namespace Windower
 	*/
 	WindowerSettings::const_iterator SettingsManager::GetSettingsPos(const TCHAR *pProfileName_in)
 	{
-		string_t ProfileName;
-
-		format(ProfileName, _T("%s%s"), PROFILE_PREFIX, pProfileName_in);
-		
-		return m_Profiles.find(ProfileName.c_str());
+		return m_Profiles.find(pProfileName_in);
 	}
 
 	/*! \brief Retrieves the profile specified by its name

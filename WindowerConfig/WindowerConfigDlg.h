@@ -21,6 +21,7 @@ namespace Windower
 		afx_msg void OnResolutionChange();
 		afx_msg void OnProfilesChange();
 		
+		afx_msg void OnAutologinChange();
 		afx_msg void OnDeleteProfile();
 		afx_msg void OnVSyncChange();
 		afx_msg void OnNewProfile();

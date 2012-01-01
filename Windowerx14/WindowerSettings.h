@@ -45,7 +45,7 @@ namespace Windower
 		/*! \brief Sets the the name of the profile
 			\param[in] pName_in : the new name of the profile
 		*/
-		void SetName(const TCHAR *pName_in) { if (pName_in != NULL) format(m_Name, _T("%s%s"), PROFILE_PREFIX, pName_in); }
+		void SetName(const TCHAR *pName_in) { m_Name = pName_in; }
 		/*! \brief Sets the resolution of the rendering surface
 			\param[in] ResX_in : the width of the rendering surface
 			\param[in] ResY_in : the height of the rendering surface
@@ -67,7 +67,7 @@ namespace Windower
 		/*! \brief Retrieves the name of the profile
 			\return the name of the profile
 		*/
-		const TCHAR* GetName() const { return m_Name.c_str() + PROFILE_PREFIX_LENGTH; }
+		const TCHAR* GetName() const { return m_Name.c_str(); }
 
 	protected:
 		//! the width of the rendering surface

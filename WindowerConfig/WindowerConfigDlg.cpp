@@ -33,7 +33,9 @@ namespace Windower
 
 		ON_BN_CLICKED(IDC_DELETE_PROFILE, &WindowerConfigDlg::OnDeleteProfile)
 		ON_BN_CLICKED(IDC_NEW_PROFILE, &WindowerConfigDlg::OnNewProfile)
+		ON_BN_CLICKED(IDC_AUTOLOGIN, &WindowerConfigDlg::OnAutologinChange)
 		ON_BN_CLICKED(IDC_VSYNC, &WindowerConfigDlg::OnVSyncChange)
+		
 		ON_BN_CLICKED(IDOK, &WindowerConfigDlg::OnSave)
 	END_MESSAGE_MAP()
 
@@ -74,7 +76,7 @@ namespace Windower
 				{
 					pName = pProfile->GetName();
 
-					ItemCount = pProfiles->AddString(pName);
+					ItemCount = pProfiles->AddString(pName + PROFILE_PREFIX_LENGTH);
 					pProfiles->SetItemData(ItemCount, (DWORD_PTR)SettingIt->second);
 
 					if (_tcscmp(pName, pDefault) == 0)
@@ -178,6 +180,7 @@ namespace Windower
 		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
 		CComboBox *pResX	 = (CComboBox*)GetDlgItem(IDC_RESX_COMBO);
 		CComboBox *pResY	 = (CComboBox*)GetDlgItem(IDC_RESY_COMBO);
+		CButton *pAutologin	 = (CButton*)GetDlgItem(IDC_AUTOLOGIN);
 		CButton *pVSync		 = (CButton*)GetDlgItem(IDC_VSYNC);
 
 		m_pCurrentSettings = NULL;
@@ -203,6 +206,7 @@ namespace Windower
 					pResY->SetWindowText(StrY);
 
 					pVSync->SetCheck(m_pCurrentSettings->GetVSync() ? BST_CHECKED : BST_UNCHECKED);
+					pAutologin->SetCheck(m_pSettingsManager->GetAutoLogin() ? BST_CHECKED : BST_UNCHECKED);
 
 					pResX->FindStringExact(0, StrX);
 					pResY->FindStringExact(0, StrY);
@@ -308,18 +312,22 @@ namespace Windower
 
 		if (pProfiles != NULL && m_pCurrentSettings != NULL)
 		{
-			CString NewName = _T("New Profile");
+			CString NewName = PROFILE_PREFIX _T("New Profile");
+			TCHAR *pDisplayName = NewName.GetBuffer() + PROFILE_PREFIX_LENGTH;
 			WindowerProfile *pNewSettings;
 
-			while(pProfiles->FindString(0, NewName) != CB_ERR)
+			while(pProfiles->FindString(0, pDisplayName) != CB_ERR)
+			{
 				GenerateNewName(NewName);
+				pDisplayName = NewName.GetBuffer() + PROFILE_PREFIX_LENGTH;
+			}
 
 			pNewSettings = m_pSettingsManager->CreateProfile(NewName, *m_pCurrentSettings);
 			m_pCurrentSettings->SetName(NewName);
 
 			if (pNewSettings != NULL)
 			{
-				m_CurrentSel = pProfiles->AddString(NewName.GetBuffer());
+				m_CurrentSel = pProfiles->AddString(pDisplayName);
 				m_pCurrentSettings = pNewSettings;
 
 				pProfiles->SetItemData(m_CurrentSel, (DWORD_PTR)pNewSettings);
@@ -356,9 +364,19 @@ namespace Windower
 	{
 		CButton *pVSync = (CButton*)GetDlgItem(IDC_VSYNC);
 
-		if (m_pCurrentSettings != NULL && pVSync != NULL)
+		if (m_pSettingsManager != NULL && pVSync != NULL)
 		{
 			m_pCurrentSettings->SetVSync(pVSync->GetCheck() == BST_CHECKED);
+		}
+	}
+
+	void WindowerConfigDlg::OnAutologinChange()
+	{
+		CButton *pAutologin = (CButton*)GetDlgItem(IDC_AUTOLOGIN);
+
+		if (m_pSettingsManager != NULL && pAutologin != NULL)
+		{
+			m_pSettingsManager->SetAutoLogin(pAutologin->GetCheck() == BST_CHECKED);
 		}
 	}
 }

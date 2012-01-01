@@ -60,11 +60,11 @@ namespace Windower
 		/*! \brief Sets the name of the default profile
 			\param[in] pProfileName_in : the new default profile
 		*/
-		void SetDefaultProfile(const TCHAR *pProfileName_in) { format(m_DefaultProfile, _T("%s%s"), PROFILE_PREFIX, pProfileName_in); }
+		void SetDefaultProfile(const TCHAR *pProfileName_in) { m_DefaultProfile = pProfileName_in; }
 		/*! \brief Retrieves the name of the default profile
 			\return the name of the default profile
 		*/
-		const TCHAR* GetDefaultProfile() const { return (m_DefaultProfile.c_str() + PROFILE_PREFIX_LENGTH); }
+		const TCHAR* GetDefaultProfile() const { return m_DefaultProfile.c_str(); }
 		/*! \brief Sets the flag specifying if the AutoLogin plugin is in use
 			\param[in] AutoLogin_in : the new value of the flag
 		*/
