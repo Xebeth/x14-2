@@ -21,6 +21,7 @@ namespace Windower
 		GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in);
 		~GraphicsCore();
 
+		void SetRendering(bool bEnable_in);
 		void ToggleRendering();
 
 		// events
@@ -32,7 +33,6 @@ namespace Windower
 
 		// Direct3D
 		IDirect3D9Wrapper* Direct3DCreate9Hook(UINT SDKVersion_in);
-
 	protected:
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;

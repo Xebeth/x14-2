@@ -84,6 +84,12 @@ namespace Windower
 			m_pDeviceWrapper->ToggleRendering();
 	}
 
+	void GraphicsCore::SetRendering(bool bEnable_in)
+	{
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->SetRendering(bEnable_in);
+	}
+
 	/*! \brief Callback function invoked when the Direct3D9 device is created
 		\param[in] pDeviceWrapper_in : the newly created device
 	*/

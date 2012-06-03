@@ -103,21 +103,26 @@ namespace Windower
 			// add 11 characters for the timestamp
 			dwNewSize = pMessage_in_out->dwSize + m_TimestampLength;
 			// allocate a new buffer
-			*pBuffer_in_out = (char*)realloc(*pBuffer_in_out, dwNewSize * sizeof(char));
-			// clear the buffer
-			memset(*pBuffer_in_out, 0, dwNewSize);
-			// get the current time
-			GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL, m_TimestampFormat.c_str(),
-						   *pBuffer_in_out, m_TimestampLength + 1);
-			// copy the original text
-			memcpy_s(*pBuffer_in_out + m_TimestampLength,
-					 pMessage_in_out->dwSize * sizeof(char),
-					 pMessage_in_out->pResBuf, pMessage_in_out->dwSize);
-			// replace the object data with timestamp + text
-			pMessage_in_out->pResBuf = *pBuffer_in_out;
-			pMessage_in_out->dwSize = dwNewSize;
+			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize * sizeof(char));
 
-			return true;
+			if  (pRealloc != NULL)
+			{
+				*pBuffer_in_out = pRealloc;
+				// clear the buffer
+				memset(*pBuffer_in_out, 0, dwNewSize);
+				// get the current time
+				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL, m_TimestampFormat.c_str(),
+					*pBuffer_in_out, m_TimestampLength + 1);
+				// copy the original text
+				memcpy_s(*pBuffer_in_out + m_TimestampLength,
+					pMessage_in_out->dwSize * sizeof(char),
+					pMessage_in_out->pResBuf, pMessage_in_out->dwSize);
+				// replace the object data with timestamp + text
+				pMessage_in_out->pResBuf = *pBuffer_in_out;
+				pMessage_in_out->dwSize = dwNewSize;
+
+				return true;
+			}
 		}
 
 		return false;

@@ -57,6 +57,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName).x86d$(TargetExt)</OutputFile>

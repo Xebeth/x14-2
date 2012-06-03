@@ -22,6 +22,9 @@
 #include "WindowerCore.h"
 #include "SystemCore.h"
 
+#include "Direct3D9Hook.h"
+#include "GraphicsCore.h"
+
 namespace Windower
 {
 	/*! \brief SystemCore constructor
@@ -163,6 +166,18 @@ namespace Windower
 		{
 			return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
 		}
+		else if (uMsg_in == WM_ACTIVATE)
+		{
+			switch(wParam_in)
+			{
+				case WA_CLICKACTIVE:
+				case WA_INACTIVE:
+				case WA_ACTIVE:
+					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(wParam_in != WA_INACTIVE);
+
+					return FALSE;
+			}
+		}
 
 		if (m_pGameWndProc != NULL)
 			return m_pGameWndProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
@@ -185,7 +200,16 @@ namespace Windower
 		{
 			if (wParam_in == m_MinimizeVKey)
 			{
-				ShowWindow(m_hGameWnd, SW_MINIMIZE);
+				if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000)
+				{
+					static_cast<WindowerEngine&>(m_Engine).Graphics().ToggleRendering();
+				}
+				else
+				{
+					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(false);
+					ShowWindow(m_hGameWnd, SW_MINIMIZE);
+				}
+
 				Result = FALSE;
 			}
 		}

@@ -9,8 +9,9 @@ public:
 	IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice);
 	virtual ~IDirect3DDevice9Wrapper();
 
-	bool IsRendering() { return m_bRender; }
+	bool IsRendering() const { return m_bRender; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
+	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }
 	void ToggleWireframe()  { m_FillMode = (m_FillMode == D3DFILL_SOLID) ? D3DFILL_WIREFRAME : D3DFILL_SOLID;
 							  m_pDirect3dDevice->SetRenderState(D3DRS_FILLMODE, m_FillMode); }
 
@@ -136,6 +137,7 @@ public:
 	HRESULT __stdcall DrawTriPatch(UINT Handle,CONST float* pNumSegs,CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	HRESULT __stdcall DeletePatch(UINT Handle);
 	HRESULT __stdcall CreateQuery(D3DQUERYTYPE Type,IDirect3DQuery9** ppQuery);
+
 /*
 	HRESULT __stdcall SetConvolutionMonoKernel(UINT width,UINT height,float* rows,float* columns);
 	HRESULT __stdcall ComposeRects(IDirect3DSurface9* pSrc,IDirect3DSurface9* pDst,IDirect3DVertexBuffer9* pSrcRectDescs,UINT NumRects,IDirect3DVertexBuffer9* pDstRectDescs,D3DCOMPOSERECTSOP Operation,int Xoffset,int Yoffset);
@@ -161,6 +163,7 @@ protected:
 	TCHAR					*m_pFps;
 	Font					*m_pFont;
 	bool					 m_bRender;
+	bool					 m_bSceneStarted;
 };
 
 #endif//__IDIRECT3DDEVICE9_WRAPPER_H

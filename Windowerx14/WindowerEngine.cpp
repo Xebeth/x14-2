@@ -67,11 +67,11 @@ namespace Windower
 
 		// testing
 #ifdef _DEBUG
-		m_pTestCore = new TestCore(*this);
-		RegisterModule(_T("Testing"), m_pTestCore);
+// 		m_pTestCore = new TestCore(*this);
+// 		RegisterModule(_T("Testing"), m_pTestCore);
 #endif // _DEBUG
 		// Win32 related hooks
-		m_pSystemCore = NULL; // new SystemCore(*this);
+		m_pSystemCore = new SystemCore(*this);
 		// Commander dispatcher
 		m_pCommandDispatcher = new CommandDispatcher(*this);
 		// Commander parser

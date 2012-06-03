@@ -12,8 +12,9 @@ IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDev
 {
 	m_pDirect3dDevice = *pDirect3dDevice;
 //	m_pRenderTimer = new HiResTimer();
-	m_pFont = new Font();
-	m_bRender = false;
+	m_bSceneStarted = false;
+	m_pFont = new Font();	
+	m_bRender = true;
 	m_FillMode = 0;
 	m_pFps = NULL;
 
@@ -58,12 +59,26 @@ ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene() 
 {
-	return m_pDirect3dDevice->BeginScene();
+	if (m_bRender && m_bSceneStarted == false)
+	{
+		m_bSceneStarted = true;
+
+		return m_pDirect3dDevice->BeginScene();
+	}
+	else
+		return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene() 
 {
-	return m_pDirect3dDevice->EndScene();
+	if (m_bRender && m_bSceneStarted)
+	{
+		m_bSceneStarted = false;
+
+		return m_pDirect3dDevice->EndScene();
+	}
+	
+	return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::QueryInterface(REFIID iid, void ** ppvObject)
@@ -148,7 +163,10 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) 
 {
-	return m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion); 
+	if (m_bRender)
+		return m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	else
+		return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9** ppBackBuffer) 
@@ -464,12 +482,18 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::DrawPrimitive(D3DPRIMITIVETYPE Primit
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawIndexedPrimitive(D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount) 
 {
-	return m_pDirect3dDevice->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount); 
+	if (m_bRender)
+		return m_pDirect3dDevice->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount); 
+	else
+		return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) 
 {
-	return m_pDirect3dDevice->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); 
+	if (m_bRender)
+		return m_pDirect3dDevice->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); 
+	else
+		return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) 
@@ -656,6 +680,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::CreateQuery(D3DQUERYTYPE Type, IDirec
 {
 	return m_pDirect3dDevice->CreateQuery(Type, ppQuery);
 }
+
 /*
 HRESULT __stdcall IDirect3DDevice9Wrapper::SetConvolutionMonoKernel(UINT width,UINT height,float* rows,float* columns)
 {

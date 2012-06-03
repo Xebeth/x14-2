@@ -56,8 +56,6 @@ namespace InjectModule
 												  MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (pReservedSpace != NULL)
 			{
-				HANDLE hThread = NULL;
-
 				// write the path to the DLL in the memory of the target process
 				if (WriteProcessMemory(ProcessInfo_out.hProcess, pReservedSpace, pDllPath, DataSize, &DataWritten))
 				{
