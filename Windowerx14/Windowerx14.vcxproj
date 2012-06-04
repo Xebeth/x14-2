@@ -65,8 +65,7 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)plugins\*.dll" "F:\Final Fantasy XIV\plugins"
-copy "$(OutDir)WindowerX14.dll" "F:\Final Fantasy XIV\"</Command>
+      <Command>$(SolutionDir)_postbuild.bat $(Outdir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,8 +87,7 @@ copy "$(OutDir)WindowerX14.dll" "F:\Final Fantasy XIV\"</Command>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)plugins\*.dll" "F:\Final Fantasy XIV\plugins"
-copy "$(OutDir)WindowerX14.dll" "F:\Final Fantasy XIV\"</Command>
+      <Command>$(SolutionDir)_postbuild.bat $(Outdir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

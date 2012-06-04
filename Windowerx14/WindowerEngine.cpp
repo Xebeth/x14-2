@@ -44,6 +44,8 @@
 #include "ICreateTextNodePlugin.h"
 #include "InjectVersion.h"
 
+// #define _TESTING
+
 namespace Windower
 {
 	PluginManager* ICoreModule::m_pPluginManager = NULL;
@@ -66,9 +68,9 @@ namespace Windower
 		// create the services
 
 		// testing
-#ifdef _DEBUG
-// 		m_pTestCore = new TestCore(*this);
-// 		RegisterModule(_T("Testing"), m_pTestCore);
+#if defined _DEBUG && defined _TESTING
+		m_pTestCore = new TestCore(*this);
+		RegisterModule(_T("Testing"), m_pTestCore);
 #endif // _DEBUG
 		// Win32 related hooks
 		m_pSystemCore = new SystemCore(*this);
@@ -141,7 +143,7 @@ namespace Windower
 		delete m_pInjectVersion;
 		m_pInjectVersion = NULL;
 
-#ifdef _DEBUG
+#if defined _DEBUG && defined _TESTING
 		delete m_pTestCore;
 		m_pTestCore = NULL;
 #endif // _DEBUG

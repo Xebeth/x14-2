@@ -53,7 +53,7 @@ namespace InjectModule
 			DWORD RetCode = 0UL;
 			// allocate enough space in the target process to hold the path to the DLL
 			LPVOID pReservedSpace = VirtualAllocEx(ProcessInfo_out.hProcess, NULL, DataSize,
-												  MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+												   MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 			if (pReservedSpace != NULL)
 			{
 				// write the path to the DLL in the memory of the target process

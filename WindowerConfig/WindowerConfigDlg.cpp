@@ -343,21 +343,22 @@ namespace Windower
 	void WindowerConfigDlg::OnDeleteProfile()
 	{
 		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
+		bool Enable = false;
 
 		if (pProfiles != NULL && m_pCurrentSettings != NULL)
+			Enable = (pProfiles->GetCount() > 1);
+			
+		if (Enable)
 		{
-			if (pProfiles->GetCount() > 1)
-			{
-				m_pSettingsManager->DeleteProfile(m_pCurrentSettings->GetName());
-				pProfiles->DeleteString(m_CurrentSel);
-				// set the new selection
-				pProfiles->SetCurSel((m_CurrentSel == 0) ? 0 : --m_CurrentSel);
-				// update the data
-				OnProfilesChange();
-			}
+			m_pSettingsManager->DeleteProfile(m_pCurrentSettings->GetName());
+			pProfiles->DeleteString(m_CurrentSel);
+			// set the new selection
+			pProfiles->SetCurSel((m_CurrentSel == 0) ? 0 : --m_CurrentSel);
+			// update the data
+			OnProfilesChange();
 		}
 
-		GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(pProfiles->GetCount() > 1);
+		GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(Enable);
 	}
 
 	void WindowerConfigDlg::OnVSyncChange()

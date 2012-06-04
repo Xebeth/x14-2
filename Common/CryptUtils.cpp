@@ -100,15 +100,14 @@ string_t CryptUtils::CombineHash(const string_t &InputStr1_in, const string_t &I
 
 size_t CryptUtils::GenerateMachineID(string_t &MachineID_out)
 {
-	TCHAR VolumeName[255], FileSystem[255];
+	TCHAR VolumeName[_MAX_PATH], FileSystem[_MAX_PATH];
 	unsigned long VolumeSerialNumber;
 	HW_PROFILE_INFO hwProfileInfo;
 
 	MachineID_out.clear();
 
-	if (GetVolumeInformation(NULL, VolumeName, sizeof(VolumeName),
-		&VolumeSerialNumber, NULL, NULL,
-		FileSystem, sizeof(FileSystem))
+	if (GetVolumeInformation(NULL, VolumeName, _MAX_PATH,
+		&VolumeSerialNumber, NULL, NULL, FileSystem, _MAX_PATH)
 		&& GetCurrentHwProfile(&hwProfileInfo))
 	{
 		string_t SerialNumber;

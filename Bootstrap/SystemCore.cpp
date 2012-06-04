@@ -87,29 +87,25 @@ namespace Bootstrap
 									   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
 									   LPPROCESS_INFORMATION lpProcessInformation_out)
 	{
-		char DLLPath[MAX_PATH];
-		BOOL Result = FALSE;
-		TCHAR* pDLL32Path;
+		TCHAR DLL32Path[_MAX_PATH];
+		TCHAR DirPath[_MAX_PATH];
+		char DLLPath[_MAX_PATH];
+		BOOL Result = FALSE;		
 
-		TCHAR *pDirPath = new TCHAR[MAX_PATH];
-		pDLL32Path = new TCHAR[MAX_PATH];
-
-		GetCurrentDirectory(MAX_PATH, pDirPath);
+		GetCurrentDirectory(_MAX_PATH, DirPath);
 
 		if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL || _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL)
-			_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\windowerx14.dll"), pDirPath);
+			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\windowerx14.dll"), DirPath);
 		else
-			_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\bootstrap.dll"), pDirPath);
+			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
 
-		delete[] pDirPath;
+		WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
 
-		sprintf_s(DLLPath, "%S", pDLL32Path);
 		// attach the DLL to the next process in the chain
 		Result = DetourCreateProcessWithDllW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
 											 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
 											 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
 											 lpProcessInformation_out, NULL, DLLPath, m_pCreateProcessTrampoline);
-		delete[] pDLL32Path;
 
 		return Result;
 	}

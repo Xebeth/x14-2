@@ -127,7 +127,7 @@ namespace Windower
 			return true if the parameters are correct; false otherwise
 		*/
 		bool ValidateParameters() const { return (m_MinParamsCount <= m_MaxParamsCount	\
-											   && m_MaxParamsCount >= m_MinParamsCount	\
+											   && m_MinParamsCount >= m_MaxParamsCount	\
 											   && m_Parameters.size() >= m_MaxParamsCount); }
 		
 		/*! \brief Retrieves the parameters of the command

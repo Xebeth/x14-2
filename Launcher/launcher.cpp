@@ -28,22 +28,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					   LPTSTR lpCmdLine, int nCmdShow)
 {
 	PROCESS_INFORMATION ProcessInfo;
-	TCHAR* pDLL32Path, *pExePath;
-	TCHAR DirPath [MAX_PATH];
+	TCHAR DLL32Path[_MAX_PATH];
+	TCHAR ExePath[_MAX_PATH];
+	TCHAR DirPath[_MAX_PATH];
 	BOOL Result;
 
-	pDLL32Path = new TCHAR[MAX_PATH];
-	pExePath = new TCHAR[MAX_PATH];
+	GetCurrentDirectory(_MAX_PATH, DirPath);
+	_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
+	_stprintf_s(ExePath, _MAX_PATH, _T("%s\\ffxivboot.exe"), DirPath);
 
-	GetCurrentDirectory(MAX_PATH, DirPath);
-	_stprintf_s(pDLL32Path, MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
-	_stprintf_s(pExePath, MAX_PATH, _T("%s\\ffxivboot.exe"), DirPath);
-
-	Result = InjectModule::CreateProcessEx(pExePath, ProcessInfo, NULL, CREATE_DEFAULT_ERROR_MODE |
-										   CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, pDLL32Path, NULL);
-
-	delete[] pDLL32Path;
-	delete[] pExePath;
+	Result = InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CREATE_DEFAULT_ERROR_MODE |
+										   CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, DLL32Path, NULL);
 
 	return (Result != FALSE);
 }

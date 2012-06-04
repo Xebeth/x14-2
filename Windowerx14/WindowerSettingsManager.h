@@ -46,9 +46,9 @@ namespace Windower
 		*/
 		const string_t& GetPluginsAbsoluteDir()
 		{
-			TCHAR CurrentDir[MAX_PATH];
+			TCHAR CurrentDir[_MAX_PATH];
 
-			GetCurrentDirectory(MAX_PATH, CurrentDir);
+			GetCurrentDirectory(_MAX_PATH, CurrentDir);
 			format(m_PluginsAbsDir, _T("%s\\%s\\"), CurrentDir, m_PluginsDir.c_str());
 
 			return m_PluginsAbsDir;

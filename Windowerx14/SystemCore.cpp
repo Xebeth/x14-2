@@ -102,7 +102,7 @@ namespace Windower
 			}
 
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
-												nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
+												   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
 
 			if (bIsGameWnd && hWnd_in != NULL)
 			{
@@ -166,17 +166,11 @@ namespace Windower
 		{
 			return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
 		}
-		else if (uMsg_in == WM_ACTIVATE)
+		else if (uMsg_in == WM_ACTIVATE && wParam_in == WA_ACTIVE)
 		{
-			switch(wParam_in)
-			{
-				case WA_CLICKACTIVE:
-				case WA_INACTIVE:
-				case WA_ACTIVE:
-					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(wParam_in != WA_INACTIVE);
+			static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(true);
 
-					return FALSE;
-			}
+			return FALSE;
 		}
 
 		if (m_pGameWndProc != NULL)

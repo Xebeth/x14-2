@@ -147,32 +147,36 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in)
 	{
-		LPBYTE pTrampoline = (LPBYTE)malloc(OpCodesSize_in+8);
-		DWORD dwPageAccess;
+		LPBYTE pTrampoline = (LPBYTE)malloc(OpCodesSize_in + 8);
 
-		VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
-		memcpy(pTrampoline+3, pSrc_in, OpCodesSize_in);
+		if (pTrampoline != NULL)
+		{
+			DWORD dwPageAccess;
 
-		// write the hook code
-		pTrampoline[0] = OPCODE_POP_EAX;						// POP EAX
-		pTrampoline[1] = OPCODE_POP_ECX;						// POP ECX
-		pTrampoline[2] = OPCODE_PUSH_EAX;						// PUSH EAX
-		pTrampoline[OpCodesSize_in+3] = OPCODE_JMP;				// JMP
-		// jump offset
-		*(DWORD*)(pTrampoline+OpCodesSize_in+4) = (DWORD)((pSrc_in+OpCodesSize_in) - (pTrampoline+OpCodesSize_in+3)) - 5;
+			VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
+			memcpy(pTrampoline + 3, pSrc_in, OpCodesSize_in);
 
-		// detour the source function call : push ECX (this) on the stack
-		pSrc_in[0] = OPCODE_POP_EAX;							// POP EAX
-		pSrc_in[1] = OPCODE_PUSH_ECX;							// PUSH ECX
-		pSrc_in[2] = OPCODE_PUSH_EAX;							// PUSH EAX
-		pSrc_in[3] = OPCODE_JMP;								// JMP
-		// jump offset
-		*(DWORD*)(pSrc_in+4) = (DWORD)(pDst_in - (pSrc_in+3)) - 5;
+			// write the hook code
+			pTrampoline[0] = OPCODE_POP_EAX;						// POP EAX
+			pTrampoline[1] = OPCODE_POP_ECX;						// POP ECX
+			pTrampoline[2] = OPCODE_PUSH_EAX;						// PUSH EAX
+			pTrampoline[OpCodesSize_in+3] = OPCODE_JMP;				// JMP
+			// jump offset
+			*(DWORD*)(pTrampoline+OpCodesSize_in+4) = (DWORD)((pSrc_in+OpCodesSize_in) - (pTrampoline+OpCodesSize_in+3)) - 5;
 
-		for(DWORD i = 8; i < OpCodesSize_in; i++ )
-			pSrc_in[i] = OPCODE_NOP;							// NOP
+			// detour the source function call : push ECX (this) on the stack
+			pSrc_in[0] = OPCODE_POP_EAX;							// POP EAX
+			pSrc_in[1] = OPCODE_PUSH_ECX;							// PUSH ECX
+			pSrc_in[2] = OPCODE_PUSH_EAX;							// PUSH EAX
+			pSrc_in[3] = OPCODE_JMP;								// JMP
+			// jump offset
+			*(DWORD*)(pSrc_in+4) = (DWORD)(pDst_in - (pSrc_in+3)) - 5;
 
-		VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+			for(DWORD i = 8; i < OpCodesSize_in; i++ )
+				pSrc_in[i] = OPCODE_NOP;							// NOP
+
+			VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+		}
 
 		m_AsmData.push_back(pTrampoline);
 
