@@ -8,6 +8,11 @@
 #ifndef __PLUGIN_SERVICES_H__
 #define __PLUGIN_SERVICES_H__
 
+namespace PluginFramework
+{
+	class VersionInfo;
+}
+
 namespace Windower
 {
 	class ICoreModule;
@@ -19,12 +24,7 @@ namespace Windower
 	class PluginServices : public PluginFramework::IPluginServices
 	{
 	public:
-		/*! \brief PluginServices constructor
-			\param[in] pVersion_in : the version of the plugin services
-			\param[in] Modules_in : hash map of modules available to the plugins
-		*/
-		PluginServices(const TCHAR *pVersion_in, CoreModules &Modules_in)
-			: IPluginServices(pVersion_in), m_Modules(Modules_in) {}
+		PluginServices(const PluginFramework::VersionInfo &Version_in, CoreModules &Modules_in);
 
 		virtual bool InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 								   const PluginFramework::ServiceParam &Params_in) const;

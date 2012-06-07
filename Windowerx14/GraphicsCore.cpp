@@ -11,6 +11,7 @@
 #include <d3dx9.h>
 #include <d3d9.h>
 
+#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 

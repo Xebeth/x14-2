@@ -23,10 +23,11 @@ namespace Windower
 		};
 
 	public:
-		TimestampPlugin();
+		explicit TimestampPlugin(PluginFramework::IPluginServices *pServices_in);
 
-		static PluginFramework::IPlugin* Create();
+		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+		static bool Configure(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
@@ -36,6 +37,11 @@ namespace Windower
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   bool &Unsubscribe_out);
+
+	protected:
+		bool UnregisterCommands();
+		bool RegisterCommands();
+
 	private:
 		//! the format of the timestamp plugin
 		std::string		m_TimestampFormat;

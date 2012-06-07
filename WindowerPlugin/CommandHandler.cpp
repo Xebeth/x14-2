@@ -42,7 +42,7 @@ namespace Windower
 		\param[in] pCommand_in : the command to validate
 		\return true if the command is valid; false otherwise
 	*/
-	bool CommandHandler::IsCommandValid(const WindowerCommand *pCommand_in)
+	bool CommandHandler::IsCommandValid(const WindowerCommand *pCommand_in) const
 	{
 		if (pCommand_in != NULL)
 		{
@@ -68,13 +68,8 @@ namespace Windower
 		// check if the command exists
 		if (CmdIt != m_Commands.end() && CmdIt->second != NULL)
 		{
-			UnregisterParam UnregParam(m_RegistrationKey, CmdIt->second->GetName());
-			ServiceParam InvokeArg(_T("UnregisterParam"), &UnregParam);
-
-			if (IPlugin::Services()->InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg))
-				delete CmdIt->second;
-
-			m_Commands.erase(CmdIt);
+			if (UnregisterCommand(CmdIt->second))
+				m_Commands.erase(CmdIt);
 
 			return true;
 		}
@@ -91,13 +86,14 @@ namespace Windower
 	WindowerCommand* CommandHandler::RegisterCommand(INT_PTR CmdID_in, const std::string &CmdName_in, const std::string &CmdDesc_in)
 	{
 		HandlerCommands::const_iterator CmdIt = m_Commands.find(CmdID_in);
+		WindowerCommand *pCommand = NULL;
 
 		// check if the command already exists
 		if (CmdIt == m_Commands.end())
 		{
 			// create the new command
-			WindowerCommand *pCommand = new WindowerCommand(m_RegistrationKey, CmdID_in,
-															CmdName_in, CmdDesc_in, this);
+			pCommand = new WindowerCommand(m_RegistrationKey, CmdID_in,
+										   CmdName_in, CmdDesc_in, this);
 
 			// register the command with the command dispatcher
 			if (RegisterCommand(pCommand))
@@ -110,13 +106,11 @@ namespace Windower
 				delete pCommand;
 				pCommand = NULL;
 			}
-
-			return pCommand;
 		}
 		else
-			return CmdIt->second;
+			pCommand = CmdIt->second;
 
-		return NULL;
+		return pCommand;
 	}
 
 	/*! \brief Register the specified command with the command dispatcher
@@ -125,8 +119,35 @@ namespace Windower
 	*/
 	bool CommandHandler::RegisterCommand(WindowerCommand *pCommand_in)
 	{
-		return IPlugin::Services()->InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"),
-												  ServiceParam(_T("WindowerCommand"), pCommand_in));
+		if (pCommand_in != NULL)
+		{
+  			return IPlugin::InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"),
+										  ServiceParam(_T("WindowerCommand"), (LPVOID)pCommand_in));
+		}
+
+		return false;
+	}
+
+	/*! \brief Unregister the specified command with the command dispatcher
+		\param[in] pCommand_in : the command to unregister
+		\return true if the command was unregistered successfully; false otherwise
+	*/
+	bool CommandHandler::UnregisterCommand(WindowerCommand *pCommand_in)
+	{
+		if (pCommand_in != NULL)
+		{
+			UnregisterParam UnregParam(m_RegistrationKey, pCommand_in->GetName());
+			ServiceParam InvokeArg(_T("UnregisterParam"), &UnregParam);
+
+			if (IPlugin::InvokeService(_T("CommandDispatcher"), _T("UnregisterCommand"), InvokeArg))
+			{
+				delete pCommand_in;
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	//! \brief Removes all the registered commands

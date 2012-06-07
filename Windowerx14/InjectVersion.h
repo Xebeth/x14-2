@@ -14,7 +14,8 @@ namespace Windower
 	class InjectVersion : public ICreateTextNodePlugin
 	{
 	public:
-		InjectVersion();
+		explicit InjectVersion(PluginFramework::IPluginServices *pServices_in);
+		virtual ~InjectVersion();
 
 		const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
 

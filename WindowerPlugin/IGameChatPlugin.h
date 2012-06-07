@@ -40,6 +40,12 @@ namespace Windower
 	class IGameChatPlugin : public IPlugin
 	{
 	public:
+		/*! \brief IGameChatPlugin constructor
+			\param[in] pServices_in : a pointer to the plugin services
+		*/
+		explicit IGameChatPlugin(PluginFramework::IPluginServices *pServices_in)
+			: IPlugin(pServices_in) {}
+
 		/*! \brief Callback invoked when the game chat receives a new line
 			\param[in] MessageType_in : the type of the message
 			\param[in] pSender_in : the sender of the message

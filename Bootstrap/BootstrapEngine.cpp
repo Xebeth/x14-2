@@ -23,6 +23,8 @@
 #include "ShellExecuteExHook.h"
 #include "CreateWindowExHook.h"
 
+#include <CommandHandler.h>
+
 #include <ICoreModule.h>
 #include <WindowerCore.h>
 #include <WindowerCommand.h>
@@ -148,7 +150,7 @@ namespace Bootstrap
 		if (m_pCommandDispatcher != NULL)
 		{
 			// check if the AutoLogin plugin is loaded
-			if (LoadPlugin(_T("AutoLogin")))
+			if (LoadPlugin(_T("AutoLogin")) != NULL)
 			{
 				Windower::WindowerCommand *pAutoLoginCmd;
 

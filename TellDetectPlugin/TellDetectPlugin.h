@@ -13,8 +13,13 @@ namespace Windower
 	class TellDetectPlugin : public Windower::IGameChatPlugin
 	{
 	public:
-		static PluginFramework::IPlugin* Create();
+		//! \brief TellDetectPlugin constructor
+		explicit TellDetectPlugin(PluginFramework::IPluginServices *pServices_in)
+			: IGameChatPlugin(pServices_in) {}
+
+		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+		static bool Configure(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,

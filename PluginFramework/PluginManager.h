@@ -36,10 +36,6 @@ namespace PluginFramework
 			\return the list of registered plugins
 		*/
 		const RegisteredPlugins& GetRegisteredPlugins() const { return m_RegisteredPlugins; }
-		/*! \brief Retrieves the version of the framework
-			\return the version of the framework
-		*/
-		static const VersionInfo& Version() { return m_FrameworkVersion; }
 
 	private:
 		IPlugin* CreateObject(const string_t &PluginName_in);
@@ -60,8 +56,6 @@ namespace PluginFramework
 		LoadedPlugins m_LoadedPlugins;
 		//! hash map of blacklisted plugins
 		Blacklist m_Blacklist;
-		//! plugin manager versions
-		static const VersionInfo m_FrameworkVersion;
 	};
 }
 

@@ -11,28 +11,22 @@
 #include <IGameChatPlugin.h>
 #include <PluginEngine.h>
 
-#include "TellDetectPlugin.h"
 #include <Mmsystem.h>
+
+#include "TellDetectPlugin.h"
+#include "version.h"
 
 using namespace PluginFramework;
 
 namespace Windower
 {
 	/*! \brief Creates an instance of TellDetectPlugin
+		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TellDetectPlugin instance
 	*/
-	IPlugin* TellDetectPlugin::Create()
+	IPlugin* TellDetectPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
-		TellDetectPlugin *pNewInst = new TellDetectPlugin;
-		TellDetectPlugin::Query(pNewInst->m_PluginInfo);
-
-		if (IPlugin::Services()->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
-		{
-			delete pNewInst;
-			pNewInst = NULL;
-		}
-
-		return pNewInst;
+		return new TellDetectPlugin(pServices_in);
 	}
 
 	/*! \brief Destroys an instance of TellDetectPlugin
@@ -42,8 +36,6 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
-			IPlugin::Services()->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
-
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
@@ -56,11 +48,20 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will play a sound whenever the player receives a tell"));
 		PluginInfo_out.SetIdentifier(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
+		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetName(_T("TellDetect"));
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
-		PluginInfo_out.SetVersion(_T("1.0.0"));
+	}
+	
+	/*! \brief Opens the configuration screen of the plugin
+		\param[out] pInstance_in : the instance of the plugin to configure
+		\return true if the user validated the configuration screen; false otherwise
+	*/
+	bool TellDetectPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
+	{
+		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
 
-		IPlugin::Query(PluginInfo_out);
+		return true;
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -88,19 +89,10 @@ namespace Windower
 using Windower::TellDetectPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 	\return a pointer to the plugin registration parameters if successful; NULL otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(IPluginServices *pServices_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin()
 {
-	RegisterParams *pParams = new RegisterParams;
-
-	TellDetectPlugin::Query(pParams->Info);
-	IPlugin::SetServices(pServices_in);
-
-	pParams->QueryFunc = TellDetectPlugin::Query;
-	pParams->CreateFunc = TellDetectPlugin::Create;
-	pParams->DestroyFunc = TellDetectPlugin::Destroy;
-
-	return pParams;
+	return PluginFramework::IPlugin::Initialize(TellDetectPlugin::Create, TellDetectPlugin::Destroy,
+												TellDetectPlugin::Query, TellDetectPlugin::Configure);
 }

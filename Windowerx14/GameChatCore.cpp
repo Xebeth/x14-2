@@ -10,6 +10,7 @@
 #include <HookEngine.h>
 #include "version.h"
 
+#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 

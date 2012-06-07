@@ -18,49 +18,49 @@
 
 namespace PluginFramework
 {
-	IPluginServices *IPlugin::m_pServices = NULL;
+	IPluginServices * IPlugin::m_pServices = NULL;
 
-	//! \brief IPlugin default constructor
-	IPlugin::IPlugin() {}
+	/*! \brief IPlugin constructor
+		\param[in] pServices_in : a pointer to the plugin services
+	*/
+	IPlugin::IPlugin(IPluginServices *pServices_in)
+	{
+		m_pServices = pServices_in;
+	}
 	//! \brief IPlugin destructor
 	IPlugin::~IPlugin() {}
 
 	//! \brief RegisterParams default constructor
-	RegisterParams::RegisterParams() : CreateFunc(NULL), DestroyFunc(NULL), QueryFunc(NULL) {}
-
-	//! Callback function invoked when a new instance of the plugin has been created
-	void IPlugin::OnCreate() {}
-	//! Callback function invoked when a new instance of the plugin is about to be destroyed
-	void IPlugin::OnDestroy() {}
+	RegisterParams::RegisterParams()
+		: CreateFunc(NULL), DestroyFunc(NULL), 
+		  QueryFunc(NULL), ConfigureFunc(NULL) {}
 
 	/*! \brief Initializes the plugin
 		\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
 		\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
 		\param[in] pfnQueryFunc_in : a pointer to the 'Query' function of the plugin
+		\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
 	*/
-	RegisterParams* IPlugin::Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in, fnQuery pfnQueryFunc_in)
+	RegisterParams* IPlugin::Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
+										fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in)
 	{
-		if (pfnCreateFunc_in != NULL && pfnDestroyFunc_in != NULL && pfnQueryFunc_in != NULL)
+		if (pfnCreateFunc_in != NULL && pfnDestroyFunc_in != NULL
+		 && pfnQueryFunc_in != NULL && pfnConfigureFunc_in != NULL)
 		{
 			RegisterParams *pRegisterParams = new RegisterParams;
 
+			pRegisterParams->ConfigureFunc = pfnConfigureFunc_in;
 			pRegisterParams->DestroyFunc = pfnDestroyFunc_in;
 			pRegisterParams->CreateFunc = pfnCreateFunc_in;
 			pRegisterParams->QueryFunc = pfnQueryFunc_in;
 
 			pfnQueryFunc_in(pRegisterParams->Info);
+			Query(pRegisterParams->Info);
 
 			return pRegisterParams;
 		}
 
 		return NULL;
-	}
-
-	//! \brief Fills a PluginInfo structure with the plugin information
-	void IPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
-	{
-		PluginInfo_out.FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
-		PluginInfo_out.Initialized = true;		
 	}
 
 	//! \brief PluginInfo constructor
@@ -86,13 +86,57 @@ namespace PluginFramework
 		return m_PluginInfo.ToString();
 	}
 
-	/*! \brief Adds the plugin as a subscriber to the game chat service
-		\return true if the subscription succeeded; false otherwise
+	/*! \brief Adds a plugin subscription to the service in the specified module
+		\param[in] ModuleName_in : the name of the module
+		\param[in] ServiceName_in : the name of the service
+		\return true if successful; false otherwise
 	*/
-	bool IPlugin::Subscribe() { return true; }
+	bool IPlugin::SubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in)
+	{
+		return (m_pServices != NULL && m_pServices->SubscribeService(ModuleName_in, ServiceName_in, this));
+	}
 
-	/*! \brief Removes the plugin as a subscriber to the game chat service
-		\return true if the subscription was revoked successfully; false otherwise
+	/*! \brief Removes a plugin subscription from the service in the specified module
+		\param[in] ModuleName_in : the name of the module
+		\param[in] ServiceName_in : the name of the service
+		\return true if successful; false otherwise
 	*/
-	bool IPlugin::Unsubscribe() { return true; }
+	bool IPlugin::UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in)
+	{
+		return (m_pServices != NULL && m_pServices->UnsubscribeService(ModuleName_in, ServiceName_in, this));
+	}
+
+	//! Callback function invoked when a new instance of the plugin has been created
+	void IPlugin::OnCreate()
+	{
+		Subscribe();
+		RegisterCommands();
+	}
+
+	//! Callback function invoked when a new instance of the plugin is about to be destroyed
+	void IPlugin::OnDestroy()
+	{
+		UnregisterCommands();
+		Unsubscribe();
+	}
+
+	//! \brief Fills a PluginInfo structure with the plugin information
+	void IPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
+	{
+		PluginInfo_out.FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
+		PluginInfo_out.Initialized = true;
+	}
+
+	/*! \brief Invokes a command registered with the service in the specified module
+		\param[in] ModuleName_in : the name of the module
+		\param[in] ServiceName_in : the name of the service
+		\param[in] Params_in : the input parameters
+		\return true if the command was invoked successfully; false otherwise
+	*/
+	bool IPlugin::InvokeService(const string_t &ModuleName_in,
+								const string_t &ServiceName_in,
+								const ServiceParam &Params_in)
+	{
+		return (m_pServices != NULL && m_pServices->InvokeService(ModuleName_in, ServiceName_in, Params_in));
+	}
 }

@@ -22,16 +22,11 @@
 
 namespace PluginFramework
 {
-	const VersionInfo PluginManager::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
-
 	/*! \brief PluginManager constructor 
 		\param[in] Services_in : plugin services
 	*/
 	PluginManager::PluginManager(IPluginServices *pServices_in)
-		: m_pServices(pServices_in)
-	{
-		IPlugin::SetServices(pServices_in);
-	}
+		: m_pServices(pServices_in) {}
 
 	//! \brief PluginManager destructor
 	PluginManager::~PluginManager()
@@ -125,7 +120,7 @@ namespace PluginFramework
 
 			if (pInitialize != NULL)
 			{
-				RegisterParams *pParams = pInitialize(m_pServices);
+				RegisterParams *pParams = pInitialize();
 
 				if (pParams != NULL)
 				{
@@ -147,7 +142,7 @@ namespace PluginFramework
 	*/
 	bool PluginManager::CheckPluginInfo(const PluginInfo &Info_in) const
 	{
-		if (Info_in.FrameworkVersion == m_FrameworkVersion)
+		if (m_pServices != NULL && Info_in.FrameworkVersion == m_pServices->GetVersion())
 		{
 			if (m_Blacklist.empty() == false)
 			{
@@ -157,9 +152,11 @@ namespace PluginFramework
 					if (*Iter == Info_in.PluginIdentifier)
 						return false;
 			}
+
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/*! \brief Registers a plugin
@@ -177,15 +174,6 @@ namespace PluginFramework
 		else
 			return false;
 	}
-
-	/*! \brief Returns the version of the framework as a string
-		\return a string containing the framework version
-	*/
-	string_t& PluginManager::GetVersionStr(string_t &Version_out) const
-	{
-		return (Version_out = m_FrameworkVersion.ToString());
-	}
-
 
 	/*! \brief Loads a plugin given its name
 		\param[in] PluginName_in : the name of the plugin to load
@@ -254,11 +242,12 @@ namespace PluginFramework
 			if (LoadIter != m_LoadedPlugins.end())
 			{
 				// create a new instance
-				pResult = LoadIter->second->CreateFunc();
+				pResult = LoadIter->second->CreateFunc(m_pServices);
 				// if the object creation succeeded; store it
 				if (pResult != NULL)
 				{
 					pResult->m_PluginInfo = LoadIter->second->Info;
+					pResult->OnCreate();
 
 					m_PluginObjects[PluginName_in] = pResult;
 				}
@@ -305,9 +294,12 @@ namespace PluginFramework
 		if (ObjIter != m_PluginObjects.end())
 		{
 			LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
+			IPlugin *pPlugin = ObjIter->second;
 
-			if (LoadIter != m_LoadedPlugins.end())
+			if (LoadIter != m_LoadedPlugins.end() && pPlugin != NULL)
 			{
+				// callback
+				pPlugin->OnDestroy();
 				// destroy the plugin instance
 				LoadIter->second->DestroyFunc(ObjIter->second);
 				// remove the object from the loaded objects
@@ -326,7 +318,7 @@ namespace PluginFramework
 
 		if (pInitialize != NULL)
 		{
-			RegisterParams *pResult = pInitialize(m_pServices);
+			RegisterParams *pResult = pInitialize();
 
 			if (pResult != NULL)
 			{

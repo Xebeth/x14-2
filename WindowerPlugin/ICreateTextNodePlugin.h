@@ -17,10 +17,11 @@ namespace Windower
 	{
 	public:
 		/*! \brief ICreateTextNodePlugin constructor
+			\param[in] pServices_in : a pointer to the plugin services
 			\param[in] TargetText_in : the target text in which to inject data
 		*/
-		explicit ICreateTextNodePlugin(const std::string &TargetText_in)
-			: m_TargetText(TargetText_in), m_pTargetPtr(NULL) {}
+		ICreateTextNodePlugin(PluginFramework::IPluginServices *pServices_in, const std::string &TargetText_in)
+			: IGameChatPlugin(pServices_in), m_TargetText(TargetText_in), m_pTargetPtr(NULL) {}
 		//! \brief ICreateTextNodePlugin destructor
 		virtual ~ICreateTextNodePlugin() { m_pTargetPtr = NULL; }
 

@@ -49,8 +49,8 @@ namespace Windower
 						const std::string &Description_in, ICommandHandler *pHandler_in,
 						bool Public_in = true, bool Restricted_in = false)
 			: m_Description(Description_in), m_ID(CmdID_in), m_Name(Name_in), m_Restricted(Restricted_in), 
-			  m_MinParamsCount(0), m_MaxParamsCount(0), m_Public(Public_in), m_pHandler(pHandler_in),
-			  m_RegistrationKey(RegistrationKey_in), m_RefCount(0) {}
+			  m_MinParamsCount(0U), m_MaxParamsCount(0U), m_Public(Public_in), m_pHandler(pHandler_in),
+			  m_RegistrationKey(RegistrationKey_in), m_RefCount(0U) {}
 		//! \brief WindowerCommand destructor
 		~WindowerCommand() { Clear(); }
 

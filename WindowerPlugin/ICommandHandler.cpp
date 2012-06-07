@@ -31,7 +31,7 @@ namespace Windower
 				return DISPATCHER_RESULT_FAILURE;
 		}
 		else if (pCommand_in != NULL)
-			format(Feedback_out, "The command '%s' is invalid.", pCommand_in->GetName());
+			format(Feedback_out, "The command '%s' is invalid.", pCommand_in->GetName().c_str());
 		else
 			Feedback_out = "Invalid command.";
 

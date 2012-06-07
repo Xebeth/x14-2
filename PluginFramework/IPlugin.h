@@ -19,17 +19,20 @@ namespace PluginFramework
 {
 	class IPluginServices;
 	class RegisterParams;
+	class ServiceParam;
 	class VersionInfo;
 	class PluginInfo;
 	class IPlugin;
 }
 
 //! a pointer to the 'Create' function of the plugin
-typedef PluginFramework::IPlugin* (*fnCreate)();
+typedef PluginFramework::IPlugin* (*fnCreate)(PluginFramework::IPluginServices *pServices_in);
 //! a pointer to the 'Destroy' function of the plugin
 typedef void (*fnDestroy)(PluginFramework::IPlugin*);
 //! a function pointer to a Query function
 typedef void (*fnQuery)(PluginFramework::PluginInfo&);
+//! a function pointer to a Configure function
+typedef bool (*fnConfigure)(PluginFramework::IPlugin*);
 
 namespace PluginFramework
 {
@@ -70,7 +73,9 @@ namespace PluginFramework
 			\return the name of the plugin
 		*/
 		const string_t& GetName() const { return Name; }
-
+		/*! \brief Retrieves the string representation of the plugin info
+			\return the string representation of the plugin info
+		*/
 		string_t ToString() const;
 
 	protected:
@@ -111,29 +116,25 @@ namespace PluginFramework
 		fnCreate	CreateFunc;
 		//! plugin 'Destroy' function pointer
 		fnDestroy	DestroyFunc;
+		//! plugin 'Configure' function pointer
+		fnConfigure ConfigureFunc;
 	};
 
 	//! function pointer to an Initialize function
-	typedef RegisterParams* (*fnInitialize)(IPluginServices *pServices_in);
+	typedef RegisterParams* (*fnInitialize)();
 
 	/*! \brief Base plugin interface */
 	class IPlugin
 	{
 		friend class PluginManager;
 	public:
-		//! \brief IPlugin default constructor
-		IPlugin();
+		/*! \brief IPlugin constructor
+			\param[in] pServices_in : a pointer to the plugin services
+		*/
+		explicit IPlugin(IPluginServices *pServices_in);
 		//! \brief IPlugin destructor
 		virtual ~IPlugin();
 
-		/*! \brief Retrieves the instance of the plugin services
-			\return the instance of the plugin services
-		*/
-		static const IPluginServices* Services() { return m_pServices; }
-		/*! \brief Sets the services used to (un)subscribe to services and invoke them
-			\param[in] pServices_in : the services
-		*/
-		static void SetServices(IPluginServices *pServices_in) { m_pServices = pServices_in; }
 		/*! \brief Retrieves the framework version against which the plugin was compiled
 			\return the framework version
 		*/
@@ -212,20 +213,60 @@ namespace PluginFramework
 		/*! \brief Initializes the plugin
 			\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
 			\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
+			\param[in] pfnQueryFunc_in : a pointer to the 'Query' function of the plugin
+			\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
 		*/
-		static RegisterParams* Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in, fnQuery pfnQueryFunc_in);
+		static RegisterParams* Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
+										  fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in);
+
+		//! \brief Fills a PluginInfo structure with the plugin information
+		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
+		/*! \brief Invokes a command registered with the service in the specified module
+			\param[in] ModuleName_in : the name of the module
+			\param[in] ServiceName_in : the name of the service
+			\param[in] Params_in : the input parameters
+			\return true if the command was invoked successfully; false otherwise
+		*/
+		static bool InvokeService(const string_t &ModuleName_in, 
+								  const string_t &ServiceName_in,
+								  const ServiceParam &Params_in);
+
+	protected:
+		/*! \brief Removes a plugin subscription from the service in the specified module
+			\param[in] ModuleName_in : the name of the module
+			\param[in] ServiceName_in : the name of the service
+			\return true if successful; false otherwise
+		*/
+		bool UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in);
+		/*! \brief Adds a plugin subscription to the service in the specified module
+			\param[in] ModuleName_in : the name of the module
+			\param[in] ServiceName_in : the name of the service
+			\param[in] pPlugin_in : the plugin subscribing to the service
+			\return true if successful; false otherwise
+		*/
+		bool SubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in);
+
+		/*! \brief Removes the plugin as a subscriber to plugin services
+			\return true if the subscriptions were revoked successfully; false otherwise
+		*/
+		virtual bool Unsubscribe() { return true; }
+		/*! \brief Adds the plugin as a subscriber to plugin services
+			\return true if the subscriptions succeeded; false otherwise
+		*/
+		virtual bool Subscribe() { return true; }
+		/*! \brief Unregisters the commands of the plugin with the command dispatcher
+			\return true if all the commands were unregistered successfully; false otherwise
+		*/
+		virtual bool UnregisterCommands() { return true; }
+		/*! \brief Registers the commands of the plugin with the command dispatcher
+			\return true if all the commands were registered successfully; false otherwise
+		*/
+		virtual bool RegisterCommands() { return true; }
 
 		//! Callback function invoked when a new instance of the plugin has been created
 		void OnCreate();
 		//! Callback function invoked when a new instance of the plugin is about to be destroyed
 		void OnDestroy();
-
-		//! \brief Fills a PluginInfo structure with the plugin information
-		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
-
-	protected:
-		virtual bool Unsubscribe();
-		virtual bool Subscribe();
 
 		//! the plugin information (version, name, author, etc.)
 		PluginInfo m_PluginInfo;
@@ -242,7 +283,7 @@ extern "C"
 		\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 		\return a pointer to the plugin registration parameters if successful; NULL otherwise
 	*/
-	PLUGIN_API PluginFramework::RegisterParams* InitPlugin(PluginFramework::IPluginServices *pServices_in);
+	PLUGIN_API PluginFramework::RegisterParams* InitPlugin();
 }
 
 #endif//__IPLUGIN_H__

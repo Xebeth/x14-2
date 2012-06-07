@@ -13,11 +13,12 @@ namespace Windower
 	class ChatLogPlugin : public Windower::IGameChatPlugin
 	{
 	public:
-		ChatLogPlugin();
+		explicit ChatLogPlugin(PluginFramework::IPluginServices *pServices_in);
 		virtual ~ChatLogPlugin();
 
-		static PluginFramework::IPlugin* Create();
+		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+		static bool Configure(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 
 		bool StartLog();

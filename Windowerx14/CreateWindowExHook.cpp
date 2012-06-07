@@ -9,6 +9,7 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
+#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 

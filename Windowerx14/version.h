@@ -17,10 +17,10 @@
 #define MAKE_VER(major, minor, release, test, sep)      MAKE_VER_(N, major, minor, release, test, sep)
 #define MAKE_VER_W(major, minor, release, test, sep)    MAKE_VER_(W, major, minor, release, test, sep)
 
-#define MODULE_FILE_DESC			"Windower for Final Fantasy XIV\0"
+#define MODULE_FILE_DESC			"x14 Windower\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
 #define MODULE_COPYRIGHT			"2011-2012 (c) North Edge.  All rights reserved.\0"
-#define MODULE_PRODUCT_NAME			"x14 Windower\0"
+#define MODULE_PRODUCT_NAME			"Windower for Final Fantasy XIV\0"
 
 #define MODULE_FILENAME				"Windowerx14.dll\0"
 

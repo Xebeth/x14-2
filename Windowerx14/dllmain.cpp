@@ -9,6 +9,7 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
+#include <CommandHandler.h>
 #include "WindowerEngine.h"
 
 Windower::WindowerEngine *g_pEngine = NULL;

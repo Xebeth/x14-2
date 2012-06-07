@@ -64,17 +64,17 @@ namespace Windower
 	WindowerProfile* SettingsManager::CreateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
 	{
 		WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
+		WindowerProfile *pNewSettings = NULL;
 
-		if (m_pSettingsFile != NULL && pProfileName_in != NULL && ProfileIt == m_Profiles.end())
+		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			WindowerProfile *pNewSettings = new WindowerProfile(Settings_in);
-
-			m_Profiles[pProfileName_in] = pNewSettings;
-
-			return pNewSettings;
+			if (ProfileIt == m_Profiles.end())
+				m_Profiles[pProfileName_in] = pNewSettings = new WindowerProfile(Settings_in);
+			else
+				pNewSettings = ProfileIt->second;
 		}
 
-		return NULL;
+		return pNewSettings;
 	}
 
 	/*! \brief Deletes the profile specified by its name

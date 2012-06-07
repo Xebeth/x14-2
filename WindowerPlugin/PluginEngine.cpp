@@ -17,9 +17,12 @@ namespace Windower
 {
 	using namespace PluginFramework;
 
+	const VersionInfo PluginEngine::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
+	PluginServices *PluginEngine::m_pPluginServices = NULL;
+
 	PluginEngine::PluginEngine(const TCHAR *pConfigFile_in)
 	{
-		m_pPluginServices = new PluginServices(_T("1.0.0"), m_Modules);
+		m_pPluginServices = new PluginServices(m_FrameworkVersion, m_Modules);
 		// create the plugin manager
 		m_pPluginManager = new PluginManager(m_pPluginServices);											 
 	}
@@ -81,7 +84,7 @@ namespace Windower
 		return NULL;
 	}
 
-	bool PluginEngine::LoadPlugin(const string_t &PluginName_in, bool ForceReload_in)
+	IPlugin* PluginEngine::LoadPlugin(const string_t &PluginName_in, bool ForceReload_in)
 	{
 		IPlugin* pPlugin = NULL;
 
@@ -102,7 +105,7 @@ namespace Windower
 			}
 		}
 
-		return (pPlugin != NULL);
+		return pPlugin;
 	}
 
 	bool PluginEngine::UnloadPlugin(const string_t &PluginName_in)

@@ -11,6 +11,7 @@
 namespace PluginFramework
 {
 	class PluginManager;
+	class VersionInfo;
 }
 
 #include "BaseEngine.h"
@@ -34,7 +35,7 @@ namespace Windower
 
 		virtual bool Detach();
 
-		bool LoadPlugin(const string_t &PluginName_in, bool ForceReload_in = false);
+		PluginFramework::IPlugin* LoadPlugin(const string_t &PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t &PluginName_in);
 
 		bool RegisterModule(const string_t ModuleName_in, ICoreModule *pModule_in);
@@ -43,8 +44,10 @@ namespace Windower
 		PluginFramework::IPlugin* GetPluginInstance(const string_t &PluginName_in);
 
 	protected:
+		//! plugin engine version
+		static const PluginFramework::VersionInfo m_FrameworkVersion;
 		//! the plugin services
-		PluginServices *m_pPluginServices;
+		static PluginServices *m_pPluginServices;
 		//! the plugin manager
 		PluginManager *m_pPluginManager;
 		//! a hash map of plugin instances (name => instance)

@@ -16,6 +16,7 @@
 #include "WindowerSettings.h"
 #include "WindowerSettingsManager.h"
 
+#include <CommandHandler.h>
 #include "WindowerEngine.h"
 #include "PluginsServices.h"
 
@@ -91,35 +92,16 @@ namespace Windower
 		PluginEngine::LoadPlugin(_T("Timestamp"));
 		PluginEngine::LoadPlugin(_T("ExpWatch"));
 
-		WindowerCommand *pCommand;
+		RegisterCommands();
 
-		// register the "load" command
-		pCommand = new WindowerCommand(ENGINE_KEY, CMD_LOAD_PLUGIN, "load", "Loads a plugin given its name.", this);
-
-		if (pCommand != NULL)
-		{
-			pCommand->AddStringParam("plugin", false, "", "the name of the plugin to load");
-
-			if (m_pCommandDispatcher->RegisterCommand(pCommand) == false)
-				delete pCommand;
-		}
-		// register the "unload" command
-		pCommand = new WindowerCommand(ENGINE_KEY, CMD_UNLOAD_PLUGIN, "unload", "Unloads a plugin given its name.", this);
-
-		if (pCommand != NULL)
-		{
-			pCommand->AddStringParam("plugin", false, "", "the name of the plugin to unload");
-
-			if (m_pCommandDispatcher->RegisterCommand(pCommand) == false)
-				delete pCommand;
-		}
 		// injects the windower version on the main menu
-		m_pInjectVersion = new InjectVersion();
+		m_pInjectVersion = new InjectVersion(m_pPluginServices);
 	}
 
 	/*! \brief WindowerEngine destructor */
 	WindowerEngine::~WindowerEngine()
 	{
+		UnregisterCommands();
 		Detach();
 
 		delete m_pGraphicsCore;
@@ -180,6 +162,105 @@ namespace Windower
 		PluginEngine::Detach();
 
 		return m_HookManager.UninstallRegisteredHooks();
+	}
+
+	/*! \brief Registers the commands with the command dispatcher
+		\return true if all the commands were registered successfully; false otherwise
+	*/
+	bool WindowerEngine::RegisterCommands()
+	{
+		if (m_pCommandDispatcher != NULL)
+		{
+			// register the "load" command
+			WindowerCommand *pCommand = new WindowerCommand(ENGINE_KEY, CMD_LOAD_PLUGIN, "load",
+															"Loads a plugin given its name.", this);
+			bool Result = true;
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("plugin", false, "", "the name of the plugin to load");
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+			// register the "unload" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_UNLOAD_PLUGIN, "unload",
+										   "Unloads a plugin given its name.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("plugin", false, "", "the name of the plugin to unload");
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			return Result;
+		}
+
+		return false;
+	}
+
+	/*! \brief Inserts a command in the collection of registered commands
+		\param[in] pCommand_in : the command to add
+	*/
+	bool WindowerEngine::RegisterCommand(WindowerCommand *pCommand_in)
+	{
+		if (m_pCommandDispatcher != NULL)
+			return m_pCommandDispatcher->RegisterCommand(pCommand_in);
+
+		return false;
+	}
+
+	/*! \brief Removes a command from the collection of registered commands
+		\param[in] pCommand_in : the command to remove
+	*/
+	bool WindowerEngine::UnregisterCommand(WindowerCommand *pCommand_in)
+	{
+		if (m_pCommandDispatcher != NULL)
+			return m_pCommandDispatcher->UnregisterCommand(pCommand_in);
+
+		return false;
+	}
+
+	/*! \brief Unregisters the commands with the command dispatcher
+		\return true if all the commands were unregistered successfully; false otherwise
+	*/
+	bool WindowerEngine::UnregisterCommands()
+	{
+		if (m_pCommandDispatcher != NULL)
+		{
+			bool Result = true;
+
+			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "unload");
+			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "load");
+
+			return Result;
+		}
+
+		return false;
+	}
+
+	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
+		\param[in] pCommand_in : the command to validate
+		\return true if the command is valid; false otherwise
+	*/
+	bool WindowerEngine::IsCommandValid(const WindowerCommand *pCommand_in) const
+	{
+		if (m_pCommandDispatcher != NULL)
+			return m_pCommandDispatcher->IsCommandValid(pCommand_in);
+
+		return false;
 	}
 
 	/*! \brief The engine main thread
@@ -287,18 +368,6 @@ namespace Windower
 			break;
 		}
 
-		return false;
-	}
-
-	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
-		\param[in] pCommand_in : the command to validate
-		\return true if the command is valid; false otherwise
-	*/
-	bool WindowerEngine::IsCommandValid(const WindowerCommand *pCommand_in)
-	{
-		if (m_pCommandDispatcher != NULL && pCommand_in != NULL)
-			return m_pCommandDispatcher->IsCommandValid(pCommand_in);
-	
 		return false;
 	}
 

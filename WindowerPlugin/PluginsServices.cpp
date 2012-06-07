@@ -16,6 +16,13 @@
 
 namespace Windower
 {
+	/*! \brief PluginServices constructor
+		\param[in] Version_in : the version of the plugin services
+		\param[in] Modules_in : hash map of modules available to the plugins
+	*/
+	PluginServices::PluginServices(const PluginFramework::VersionInfo &Version_in, CoreModules &Modules_in)
+		: IPluginServices(Version_in), m_Modules(Modules_in) {}
+
 	/*! \brief Adds a plugin subscription to the service in the specified module
 		\param[in] ModuleName_in : the name of the module
 		\param[in] ServiceName_in : the name of the service

@@ -87,11 +87,18 @@ namespace Windower
 		void AddFeedbackMessage(const std::string &Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
 
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
-		virtual bool IsCommandValid(const WindowerCommand *pCommand_in);
 
 		bool ListPlugins(std::string &Feedback_out) const;
 
 	private:
+		bool UnregisterCommands();
+		bool RegisterCommands();
+
+		// ICommandHandler interface implementation
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
+		virtual bool UnregisterCommand(WindowerCommand *pCommand_in);
+		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
+
 		//! internal plugin used to inject the windower version in the main menu screen
 		InjectVersion *m_pInjectVersion;
 		//! the settings manager

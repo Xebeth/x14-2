@@ -21,12 +21,14 @@ namespace Windower
 			CMD_COUNT		//!< number of registered commands
 		};
 	public:
-		ExpWatchPlugin();
+		explicit ExpWatchPlugin(PluginFramework::IPluginServices *pServices_in);
+		~ExpWatchPlugin();
 
-		static PluginFramework::IPlugin* Create();
+		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+		static bool Configure(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
-
+		
 		bool Reset(std::string *pFeedback_in_out = NULL);
 		bool Start(std::string *pFeedback_in_out = NULL);		
 		bool Stop(std::string *pFeedback_in_out = NULL);		
@@ -41,6 +43,9 @@ namespace Windower
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
 	protected:
+		bool UnregisterCommands();
+		bool RegisterCommands();
+
 		//! the time at which data collection started
 		DWORD m_StartTime;
 		//! flag specifying if the data collection started

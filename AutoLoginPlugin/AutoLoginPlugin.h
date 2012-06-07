@@ -25,17 +25,21 @@ namespace Windower
 		};
 
 	public:
-		AutoLoginPlugin();
+		explicit AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in);
 		virtual ~AutoLoginPlugin();
 
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool CreateThread(HWND ParentHwnd_in);
 
+		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
+		static bool Configure(PluginFramework::IPlugin *pInstance_in);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
-		static IPlugin* Create();
-
+		
 	protected:
+		bool UnregisterCommands();
+		bool RegisterCommands();
+
 		//! AutoLogin plugin settings
 		AutoLoginSettings *m_pSettings;
 		//! the handle of the thread used to monitor the forms during the login process

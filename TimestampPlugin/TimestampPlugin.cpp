@@ -14,40 +14,26 @@
 #include <PluginEngine.h>
 
 #include "TimestampPlugin.h"
+#include "version.h"
 
 using namespace PluginFramework;
 
 namespace Windower
 {
-	// TimestampPlugin default constructor
-	TimestampPlugin::TimestampPlugin() : IGameChatPlugin(), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
-		m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT),
-		m_TimestampLength(TIMESTAMP_DEFAULT_LENGTH) {}
+	/*! \brief TimestampPlugin constructor
+		\param[in] pServices_in : a pointer to the plugin services
+	*/
+	TimestampPlugin::TimestampPlugin(PluginFramework::IPluginServices *pServices_in) 
+		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
+		  m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT), m_TimestampLength(TIMESTAMP_DEFAULT_LENGTH) {}
 
 	/*! \brief Creates an instance of TimestampPlugin
+		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TimestampPlugin instance
 	*/
-	IPlugin* TimestampPlugin::Create()
+	IPlugin* TimestampPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
-		TimestampPlugin *pNewInst = new TimestampPlugin;
-		WindowerCommand *pCommand;
-
-		// initialize the plugin
-		TimestampPlugin::Query(pNewInst->m_PluginInfo);
-		// subscribe to the chat service
-		pNewInst->Subscribe();
-		// register the command
-		pCommand = pNewInst->RegisterCommand(CMD_FORMAT, "timestamp::format", "sets the format of the timestamp");
-
-		if (pCommand != NULL)
-		{
-			// create the parameters
-			pCommand->AddStringParam("format", false, TIMESTAMP_DEFAULT_FORMAT,
-									 "format of the timestamp\n"
-									 "\t\t-- see the remarks at http://tinyurl.com/gettimeformatex ");
-		}
-
-		return pNewInst;
+		return new TimestampPlugin(pServices_in);
 	}
 
 	/*! \brief Destroys an instance of TimestampPlugin
@@ -57,12 +43,6 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
-			TimestampPlugin *pTimestamp = static_cast<TimestampPlugin*>(pInstance_in);
-			// revoke the command
-			pTimestamp->RevokeCommand(CMD_FORMAT);
-			// unsubscribe from the chat service
-			pTimestamp->Unsubscribe();
-
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
@@ -75,11 +55,47 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will add a timestamp to the chat log"));
 		PluginInfo_out.SetIdentifier(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B"));
+		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("Timestamp"));
-		PluginInfo_out.SetVersion(_T("1.0.0"));
+	}
 
-		IPlugin::Query(PluginInfo_out);
+	/*! \brief Opens the configuration screen of the plugin
+		\param[out] pInstance_in : the instance of the plugin to configure
+		\return true if the user validated the configuration screen; false otherwise
+	*/
+	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
+	{
+		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+
+		return true;
+	}
+	
+	/*! \brief Registers the commands of the plugin with the command dispatcher
+		\return true if all the commands were registered successfully; false otherwise
+	*/
+	bool TimestampPlugin::RegisterCommands()
+	{
+		// register the command
+		WindowerCommand *pCommand = RegisterCommand(CMD_FORMAT, "timestamp::format", "sets the format of the timestamp");
+
+		if (pCommand != NULL && pCommand->AddStringParam("format", false, TIMESTAMP_DEFAULT_FORMAT,
+														 "format of the timestamp\n"
+														 "\t\t-- see the remarks at http://tinyurl.com/gettimeformatex ") == false)
+		{
+			delete pCommand;
+			pCommand = NULL;
+		}
+
+		return (pCommand != NULL);
+	}
+
+	/*! \brief Unregisters the commands of the plugin with the command dispatcher
+		\return true if all the commands were unregistered successfully; false otherwise
+	*/
+	bool TimestampPlugin::UnregisterCommands()
+	{
+		return RevokeCommand(CMD_FORMAT);
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -167,19 +183,10 @@ namespace Windower
 using Windower::TimestampPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 	\return a pointer to the plugin registration parameters if successful; NULL otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(IPluginServices *pServices_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin()
 {
-	RegisterParams *pParams = new RegisterParams;
-
-	TimestampPlugin::Query(pParams->Info);
-	IPlugin::SetServices(pServices_in);
-
-	pParams->QueryFunc = TimestampPlugin::Query;
-	pParams->CreateFunc = TimestampPlugin::Create;
-	pParams->DestroyFunc = TimestampPlugin::Destroy;
-
-	return pParams;
+	return PluginFramework::IPlugin::Initialize(TimestampPlugin::Create, TimestampPlugin::Destroy,
+												TimestampPlugin::Query, TimestampPlugin::Configure);
 }

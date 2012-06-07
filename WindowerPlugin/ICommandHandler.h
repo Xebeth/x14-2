@@ -32,7 +32,17 @@ namespace Windower
 			\param[in] pCommand_in : the command to validate
 			\return true if the command is valid; false otherwise
 		*/
-		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) =0;
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const =0;
+		/*! \brief Unregister the specified command with the command dispatcher
+			\param[in] pCommand_in : the command to unregister
+			\return true if the command was unregistered successfully; false otherwise
+		*/
+		virtual bool UnregisterCommand(WindowerCommand *pCommand_in) =0;
+		/*! \brief Register the specified command with the command dispatcher
+			\param[in] pCommand_in : the command to register
+			\return true if the command was registered successfully; false otherwise
+		*/
+		virtual bool RegisterCommand(WindowerCommand *pCommand_in) =0;
 	};
 }
 

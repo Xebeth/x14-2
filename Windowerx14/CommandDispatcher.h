@@ -48,9 +48,8 @@ namespace Windower
 		void OnHookInstall(IHookManager &HookManager_in) {}
 
 		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in);
-		bool RegisterCommand(WindowerCommand *pCommand_in);
 
-		WindowerCommand* FindCommand(const std::string &Name_in);
+		WindowerCommand* FindCommand(const std::string &Name_in) const;
 
 		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in);
 
@@ -59,11 +58,13 @@ namespace Windower
 
 		// ICommandHandler interface implementation
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
-		virtual bool IsCommandValid(const WindowerCommand *pCommand_in);
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
+		virtual bool UnregisterCommand(WindowerCommand *pCommand_in);
+		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
 
 	protected:
 		void InsertCommand(WindowerCommand *pCommand_in);
-		bool RemoveCommand(WindowerCommand *pCommand_in);
+		
 		/*! \brief Checks if the specified key is authorized with the command dispatcher
 			\param[in] Key_in : the key to check
 			\return true if the key is authorized; false otherwise

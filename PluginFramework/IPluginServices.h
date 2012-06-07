@@ -38,9 +38,9 @@ namespace PluginFramework
 	public:
 
 		/*! \brief IPluginServices constructor
-			\param[in] pVersion_in : a string containing the version of the services
+			\param[in] Version_in : the version of the services
 		*/
-		explicit IPluginServices(const TCHAR *pVersion_in) : m_Version(pVersion_in) {}
+		explicit IPluginServices(const VersionInfo &Version_in) : m_Version(Version_in) {}
 		//! \brief IPluginServices destructor
 		virtual ~IPluginServices() {}
 
@@ -70,6 +70,11 @@ namespace PluginFramework
 		virtual bool UnsubscribeService(const string_t &ModuleName_in,
 										const string_t &ServiceName_in,
 										IPlugin* pPlugin_in) const =0;
+
+		/*! \brief Retrieves the framework version of the plugin services
+			\return the framework version of the plugin services
+		*/
+		const VersionInfo& GetVersion() const { return m_Version; }
 
 		//! the version of the services
 		const VersionInfo m_Version;

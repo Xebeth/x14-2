@@ -33,7 +33,8 @@ namespace Windower
 		const WindowerCommand* FindCommand(INT_PTR CommandID_in) const;
 
 	protected:
-		virtual bool IsCommandValid(const WindowerCommand *pCommand_in);
+		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
+		virtual bool UnregisterCommand( WindowerCommand *pCommand_in);
 		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
 
 		//! the plugin registration key

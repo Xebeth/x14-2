@@ -9,6 +9,7 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
+#include <CommandHandler.h>
 #include "WindowerEngine.h"
 #include "CommandDispatcher.h"
 
@@ -81,7 +82,7 @@ namespace Windower
 
 		if (Iter != m_Commands.end() && Iter->second != NULL)
 			if (Iter->second->IsKeyMatching(RegistrationKey_in))
-				return RemoveCommand(Iter->second);
+				return UnregisterCommand(Iter->second);
 
 		return false;
 	}
@@ -101,7 +102,7 @@ namespace Windower
 	/*! \brief Removes a command from the collection of registered commands
 		\param[in] pCommand_in : the command to remove
 	*/
-	bool CommandDispatcher::RemoveCommand(WindowerCommand *pCommand_in)
+	bool CommandDispatcher::UnregisterCommand(WindowerCommand *pCommand_in)
 	{
 		if (pCommand_in != NULL)
 		{
@@ -151,7 +152,7 @@ namespace Windower
 		\param[in] Name_in : the name of the command
 		\return a pointer to the command if found; NULL otherwise
 	*/
-	WindowerCommand* CommandDispatcher::FindCommand(const std::string &Name_in)
+	WindowerCommand* CommandDispatcher::FindCommand(const std::string &Name_in) const
 	{
 		RegisteredCommands::const_iterator CmdIter = m_Commands.find(Name_in);
 
@@ -219,7 +220,7 @@ namespace Windower
 		\param[in] pCommand_in : the command to validate
 		\return true if the command is valid; false otherwise
 	*/
-	bool CommandDispatcher::IsCommandValid(const WindowerCommand *pCommand_in)
+	bool CommandDispatcher::IsCommandValid(const WindowerCommand *pCommand_in) const
 	{
 		if (pCommand_in != NULL)
 		{

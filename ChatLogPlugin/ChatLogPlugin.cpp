@@ -12,13 +12,17 @@
 #include <PluginEngine.h>
 
 #include "ChatLogPlugin.h"
+#include "version.h"
 
 using namespace PluginFramework;
 
 namespace Windower
 {
-	//! \brief ChatLogPlugin constructor
-	ChatLogPlugin::ChatLogPlugin() : IGameChatPlugin()
+	/*! \brief ChatLogPlugin constructor
+		\param[in] pServices_in : a pointer to the plugin services
+	*/
+	ChatLogPlugin::ChatLogPlugin(PluginFramework::IPluginServices *pServices_in)
+		: IGameChatPlugin(pServices_in)
 	{
 		CreateDirectory(_T("logs"), NULL);
 		m_bOpened = false;
@@ -32,20 +36,12 @@ namespace Windower
 	}
 
 	/*! \brief Creates an instance of ChatLogPlugin
+		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new ChatLogPlugin instance
 	*/
-	IPlugin* ChatLogPlugin::Create()
+	IPlugin* ChatLogPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
-		ChatLogPlugin *pNewInst = new ChatLogPlugin;
-		ChatLogPlugin::Query(pNewInst->m_PluginInfo);
-
-		if (IPlugin::Services()->SubscribeService(_T("GameChat"), _T("OnChatMessage"), pNewInst) == false)
-		{
-			delete pNewInst;
-			pNewInst = NULL;
-		}
-
-		return pNewInst;
+		return new ChatLogPlugin(pServices_in);
 	}
 
 	/*! \brief Destroys an instance of ChatLogPlugin
@@ -55,8 +51,6 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
-			IPlugin::Services()->UnsubscribeService(_T("GameChat"), _T("OnChatMessage"), pInstance_in);
-
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
@@ -69,11 +63,20 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will log the content of the game chat"));
 		PluginInfo_out.SetIdentifier(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
+		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("Chat log"));
-		PluginInfo_out.SetVersion(_T("1.0.0"));
+	}
 
-		IPlugin::Query(PluginInfo_out);
+	/*! \brief Opens the configuration screen of the plugin
+		\param[out] pInstance_in : the instance of the plugin to configure
+		\return true if the user validated the configuration screen; false otherwise
+	*/
+	bool ChatLogPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
+	{
+		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+
+		return true;
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -159,19 +162,10 @@ namespace Windower
 using Windower::ChatLogPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[in] pServices_in : services used to (un)subscribe to services and invoke them
 	\return a pointer to the plugin registration parameters if successful; NULL otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin(IPluginServices *pServices_in)
+extern "C" PLUGIN_API RegisterParams* InitPlugin()
 {
-	RegisterParams *pParams = new RegisterParams;
-
-	ChatLogPlugin::Query(pParams->Info);
-	IPlugin::SetServices(pServices_in);
-
-	pParams->QueryFunc = ChatLogPlugin::Query;
-	pParams->CreateFunc = ChatLogPlugin::Create;
-	pParams->DestroyFunc = ChatLogPlugin::Destroy;
-
-	return pParams;
+	return PluginFramework::IPlugin::Initialize(ChatLogPlugin::Create, ChatLogPlugin::Destroy,
+												ChatLogPlugin::Query, ChatLogPlugin::Configure);
 }

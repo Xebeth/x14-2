@@ -23,7 +23,7 @@ namespace Windower
 	};
 
 	//! \brief WindowerCommand default constructor
-	WindowerCommand::WindowerCommand()
+	WindowerCommand::WindowerCommand() : m_RefCount(0U)
 	{
 		Invalidate();
 	}
