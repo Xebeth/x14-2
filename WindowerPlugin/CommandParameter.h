@@ -26,6 +26,7 @@ namespace Windower
 	class CommandParameter
 	{
 	public:
+		CommandParameter(const CommandParameter &CommandParam_in);
 		/*! \brief CommandParameter constructor
 			\param[in] Type_in : the type of the parameter
 			\param[in] Value_in : the value of the parameter

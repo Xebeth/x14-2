@@ -108,7 +108,7 @@ HRESULT __stdcall IDirect3D9Wrapper::EnumAdapterModes(UINT Adapter,D3DFORMAT For
 
 HRESULT __stdcall IDirect3D9Wrapper::GetAdapterDisplayMode(UINT Adapter,D3DDISPLAYMODE* pMode)
 {
-	return m_pDirect3D9->GetAdapterDisplayMode( Adapter, pMode);
+	return m_pDirect3D9->GetAdapterDisplayMode(Adapter, pMode);
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::CheckDeviceType(UINT iAdapter,D3DDEVTYPE DevType,D3DFORMAT DisplayFormat,D3DFORMAT BackBufferFormat,BOOL bWindowed)
@@ -128,12 +128,12 @@ HRESULT __stdcall IDirect3D9Wrapper::CheckDeviceMultiSampleType(UINT Adapter,D3D
 
 HRESULT __stdcall IDirect3D9Wrapper::CheckDepthStencilMatch(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT AdapterFormat,D3DFORMAT RenderTargetFormat,D3DFORMAT DepthStencilFormat)
 {
-	return m_pDirect3D9->CheckDepthStencilMatch( Adapter, DeviceType, AdapterFormat, RenderTargetFormat, DepthStencilFormat);
+	return m_pDirect3D9->CheckDepthStencilMatch(Adapter, DeviceType, AdapterFormat, RenderTargetFormat, DepthStencilFormat);
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::CheckDeviceFormatConversion(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT SourceFormat,D3DFORMAT TargetFormat)
 {
-	return m_pDirect3D9->CheckDeviceFormatConversion( Adapter, DeviceType, SourceFormat, TargetFormat);
+	return m_pDirect3D9->CheckDeviceFormatConversion(Adapter, DeviceType, SourceFormat, TargetFormat);
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::GetDeviceCaps(UINT Adapter,D3DDEVTYPE DeviceType,D3DCAPS9* pCaps)

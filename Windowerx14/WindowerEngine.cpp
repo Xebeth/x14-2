@@ -255,7 +255,7 @@ namespace Windower
 				}
 				else
 				{
-					format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
+					format(Feedback_out, "The plugin '%s' couldn't be loaded.", PluginName.c_str());
 
 					return false;
 				}
@@ -296,7 +296,7 @@ namespace Windower
 	*/
 	bool WindowerEngine::IsCommandValid(const WindowerCommand *pCommand_in)
 	{
-		if (m_pCommandDispatcher != NULL)
+		if (m_pCommandDispatcher != NULL && pCommand_in != NULL)
 			return m_pCommandDispatcher->IsCommandValid(pCommand_in);
 	
 		return false;

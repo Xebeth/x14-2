@@ -62,7 +62,7 @@ namespace Windower
 			size_t ParamsCount = Params.size();
 
 			if (pCommand != NULL)
-				Command_out = *pCommand;
+				Command_out.Copy(*pCommand);
 			else
 				return PARSER_RESULT_INVALID_COMMAND;
 

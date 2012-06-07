@@ -172,7 +172,7 @@ namespace HookEngineLib
 			// jump offset
 			*(DWORD*)(pSrc_in+4) = (DWORD)(pDst_in - (pSrc_in+3)) - 5;
 
-			for(DWORD i = 8; i < OpCodesSize_in; i++ )
+			for(DWORD i = 8; i < OpCodesSize_in; i++)
 				pSrc_in[i] = OPCODE_NOP;							// NOP
 
 			VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);

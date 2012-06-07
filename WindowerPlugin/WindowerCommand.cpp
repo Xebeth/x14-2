@@ -28,6 +28,26 @@ namespace Windower
 		Invalidate();
 	}
 
+	/*! \brief Copies the specified command
+		\param[in] Command_in : the command to copy
+	*/
+	void WindowerCommand::Copy(const WindowerCommand &Command_in)
+	{
+		m_MinParamsCount = Command_in.m_MinParamsCount;
+		m_MaxParamsCount = Command_in.m_MaxParamsCount;
+		m_Description = Command_in.m_Description;		
+		m_Restricted = Command_in.m_Restricted;
+		m_pHandler = Command_in.m_pHandler;
+		m_Public = Command_in.m_Public;
+		m_Name = Command_in.m_Name;
+		m_ID = Command_in.m_ID;
+
+		CommandParams::const_iterator ParamIt;
+
+		for (ParamIt = Command_in.m_Parameters.begin(); ParamIt != Command_in.m_Parameters.end(); ++ParamIt)
+			m_Parameters[ParamIt->first] = new CommandParameter(*ParamIt->second);
+	}
+
 	/*! \brief Formats the help message for the command
 		\param[out] Help_out : a string receiving the formatted help message
 		\param[in] ShowValues_in : flag specifying if the description or value is displayed
@@ -110,6 +130,7 @@ namespace Windower
 		m_Restricted = true;
 		m_Public = false;
 		m_pHandler = NULL;
+		m_ID = -1;
 	}
 
 	/*! \brief Executes the command by invoking its callback
@@ -277,15 +298,12 @@ namespace Windower
 	//! \brief Removes all the parameters
 	void WindowerCommand::Clear()	
 	{
-		if (m_Parameters.empty() == false)
-		{
-			CommandParams::iterator ParamIt;
+		CommandParams::iterator ParamIt;
 
-			for (ParamIt = m_Parameters.begin(); ParamIt != m_Parameters.end(); ++ParamIt)
-				delete ParamIt->second;
+		for (ParamIt = m_Parameters.begin(); ParamIt != m_Parameters.end(); ++ParamIt)
+			delete ParamIt->second;
 
-			m_Parameters.clear();
-		}
+		Invalidate();
 	}
 	
 	/*! \brief Retrieves a parameter given its name

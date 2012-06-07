@@ -32,6 +32,10 @@ namespace Windower
 	{
 	public:
 		WindowerCommand();
+		/*! \brief WindowerCommand copy constructor
+			\param[in] Command_in : the command to copy
+		*/
+		WindowerCommand(const WindowerCommand &Command_in) { Copy(Command_in); }
 		/*! \brief WindowerCommand constructor
 			\param[in] RegistrationKey_in : the key of the plugin registering the command
 			\param[in] CmdID_in : the ID of the command
@@ -40,7 +44,6 @@ namespace Windower
 			\param[in] pHandler_in : the command handler (typically a plugin instance)
 			\param[in] Public_in : flag specifying if the command is listed with //help
 			\param[in] Restricted_in : flag specifying if the command can be called by the user
-			\return true if the command was registered successfully; false otherwise
 		*/
 		WindowerCommand(DWORD RegistrationKey_in, INT_PTR CmdID_in, const std::string &Name_in,
 						const std::string &Description_in, ICommandHandler *pHandler_in,
@@ -53,6 +56,7 @@ namespace Windower
 
 		std::string& Output(std::string &Output_out, bool ShowValues_in = false);
 
+		void Copy(const WindowerCommand &Command_in);
 		void Clear();
 
 		//! \brief Method called when the command is registered
@@ -127,7 +131,6 @@ namespace Windower
 			return true if the parameters are correct; false otherwise
 		*/
 		bool ValidateParameters() const { return (m_MinParamsCount <= m_MaxParamsCount	\
-											   && m_MinParamsCount >= m_MaxParamsCount	\
 											   && m_Parameters.size() >= m_MaxParamsCount); }
 		
 		/*! \brief Retrieves the parameters of the command
