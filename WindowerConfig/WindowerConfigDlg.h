@@ -8,6 +8,14 @@
 #ifndef __WINDOWER_CONFIG_DLG_H__
 #define __WINDOWER_CONFIG_DLG_H__
 
+namespace PluginFramework
+{
+	class PluginManager;
+	class ServiceParam;
+	class PluginInfo;	
+	class IPlugin;
+}
+
 namespace Windower
 {
 	//! \brief Main dialog
@@ -15,22 +23,52 @@ namespace Windower
 	{
 		enum { IDD = IDD_CONFIG_DIALOG };
 	public:
+
+		enum ePluginListColumns
+		{
+			LIST_COL_NAME = 0,
+			LIST_COL_VERSION,
+			LIST_COL_FRAMEWORK,
+			LIST_COL_AUTHOR,
+			LIST_COL_COMPAT,
+			LIST_COL_DESC,
+			LIST_COL_PATH,
+			LIST_COL_COUNT
+		};
+
 		WindowerConfigDlg(SettingsManager *pSettingsManager, CWnd* pParent = NULL);
+		~WindowerConfigDlg();
+
+		void InsertPlugin(CListCtrl *pListCtrl_in_out, const PluginFramework::PluginInfo &PluginInfo_in);
+
+		afx_msg void OnConfigure(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void OnProfileNameChange();
 		afx_msg void OnResolutionChange();
 		afx_msg void OnProfilesChange();
 		
-		afx_msg void OnAutologinChange();
 		afx_msg void OnDeleteProfile();
 		afx_msg void OnVSyncChange();
 		afx_msg void OnNewProfile();
 		afx_msg void OnSave();
 
 	protected:
+		class DummyServices : public PluginFramework::IPluginServices
+		{
+		public:
+			explicit DummyServices(const PluginFramework::VersionInfo &Version_in)
+				: PluginFramework::IPluginServices(Version_in) {}
+		private:
+			virtual bool InvokeService(const string_t&, const string_t&, const PluginFramework::ServiceParam&) const { return true; }
+			virtual bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
+			virtual bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
+		};
+
 		HICON m_hIcon;
+		PluginFramework::PluginManager *m_pPluginManager;
 		SettingsManager *m_pSettingsManager;
 		WindowerProfile *m_pCurrentSettings;
+		DummyServices *m_pServices;
 		int m_CurrentSel;
 
 		void GenerateNewName(CString &NewName_in_out);

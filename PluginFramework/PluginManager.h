@@ -9,13 +9,14 @@
 #define __PLUGIN_MANAGER_H__
 
 #include <FileIterator.h>
+#include <set>
 
 namespace PluginFramework
 {
 	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 	typedef stdext::hash_map<string_t, RegisterParams*> LoadedPlugins;
 	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;
-	typedef std::vector<PluginUUID> Blacklist;
+	typedef std::set<PluginUUID> Blacklist;
 
 	class PluginManager
 	{
@@ -23,19 +24,23 @@ namespace PluginFramework
 		explicit PluginManager(IPluginServices *pServices_in);
 		virtual ~PluginManager();
 
+		UINT ListPlugins(const string_t &Directory_in, DWORD CompatibilityFlags_in = 0xFFFFFFFF);
+		bool ConfigurePlugin(const string_t &PluginName_in);
 		IPlugin* LoadPlugin(const string_t &PluginName_in);
-		bool UnloadPlugin(const string_t &PluginName_in);
-		UINT ListPlugins(const string_t &Directory_in);
+		bool UnloadPlugin(const string_t &PluginName_in);		
 
+		bool IsPluginValid(const TCHAR *pPluginPath_in, DWORD CompatibilityFlags_in = 0xFFFFFFFF);
 		bool IsPluginLoaded(const string_t &PluginName_in) const;
-		string_t& GetVersionStr(string_t &Version_out) const;
-		bool IsPluginValid(const TCHAR *pPluginPath_in);
+		string_t& GetVersionStr(string_t &Version_out) const;		
 		bool RegisterPlugin(const PluginInfo &Info_in);
 
 		/*! \brief Retrieves the list of registered plugins
 			\return the list of registered plugins
 		*/
 		const RegisteredPlugins& GetRegisteredPlugins() const { return m_RegisteredPlugins; }
+
+		bool BlacklistPlugin(const string_t &UUID_in);
+		bool WhitelistPlugin(const string_t &UUID_in);
 
 	private:
 		IPlugin* CreateObject(const string_t &PluginName_in);

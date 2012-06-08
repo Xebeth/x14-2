@@ -11,6 +11,7 @@
 #include <PluginFramework.h>
 #include <SettingsManager.h>
 
+#include <PluginEngine.h>
 #include <WindowerCommand.h>
 #include <CommandHandler.h>
 
@@ -61,6 +62,7 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will automatically fill the password field during the login process"));
 		PluginInfo_out.SetIdentifier(_T("9D0E9E80-A5CB-11E0-8264-0800200C9A66"));
+		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_BOOTSTRAP);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("AutoLogin"));		

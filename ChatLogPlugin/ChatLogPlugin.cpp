@@ -65,7 +65,7 @@ namespace Windower
 		PluginInfo_out.SetIdentifier(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
-		PluginInfo_out.SetName(_T("Chat log"));
+		PluginInfo_out.SetName(_T("ChatLog"));
 	}
 
 	/*! \brief Opens the configuration screen of the plugin

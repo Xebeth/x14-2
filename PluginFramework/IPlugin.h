@@ -48,31 +48,69 @@ namespace PluginFramework
 		/*! \brief Sets the URL used to check for updates
 			\param[in] UpdateURL_in : the URL used to check for updates
 		*/
-		void SetUpdateURL(const string_t &UpdateURL_in) { UpdateURL = UpdateURL_in; }
+		void SetUpdateURL(const string_t &UpdateURL_in) { m_UpdateURL = UpdateURL_in; }
+		/*! \brief Retrieves the URL used to check for updates
+			\return the URL used to check for updates
+		*/
+		const string_t& GetUpdateURL() const { return m_UpdateURL; }
 		/*! \brief Sets the description of the plugin
 			\param[in] Descritpion_in : the description of the plugin
 		*/
-		void SetDesc(const string_t &Descritpion_in) { Descritpion = Descritpion_in; }
+		void SetDesc(const string_t &Descritpion_in) { m_Descritpion = Descritpion_in; }
+		/*! \brief Retrieves the description of the plugin
+			\return the description of the plugin
+		*/
+		const string_t& GetDesc() const { return m_Descritpion; }
 		/*! \brief Sets the author of the plugin
 			\param[in] Author_in : the author of the plugin
 		*/
-		void SetAuthor(const string_t &Author_in) { Author = Author_in; }
+		void SetAuthor(const string_t &Author_in) { m_Author = Author_in; }
+		/*! \brief Retrieves the author of the plugin
+			\return the author of the plugin
+		*/
+		const string_t& GetAuthor() const { return m_Author; }
 		/*! \brief Sets the identifier of the plugin
 			\param[in] UUID_in : the identifier of the plugin
 		*/
-		void SetIdentifier(const string_t &UUID_in) { PluginIdentifier.FromString(UUID_in.c_str()); }
+		void SetIdentifier(const string_t &UUID_in) { m_PluginIdentifier.FromString(UUID_in.c_str()); }
+		/*! \brief Retrieves the identifier of the plugin
+			\return the identifier of the plugin
+		*/
+		string_t GetIndentifier() const { return m_PluginIdentifier.ToString(); }
+		/*! \brief Retrieves the version of the plugin
+			\return the version of the plugin
+		*/
+		string_t GetVersion() const { return m_Version.ToString(); }
 		/*! \brief Sets the version of the plugin
 			\param[in] Version_in : the version of the plugin
 		*/
-		void SetVersion(const string_t &Version_in) { Version.FromString(Version_in.c_str()); }
+		void SetVersion(const string_t &Version_in) { m_Version.FromString(Version_in.c_str()); }
 		/*! \brief Sets the name of the plugin
 			\param[in] Name_in : the name of the plugin
 		*/
-		void SetName(const string_t &Name_in) { Name = Name_in; }
+		void SetName(const string_t &Name_in) { m_Name = Name_in; }
 		/*! \brief Retrieves the name of the plugin
 			\return the name of the plugin
 		*/
-		const string_t& GetName() const { return Name; }
+		const string_t& GetName() const { return m_Name; }
+		/*! \brief Sets the compatibility flags of the plugin
+			\param[in] Name_in : the compatibility flags of the plugin
+		*/
+		void SetCompatibilityFlags(DWORD CompatibilityFlags_in) { m_CompatibilityFlags = CompatibilityFlags_in; }
+		/*! \brief Retrieves the compatibility flags of the plugin
+			\return the compatibility flags of the plugin
+		*/
+		DWORD GetCompatibilityFlags() const { return m_CompatibilityFlags; }
+
+		/*! \brief Retrieves the compatible framework version
+			\return the compatible framework version
+		*/
+		string_t GetFrameworkVersion() const { return m_FrameworkVersion.ToString(); }
+		/*! \brief Retrieves the path of the DLL
+			\return the path of the DLL
+		*/
+		const string_t& GetDLLPath() const { return m_DLLPath; }
+
 		/*! \brief Retrieves the string representation of the plugin info
 			\return the string representation of the plugin info
 		*/
@@ -80,27 +118,29 @@ namespace PluginFramework
 
 	protected:
 		//! the name of the plugin
-		string_t Name;
+		string_t m_Name;
 		//! the author of the plugin
-		string_t Author;
+		string_t m_Author;
 		//! the description of the plugin
-		string_t Descritpion;
+		string_t m_Descritpion;
 		//! the URL of the update information
-		string_t UpdateURL;
+		string_t m_UpdateURL;
+		//! the compatibility flags of the plugin
+		DWORD m_CompatibilityFlags;
 		//! the version of the plugin
-		VersionInfo Version;
+		VersionInfo m_Version;
 
 	private:
 		//! flag specifying if the plugin information has been initialized
-		bool Initialized;
+		bool m_Initialized;
 		//! the plugin UUID
-		PluginUUID PluginIdentifier;
+		PluginUUID m_PluginIdentifier;
 		//! the compatible framework version
-		VersionInfo FrameworkVersion;
+		VersionInfo m_FrameworkVersion;
 		//! the handle to the DLL
-		HMODULE hHandle;
+		HMODULE m_hHandle;
 		//! the path of the DLL
-		string_t DLLPath;
+		string_t m_DLLPath;
 	};
 
 	//! \brief Plugin registration structure
@@ -138,52 +178,57 @@ namespace PluginFramework
 		/*! \brief Retrieves the framework version against which the plugin was compiled
 			\return the framework version
 		*/
-		const VersionInfo& GetFrameworkVersion() const { return m_PluginInfo.FrameworkVersion; }
+		const VersionInfo& GetFrameworkVersion() const { return m_PluginInfo.m_FrameworkVersion; }
 
 		/*! \brief Retrieves the version of the plugin
 			\return the version of the plugin
 		*/
-		const VersionInfo& GetVersion() const { return m_PluginInfo.Version; }
+		const VersionInfo& GetVersion() const { return m_PluginInfo.m_Version; }
 
 		/*! \brief Retrieves the URL used to check for updates
 			\return the URL used to check for updates
 		*/
-		const string_t& GetUpdateURL() const { return m_PluginInfo.UpdateURL; }
+		const string_t& GetUpdateURL() const { return m_PluginInfo.m_UpdateURL; }
 
 		/*! \brief Retrieves the path of the plugin DLL
 			\return the path of the plugin DLL
 		*/
-		const string_t& GetDLLPath() const { return m_PluginInfo.DLLPath; }
+		const string_t& GetDLLPath() const { return m_PluginInfo.m_DLLPath; }
 
 		/*! \brief Retrieves the author of the plugin
 			\return the author of the plugin
 		*/
-		const string_t& GetAuthor() const { return m_PluginInfo.Author; }
+		const string_t& GetAuthor() const { return m_PluginInfo.m_Author; }
 
 		/*! \brief Retrieves the UUID of the plugin
 			\return the UUID of the plugin
 		*/
-		const PluginUUID& GetUUID() const { return m_PluginInfo.PluginIdentifier; }
+		const PluginUUID& GetUUID() const { return m_PluginInfo.m_PluginIdentifier; }
 
 		/*! \brief Retrieves the name of the plugin
 			\return the name of the plugin
 		*/
-		const string_t& GetName() const { return m_PluginInfo.Name; }
+		const string_t& GetName() const { return m_PluginInfo.m_Name; }
 
 		/*! \brief Retrieves the description of the plugin
 			\return the description of the plugin
 		*/
-		const string_t& GetDesc() const { return m_PluginInfo.Descritpion; }
+		const string_t& GetDesc() const { return m_PluginInfo.m_Descritpion; }
+
+		/*! \brief Retrieves the compatibility flags of the plugin
+			\return the compatibility flags of the plugin
+		*/
+		DWORD GetCompatibilityFlags() const { return m_PluginInfo.m_CompatibilityFlags; }
 
 		/*! \brief Checks if the plugin has been initialized properly
 			\return true if the plugin is initialized; false otherwise
 		*/
-		bool IsInitialized() const { return m_PluginInfo.Initialized; }
+		bool IsInitialized() const { return m_PluginInfo.m_Initialized; }
 
 		/*! \brief Retrieves the handle of the plugin DLL once loaded
 			\return the handle of the plugin
 		*/
-		HMODULE GetHandle() const { return m_PluginInfo.hHandle; }
+		HMODULE GetHandle() const { return m_PluginInfo.m_hHandle; }
 		/*! \brief Converts the plugin information to a string
 			\return a string representation of the plugin information
 		*/
@@ -192,23 +237,23 @@ namespace PluginFramework
 		/*! \brief Sets the URL used to check for updates
 			\param[in] UpdateURL_in : the URL used to check for updates
 		*/
-		void SetUpdateURL(const string_t &UpdateURL_in) { m_PluginInfo.UpdateURL = UpdateURL_in; }
+		void SetUpdateURL(const string_t &UpdateURL_in) { m_PluginInfo.m_UpdateURL = UpdateURL_in; }
 		/*! \brief Sets the description of the plugin
 			\param[in] Descritpion_in : the description of the plugin
 		*/
-		void SetDesc(const string_t &Descritpion_in) { m_PluginInfo.Descritpion = Descritpion_in; }
+		void SetDesc(const string_t &Descritpion_in) { m_PluginInfo.m_Descritpion = Descritpion_in; }
 		/*! \brief Sets the author of the plugin
 			\param[in] Author_in : the author of the plugin
 		*/
-		void SetAuthor(const string_t &Author_in) { m_PluginInfo.Author = Author_in; }
+		void SetAuthor(const string_t &Author_in) { m_PluginInfo.m_Author = Author_in; }
 		/*! \brief Sets the version of the plugin
 			\param[in] Version_in : the version of the plugin
 		*/
-		void SetVersion(const string_t &Version_in) { m_PluginInfo.Version.FromString(Version_in.c_str()); }
+		void SetVersion(const string_t &Version_in) { m_PluginInfo.m_Version.FromString(Version_in.c_str()); }
 		/*! \brief Sets the name of the plugin
 			\param[in] Name_in : the name of the plugin
 		*/
-		void SetName(const string_t &Name_in) { m_PluginInfo.Name = Name_in; }
+		void SetName(const string_t &Name_in) { m_PluginInfo.m_Name = Name_in; }
 
 		/*! \brief Initializes the plugin
 			\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin

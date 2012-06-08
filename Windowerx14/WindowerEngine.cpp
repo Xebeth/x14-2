@@ -84,7 +84,8 @@ namespace Windower
 		// Direct3D related hooks
 		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(), m_Settings.GetVSync());
 
-		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir());
+		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir(),
+									  PLUGIN_COMPATIBILITY_WINDOWER);
 		ICoreModule::SetPluginManager(*m_pPluginManager);
 
 		// load plugins

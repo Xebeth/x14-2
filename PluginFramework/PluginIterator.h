@@ -15,10 +15,13 @@ namespace PluginFramework
 	{
 	public:
 		PluginIterator(const string_t &Directory_in, PluginManager &Manager_in,
+					   DWORD CompatibilityFlags_in = 0xFFFFFFFF,
 					   const TCHAR *pWildcard_in = _T("*.dll"));
 
 		virtual bool IsValid();
 	protected:
+		//! compatibility flags
+		DWORD m_CompatibilityFlags;
 		//! a reference to the plugin manager
 		PluginManager	&m_PluginManager;
 		//! function pointer on the query function exposed by the plugins

@@ -10,6 +10,7 @@
 
 #include <sdkddkver.h>
 #include <afxwin.h>
+#include <afxcmn.h>
 
 #include <string_t.h>
 

@@ -42,9 +42,10 @@ namespace PluginFramework
 
 	/*! \brief Lists the available plugins in the specified directory
 		\param[in] pDirectory_in : the directory in which we're looking for plugins
+		\param[in] CompatibilityFlags_in : flags specifying the plugin compatibility with the current manager
 		\return the number of available plugins
 	*/
-	UINT PluginManager::ListPlugins(const string_t &Directory_in)
+	UINT PluginManager::ListPlugins(const string_t &Directory_in, DWORD CompatibilityFlags_in)
 	{
 		PluginIterator Iter(Directory_in, *this);
 		UINT PluginCount = 0;
@@ -65,7 +66,7 @@ namespace PluginFramework
 		\param[in] pPluginPath_in : the full path to the plugin
 		\return true if the plugin is valid; false otherwise
 	*/
-	bool PluginManager::IsPluginValid(const TCHAR *pPluginPath_in)
+	bool PluginManager::IsPluginValid(const TCHAR *pPluginPath_in, DWORD CompatibilityFlags_in)
 	{
 		bool bResult = false;
 		HMODULE hPlugin;
@@ -77,10 +78,11 @@ namespace PluginFramework
 
 			if (CheckDLLExports(hPlugin, Info))
 			{
-				Info.DLLPath = pPluginPath_in;
+				DWORD Flags = Info.GetCompatibilityFlags();
+				Info.m_DLLPath = pPluginPath_in;
 
-				if (RegisterPlugin(Info))
-					bResult = true;
+				if ((Flags & CompatibilityFlags_in) == Flags)
+					bResult = RegisterPlugin(Info);
 
 				UnloadDLL(hPlugin);
 			}
@@ -142,21 +144,7 @@ namespace PluginFramework
 	*/
 	bool PluginManager::CheckPluginInfo(const PluginInfo &Info_in) const
 	{
-		if (m_pServices != NULL && Info_in.FrameworkVersion == m_pServices->GetVersion())
-		{
-			if (m_Blacklist.empty() == false)
-			{
-				Blacklist::const_iterator Iter;
-
-				for (Iter = m_Blacklist.begin(); Iter != m_Blacklist.end(); ++Iter)
-					if (*Iter == Info_in.PluginIdentifier)
-						return false;
-			}
-
-			return true;
-		}
-
-		return false;
+		return (m_pServices != NULL && Info_in.m_FrameworkVersion == m_pServices->GetVersion());
 	}
 
 	/*! \brief Registers a plugin
@@ -165,9 +153,11 @@ namespace PluginFramework
 	*/
 	bool PluginManager::RegisterPlugin(const PluginInfo &Info_in)
 	{
-		if (m_RegisteredPlugins.find(Info_in.Name) == m_RegisteredPlugins.end())
+		if (m_RegisteredPlugins.find(Info_in.m_Name) == m_RegisteredPlugins.end())
 		{
-			m_RegisteredPlugins[Info_in.Name] = Info_in;
+			// only register the plugin if it's not blacklisted
+			if (m_Blacklist.find(Info_in.m_PluginIdentifier) == m_Blacklist.end())
+				m_RegisteredPlugins[Info_in.m_Name] = Info_in;
 
 			return true;
 		}
@@ -194,16 +184,16 @@ namespace PluginFramework
 			if (LoadIter == m_LoadedPlugins.end())
 			{
 				// the plugin has never been loaded
-				Handle = LoadDLL(RegIter->second.DLLPath.c_str());
+				Handle = LoadDLL(RegIter->second.m_DLLPath.c_str());
 				pParams = InitializePlugin(Handle);
 				// store the plugin with the loaded plugins
 				m_LoadedPlugins[PluginName_in] = pParams;
 			}
-			else if (LoadIter->second->Info.hHandle == NULL)
+			else if (LoadIter->second->Info.m_hHandle == NULL)
 			{
 				// the plugin may have been loaded but has no handle
-				Handle = LoadDLL(RegIter->second.DLLPath.c_str());
-				LoadIter->second->Info.hHandle = Handle;
+				Handle = LoadDLL(RegIter->second.m_DLLPath.c_str());
+				LoadIter->second->Info.m_hHandle = Handle;
 				pParams = LoadIter->second;
 			}
 			else
@@ -212,7 +202,7 @@ namespace PluginFramework
 			if (pParams != NULL)
 			{
 				// update the DLL handle of the registered plugin
-				RegIter->second.hHandle = Handle;
+				RegIter->second.m_hHandle = Handle;
 
 				return CreateObject(PluginName_in);
 			}
@@ -271,7 +261,7 @@ namespace PluginFramework
 		if (LoadIter != m_LoadedPlugins.end())
 		{
 			// retrieve the handle of the DLL
-			HMODULE hDLL = LoadIter->second->Info.hHandle;
+			HMODULE hDLL = LoadIter->second->Info.m_hHandle;
 			// destroy the plugin instance
 			DestroyObject(PluginName_in);
 			delete LoadIter->second;
@@ -322,7 +312,7 @@ namespace PluginFramework
 
 			if (pResult != NULL)
 			{
-				pResult->Info.hHandle = hModule_in;
+				pResult->Info.m_hHandle = hModule_in;
 
 				return pResult;
 			}
@@ -340,5 +330,46 @@ namespace PluginFramework
 		PluginObjects::const_iterator ObjIter = m_PluginObjects.find(PluginName_in);
 
 		return (ObjIter != m_PluginObjects.end());
+	}
+
+	bool PluginManager::BlacklistPlugin(const string_t &UUID_in)
+	{
+		PluginUUID UUID(UUID_in.c_str());
+		Blacklist::const_iterator Iter = m_Blacklist.find(UUID);
+
+		if (Iter == m_Blacklist.end())
+		{
+			m_Blacklist.insert(UUID);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool PluginManager::WhitelistPlugin(const string_t &UUID_in)
+	{
+		PluginUUID UUID(UUID_in.c_str());
+		Blacklist::const_iterator Iter = m_Blacklist.find(UUID);
+
+		if (Iter != m_Blacklist.end())
+		{
+			m_Blacklist.erase(Iter);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool PluginManager::ConfigurePlugin(const string_t &PluginName_in)
+	{
+		IPlugin *pPlugin = LoadPlugin(PluginName_in);
+		LoadedPlugins::iterator PluginIt = m_LoadedPlugins.find(PluginName_in);
+
+		if (PluginIt != m_LoadedPlugins.end() && pPlugin != NULL)
+			return PluginIt->second->ConfigureFunc(pPlugin);
+
+		return false;
 	}
 }

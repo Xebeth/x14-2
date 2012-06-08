@@ -25,8 +25,10 @@ namespace PluginFramework
 		\param[in] Manager_in : a reference to the plugin manager
 		\param[in] pWildcard_in : the wildcard used to select files (e.g: *.dll)
 	*/
-	PluginIterator::PluginIterator(const string_t &Directory_in, PluginManager &Manager_in, const TCHAR *pWildcard_in)
-		: FileIterator(Directory_in, pWildcard_in), m_PluginManager(Manager_in) {}
+	PluginIterator::PluginIterator(const string_t &Directory_in, PluginManager &Manager_in, 
+								   DWORD CompatibilityFlags_in, const TCHAR *pWildcard_in)
+		: FileIterator(Directory_in, pWildcard_in), m_PluginManager(Manager_in),
+		  m_CompatibilityFlags(CompatibilityFlags_in) {}
 
 	/*! \brief Checks if a plugin is valid through the challenge/response mechanism of the manager
 		\return true if the plugin is valid; false otherwise
@@ -37,6 +39,6 @@ namespace PluginFramework
 
 		format(ModulePath, _T("%s%s"), m_Directory.c_str(), Current());
 
-		return (FileIterator::IsValid() && m_PluginManager.IsPluginValid(ModulePath.c_str()));
+		return (FileIterator::IsValid() && m_PluginManager.IsPluginValid(ModulePath.c_str(), m_CompatibilityFlags));
 	}
 }

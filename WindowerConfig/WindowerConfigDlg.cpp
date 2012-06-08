@@ -15,7 +15,13 @@
 #include <WindowerSettings.h>
 #include <WindowerSettingsManager.h>
 
+#include <PluginFramework.h>
+#include <IPluginServices.h>
+#include <PluginManager.h>
+
 #include "WindowerConfigDlg.h"
+
+using namespace PluginFramework;
 
 namespace Windower
 {
@@ -33,8 +39,9 @@ namespace Windower
 
 		ON_BN_CLICKED(IDC_DELETE_PROFILE, &WindowerConfigDlg::OnDeleteProfile)
 		ON_BN_CLICKED(IDC_NEW_PROFILE, &WindowerConfigDlg::OnNewProfile)
-		ON_BN_CLICKED(IDC_AUTOLOGIN, &WindowerConfigDlg::OnAutologinChange)
 		ON_BN_CLICKED(IDC_VSYNC, &WindowerConfigDlg::OnVSyncChange)
+
+		ON_NOTIFY(NM_DBLCLK, IDC_PLUGIN_LIST, OnConfigure)
 		
 		ON_BN_CLICKED(IDOK, &WindowerConfigDlg::OnSave)
 	END_MESSAGE_MAP()
@@ -42,22 +49,122 @@ namespace Windower
 	WindowerConfigDlg::WindowerConfigDlg(SettingsManager *pSettingsManager,CWnd* pParent)
 		: CDialog(WindowerConfigDlg::IDD, pParent), m_pSettingsManager(pSettingsManager)
 	{
+		m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__);
+		m_pPluginManager = new PluginManager(m_pServices);
+
+		// m_pPluginManager->BlacklistPlugin(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
+
 		m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 		m_pCurrentSettings = NULL;
 		m_CurrentSel = 0;
 	}
 
-	// WindowerConfigDlg message handlers
+	WindowerConfigDlg::~WindowerConfigDlg()
+	{
+		if (m_pPluginManager != NULL)
+		{
+			delete m_pPluginManager;
+			m_pPluginManager = NULL;
+		}
+
+		if (m_pServices != NULL)
+		{
+			delete m_pServices;
+			m_pServices = NULL;
+		}
+	}
+
+	void WindowerConfigDlg::InsertPlugin(CListCtrl *pListCtrl_in_out, const PluginInfo &PluginInfo_in)
+	{
+		if (pListCtrl_in_out == NULL)
+			return;
+
+		LVITEM LvItem;
+		string_t Text;
+
+		LvItem.mask = LVIF_TEXT | LVIF_PARAM;
+		LvItem.lParam = (LPARAM)&PluginInfo_in;
+		LvItem.iItem = 0;
+		
+		// plugin name
+		LvItem.iSubItem = LIST_COL_NAME;
+		LvItem.pszText = (LPTSTR)PluginInfo_in.GetName().c_str();
+
+		int Index = pListCtrl_in_out->InsertItem(&LvItem);
+
+		LvItem.iItem = Index;
+		LvItem.mask = LVIF_TEXT;
+
+		// plugin version
+		LvItem.iSubItem = LIST_COL_VERSION;
+		Text = PluginInfo_in.GetVersion();
+		LvItem.pszText = (LPTSTR)Text.c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+		// plugin version
+		LvItem.iSubItem = LIST_COL_FRAMEWORK;
+		Text = PluginInfo_in.GetFrameworkVersion();
+		LvItem.pszText = (LPTSTR)Text.c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+		// plugin author
+		LvItem.iSubItem = LIST_COL_AUTHOR;
+		LvItem.pszText = (LPTSTR)PluginInfo_in.GetAuthor().c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+		// plugin compatibility
+		LvItem.iSubItem = LIST_COL_COMPAT;
+		switch(PluginInfo_in.GetCompatibilityFlags())
+		{
+			case 1:
+				Text = _T("Windower");
+			break;
+			case 2:
+				Text = _T("Bootstrap");
+			break;
+			case -1:
+				Text = _T("Any");
+			break;
+		}
+		LvItem.pszText = (LPTSTR)Text.c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+		// plugin description
+		LvItem.iSubItem = LIST_COL_DESC;
+		LvItem.pszText = (LPTSTR)PluginInfo_in.GetDesc().c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+		// plugin path
+		LvItem.iSubItem = LIST_COL_PATH;
+		LvItem.pszText = (LPTSTR)PluginInfo_in.GetDLLPath().c_str();
+		pListCtrl_in_out->SetItem(&LvItem);
+	}
 
 	BOOL WindowerConfigDlg::OnInitDialog()
 	{
-		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
+		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
+		CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
 		CDialog::OnInitDialog();
 
 		// Set the icon for this dialog.  The framework does this automatically
 		//  when the application's main window is not a dialog
 		SetIcon(m_hIcon, TRUE);			// Set big icon
 		SetIcon(m_hIcon, FALSE);		// Set small icon
+
+		pPluginList->SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES);
+
+		pPluginList->InsertColumn(LIST_COL_NAME,		_T("Plugin name"),	 LVCFMT_LEFT, 100);
+		pPluginList->InsertColumn(LIST_COL_VERSION,		_T("Version"),		 LVCFMT_LEFT, 50);
+		pPluginList->InsertColumn(LIST_COL_FRAMEWORK,	_T("Framework"),	 LVCFMT_LEFT, 70);
+		pPluginList->InsertColumn(LIST_COL_AUTHOR,		_T("Author"),		 LVCFMT_LEFT, 80);
+		pPluginList->InsertColumn(LIST_COL_COMPAT,		_T("Compatibility"), LVCFMT_LEFT, 80);
+		pPluginList->InsertColumn(LIST_COL_DESC,		_T("Description"),	 LVCFMT_LEFT, 400);
+		pPluginList->InsertColumn(LIST_COL_PATH,		_T("Filename"),		 LVCFMT_LEFT, 300);
+
+		if (m_pPluginManager != NULL && m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir()) > 0U)
+		{
+			const RegisteredPlugins& Plugins = m_pPluginManager->GetRegisteredPlugins();
+			RegisteredPlugins::const_iterator PluginIt;
+
+			for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
+				InsertPlugin(pPluginList, PluginIt->second);
+		}
 
 		if (pProfiles != NULL)
 		{
@@ -93,6 +200,32 @@ namespace Windower
 		}
 
 		return TRUE;  // return TRUE  unless you set the focus to a control
+	}
+	
+	void WindowerConfigDlg::OnConfigure(NMHDR* pNMHDR, LRESULT* pResult)
+	{
+		CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
+		for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
+		{
+			if (pPluginList->GetItemState(Index, LVIS_SELECTED) == LVIS_SELECTED)
+			{
+				DWORD_PTR ItemData = pPluginList->GetItemData(Index);
+
+				if (ItemData != -1 && ItemData != NULL)
+				{
+					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
+					const string_t &PluginName = pPluginInfo->GetName();
+					
+					m_pPluginManager->ConfigurePlugin(PluginName);
+					m_pPluginManager->UnloadPlugin(PluginName);
+
+					break;
+				}
+			}
+		}
+
+		*pResult = 0;
 	}
 
 	// If you add a minimize button to your dialog, you will need the code below
@@ -133,20 +266,21 @@ namespace Windower
 
 	void WindowerConfigDlg::OnProfileNameChange()
 	{
-		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
+		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 
 		if (m_pCurrentSettings != NULL && pProfiles != NULL)
 		{
-			CString ProfileName;
+			CString DisplayName, ProfileName;
 
-			pProfiles->GetWindowText(ProfileName);
+			pProfiles->GetWindowText(DisplayName);
+			ProfileName.Format(_T("%s%s"), PROFILE_PREFIX, DisplayName);
 
 			if (ProfileName.Compare(m_pCurrentSettings->GetName()) != 0)
 			{
 				// delete the current combo item
 				pProfiles->DeleteString(m_CurrentSel);
 				// add the item back
-				m_CurrentSel = pProfiles->AddString(ProfileName);
+				m_CurrentSel = pProfiles->AddString(DisplayName);
 				pProfiles->SetItemData(m_CurrentSel, (DWORD_PTR)m_pCurrentSettings);
 				// select the new item in the combo
 				pProfiles->SetCurSel(m_CurrentSel);
@@ -158,17 +292,26 @@ namespace Windower
 
 	void WindowerConfigDlg::OnResolutionChange()
 	{
-		CComboBox *pResX	 = (CComboBox*)GetDlgItem(IDC_RESX_COMBO);
-		CComboBox *pResY	 = (CComboBox*)GetDlgItem(IDC_RESY_COMBO);
+		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
+		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
 
 		if (m_pCurrentSettings != NULL && pResX != NULL && pResY != NULL)
 		{
 			CString CurrentValue;
+			int SelectedIndex;
 			LONG ResX, ResY;
 
-			pResX->GetWindowText(CurrentValue);
+			SelectedIndex = pResX->GetCurSel();
+			if (SelectedIndex == -1)
+				pResX->GetWindowText(CurrentValue);
+			else
+				pResX->GetLBText(SelectedIndex, CurrentValue);
 			ResX = _ttol(CurrentValue);
-			pResY->GetWindowText(CurrentValue);
+			SelectedIndex = pResY->GetCurSel();
+			if (SelectedIndex == -1)
+				pResY->GetWindowText(CurrentValue);
+			else
+				pResY->GetLBText(SelectedIndex, CurrentValue);
 			ResY = _ttol(CurrentValue);
 
 			m_pCurrentSettings->SetResolution(ResX, ResY);
@@ -177,11 +320,10 @@ namespace Windower
 
 	void WindowerConfigDlg::OnProfilesChange()
 	{
-		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
-		CComboBox *pResX	 = (CComboBox*)GetDlgItem(IDC_RESX_COMBO);
-		CComboBox *pResY	 = (CComboBox*)GetDlgItem(IDC_RESY_COMBO);
-		CButton *pAutologin	 = (CButton*)GetDlgItem(IDC_AUTOLOGIN);
-		CButton *pVSync		 = (CButton*)GetDlgItem(IDC_VSYNC);
+		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
+		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
+		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
+		CButton *pVSync		 = static_cast<CButton*>(GetDlgItem(IDC_VSYNC));
 
 		m_pCurrentSettings = NULL;
 
@@ -191,7 +333,7 @@ namespace Windower
 
 			if (m_CurrentSel >= 0)
 			{
-				m_pCurrentSettings = (WindowerProfile*)pProfiles->GetItemData(m_CurrentSel);
+				m_pCurrentSettings = reinterpret_cast<WindowerProfile*>(pProfiles->GetItemData(m_CurrentSel));
 
 				if (m_pCurrentSettings != NULL)
 				{
@@ -206,7 +348,6 @@ namespace Windower
 					pResY->SetWindowText(StrY);
 
 					pVSync->SetCheck(m_pCurrentSettings->GetVSync() ? BST_CHECKED : BST_UNCHECKED);
-					pAutologin->SetCheck(m_pSettingsManager->GetAutoLogin() ? BST_CHECKED : BST_UNCHECKED);
 
 					pResX->FindStringExact(0, StrX);
 					pResY->FindStringExact(0, StrY);
@@ -217,8 +358,8 @@ namespace Windower
 
 	void WindowerConfigDlg::FillSupportedRes()
 	{
-		CComboBox *pResX = (CComboBox*)GetDlgItem(IDC_RESX_COMBO);
-		CComboBox *pResY = (CComboBox*)GetDlgItem(IDC_RESY_COMBO);
+		CComboBox *pResX = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
+		CComboBox *pResY = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
 
 		if (pResX != NULL && pResY != NULL && m_pCurrentSettings != NULL)
 		{
@@ -308,7 +449,7 @@ namespace Windower
 
 	void WindowerConfigDlg::OnNewProfile()
 	{
-		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
+		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 
 		if (pProfiles != NULL && m_pCurrentSettings != NULL)
 		{
@@ -342,7 +483,7 @@ namespace Windower
 
 	void WindowerConfigDlg::OnDeleteProfile()
 	{
-		CComboBox *pProfiles = (CComboBox*)GetDlgItem(IDC_PROFILES_COMBO);
+		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 		bool Enable = false;
 
 		if (pProfiles != NULL && m_pCurrentSettings != NULL)
@@ -363,21 +504,11 @@ namespace Windower
 
 	void WindowerConfigDlg::OnVSyncChange()
 	{
-		CButton *pVSync = (CButton*)GetDlgItem(IDC_VSYNC);
+		CButton *pVSync = static_cast<CButton*>(GetDlgItem(IDC_VSYNC));
 
 		if (m_pSettingsManager != NULL && pVSync != NULL)
 		{
 			m_pCurrentSettings->SetVSync(pVSync->GetCheck() == BST_CHECKED);
-		}
-	}
-
-	void WindowerConfigDlg::OnAutologinChange()
-	{
-		CButton *pAutologin = (CButton*)GetDlgItem(IDC_AUTOLOGIN);
-
-		if (m_pSettingsManager != NULL && pAutologin != NULL)
-		{
-			m_pSettingsManager->SetAutoLogin(pAutologin->GetCheck() == BST_CHECKED);
 		}
 	}
 }

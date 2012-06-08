@@ -17,6 +17,14 @@ namespace PluginFramework
 #include "BaseEngine.h"
 #include "PluginsServices.h"
 
+//! compatibility flags
+enum eCompatibilityFlags
+{
+	PLUGIN_COMPATIBILITY_WINDOWER	= 0x00000001,
+	PLUGIN_COMPATIBILITY_BOOTSTRAP	= 0x00000002,
+	PLUGIN_COMPATIBILITY_ANY		= 0xFFFFFFFF
+};
+
 namespace Windower
 {
 	class PluginServices;

@@ -13,6 +13,9 @@
 #include <WindowerSettings.h>
 #include <WindowerSettingsManager.h>
 
+#include <PluginFramework.h>
+#include <IPluginServices.h>
+
 #include "WindowerConfigDlg.h"
 #include "WindowerConfigApp.h"
 

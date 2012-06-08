@@ -64,7 +64,8 @@ namespace PluginFramework
 	}
 
 	//! \brief PluginInfo constructor
-	PluginInfo::PluginInfo() : Initialized(false), hHandle(NULL) {}
+	PluginInfo::PluginInfo() : m_Initialized(false), m_hHandle(NULL),
+		m_CompatibilityFlags(0x00000001) {}
 
 	/*! \brief Retrieves the string representation of the plugin info
 		\return the string representation of the plugin info
@@ -74,8 +75,8 @@ namespace PluginFramework
 		return format(_T("Plugin '%s v%s':\n")
 					  _T("\tAuthor:\t\t%s\n")
 					  _T("\tDescritpion:\t%s\n"),
-					  Name.c_str(), Version.ToString().c_str(),
-					  Author.c_str(), Descritpion.c_str());
+					  m_Name.c_str(), m_Version.ToString().c_str(),
+					  m_Author.c_str(), m_Descritpion.c_str());
 	}
 
 	/*! \brief Converts the plugin information to a string
@@ -123,8 +124,8 @@ namespace PluginFramework
 	//! \brief Fills a PluginInfo structure with the plugin information
 	void IPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{
-		PluginInfo_out.FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
-		PluginInfo_out.Initialized = true;
+		PluginInfo_out.m_FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
+		PluginInfo_out.m_Initialized = true;
 	}
 
 	/*! \brief Invokes a command registered with the service in the specified module

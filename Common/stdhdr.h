@@ -10,7 +10,10 @@
 
 #define WINDOWS_LEAN_AND_MEAN
 #define VC_EXTRALEAN
-#define STRICT
+
+#ifndef STRICT
+	#define STRICT
+#endif
 
 #include <sdkddkver.h>
 #include <windows.h>
