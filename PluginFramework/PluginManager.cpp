@@ -237,6 +237,7 @@ namespace PluginFramework
 				if (pResult != NULL)
 				{
 					pResult->m_PluginInfo = LoadIter->second->Info;
+					pResult->m_pRegisterParams = LoadIter->second;
 					pResult->OnCreate();
 
 					m_PluginObjects[PluginName_in] = pResult;
@@ -291,6 +292,7 @@ namespace PluginFramework
 				// callback
 				pPlugin->OnDestroy();
 				// destroy the plugin instance
+				pPlugin->m_pRegisterParams = NULL;
 				LoadIter->second->DestroyFunc(ObjIter->second);
 				// remove the object from the loaded objects
 				m_PluginObjects.erase(ObjIter);
@@ -365,10 +367,9 @@ namespace PluginFramework
 	bool PluginManager::ConfigurePlugin(const string_t &PluginName_in)
 	{
 		IPlugin *pPlugin = LoadPlugin(PluginName_in);
-		LoadedPlugins::iterator PluginIt = m_LoadedPlugins.find(PluginName_in);
 
-		if (PluginIt != m_LoadedPlugins.end() && pPlugin != NULL)
-			return PluginIt->second->ConfigureFunc(pPlugin);
+		if (pPlugin != NULL)
+			return pPlugin->Configure();
 
 		return false;
 	}

@@ -67,18 +67,7 @@ namespace Windower
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("ChatLog"));
 	}
-
-	/*! \brief Opens the configuration screen of the plugin
-		\param[out] pInstance_in : the instance of the plugin to configure
-		\return true if the user validated the configuration screen; false otherwise
-	*/
-	bool ChatLogPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
-	{
-		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
-
-		return true;
-	}
-
+	
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
@@ -167,5 +156,5 @@ using Windower::ChatLogPlugin;
 extern "C" PLUGIN_API RegisterParams* InitPlugin()
 {
 	return PluginFramework::IPlugin::Initialize(ChatLogPlugin::Create, ChatLogPlugin::Destroy,
-												ChatLogPlugin::Query, ChatLogPlugin::Configure);
+												ChatLogPlugin::Query, NULL);
 }

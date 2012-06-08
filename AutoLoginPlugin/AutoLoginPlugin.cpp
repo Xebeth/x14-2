@@ -8,6 +8,8 @@
 					and automatically fills the password field
 **************************************************************************/
 #include "stdafx.h"
+#include "resource.h"
+
 #include <PluginFramework.h>
 #include <SettingsManager.h>
 
@@ -15,6 +17,7 @@
 #include <WindowerCommand.h>
 #include <CommandHandler.h>
 
+#include "AutoLoginConfigDlg.h"
 #include "AutoLoginPlugin.h"
 #include "AutoLoginSettings.h"
 #include "AutoLogin.h"
@@ -74,9 +77,9 @@ namespace Windower
 	*/
 	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
 	{
-		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+		AutoLoginConfigDlg ConfigDlg;
 
-		return true;
+		return (ConfigDlg.DoModal() == IDOK);
 	}
 
 	/*! \brief Registers the commands of the plugin with the command dispatcher

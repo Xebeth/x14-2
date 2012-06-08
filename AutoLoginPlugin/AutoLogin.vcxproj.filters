@@ -18,6 +18,12 @@
     <ClInclude Include="..\Common\CryptUtils.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoLoginConfigDlg.h">
+      <Filter>Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -35,9 +41,15 @@
     <Filter Include="Common">
       <UniqueIdentifier>{3fb54c55-06dd-4d8e-bad4-08937fa2ad33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{742aab52-3cc9-4ee5-8897-2f4e6a477ca6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="AutoLogin.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -56,5 +68,17 @@
     <ClCompile Include="..\Common\CryptUtils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="AutoLoginConfigDlg.cpp">
+      <Filter>Config</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\AutoLogin.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="res\AutoLogin.rc2">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

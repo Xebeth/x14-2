@@ -16,7 +16,12 @@
 #endif
 
 #include <sdkddkver.h>
-#include <windows.h>
+
+#if defined _AFXDLL || defined _AFXEXT
+	#include <afxwin.h>
+#else
+	#include <windows.h>	
+#endif // _AFXEXT
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)

@@ -225,10 +225,16 @@ namespace PluginFramework
 		*/
 		bool IsInitialized() const { return m_PluginInfo.m_Initialized; }
 
+		/*! \brief Checks if the plugin has a configuration screen
+			\return true if the plugin has a configuration screen; false otherwise
+		*/
+		bool IsConfigurable() const { return (m_pRegisterParams != NULL && m_pRegisterParams->ConfigureFunc != NULL); }
+
 		/*! \brief Retrieves the handle of the plugin DLL once loaded
 			\return the handle of the plugin
 		*/
 		HMODULE GetHandle() const { return m_PluginInfo.m_hHandle; }
+
 		/*! \brief Converts the plugin information to a string
 			\return a string representation of the plugin information
 		*/
@@ -238,22 +244,31 @@ namespace PluginFramework
 			\param[in] UpdateURL_in : the URL used to check for updates
 		*/
 		void SetUpdateURL(const string_t &UpdateURL_in) { m_PluginInfo.m_UpdateURL = UpdateURL_in; }
+
 		/*! \brief Sets the description of the plugin
 			\param[in] Descritpion_in : the description of the plugin
 		*/
 		void SetDesc(const string_t &Descritpion_in) { m_PluginInfo.m_Descritpion = Descritpion_in; }
+
 		/*! \brief Sets the author of the plugin
 			\param[in] Author_in : the author of the plugin
 		*/
 		void SetAuthor(const string_t &Author_in) { m_PluginInfo.m_Author = Author_in; }
+
 		/*! \brief Sets the version of the plugin
 			\param[in] Version_in : the version of the plugin
 		*/
 		void SetVersion(const string_t &Version_in) { m_PluginInfo.m_Version.FromString(Version_in.c_str()); }
+
 		/*! \brief Sets the name of the plugin
 			\param[in] Name_in : the name of the plugin
 		*/
 		void SetName(const string_t &Name_in) { m_PluginInfo.m_Name = Name_in; }
+		
+		/*! \brief Displays the configuration screen of the plugin
+			\return true if the user validated the screen; false otherwise
+		*/
+		bool Configure();
 
 		/*! \brief Initializes the plugin
 			\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
@@ -262,7 +277,7 @@ namespace PluginFramework
 			\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
 		*/
 		static RegisterParams* Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
-										  fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in);
+										  fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in = NULL);
 
 		//! \brief Fills a PluginInfo structure with the plugin information
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
@@ -319,6 +334,8 @@ namespace PluginFramework
 	private:
 		//! plugin services used to (un)subscribe to services and invoke them
 		static IPluginServices *m_pServices;
+		//! register parameters
+		RegisterParams *m_pRegisterParams;
 	};
 }
 

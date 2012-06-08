@@ -24,6 +24,7 @@ namespace PluginFramework
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	IPlugin::IPlugin(IPluginServices *pServices_in)
+		: m_pRegisterParams(NULL)
 	{
 		m_pServices = pServices_in;
 	}
@@ -44,8 +45,7 @@ namespace PluginFramework
 	RegisterParams* IPlugin::Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
 										fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in)
 	{
-		if (pfnCreateFunc_in != NULL && pfnDestroyFunc_in != NULL
-		 && pfnQueryFunc_in != NULL && pfnConfigureFunc_in != NULL)
+		if (pfnCreateFunc_in != NULL && pfnDestroyFunc_in != NULL && pfnQueryFunc_in != NULL)
 		{
 			RegisterParams *pRegisterParams = new RegisterParams;
 
@@ -61,6 +61,23 @@ namespace PluginFramework
 		}
 
 		return NULL;
+	}
+	
+	/*! \brief Displays the configuration screen of the plugin
+	\return true if the user validated the screen; false otherwise
+	*/
+	bool IPlugin::Configure()
+	{
+		if (IsConfigurable() == false)
+		{
+			MessageBox(NULL, _T("This plugin has no configuration."),
+					   m_PluginInfo.GetName().c_str(),
+					   MB_OK | MB_ICONINFORMATION);
+
+			return false;
+		}
+		else
+			return m_pRegisterParams->ConfigureFunc(this);
 	}
 
 	//! \brief PluginInfo constructor

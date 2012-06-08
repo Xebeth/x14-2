@@ -65,18 +65,7 @@ namespace Windower
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("ExpWatch"));
 	}
-
-	/*! \brief Opens the configuration screen of the plugin
-		\param[out] pInstance_in : the instance of the plugin to configure
-		\return true if the user validated the configuration screen; false otherwise
-	*/
-	bool ExpWatchPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
-	{
-		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
-
-		return true;
-	}
-
+	
 	/*! \brief Registers the commands of the plugin with the command dispatcher
 		\return true if all the commands were registered successfully; false otherwise
 	*/
@@ -286,5 +275,5 @@ using Windower::ExpWatchPlugin;
 extern "C" PLUGIN_API RegisterParams* InitPlugin()
 {
 	return PluginFramework::IPlugin::Initialize(ExpWatchPlugin::Create, ExpWatchPlugin::Destroy,
-												ExpWatchPlugin::Query, ExpWatchPlugin::Configure);
+												ExpWatchPlugin::Query, NULL);
 }
