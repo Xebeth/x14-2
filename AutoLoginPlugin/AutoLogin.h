@@ -42,7 +42,7 @@ public:
 	void MonitorForms();
 
 protected:
-	bool SetPasswordInput(const TCHAR *pPassword_in);
+	bool SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pValue_in);
 	bool AutoCompleteForm();
 
 	IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
@@ -54,6 +54,8 @@ protected:
 	HWND GetIEServerWindow(long Timeout_in);
 	bool GetHTMLDocument(long Timeout_in);	
 
+	//! the user field
+	IHTMLInputElement *m_pUserInput;
 	//! the password field
 	IHTMLInputElement *m_pPasswordInput;
 	//! the HTML document
@@ -69,6 +71,8 @@ protected:
 	bool m_LoginComplete;
 	//! flag specifying if the password field is set
 	bool m_PasswordSet;
+	//! flag specifying if the username field is set
+	bool m_UserSet;
 	//! the handle on the parent window
 	HWND m_hParentWnd;
 	//! the handle on the IE server window

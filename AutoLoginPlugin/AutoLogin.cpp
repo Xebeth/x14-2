@@ -16,6 +16,8 @@
 #include "AutoLoginSettings.h"
 #include "HTMLFormIterator.h"
 
+// #define _DUMP_HTML
+
 /*! \brief global function used to start the working thread
 	\param[in] pUserData_in : thread user data holding a pointer to the settings
 	\return the thread exit code (0 on success; -1 otherwise)
@@ -38,9 +40,9 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
 AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in),
+	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_UserSet(false),
 	  m_pPasswordInput(NULL), m_pFormIterator(NULL), m_pHTMLDoc(NULL),
-	  m_LoginComplete(false), m_PasswordSet(false)
+	  m_LoginComplete(false), m_PasswordSet(false), m_pUserInput(NULL)
 {
 	m_hParentWnd = Settings_in.GetParentWnd();
 	// initialize COM
@@ -65,6 +67,16 @@ void AutoLogin::MonitorForms()
 		{
 			if (m_pHTMLDoc != NULL)
 			{
+#if defined _DEBUG && defined _DUMP_HTML
+				IPersistFile* pFile = NULL;
+
+				if(SUCCEEDED(m_pHTMLDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+				{
+					LPCOLESTR file = L"c:\\ffxivlogin.htm";
+					pFile->Save(file, TRUE);
+				}
+#endif // _DEBUG
+
 				// check if the document is ready
 				if (IsStatus(_T("complete")))
 				{
@@ -118,6 +130,18 @@ bool AutoLogin::AutoCompleteForm()
 
 		if (pCurrentForm != NULL)
 		{
+			string_t Username = m_Settings.GetUsername();
+
+			// the user input hasn't been found yet
+			if (Username.empty() == false && m_pUserInput == NULL)
+			{
+				// look for it in the current form
+				pElement = FindChildById(pCurrentForm, _T("sqexid"));
+
+				if (pElement != NULL && SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&m_pUserInput)) && m_pUserInput != NULL)
+					m_UserSet = SetInputValue(m_pUserInput, Username.c_str());
+			}
+
 			// the password input hasn't been found yet
 			if (m_pPasswordInput == NULL)
 			{
@@ -148,19 +172,8 @@ bool AutoLogin::AutoCompleteForm()
 								string_t Password;
 
 								CryptUtils::Crypt(Key, CryptedPassword, Password);
-								m_PasswordSet = SetPasswordInput(Password.c_str());
+								m_PasswordSet = SetInputValue(m_pPasswordInput, Password.c_str());
 							}
-						}
-
-						if (m_PasswordSet == false)
-						{
-							// we've made it so far but failed, give up
-							m_PasswordSet = true;
-							// reset the config
-							m_Settings.SetKeyHash(0);
-							m_Settings.SetPassword(_T(""));
-
-							m_Settings.Save();
 						}
 
 						m_pPasswordInput->Release();
@@ -246,25 +259,26 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 	return pElement;
 }
 
-/*! \brief Fills the password field with the specified password
-	\param[in] pPassword_in : the password
+/*! \brief Fills a field with the specified value
+	\param[in,out] pInput_in_out : the input field to fill
+	\param[in] pPassword_in : the value of the field
 	\return true if the field was filled successfully; false otherwise
 */
-bool AutoLogin::SetPasswordInput(const TCHAR *pPassword_in)
+bool AutoLogin::SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pValue_in)
 {
 	bool Result = false;
 
-	if (pPassword_in != NULL && m_pPasswordInput != NULL)
+	if (pValue_in != NULL && pInput_in_out != NULL)
 	{
-		BSTR Passwd = SysAllocString(pPassword_in);
+		BSTR Value = SysAllocString(pValue_in);
 
-		if ((Result = SUCCEEDED(m_pPasswordInput->put_value(Passwd))) == false)
+		if ((Result = SUCCEEDED(pInput_in_out->put_value(Value))) == false)
 		{
-			m_pPasswordInput->Release();
-			m_pPasswordInput = NULL;
+			pInput_in_out->Release();
+			pInput_in_out = NULL;
 		}
 
-		SysFreeString(Passwd);
+		SysFreeString(Value);
 	}
 
 	return Result;
