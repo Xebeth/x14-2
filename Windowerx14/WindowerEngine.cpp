@@ -88,10 +88,12 @@ namespace Windower
 									  PLUGIN_COMPATIBILITY_WINDOWER);
 		ICoreModule::SetPluginManager(*m_pPluginManager);
 
-		// load plugins
-		PluginEngine::LoadPlugin(_T("TellDetect"));
-		PluginEngine::LoadPlugin(_T("Timestamp"));
-		PluginEngine::LoadPlugin(_T("ExpWatch"));
+		// load active plugins
+		const ActivePlugins &Plugins = m_Settings.GetActivePlugins();
+		ActivePlugins::const_iterator PluginIt;
+
+		for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
+			PluginEngine::LoadPlugin(*PluginIt);
 
 		RegisterCommands();
 
@@ -275,7 +277,7 @@ namespace Windower
 		while (m_bShutdown == false)
 		{
 			UpdateEngine();
-			Sleep(100);
+			Sleep(0);
 		}
 
 		return 0L;
