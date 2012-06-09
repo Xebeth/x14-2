@@ -15,9 +15,12 @@ namespace Windower
 	/*! \brief AutoLoginSettings constructor
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
-	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in)
-		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL)
+	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in)
+		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL) 
 	{
+		if (pProfileName_in != NULL)
+			m_SectionName = pProfileName_in;
+
 		if (pSettingsFile_in != NULL && Load() == false)
 			Save();
 	}
@@ -27,8 +30,9 @@ namespace Windower
 	*/
 	bool AutoLoginSettings::Save()
 	{
-		SetString(_T("Plugin:AutoLogin"), _T("Password"), m_Password);
-		SetHex(_T("Plugin:AutoLogin"), _T("KeyHash"), m_KeyHash);
+		SetString(m_SectionName.c_str(), _T("Password"), m_Password);
+		SetString(m_SectionName.c_str(), _T("Username"), m_Username);
+		SetHex(m_SectionName.c_str(), _T("KeyHash"), m_KeyHash);
 
 		return SettingsIniFile::Save();
 	}
@@ -40,8 +44,12 @@ namespace Windower
 	{
 		if (SettingsIniFile::Load())
 		{
-			m_Password = GetString(_T("Plugin:AutoLogin"), _T("Password"));
-			m_KeyHash = GetUnsignedLong(_T("Plugin:AutoLogin"), _T("KeyHash"));
+			if (m_SectionName.empty())
+				m_SectionName = GetString(_T("General"), _T("CurrentProfile"), _T("Profile:Default"));
+
+			m_Username = GetString(m_SectionName.c_str(), _T("Username"));
+			m_Password = GetString(m_SectionName.c_str(), _T("Password"));
+			m_KeyHash = GetUnsignedLong(m_SectionName.c_str(), _T("KeyHash"));
 
 			return true;
 		}

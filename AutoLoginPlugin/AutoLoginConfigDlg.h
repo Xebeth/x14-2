@@ -18,7 +18,7 @@ class AutoLoginConfigDlg : public CDialog
 {
 	enum { IDD = IDD_CONFIG_DIALOG };
 public:
-	AutoLoginConfigDlg(CWnd* pParent = NULL);
+	AutoLoginConfigDlg(const TCHAR *pProfileName_in, CWnd* pParent = NULL);
 	~AutoLoginConfigDlg();
 
 protected:
@@ -26,6 +26,7 @@ protected:
 	Windower::AutoLoginSettings *m_pSettings;
 	string_t m_EncryptionKey;
 	string_t m_PasswordHash;
+	string_t m_Username;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -35,6 +36,7 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnPasswordChange();
+	afx_msg void OnUsernameChange();
 };
 
 #endif//__AUTOLOGIN_CONFIG_DLG_H__

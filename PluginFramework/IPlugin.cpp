@@ -64,9 +64,10 @@ namespace PluginFramework
 	}
 	
 	/*! \brief Displays the configuration screen of the plugin
-	\return true if the user validated the screen; false otherwise
+		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
+		\return true if the user validated the screen; false otherwise
 	*/
-	bool IPlugin::Configure()
+	bool IPlugin::Configure(const LPVOID pUserData_in)
 	{
 		if (IsConfigurable() == false)
 		{
@@ -77,7 +78,7 @@ namespace PluginFramework
 			return false;
 		}
 		else
-			return m_pRegisterParams->ConfigureFunc(this);
+			return m_pRegisterParams->ConfigureFunc(this, pUserData_in);
 	}
 
 	//! \brief PluginInfo constructor
@@ -143,6 +144,26 @@ namespace PluginFramework
 	{
 		PluginInfo_out.m_FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
 		PluginInfo_out.m_Initialized = true;
+
+		CleanupName(PluginInfo_out.m_Name);
+	}
+
+	/*! \brief Cleans up the specified string to make it a valid plugin name
+		\param[in,out] Name_in_out : the string to clean up
+	*/
+	void IPlugin::CleanupName( string_t Name_in_out )
+	{
+		string_t::size_type Pos, Offset = 0;
+
+		Pos = Name_in_out.find_first_of('|', Offset);
+
+		while(Pos != string_t::npos)
+		{
+			Name_in_out.erase(Pos, 1);
+
+			Offset = Pos + 1;
+			Pos = Name_in_out.find_first_of('|', Offset);
+		}
 	}
 
 	/*! \brief Invokes a command registered with the service in the specified module

@@ -334,6 +334,16 @@ namespace PluginFramework
 		return (ObjIter != m_PluginObjects.end());
 	}
 
+	bool PluginManager::IsPluginConfigurable(const string_t &PluginName_in) const
+	{
+		LoadedPlugins::const_iterator PluginIt = m_LoadedPlugins.find(PluginName_in);
+
+		if (PluginIt != m_LoadedPlugins.end())
+			return (PluginIt->second->ConfigureFunc != NULL);
+
+		return false;
+	}
+
 	bool PluginManager::BlacklistPlugin(const string_t &UUID_in)
 	{
 		PluginUUID UUID(UUID_in.c_str());
@@ -364,12 +374,12 @@ namespace PluginFramework
 		return false;
 	}
 
-	bool PluginManager::ConfigurePlugin(const string_t &PluginName_in)
+	bool PluginManager::ConfigurePlugin(const string_t &PluginName_in, const LPVOID pUserData_in)
 	{
 		IPlugin *pPlugin = LoadPlugin(PluginName_in);
 
 		if (pPlugin != NULL)
-			return pPlugin->Configure();
+			return pPlugin->Configure(pUserData_in);
 
 		return false;
 	}

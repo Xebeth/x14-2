@@ -136,8 +136,8 @@ namespace Bootstrap
 	*/
 	bool BootstrapEngine::IsAutoLoginActive() const
 	{
-		if (m_pSettingsManager != NULL)
-			return m_pSettingsManager->GetAutoLogin();
+		if (m_pSettings != NULL)
+			return m_pSettings->IsPluginActive(_T("AutoLogin"));
 
 		return false;
 	}

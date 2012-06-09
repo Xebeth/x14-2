@@ -25,12 +25,13 @@ namespace PluginFramework
 		virtual ~PluginManager();
 
 		UINT ListPlugins(const string_t &Directory_in, DWORD CompatibilityFlags_in = 0xFFFFFFFF);
-		bool ConfigurePlugin(const string_t &PluginName_in);
+		bool ConfigurePlugin(const string_t &PluginName_in, const LPVOID pUserData_in);
 		IPlugin* LoadPlugin(const string_t &PluginName_in);
 		bool UnloadPlugin(const string_t &PluginName_in);		
 
 		bool IsPluginValid(const TCHAR *pPluginPath_in, DWORD CompatibilityFlags_in = 0xFFFFFFFF);
-		bool IsPluginLoaded(const string_t &PluginName_in) const;
+		bool IsPluginConfigurable(const string_t &PluginName_in) const;
+		bool IsPluginLoaded(const string_t &PluginName_in) const;		
 		string_t& GetVersionStr(string_t &Version_out) const;		
 		bool RegisterPlugin(const PluginInfo &Info_in);
 

@@ -16,11 +16,19 @@ namespace Windower
 	class AutoLoginSettings : public SettingsIniFile
 	{
 	public:
-		explicit AutoLoginSettings(const TCHAR *pSettingsFile_in);
+		AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in);
 
 		bool Load();
 		bool Save();
 
+		/*! \brief Sets the username
+			\param[in] Username_in : the username
+		*/
+		void SetUsername(const string_t& Username_in) { m_Username = Username_in; }
+		/*! \brief Retrieves the username
+			\return the username
+		*/
+		const string_t& GetUsername() const { return m_Username; }
 
 		/*! \brief Sets the password hash
 			\param[in] Password_in : the password hash
@@ -50,11 +58,15 @@ namespace Windower
 
 	protected:
 		//! the handle to the IE server window
-		HWND			 m_hParentWnd;
+		HWND			m_hParentWnd;
+		//! the username
+		string_t		m_Username;
 		//! the password hash
-		string_t		 m_Password;
+		string_t		m_Password;
 		//! the key hash
-		long			 m_KeyHash;
+		long			m_KeyHash;
+		//! the section in which the parameters are written or read
+		string_t		m_SectionName;
 	};
 }
 

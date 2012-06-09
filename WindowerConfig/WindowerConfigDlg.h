@@ -72,6 +72,9 @@ namespace Windower
 		int m_CurrentSel;
 
 		void GenerateNewName(CString &NewName_in_out);
+		void UpdateActivePlugins();
+		void ActivateAllPlugins();		
+		void RefreshPluginList();
 		void FillSupportedRes();
 
 		// Generated message map functions

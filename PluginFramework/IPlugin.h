@@ -32,7 +32,7 @@ typedef void (*fnDestroy)(PluginFramework::IPlugin*);
 //! a function pointer to a Query function
 typedef void (*fnQuery)(PluginFramework::PluginInfo&);
 //! a function pointer to a Configure function
-typedef bool (*fnConfigure)(PluginFramework::IPlugin*);
+typedef bool (*fnConfigure)(PluginFramework::IPlugin*, const LPVOID);
 
 namespace PluginFramework
 {
@@ -266,10 +266,15 @@ namespace PluginFramework
 		void SetName(const string_t &Name_in) { m_PluginInfo.m_Name = Name_in; }
 		
 		/*! \brief Displays the configuration screen of the plugin
+			\param[in] pUserData_in : a pointer to the user data to pass to the plugin
 			\return true if the user validated the screen; false otherwise
 		*/
-		bool Configure();
+		bool Configure(const LPVOID pUserData_in);
 
+		/*! \brief Cleans up the specified string to make it a valid plugin name
+			\param[in,out] Name_in_out : the string to clean up
+		*/
+		static void CleanupName(string_t Name_in_out);
 		/*! \brief Initializes the plugin
 			\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
 			\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
@@ -323,15 +328,15 @@ namespace PluginFramework
 		*/
 		virtual bool RegisterCommands() { return true; }
 
+		//! the plugin information (version, name, author, etc.)
+		PluginInfo m_PluginInfo;
+
+	private:
 		//! Callback function invoked when a new instance of the plugin has been created
 		void OnCreate();
 		//! Callback function invoked when a new instance of the plugin is about to be destroyed
 		void OnDestroy();
 
-		//! the plugin information (version, name, author, etc.)
-		PluginInfo m_PluginInfo;
-
-	private:
 		//! plugin services used to (un)subscribe to services and invoke them
 		static IPluginServices *m_pServices;
 		//! register parameters

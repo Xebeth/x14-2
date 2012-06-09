@@ -133,6 +133,9 @@ namespace Windower
 		LvItem.iSubItem = LIST_COL_PATH;
 		LvItem.pszText = (LPTSTR)PluginInfo_in.GetDLLPath().c_str();
 		pListCtrl_in_out->SetItem(&LvItem);
+
+		if (m_pCurrentSettings != NULL)
+			pListCtrl_in_out->SetCheck(Index, m_pCurrentSettings->IsPluginActive(PluginInfo_in.GetName()));
 	}
 
 	BOOL WindowerConfigDlg::OnInitDialog()
@@ -147,7 +150,7 @@ namespace Windower
 		SetIcon(m_hIcon, TRUE);			// Set big icon
 		SetIcon(m_hIcon, FALSE);		// Set small icon
 
-		pPluginList->SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES);
+		pPluginList->SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_CHECKBOXES | LVS_EX_GRIDLINES);
 
 		pPluginList->InsertColumn(LIST_COL_NAME,		_T("Plugin name"),	 LVCFMT_LEFT, 100);
 		pPluginList->InsertColumn(LIST_COL_VERSION,		_T("Version"),		 LVCFMT_LEFT, 50);
@@ -156,15 +159,6 @@ namespace Windower
 		pPluginList->InsertColumn(LIST_COL_COMPAT,		_T("Compatibility"), LVCFMT_LEFT, 80);
 		pPluginList->InsertColumn(LIST_COL_DESC,		_T("Description"),	 LVCFMT_LEFT, 400);
 		pPluginList->InsertColumn(LIST_COL_PATH,		_T("Filename"),		 LVCFMT_LEFT, 300);
-
-		if (m_pPluginManager != NULL && m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir()) > 0U)
-		{
-			const RegisteredPlugins& Plugins = m_pPluginManager->GetRegisteredPlugins();
-			RegisteredPlugins::const_iterator PluginIt;
-
-			for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
-				InsertPlugin(pPluginList, PluginIt->second);
-		}
 
 		if (pProfiles != NULL)
 		{
@@ -199,9 +193,18 @@ namespace Windower
 			GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(ItemCount > 1);
 		}
 
+		if (m_pPluginManager != NULL && m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir()) > 0U)
+		{
+			const RegisteredPlugins& Plugins = m_pPluginManager->GetRegisteredPlugins();
+			RegisteredPlugins::const_iterator PluginIt;
+
+			for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
+				InsertPlugin(pPluginList, PluginIt->second);
+		}
+
 		return TRUE;  // return TRUE  unless you set the focus to a control
 	}
-	
+
 	void WindowerConfigDlg::OnConfigure(NMHDR* pNMHDR, LRESULT* pResult)
 	{
 		CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
@@ -217,7 +220,7 @@ namespace Windower
 					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
 					const string_t &PluginName = pPluginInfo->GetName();
 					
-					m_pPluginManager->ConfigurePlugin(PluginName);
+					m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
 					m_pPluginManager->UnloadPlugin(PluginName);
 
 					break;
@@ -318,12 +321,36 @@ namespace Windower
 		}
 	}
 
+	void WindowerConfigDlg::RefreshPluginList()
+	{
+		if (m_pCurrentSettings != NULL)
+		{
+			CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
+			for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
+			{
+				DWORD_PTR ItemData = pPluginList->GetItemData(Index);
+
+				if (ItemData != -1 && ItemData != NULL)
+				{
+					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
+					const string_t &PluginName = pPluginInfo->GetName();
+
+					pPluginList->SetCheck(Index, m_pCurrentSettings->IsPluginActive(PluginName));
+				}
+			}
+		}
+	}
+
 	void WindowerConfigDlg::OnProfilesChange()
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
 		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
 		CButton *pVSync		 = static_cast<CButton*>(GetDlgItem(IDC_VSYNC));
+
+		if (m_pCurrentSettings != NULL)
+			UpdateActivePlugins();
 
 		m_pCurrentSettings = NULL;
 
@@ -351,6 +378,8 @@ namespace Windower
 
 					pResX->FindStringExact(0, StrX);
 					pResY->FindStringExact(0, StrY);
+
+					RefreshPluginList();
 				}
 			}
 		}
@@ -432,6 +461,8 @@ namespace Windower
 
 	void WindowerConfigDlg::OnSave()
 	{
+		UpdateActivePlugins();
+
 		if (m_pSettingsManager != NULL)
 			m_pSettingsManager->Save();
 
@@ -451,11 +482,11 @@ namespace Windower
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 
-		if (pProfiles != NULL && m_pCurrentSettings != NULL)
+		if (pProfiles != NULL)
 		{
 			CString NewName = PROFILE_PREFIX _T("New Profile");
 			TCHAR *pDisplayName = NewName.GetBuffer() + PROFILE_PREFIX_LENGTH;
-			WindowerProfile *pNewSettings;
+			WindowerProfile *pNewSettings = NULL;
 
 			while(pProfiles->FindString(0, pDisplayName) != CB_ERR)
 			{
@@ -463,8 +494,11 @@ namespace Windower
 				pDisplayName = NewName.GetBuffer() + PROFILE_PREFIX_LENGTH;
 			}
 
-			pNewSettings = m_pSettingsManager->CreateProfile(NewName, *m_pCurrentSettings);
-			m_pCurrentSettings->SetName(NewName);
+			if (m_pCurrentSettings != NULL)
+			{
+				UpdateActivePlugins();
+				pNewSettings = m_pSettingsManager->CreateProfile(NewName, *m_pCurrentSettings);
+			}
 
 			if (pNewSettings != NULL)
 			{
@@ -475,6 +509,8 @@ namespace Windower
 				pProfiles->SetCurSel(m_CurrentSel);
 				pProfiles->SetEditSel(-1, -1);
 				pProfiles->SetFocus();
+
+				ActivateAllPlugins();
 			}
 
 			GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(pProfiles->GetCount() > 1);
@@ -484,22 +520,21 @@ namespace Windower
 	void WindowerConfigDlg::OnDeleteProfile()
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
-		bool Enable = false;
-
-		if (pProfiles != NULL && m_pCurrentSettings != NULL)
-			Enable = (pProfiles->GetCount() > 1);
+		bool Enable = (pProfiles->GetCount() > 1);
 			
 		if (Enable)
 		{
 			m_pSettingsManager->DeleteProfile(m_pCurrentSettings->GetName());
 			pProfiles->DeleteString(m_CurrentSel);
+			m_pCurrentSettings = NULL;
 			// set the new selection
 			pProfiles->SetCurSel((m_CurrentSel == 0) ? 0 : --m_CurrentSel);
 			// update the data
 			OnProfilesChange();
+			RefreshPluginList();
 		}
 
-		GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(Enable);
+		GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(pProfiles->GetCount() > 1);
 	}
 
 	void WindowerConfigDlg::OnVSyncChange()
@@ -509,6 +544,62 @@ namespace Windower
 		if (m_pSettingsManager != NULL && pVSync != NULL)
 		{
 			m_pCurrentSettings->SetVSync(pVSync->GetCheck() == BST_CHECKED);
+		}
+	}
+
+	void WindowerConfigDlg::ActivateAllPlugins()
+	{
+		if (m_pCurrentSettings != NULL)
+		{
+			bool Configure = (MessageBox(_T("Would you like to configure the plugins?"),
+				_T("Windower configuration"), MB_YESNO | MB_ICONQUESTION) == IDYES);
+
+			CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
+			for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
+			{
+				DWORD_PTR ItemData = pPluginList->GetItemData(Index);
+
+				if (ItemData != -1 && ItemData != NULL)
+				{
+					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
+					const string_t &PluginName = pPluginInfo->GetName();
+
+					if (Configure && m_pPluginManager->LoadPlugin(PluginName))
+					{
+						if (m_pPluginManager->IsPluginConfigurable(PluginName))
+							m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
+
+						m_pPluginManager->UnloadPlugin(PluginName);
+					}
+
+					m_pCurrentSettings->ActivatePlugin(PluginName);
+				}
+			}
+
+			RefreshPluginList();
+		}
+	}
+
+	void WindowerConfigDlg::UpdateActivePlugins()
+	{
+		if (m_pCurrentSettings)
+		{
+			CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
+			for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
+			{
+				DWORD_PTR ItemData = pPluginList->GetItemData(Index);
+
+				if (ItemData != -1 && ItemData != NULL)
+				{
+					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
+					bool Active = (pPluginList->GetCheck(Index) == BST_CHECKED);
+					const string_t &PluginName = pPluginInfo->GetName();					
+
+					m_pCurrentSettings->ActivatePlugin(PluginName, Active);
+				}
+			}
 		}
 	}
 }

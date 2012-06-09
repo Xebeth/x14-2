@@ -20,13 +20,15 @@ BEGIN_MESSAGE_MAP(AutoLoginConfigDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &AutoLoginConfigDlg::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_PASSWORD, &AutoLoginConfigDlg::OnPasswordChange)
+	ON_EN_CHANGE(IDC_USERNAME, &AutoLoginConfigDlg::OnUsernameChange)
 END_MESSAGE_MAP()
 
 /*! \brief AutoLoginConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-AutoLoginConfigDlg::AutoLoginConfigDlg(CWnd* pParentWnd_in) : CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	m_pSettings(new Windower::AutoLoginSettings(_T("config.ini")))
+AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
+	: CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
+	  m_pSettings(new Windower::AutoLoginSettings(_T("config.ini"), pProfileName_in))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_CONFIG);
 	// generate the encryption key
@@ -60,6 +62,15 @@ BOOL AutoLoginConfigDlg::OnInitDialog()
 	// set the edit text with the encryption key hash
 	StrKeyHash.Format(_T("0x%08x"), KeyHash);
 	SetDlgItemText(IDC_ENCRYPTION_KEY_HASH, StrKeyHash);
+
+	if (m_pSettings != NULL)
+	{
+		m_PasswordHash = m_pSettings->GetPassword();
+		SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
+
+		m_Username = m_pSettings->GetUsername();
+		SetDlgItemText(IDC_USERNAME, m_Username.c_str());
+	}
 
 	return TRUE;
 }
@@ -100,10 +111,10 @@ HCURSOR AutoLoginConfigDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
 //! \brief Message handler called when the user presses the OK button
 void AutoLoginConfigDlg::OnBnClickedOk()
 {
+	m_pSettings->SetUsername(m_Username);
 	m_pSettings->SetPassword(m_PasswordHash);
 	m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));
 
@@ -125,4 +136,13 @@ void AutoLoginConfigDlg::OnPasswordChange()
 	CryptUtils::StringToHex(CryptedPassword, m_PasswordHash);
 
 	SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
+}
+
+//! \brief Message handler called when the username edit content changes
+void AutoLoginConfigDlg::OnUsernameChange()
+{
+	CString Username;
+
+	GetDlgItemText(IDC_USERNAME, Username);
+	m_Username = Username.GetBuffer();
 }

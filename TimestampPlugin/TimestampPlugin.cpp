@@ -61,12 +61,13 @@ namespace Windower
 	}
 
 	/*! \brief Opens the configuration screen of the plugin
-		\param[out] pInstance_in : the instance of the plugin to configure
+		\param[in] pInstance_in : the instance of the plugin to configure
+		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
 		\return true if the user validated the configuration screen; false otherwise
 	*/
-	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
+	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		MessageBox(NULL, _T("This plugin has no configuration."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+		MessageBox(NULL, _T("Not implemented."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
 
 		return true;
 	}

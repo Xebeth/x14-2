@@ -65,14 +65,7 @@ namespace Windower
 			\return the name of the default profile
 		*/
 		const TCHAR* GetDefaultProfile() const { return m_DefaultProfile.c_str(); }
-		/*! \brief Sets the flag specifying if the AutoLogin plugin is in use
-			\param[in] AutoLogin_in : the new value of the flag
-		*/
-		void SetAutoLogin(bool AutoLogin_in) { m_AutoLogin = AutoLogin_in; }
-		/*! \brief Retrieves the flag specifying if the AutoLogin plugin is in use
-			\return the flag specifying if the AutoLogin plugin is in use
-		*/
-		bool GetAutoLogin() const { return m_AutoLogin; }
+
 		/*! \brief Retrieves the profiles from the windower configuration file
 			\return the profiles from the windower configuration file
 		*/
@@ -88,8 +81,6 @@ namespace Windower
 		SettingsIniFile *m_pSettingsFile;
 		//! the name of the default profile
 		string_t m_DefaultProfile;
-		//! flag specifying if the AutoLogin plugin is in use
-		bool m_AutoLogin;
 		//! the absolute directory of the plugins
 		string_t m_PluginsAbsDir;
 		//! the relative directory of the plugins

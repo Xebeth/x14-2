@@ -11,8 +11,13 @@
 #define PROFILE_PREFIX_LENGTH 8
 #define PROFILE_PREFIX _T("Profile:")
 
+#include <set>
+
 namespace Windower
 {
+	//! a set of active plugin names
+	typedef std::set<string_t> ActivePlugins;
+
 	//! \brief Windower settings
 	class WindowerProfile
 	{
@@ -69,6 +74,28 @@ namespace Windower
 		*/
 		const TCHAR* GetName() const { return m_Name.c_str(); }
 
+		bool IsPluginActive(const string_t &PluginName_in) const
+		{
+			ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
+
+			return (PluginIt != m_ActivePlugins.end());
+		}
+
+		void ActivatePlugin(const string_t &PluginName_in, bool Activate_in = true)
+		{
+			if (Activate_in == false)
+			{
+				ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
+
+				if (PluginIt != m_ActivePlugins.end())
+					m_ActivePlugins.erase(PluginIt);
+			}
+			else
+				m_ActivePlugins.insert(PluginName_in);
+		}
+
+		const ActivePlugins& GetActivePlugins() const { return m_ActivePlugins; }
+
 	protected:
 		//! the width of the rendering surface
 		LONG m_ResX;
@@ -78,6 +105,8 @@ namespace Windower
 		BOOL m_VSync;
 		//! the name of the profile
 		string_t m_Name;
+		//! set of active plugins
+		ActivePlugins m_ActivePlugins;
 	};
 }
 

@@ -28,7 +28,7 @@ namespace Windower
 	//! \brief AutoLoginPlugin default constructor
 	AutoLoginPlugin::AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in)
 		: CommandHandler(0x18E5F530, "AutoLogin"), PluginFramework::IPlugin(pServices_in),
-		  m_hThread(NULL), m_pSettings(new AutoLoginSettings(_T("config.ini"))) {}
+		  m_hThread(NULL), m_pSettings(new AutoLoginSettings(_T("config.ini"), NULL)) {}
 
 	//! \brief AutoLoginPlugin destructor
 	AutoLoginPlugin::~AutoLoginPlugin()
@@ -72,12 +72,13 @@ namespace Windower
 	}
 	
 	/*! \brief Opens the configuration screen of the plugin
-		\param[out] pInstance_in : the instance of the plugin to configure
+		\param[in] pInstance_in : the instance of the plugin to configure
+		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
 		\return true if the user validated the configuration screen; false otherwise
 	*/
-	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in)
+	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		AutoLoginConfigDlg ConfigDlg;
+		AutoLoginConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
 	}

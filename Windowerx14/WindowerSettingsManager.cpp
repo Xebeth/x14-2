@@ -18,7 +18,7 @@ namespace Windower
 		\param[in] pIniFile_in : the path of the configuration file
 	*/
 	SettingsManager::SettingsManager(const TCHAR *pIniFile_in)
-		: m_AutoLogin(false), m_PluginsDir(DEFAULT_PLUGINS_DIR)
+		: m_PluginsDir(DEFAULT_PLUGINS_DIR)
 	{
 		bool bEmpty = true;
 
@@ -89,10 +89,12 @@ namespace Windower
 
 			if (ProfileIt != m_Profiles.end())
 			{
+				string_t ProfileName(pProfileName_in);
+
 				delete ProfileIt->second;
 				m_Profiles.erase(ProfileIt);
 
-				return m_pSettingsFile->DeleteSection(pProfileName_in);
+				return m_pSettingsFile->DeleteSection(ProfileName);
 			}
 		}
 
@@ -111,7 +113,6 @@ namespace Windower
 			const TCHAR *pName;
 
 			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
-			m_pSettingsFile->SetLong(_T("General"), _T("AutoLogin"), m_AutoLogin);
 
 			for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
 			{
@@ -124,6 +125,22 @@ namespace Windower
 					m_pSettingsFile->SetLong(pName, _T("ResX"),  pProfile->GetResX());
 					m_pSettingsFile->SetLong(pName, _T("ResY"),  pProfile->GetResY());
 					m_pSettingsFile->SetLong(pName, _T("VSync"), pProfile->GetVSync());
+
+					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
+					ActivePlugins::size_type Count = Plugins.size(), Index = 0;
+					ActivePlugins::const_iterator PluginIt;
+					string_t PluginList;
+					
+					for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt, ++Index)
+					{
+						if (Index > 0 && Index < Count)
+							PluginList += '|';
+
+						PluginList += *PluginIt;
+					}
+
+					if (PluginList.empty() == false)
+						m_pSettingsFile->SetString(pName, _T("Plugins"), PluginList);
 				}
 			}
 
@@ -146,6 +163,30 @@ namespace Windower
 			Settings_out.SetResolution(m_pSettingsFile->GetLong(pProfileName_in, _T("ResX")),
 									   m_pSettingsFile->GetLong(pProfileName_in, _T("ResY")));
 			Settings_out.SetName(pProfileName_in);
+
+			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, _T("Plugins"));
+			string_t::size_type Pos, Offset = 0;
+			string_t Current;
+
+			Pos = Plugins.find_first_of('|', Offset);
+
+			while (Pos != string_t::npos)
+			{
+				// 012345678901234567890123456789
+				// AutoLogin|ExpWatch|Timestamp
+				Current = Plugins.substr(Offset, Pos - Offset);
+
+				if (Current.empty() == false)
+					Settings_out.ActivatePlugin(Current);
+
+				Offset = Pos + 1;
+				Pos = Plugins.find_first_of('|', Offset);
+			}
+
+			Current = Plugins.substr(Offset, Pos);
+			// add the last item in the list
+			if (Current.empty() == false)
+				Settings_out.ActivatePlugin(Current);
 
 			return true;
 		}
@@ -175,7 +216,6 @@ namespace Windower
 
 			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME));
 			SetPluginsDir(m_pSettingsFile->GetString(_T("General"), _T("PluginsDir"), DEFAULT_PLUGINS_DIR));
-			SetAutoLogin(m_pSettingsFile->GetLong(_T("General"), _T("Autologin"), 0) == 1L);
 
 			m_pSettingsFile->getSections(Sections);
 
