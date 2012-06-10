@@ -6,13 +6,15 @@
 	purpose		:	Tell detect plugin
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
+#include "resource.h"
 
+#include <PluginFramework.h>
+#include <SettingsManager.h>
 #include <IGameChatPlugin.h>
 #include <PluginEngine.h>
 
-#include <Mmsystem.h>
-
+#include "TellDetectConfigDlg.h"
+#include "TellDetectSettings.h"
 #include "TellDetectPlugin.h"
 #include "version.h"
 
@@ -20,6 +22,23 @@ using namespace PluginFramework;
 
 namespace Windower
 {
+	//! \brief TellDetectPlugin constructor
+	TellDetectPlugin::TellDetectPlugin(PluginFramework::IPluginServices *pServices_in)
+		: IGameChatPlugin(pServices_in), m_pSettings(new TellDetectSettings(_T("config.ini"), NULL))
+	{
+		if (m_pSettings != NULL)
+			m_SoundFile = m_pSettings->GetFilename();
+	}
+
+	TellDetectPlugin::~TellDetectPlugin()
+	{
+		if (m_pSettings != NULL)
+		{
+			delete m_pSettings;
+			m_pSettings = NULL;
+		}
+	}
+
 	/*! \brief Creates an instance of TellDetectPlugin
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TellDetectPlugin instance
@@ -60,9 +79,9 @@ namespace Windower
 	*/
 	bool TellDetectPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		MessageBox(NULL, _T("Not implemented."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+		TellDetectConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
 
-		return true;
+		return (ConfigDlg.DoModal() == IDOK);
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -81,7 +100,7 @@ namespace Windower
 										 bool &Unsubscribe_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
-			PlaySound(_T("tell.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound(m_SoundFile.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 
 		return true;
 	}

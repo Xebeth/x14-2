@@ -13,9 +13,8 @@ namespace Windower
 	class TellDetectPlugin : public Windower::IGameChatPlugin
 	{
 	public:
-		//! \brief TellDetectPlugin constructor
-		explicit TellDetectPlugin(PluginFramework::IPluginServices *pServices_in)
-			: IGameChatPlugin(pServices_in) {}
+		explicit TellDetectPlugin(PluginFramework::IPluginServices *pServices_in);
+		~TellDetectPlugin();
 
 		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
@@ -26,6 +25,12 @@ namespace Windower
 						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   bool &Unsubscribe_out);
+
+	protected:
+		//! Timestamp plugin settings
+		TellDetectSettings *m_pSettings;
+		//! Path to the sound file
+		string_t m_SoundFile;
 	};
 }
 
