@@ -8,11 +8,10 @@
 #ifndef __TIMESTAMP_PLUGIN_H__
 #define __TIMESTAMP_PLUGIN_H__
 
-#define TIMESTAMP_DEFAULT_FORMAT	"[HH:mm:ss] "
-#define TIMESTAMP_DEFAULT_LENGTH	11
-
 namespace Windower
 {
+	class TimestampSettings;
+
 	class TimestampPlugin : public Windower::IGameChatPlugin, public CommandHandler
 	{
 		//! IDs of the commands registered with the plugin
@@ -24,6 +23,7 @@ namespace Windower
 
 	public:
 		explicit TimestampPlugin(PluginFramework::IPluginServices *pServices_in);
+		~TimestampPlugin();
 
 		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
@@ -43,6 +43,8 @@ namespace Windower
 		bool RegisterCommands();
 
 	private:
+		//! Timestamp plugin settings
+		TimestampSettings *m_pSettings;
 		//! the format of the timestamp plugin
 		std::string		m_TimestampFormat;
 		//! the length of the formatted timestamp

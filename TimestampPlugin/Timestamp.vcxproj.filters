@@ -8,6 +8,15 @@
       <Filter>Precompiled headers</Filter>
     </ClInclude>
     <ClInclude Include="TimestampPlugin.h" />
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="TimestampConfigDlg.h">
+      <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="TimestampSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -16,9 +25,18 @@
     <Filter Include="Precompiled headers">
       <UniqueIdentifier>{876235ba-7e4b-40e3-aacb-ae6788960f6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{32db4c0f-d18b-4f64-86a1-64a78a2407ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{53130a8a-1f54-4e1c-a9e2-379de7052f79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Timestamp.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -27,5 +45,21 @@
       <Filter>Precompiled headers</Filter>
     </ClCompile>
     <ClCompile Include="TimestampPlugin.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="TimestampConfigDlg.cpp">
+      <Filter>Config</Filter>
+    </ClCompile>
+    <ClCompile Include="TimestampSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Common\x14.ico" />
+    <None Include="res\Timestamp.rc2">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="res\Timestamp.ico">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

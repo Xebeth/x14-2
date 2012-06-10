@@ -6,7 +6,10 @@
 	purpose		:	Timestamp plugin
 **************************************************************************/
 #include "stdafx.h"
+#include "resource.h"
+
 #include <PluginFramework.h>
+#include <SettingsManager.h>
 
 #include <WindowerCommand.h>
 #include <CommandHandler.h>
@@ -15,6 +18,9 @@
 
 #include "TimestampPlugin.h"
 #include "version.h"
+
+#include "TimestampSettings.h"
+#include "TimestampConfigDlg.h"
 
 using namespace PluginFramework;
 
@@ -25,7 +31,26 @@ namespace Windower
 	*/
 	TimestampPlugin::TimestampPlugin(PluginFramework::IPluginServices *pServices_in) 
 		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
-		  m_TimestampFormat(TIMESTAMP_DEFAULT_FORMAT), m_TimestampLength(TIMESTAMP_DEFAULT_LENGTH) {}
+		  m_pSettings(new TimestampSettings(_T("config.ini"), NULL))
+	{
+		if (m_pSettings != NULL)
+		{
+			convert_ansi(m_pSettings->GetFormat(), m_TimestampFormat);
+			m_TimestampFormat += " ";
+			m_TimestampLength = m_TimestampFormat.length();
+		}
+	}
+
+	//! \brief TimestampPlugin destructor
+	TimestampPlugin::~TimestampPlugin()
+	{
+		if (m_pSettings != NULL)
+		{
+			delete m_pSettings;
+			m_pSettings = NULL;
+		}
+	}
+
 
 	/*! \brief Creates an instance of TimestampPlugin
 		\param[in] pServices_in : a pointer to the plugin services
@@ -67,9 +92,9 @@ namespace Windower
 	*/
 	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		MessageBox(NULL, _T("Not implemented."), _T(MODULE_FILENAME), MB_OK | MB_ICONINFORMATION);
+		TimestampConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
 
-		return true;
+		return (ConfigDlg.DoModal() == IDOK);
 	}
 	
 	/*! \brief Registers the commands of the plugin with the command dispatcher
@@ -80,7 +105,7 @@ namespace Windower
 		// register the command
 		WindowerCommand *pCommand = RegisterCommand(CMD_FORMAT, "timestamp::format", "sets the format of the timestamp");
 
-		if (pCommand != NULL && pCommand->AddStringParam("format", false, TIMESTAMP_DEFAULT_FORMAT,
+		if (pCommand != NULL && pCommand->AddStringParam("format", false, m_TimestampFormat.c_str(),
 														 "format of the timestamp\n"
 														 "\t\t-- see the remarks at http://tinyurl.com/gettimeformatex ") == false)
 		{
@@ -129,11 +154,11 @@ namespace Windower
 				memset(*pBuffer_in_out, 0, dwNewSize);
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL, m_TimestampFormat.c_str(),
-					*pBuffer_in_out, m_TimestampLength + 1);
+							   *pBuffer_in_out, m_TimestampLength);
 				// copy the original text
 				memcpy_s(*pBuffer_in_out + m_TimestampLength,
-					pMessage_in_out->dwSize * sizeof(char),
-					pMessage_in_out->pResBuf, pMessage_in_out->dwSize);
+						 pMessage_in_out->dwSize * sizeof(char),
+						 pMessage_in_out->pResBuf, pMessage_in_out->dwSize);
 				// replace the object data with timestamp + text
 				pMessage_in_out->pResBuf = *pBuffer_in_out;
 				pMessage_in_out->dwSize = dwNewSize;
@@ -157,7 +182,12 @@ namespace Windower
 		switch(CmdID_in)
 		{
 			case CMD_FORMAT:
-				return SetFormat(Command_in.GetStringValue("format"));
+				if (SetFormat(Command_in.GetStringValue("format")))
+				{
+					Feedback_out = "The format of timestamps has been set successfully.";
+
+					return true;
+				}
 		}
 
 		return false;
@@ -171,8 +201,18 @@ namespace Windower
 	{
 		if (Format_in.empty() == false)
 		{
-			m_TimestampLength = Format_in.length();
 			m_TimestampFormat = Format_in;
+			m_TimestampLength = Format_in.length();
+
+			if (m_pSettings != NULL)
+			{
+				string_t Format;
+
+				convert_utf8(m_TimestampFormat, Format);
+				m_pSettings->SetFormat(Format);
+
+				return m_pSettings->Save();
+			}
 
 			return true;
 		}
