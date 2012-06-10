@@ -201,6 +201,17 @@ namespace Windower
 		return LoadProfile(GetDefaultProfile(), Settings_out);
 	}
 
+	/*! \brief Forces the configuration file to be reloaded
+		\return true if successful; false otherwise
+	*/
+	bool SettingsManager::Reload()
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->Reload();
+
+		return false;
+	}
+
 	/*! \brief Loads the configuration
 		\return true if successful; false otherwise
 	*/

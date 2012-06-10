@@ -71,6 +71,7 @@ namespace Windower
 		*/
 		const WindowerSettings& GetProfiles() const { return m_Profiles; }
 
+		bool Reload();
 		bool Load();
 		bool Save();
 

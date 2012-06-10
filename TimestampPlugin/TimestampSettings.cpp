@@ -45,7 +45,7 @@ namespace Windower
 			if (m_SectionName.empty())
 				m_SectionName = GetString(_T("General"), _T("CurrentProfile"), _T("Profile:Default"));
 
-			m_Format = GetString(m_SectionName.c_str(), _T("TimestampFormat"), _T("[HH:mm:ss] "));
+			m_Format = GetString(m_SectionName.c_str(), _T("TimestampFormat"), _T("[HH:mm:ss]"));
 
 			return true;
 		}

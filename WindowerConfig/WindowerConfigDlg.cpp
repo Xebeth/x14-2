@@ -223,9 +223,13 @@ namespace Windower
 					{
 						PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
 						const string_t &PluginName = pPluginInfo->GetName();
+						bool Result;
 					
-						m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
+						Result = m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
 						m_pPluginManager->UnloadPlugin(PluginName);
+
+						if (Result)
+							m_pSettingsManager->Reload();
 
 						break;
 					}
@@ -524,6 +528,7 @@ namespace Windower
 
 			if (pNewSettings != NULL)
 			{
+				m_pSettingsManager->SetDefaultProfile(NewName);
 				m_CurrentSel = pProfiles->AddString(pDisplayName);
 				m_pCurrentSettings = pNewSettings;
 
@@ -589,8 +594,11 @@ namespace Windower
 
 					if (Configure && m_pPluginManager->LoadPlugin(PluginName))
 					{
-						if (m_pPluginManager->IsPluginConfigurable(PluginName))
-							m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
+						if (m_pPluginManager->IsPluginConfigurable(PluginName)
+						 && m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName()))
+						{
+							m_pSettingsManager->Reload();
+						}
 
 						m_pPluginManager->UnloadPlugin(PluginName);
 					}

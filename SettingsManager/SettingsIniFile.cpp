@@ -52,6 +52,21 @@ namespace Settings
 		return false;
 	}
 
+	/*! \brief Forces the file to be reloaded
+		\return true if successful; false otherwise
+	*/
+	bool SettingsIniFile::Reload()
+	{
+		if (m_pIni != NULL)
+		{
+			m_pIni->Reset();
+			
+			return Load();
+		}
+
+		return false;
+	}
+
 	/*! \brief Saves the settings to the INI file
 		\return true if successful; false otherwise
 	*/

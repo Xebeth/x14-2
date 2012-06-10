@@ -23,6 +23,7 @@ namespace Settings
 		virtual void SetSource(const string_t &SourceFile_in);
 		virtual bool Load();
 		virtual bool Save();
+		virtual bool Reload();
 
 		// Sections functions
 		virtual bool CreateSection(const string_t &SectionName_in);
