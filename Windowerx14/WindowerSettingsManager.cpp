@@ -172,8 +172,6 @@ namespace Windower
 
 			while (Pos != string_t::npos)
 			{
-				// 012345678901234567890123456789
-				// AutoLogin|ExpWatch|Timestamp
 				Current = Plugins.substr(Offset, Pos - Offset);
 
 				if (Current.empty() == false)
@@ -210,28 +208,44 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL)
 		{
+			WindowerSettings::iterator SettingsIt;
 			CSimpleIni::TNamesDepend Sections;
 			SectionsIterator SectionIter;
-			bool Result = false;
+			bool Exists, Result = false;
+			WindowerProfile *pSettings;
+			
 
 			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME));
 			SetPluginsDir(m_pSettingsFile->GetString(_T("General"), _T("PluginsDir"), DEFAULT_PLUGINS_DIR));
 
-			m_pSettingsFile->getSections(Sections);
+			m_pSettingsFile->GetSections(Sections);
 
 			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
 			{
 				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
 				{
-					WindowerProfile *pSettings = new WindowerProfile();
+					SettingsIt = m_Profiles.find(SectionIter->pItem);
+					Exists = (SettingsIt != m_Profiles.end());
+
+					if (Exists)
+						pSettings = SettingsIt->second;
+					else
+						pSettings = new WindowerProfile();
 
 					if (LoadProfile(SectionIter->pItem, *pSettings))
 					{
+						//SectionIter->
+
 						m_Profiles[SectionIter->pItem] = pSettings;
 						Result = true;
 					}
 					else
+					{
 						delete pSettings;
+
+						if (Exists)
+							m_Profiles.erase(SettingsIt);
+					}
 				}
 			}
 

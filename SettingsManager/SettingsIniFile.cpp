@@ -169,8 +169,10 @@ namespace Settings
 	/*! \brief Retrieves a collection of all the sections in the INI file
 		\param[out] Sections_out : a collection of all the sections in the INI file
 	*/
-	void SettingsIniFile::getSections(CSimpleIni::TNamesDepend &Sections_out) const
+	size_t SettingsIniFile::GetSections(CSimpleIni::TNamesDepend &Sections_out) const
 	{
 		m_pIni->GetAllSections(Sections_out);
+
+		return Sections_out.size();
 	}
 }

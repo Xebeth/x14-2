@@ -50,6 +50,7 @@ namespace Windower
 		afx_msg void OnDeleteProfile();
 		afx_msg void OnVSyncChange();
 		afx_msg void OnNewProfile();
+		afx_msg void OnLaunch();
 		afx_msg void OnSave();
 
 	protected:

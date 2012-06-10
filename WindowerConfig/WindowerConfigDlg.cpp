@@ -11,6 +11,7 @@
 #include <d3d9.h>
 
 #include <CryptUtils.h>
+#include <InjectModule.h>
 #include <SettingsManager.h>
 #include <WindowerSettings.h>
 #include <WindowerSettingsManager.h>
@@ -43,7 +44,8 @@ namespace Windower
 
 		ON_NOTIFY(NM_DBLCLK, IDC_PLUGIN_LIST, OnConfigure)
 		
-		ON_BN_CLICKED(IDOK, &WindowerConfigDlg::OnSave)
+		ON_BN_CLICKED(IDC_SAVE, &WindowerConfigDlg::OnSave)
+		ON_BN_CLICKED(IDOK, &WindowerConfigDlg::OnLaunch)		
 	END_MESSAGE_MAP()
 
 	WindowerConfigDlg::WindowerConfigDlg(SettingsManager *pSettingsManager,CWnd* pParent)
@@ -207,23 +209,26 @@ namespace Windower
 
 	void WindowerConfigDlg::OnConfigure(NMHDR* pNMHDR, LRESULT* pResult)
 	{
-		CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
-
-		for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
+		if (m_pCurrentSettings != NULL)
 		{
-			if (pPluginList->GetItemState(Index, LVIS_SELECTED) == LVIS_SELECTED)
+			CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+
+			for (int Index = 0; Index < pPluginList->GetItemCount(); ++Index)
 			{
-				DWORD_PTR ItemData = pPluginList->GetItemData(Index);
-
-				if (ItemData != -1 && ItemData != NULL)
+				if (pPluginList->GetItemState(Index, LVIS_SELECTED) == LVIS_SELECTED)
 				{
-					PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
-					const string_t &PluginName = pPluginInfo->GetName();
-					
-					m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
-					m_pPluginManager->UnloadPlugin(PluginName);
+					DWORD_PTR ItemData = pPluginList->GetItemData(Index);
 
-					break;
+					if (ItemData != -1 && ItemData != NULL)
+					{
+						PluginInfo *pPluginInfo = reinterpret_cast<PluginInfo*>(ItemData);
+						const string_t &PluginName = pPluginInfo->GetName();
+					
+						m_pPluginManager->ConfigurePlugin(PluginName, (LPVOID)m_pCurrentSettings->GetName());
+						m_pPluginManager->UnloadPlugin(PluginName);
+
+						break;
+					}
 				}
 			}
 		}
@@ -459,14 +464,31 @@ namespace Windower
 		}
 	}
 
+	void WindowerConfigDlg::OnLaunch()
+	{
+		OnSave();
+
+		PROCESS_INFORMATION ProcessInfo;
+		TCHAR DLL32Path[_MAX_PATH];
+		TCHAR ExePath[_MAX_PATH];
+		TCHAR DirPath[_MAX_PATH];
+
+		GetCurrentDirectory(_MAX_PATH, DirPath);
+		_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
+		_stprintf_s(ExePath, _MAX_PATH, _T("%s\\ffxivboot.exe"), DirPath);
+
+		InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CREATE_DEFAULT_ERROR_MODE |
+									  CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, DLL32Path, NULL);
+
+		OnOK();
+	}
+
 	void WindowerConfigDlg::OnSave()
 	{
 		UpdateActivePlugins();
 
 		if (m_pSettingsManager != NULL)
 			m_pSettingsManager->Save();
-
-		OnOK();
 	}
 
 	void WindowerConfigDlg::GenerateNewName(CString &NewName_in_out)

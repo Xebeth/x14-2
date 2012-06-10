@@ -27,7 +27,7 @@ namespace Settings
 		// Sections functions
 		virtual bool CreateSection(const string_t &SectionName_in);
 		virtual bool DeleteSection(const string_t &SectionName_in);
-		virtual void getSections(CSimpleIni::TNamesDepend &Sections_out) const;
+		virtual size_t GetSections(CSimpleIni::TNamesDepend &Sections_out) const;
 
 		// Settings accessors
 		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue = 0L) const;

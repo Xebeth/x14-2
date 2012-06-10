@@ -25,15 +25,26 @@ namespace Windower
 		//! \brief WindowerProfile default constructor
 		WindowerProfile() { m_ResX = m_ResY = 0L; m_VSync = FALSE; }
 		/*! \brief WindowerProfile copy constructor
-			\param[in] Settings_in : the copied settings
+			\param[in] Settings_in : the settings to copy
 		*/
 		WindowerProfile(const WindowerProfile &Settings_in)
+		{
+			Copy(Settings_in);
+		}
+
+		/*! \brief Copies the specified settings
+			\param[in] Settings_in : the settings to copy
+		*/
+		void Copy(const WindowerProfile &Settings_in)
 		{
 			m_Name = Settings_in.GetName();
 			m_ResX = Settings_in.GetResX();
 			m_ResY = Settings_in.GetResY();
 			m_VSync = Settings_in.GetVSync();
+
+			m_ActivePlugins = Settings_in.m_ActivePlugins;
 		}
+
 		/*! \brief WindowerProfile constructor
 			\param[in] ResX_in : the width of the rendering surface
 			\param[in] ResY_in : the height of the rendering surface
