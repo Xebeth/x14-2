@@ -208,6 +208,18 @@ namespace Windower
 
 			Result &= (pCommand != NULL);
 
+			// register the "list" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_LIST_PLUGINS, "list",
+										   "Gives a list of the available plugins.", this);
+
+			if (pCommand != NULL && RegisterCommand(pCommand) == false)
+			{
+				delete pCommand;
+				pCommand = NULL;
+			}
+
+			Result &= (pCommand != NULL);
+
 			return Result;
 		}
 
@@ -383,24 +395,41 @@ namespace Windower
 		if  (m_pPluginManager != NULL)
 		{
 			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
+			PluginFramework::RegisteredPlugins::const_iterator PluginEnd = Plugins.end();
 			PluginFramework::RegisteredPlugins::const_iterator PluginIt = Plugins.begin();
-			Feedback_out = "List of plugins:\n";
-			std::string Info;
-			UINT Count = 0U;
+			std::string Info, LoadedList, AvailableList;
+			UINT LoadedCount = 0U, AvailableCount = 0U;
 
-			for (; PluginIt != Plugins.end(); ++PluginIt)
+			for (; PluginIt != PluginEnd; ++PluginIt)
 			{
 				convert_ansi(PluginIt->second.ToString(), Info);
 
-				append_format(Feedback_out, "%s\nLoaded:\t%s\n", Info.c_str(),
-							  m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()) ? "yes" : "no");
-				++Count;
+				if (m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()))
+				{
+					append_format(LoadedList, "- %s", Info.c_str());
+					++LoadedCount;
+				}
+				else
+				{
+					append_format(AvailableList, "- %s", Info.c_str());
+					++AvailableCount;
+				}
 			}
 
-			if (Count > 0U)
-				append_format(Feedback_out, "%u plugin(s) found.", Count);
-			else
-				append_format(Feedback_out, "No plugin found.");
+			if (LoadedCount > 0U)
+			{
+				append_format(Feedback_out, "Loaded plugins (%u found):\n%s",
+							  LoadedCount, LoadedList.c_str());
+			}
+
+			if (AvailableCount > 0U)
+			{
+				if (LoadedCount > 0U)
+					Feedback_out += "\n";
+
+				append_format(Feedback_out, "Available plugins (%u found):\n%s",
+							  AvailableCount, AvailableList.c_str());
+			}
 
 			return true;
 		}

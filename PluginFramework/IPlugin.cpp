@@ -91,8 +91,8 @@ namespace PluginFramework
 	string_t PluginInfo::ToString() const
 	{
 		return format(_T("Plugin '%s v%s':\n")
-					  _T("\tAuthor:\t\t%s\n")
-					  _T("\tDescritpion:\t%s\n"),
+					  _T("  Author:      %s\n")
+					  _T("  Descritpion: %s\n"),
 					  m_Name.c_str(), m_Version.ToString().c_str(),
 					  m_Author.c_str(), m_Descritpion.c_str());
 	}
