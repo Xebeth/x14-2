@@ -42,7 +42,8 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
 	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_UserSet(false),
 	  m_pPasswordInput(NULL), m_pFormIterator(NULL), m_pHTMLDoc(NULL),
-	  m_LoginComplete(false), m_PasswordSet(false), m_pUserInput(NULL)
+	  m_LoginComplete(false), m_PasswordSet(false), m_pUserInput(NULL),
+	  m_pTokenInput(NULL)
 {
 	m_hParentWnd = Settings_in.GetParentWnd();
 	// initialize COM
@@ -81,8 +82,8 @@ void AutoLogin::MonitorForms()
 				if (IsStatus(_T("complete")))
 				{
 					// try to auto-complete the login form
-					if (m_PasswordSet == false)
-						AutoCompleteForm();
+					if (m_PasswordSet == false && AutoCompleteForm())
+						SetFocusOnTokenInput();
 
 					Sleep(100);
 				}
@@ -132,6 +133,13 @@ bool AutoLogin::AutoCompleteForm()
 		{
 			string_t Username = m_Settings.GetUsername();
 
+			// the one time password input hasn't been found yet
+			if (m_pTokenInput == NULL)
+			{
+				// look for it in the current form
+				m_pTokenInput = FindChildById(pCurrentForm, _T("inputOTP"));
+			}
+
 			// the user input hasn't been found yet
 			if (Username.empty() == false && m_pUserInput == NULL)
 			{
@@ -172,15 +180,13 @@ bool AutoLogin::AutoCompleteForm()
 								string_t Password;
 
 								CryptUtils::Crypt(Key, CryptedPassword, Password);
-								m_PasswordSet = SetInputValue(m_pPasswordInput, Password.c_str());
+								m_LoginComplete = m_PasswordSet = SetInputValue(m_pPasswordInput, Password.c_str());
 							}
 						}
 
 						m_pPasswordInput->Release();
 						m_pPasswordInput = NULL;
 					}
-					else
-						m_LoginComplete = true;
 
 					pElement->Release();
 				}
@@ -405,6 +411,34 @@ bool AutoLogin::UpdateDocumentState()
 	}
 
 	SysFreeString(DocState);
+
+	return Result;
+}
+
+/*! \brief Sets the focus on the one time password input
+	\return true if the focus was set; false otherwise
+*/
+bool AutoLogin::SetFocusOnTokenInput()
+{
+	IHTMLElement2 *pTokenInput = NULL;
+	bool Result = false;
+
+	if (m_pTokenInput != NULL)
+	{
+		if (SUCCEEDED(m_pTokenInput->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pTokenInput)) && pTokenInput != NULL)
+		{
+			Result = (pTokenInput->focus() == S_OK);
+
+			pTokenInput->Release();
+			pTokenInput = NULL;
+		}
+		// we're done here
+		if (Result)
+		{
+			m_pTokenInput->Release();
+			m_pTokenInput = NULL;
+		}
+	}
 
 	return Result;
 }

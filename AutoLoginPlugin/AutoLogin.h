@@ -53,11 +53,14 @@ protected:
 	LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
 	HWND GetIEServerWindow(long Timeout_in);
 	bool GetHTMLDocument(long Timeout_in);	
+	bool SetFocusOnTokenInput();
 
 	//! the user field
 	IHTMLInputElement *m_pUserInput;
 	//! the password field
 	IHTMLInputElement *m_pPasswordInput;
+	//! one time password field
+	IHTMLElement *m_pTokenInput;
 	//! the HTML document
 	IHTMLDocument2 *m_pHTMLDoc;
 
