@@ -33,6 +33,9 @@ namespace Windower
 								   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
 								   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 								   bool &Unsubscribe_out) { return true; }
+	protected:
+		bool Subscribe();
+		bool Unsubscribe();
 	};
 }
 

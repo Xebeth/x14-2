@@ -80,7 +80,7 @@ namespace Windower
 			HookManager_in.RegisterHook("OnChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 		}
-/*
+
 		dwFuncAddr = MemScan.Scan(CREATETEXTNODE_OPCODES_SIGNATURE,
 								  CREATETEXTNODE_OPCODES_SIGNATURE_OFFSET);
 		// set m_pCreateTextNodeTrampoline with the address of the original function in case of failure
@@ -91,7 +91,6 @@ namespace Windower
 			HookManager_in.RegisterHook("CreateTextNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::CreateTextNodeHook, CREATETEXTNODE_OPCODES_HOOK_SIZE);
 		}
-*/
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed

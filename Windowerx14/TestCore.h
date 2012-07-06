@@ -18,12 +18,14 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out);
 
+		int SetJob(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in);
+
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
 	protected:
-		
+		fnSetJob m_pSetJobTrampoline;
 	};
 }
 

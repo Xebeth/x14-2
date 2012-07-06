@@ -20,3 +20,8 @@
 #include "TestCore.h"
 
 extern Windower::WindowerEngine *g_pEngine;
+
+int WINAPI SetJobHook(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in)
+{
+	return g_pEngine->Test().SetJob(pThis_in_out, pJob_in, Unk1_in, Unk2_in);
+}

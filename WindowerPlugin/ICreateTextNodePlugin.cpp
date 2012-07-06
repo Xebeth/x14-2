@@ -18,7 +18,7 @@ namespace Windower
 	bool ICreateTextNodePlugin::Subscribe()
 	{
 		return (SubscribeService(_T("GameChat"), _T("CreateTextNode"))
-			 && SubscribeService(_T("GameChat"), _T("OnChatMessage")));
+			 && IGameChatPlugin::Subscribe());
 	}
 
 	/*! \brief Removes the plugin as a subscriber to the game chat service
@@ -27,6 +27,6 @@ namespace Windower
 	bool ICreateTextNodePlugin::Unsubscribe()
 	{
 		return (UnsubscribeService(_T("GameChat"), _T("CreateTextNode"))
-			 && UnsubscribeService(_T("GameChat"), _T("OnChatMessage")));
+			 && IGameChatPlugin::Unsubscribe());
 	}
 }

@@ -60,4 +60,22 @@ namespace Windower
 
 		return pText_in;
 	}
+
+	/*! \brief Adds the plugin as a subscriber to the game chat service
+		\return true if the subscription succeeded; false otherwise
+	*/
+	bool InjectVersion::Subscribe()
+	{
+		return (SubscribeService(_T("GameChat"), _T("CreateTextNode"))
+			 && IGameChatPlugin::Subscribe());
+	}
+
+	/*! \brief Removes the plugin as a subscriber to the game chat service
+		\return true if the subscription was revoked successfully; false otherwise
+	*/
+	bool InjectVersion::Unsubscribe()
+	{
+		return (UnsubscribeService(_T("GameChat"), _T("CreateTextNode"))
+			 && IGameChatPlugin::Unsubscribe());
+	}
 }

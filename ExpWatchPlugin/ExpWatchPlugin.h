@@ -10,7 +10,7 @@
 
 namespace Windower
 {
-	class ExpWatchPlugin : public Windower::ICreateTextNodePlugin, public CommandHandler
+	class ExpWatchPlugin : public ICreateTextNodePlugin, public CommandHandler
 	{
 		//! IDs of the commands registered with the plugin
 		enum CommandMap

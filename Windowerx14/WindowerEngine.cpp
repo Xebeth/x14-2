@@ -45,7 +45,7 @@
 #include "ICreateTextNodePlugin.h"
 #include "InjectVersion.h"
 
-// #define _TESTING
+#define _TESTING
 
 namespace Windower
 {
