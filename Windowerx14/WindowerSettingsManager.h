@@ -28,14 +28,17 @@ namespace Windower
 		explicit SettingsManager(const TCHAR *pIniFile_in);
 		~SettingsManager();
 
-		WindowerProfile* CreateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in);
-		bool LoadDefaultProfile(WindowerProfile &Settings_out);
+		WindowerProfile* DuplicateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in);
+		bool RenameProfile(WindowerProfile *pProfile_in_out, string_t &NewName_in_out);
+		bool RenameProfile(const TCHAR *pProfileName_in, string_t &NewName_in_out);
 		bool LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_in);
 		bool CopyProfile(const TCHAR *pDstProfile_in, const WindowerProfile &Src_in);
-		WindowerSettings::const_iterator GetSettingsPos(const TCHAR *pProfileName_in);
-		WindowerProfile* GetSettings(const TCHAR *pProfileName_in);
+		bool LoadDefaultProfile(WindowerProfile &Settings_out);
 		bool DeleteProfile(const TCHAR *pProfileName_in);
 		bool CreateDefaultProfile();
+
+		bool CheckDuplicates(const string_t &CurrentName_in, string_t &Name_in_out);
+		WindowerProfile* GetSettings(const TCHAR *pProfileName_in);		
 
 		/*! \brief Retrieves the relative directory of the plugins
 			\return the relative directory of the plugins
@@ -76,8 +79,12 @@ namespace Windower
 		bool Save();
 
 	protected:
+		WindowerSettings::const_iterator GetSettingsPos(const TCHAR *pProfileName_in);
+
 		//! the profiles from the windower configuration file
 		WindowerSettings m_Profiles;
+		//! the profiles to remove from the file
+		std::set<string_t> m_DeletedProfiles;
 		//! the windower configuration file
 		SettingsIniFile *m_pSettingsFile;
 		//! the name of the default profile

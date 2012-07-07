@@ -61,17 +61,22 @@ namespace Windower
 		\param[in] Settings_in : the settings being copied
 		\return the newly created profile if successful; NULL otherwise
 	*/
-	WindowerProfile* SettingsManager::CreateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
+	WindowerProfile* SettingsManager::DuplicateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
 	{
 		WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
 		WindowerProfile *pNewSettings = NULL;
 
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			if (ProfileIt == m_Profiles.end())
-				m_Profiles[pProfileName_in] = pNewSettings = new WindowerProfile(Settings_in);
-			else
-				pNewSettings = ProfileIt->second;
+			string_t NewName = pProfileName_in;
+
+			// a plugin with the same name already exists
+			if (ProfileIt != m_Profiles.end())
+				CheckDuplicates(ProfileIt->first, NewName);
+
+			m_Profiles[NewName] = pNewSettings = new WindowerProfile(Settings_in);
+			// update the internal name to match the new one
+			pNewSettings->SetName(NewName.c_str());
 		}
 
 		return pNewSettings;
@@ -94,7 +99,10 @@ namespace Windower
 				delete ProfileIt->second;
 				m_Profiles.erase(ProfileIt);
 
-				return m_pSettingsFile->DeleteSection(ProfileName);
+				// add the old profile to the delete profiles
+				m_DeletedProfiles.insert(ProfileName);
+
+				return true;
 			}
 		}
 
@@ -109,10 +117,9 @@ namespace Windower
 		if (m_pSettingsFile != NULL)
 		{
 			WindowerSettings::const_iterator SettingsIter;
-			WindowerProfile *pProfile;
+			std::set<string_t>::const_iterator DeleteIter;
+			WindowerProfile *pProfile = NULL;
 			const TCHAR *pName;
-
-			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
 
 			for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
 			{
@@ -143,6 +150,18 @@ namespace Windower
 						m_pSettingsFile->SetString(pName, _T("Plugins"), PluginList);
 				}
 			}
+
+			// remove the sections of the delete profiles
+			for (DeleteIter = m_DeletedProfiles.begin(); DeleteIter != m_DeletedProfiles.end(); ++DeleteIter)
+				m_pSettingsFile->DeleteSection(*DeleteIter);
+			// reset the delete profiles
+			m_DeletedProfiles.clear();
+
+			// only update the default profile if it exists
+			if (GetSettings(m_DefaultProfile.c_str()) == NULL && m_Profiles.empty() == false)
+				m_DefaultProfile = m_Profiles.begin()->first;
+
+			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
 
 			return m_pSettingsFile->Save();
 		}
@@ -281,7 +300,7 @@ namespace Windower
 		SetDefaultProfile(DEFAULT_PROFILE_NAME);
 		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
 
-		return CreateProfile(DEFAULT_PROFILE_NAME, Settings) != NULL;
+		return DuplicateProfile(DEFAULT_PROFILE_NAME, Settings) != NULL;
 	}
 
 	/*! \brief Retrieves the position of the profile specified by its name
@@ -324,5 +343,100 @@ namespace Windower
 		}
 
 		return (pProfile != NULL);
+	}
+
+	
+	/*! \brief Checks if the profile name is a duplicate of an existing profile
+		\param[in] CurrentName_in : the current name of the profile
+		\param[in,out] Name_in_out : the name to check for duplicates		
+		\return true if the name was a duplicate; false otherwise
+	*/
+	bool SettingsManager::CheckDuplicates(const string_t &CurrentName_in, string_t &Name_in_out)
+	{
+		const WindowerProfile *pOtherProfile = GetSettings(Name_in_out.c_str());
+		bool Result = (pOtherProfile != NULL);
+		string_t NewName(Name_in_out);
+		unsigned long Counter = 0UL;		
+
+		// change the new name until it's unique
+		while (pOtherProfile != NULL)
+		{
+			// create a new name
+			format(NewName, _T("%s%ld"), Name_in_out.c_str(), ++Counter);
+			// are we back to where we started?
+			if (_tcscmp(NewName.c_str(), CurrentName_in.c_str()) == 0)
+			{
+				// keep the old name
+				pOtherProfile = NULL;
+				Result = false;
+			}
+			else
+			{
+				// check if the new name already exists
+				pOtherProfile = GetSettings(NewName.c_str());
+				Result = true;
+			}
+		}
+		// update the name
+		Name_in_out = NewName;
+
+		return Result;
+	}
+
+	/*! \brief Renames a profile and ensures the name is not a duplicate of any current profile
+		\param[in] pProfileName_in : the current name of the profile
+		\param[in] pNewName_in_out : the new name of the profile
+		\return true if the profile was found and renamed; false otherwise
+	*/
+	bool SettingsManager::RenameProfile(const TCHAR *pProfileName_in, string_t &NewName_in_out)
+	{
+		WindowerProfile *pProfile = GetSettings(pProfileName_in);
+
+		if (pProfile != NULL)
+			return RenameProfile(pProfile, NewName_in_out);
+
+		return false;
+	}
+
+	/*! \brief Renames a profile and ensures the name is not a duplicate of any current profile
+		\param[in] pProfileName_in : the current name of the profile
+		\param[in] pNewName_in_out : the new name of the profile
+		\return true if the profile was found and renamed; false otherwise
+	*/
+	bool SettingsManager::RenameProfile(WindowerProfile *pProfile_in_out, string_t &NewName_in_out)
+	{
+		if (pProfile_in_out != NULL)
+		{
+			const WindowerProfile *pOtherProfile = GetSettings(NewName_in_out.c_str());
+			string_t CurrentName = pProfile_in_out->GetName();
+
+			if (pProfile_in_out != pOtherProfile)
+			{
+				// check for duplicates
+				CheckDuplicates(CurrentName, NewName_in_out);
+				// check if the name has changed
+				if (_tcscmp(CurrentName.c_str(), NewName_in_out.c_str()) != 0)
+				{
+					// move the profile in the map
+					WindowerSettings::const_iterator Iter = GetSettingsPos(CurrentName.c_str());
+
+					if (Iter != m_Profiles.end())
+					{
+						// rename the profile internally
+						pProfile_in_out->SetName(NewName_in_out.c_str());
+						// erase the current entry
+						m_Profiles.erase(Iter);
+						// insert the profile again under its new name
+						m_Profiles[NewName_in_out] = pProfile_in_out;
+						// add the old profile to the delete profiles
+						m_DeletedProfiles.insert(CurrentName);
+
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }

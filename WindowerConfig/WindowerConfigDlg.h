@@ -43,7 +43,7 @@ namespace Windower
 
 		afx_msg void OnConfigure(NMHDR* pNMHDR, LRESULT* pResult);
 
-		afx_msg void OnProfileNameChange();
+		afx_msg void OnProfileRename();
 		afx_msg void OnResolutionChange();
 		afx_msg void OnProfilesChange();
 		

@@ -34,7 +34,7 @@ namespace Windower
 		ON_CBN_SELCHANGE(IDC_RESX_COMBO, &WindowerConfigDlg::OnResolutionChange)
 		ON_CBN_SELCHANGE(IDC_RESY_COMBO, &WindowerConfigDlg::OnResolutionChange)
 
-		ON_CBN_KILLFOCUS(IDC_PROFILES_COMBO, &WindowerConfigDlg::OnProfileNameChange)
+		ON_CBN_KILLFOCUS(IDC_PROFILES_COMBO, &WindowerConfigDlg::OnProfileRename)
 		ON_CBN_EDITCHANGE(IDC_RESX_COMBO, &WindowerConfigDlg::OnResolutionChange)
 		ON_CBN_EDITCHANGE(IDC_RESY_COMBO, &WindowerConfigDlg::OnResolutionChange)		
 
@@ -276,28 +276,44 @@ namespace Windower
 		return static_cast<HCURSOR>(m_hIcon);
 	}
 
-	void WindowerConfigDlg::OnProfileNameChange()
+	void WindowerConfigDlg::OnProfileRename()
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 
 		if (m_pCurrentSettings != NULL && pProfiles != NULL)
 		{
-			CString DisplayName, ProfileName;
+			CString DisplayName, CurrentName;
+			string_t NewName;
 
 			pProfiles->GetWindowText(DisplayName);
-			ProfileName.Format(_T("%s%s"), PROFILE_PREFIX, DisplayName);
+			CurrentName = m_pCurrentSettings->GetName();
+			format(NewName, _T("%s%s"), PROFILE_PREFIX, DisplayName);			
 
-			if (ProfileName.Compare(m_pCurrentSettings->GetName()) != 0)
+			// update the profile name
+			if (CurrentName.Compare(NewName.c_str()) != 0)
 			{
-				// delete the current combo item
-				pProfiles->DeleteString(m_CurrentSel);
-				// add the item back
-				m_CurrentSel = pProfiles->AddString(DisplayName);
-				pProfiles->SetItemData(m_CurrentSel, (DWORD_PTR)m_pCurrentSettings);
-				// select the new item in the combo
-				pProfiles->SetCurSel(m_CurrentSel);
-				// update the profile name
-				m_pCurrentSettings->SetName(ProfileName);
+				if (m_pSettingsManager->RenameProfile(m_pCurrentSettings, NewName))
+				{
+					// delete the current combo item
+					pProfiles->DeleteString(m_CurrentSel);
+					// add the item back (update the display name as RenameProfile 
+					// could have changed it in case the provided was a duplicate)
+					DisplayName = NewName.c_str() + PROFILE_PREFIX_LENGTH;
+					m_CurrentSel = pProfiles->AddString(DisplayName);
+					pProfiles->SetItemData(m_CurrentSel, (DWORD_PTR)m_pCurrentSettings);
+					// select the new item in the combo
+					pProfiles->SetCurSel(m_CurrentSel);
+					// update the default profile
+					m_pSettingsManager->SetDefaultProfile(NewName.c_str());
+
+					TRACE(_T("Renamed from %s to %s \n"), CurrentName, m_pCurrentSettings->GetName());
+				}
+				else
+				{
+					// revert to the old name
+					DisplayName = CurrentName.GetBuffer() + PROFILE_PREFIX_LENGTH;
+					pProfiles->SetWindowText(DisplayName);
+				}
 			}
 		}
 	}
@@ -510,9 +526,12 @@ namespace Windower
 
 		if (pProfiles != NULL)
 		{
-			CString NewName = PROFILE_PREFIX _T("New Profile");
-			TCHAR *pDisplayName = NewName.GetBuffer() + PROFILE_PREFIX_LENGTH;
+			TCHAR *pDisplayName = _T("New Profile");
 			WindowerProfile *pNewSettings = NULL;
+			CString NewName;
+
+			// generate the new internal name
+			NewName.Format(_T("%s%s"), PROFILE_PREFIX, pDisplayName);
 
 			while(pProfiles->FindString(0, pDisplayName) != CB_ERR)
 			{
@@ -523,7 +542,7 @@ namespace Windower
 			if (m_pCurrentSettings != NULL)
 			{
 				UpdateActivePlugins();
-				pNewSettings = m_pSettingsManager->CreateProfile(NewName, *m_pCurrentSettings);
+				pNewSettings = m_pSettingsManager->DuplicateProfile(NewName, *m_pCurrentSettings);
 			}
 
 			if (pNewSettings != NULL)
@@ -538,6 +557,8 @@ namespace Windower
 				pProfiles->SetFocus();
 
 				ActivateAllPlugins();
+
+				TRACE(_T("New profile %s\n"), m_pCurrentSettings->GetName());
 			}
 
 			GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(pProfiles->GetCount() > 1);

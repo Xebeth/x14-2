@@ -35,6 +35,33 @@ WindowerConfigApp::~WindowerConfigApp()
 	}
 }
 
+/*! \brief Override parse parameter function called by ParseCommandLine()
+	\param[in] lpszParam_in Parameter name or parameter value
+	\param[in] bFlag_in If true lpszParam_in is a parameter name else it is a parameter value
+	\param[in] bLast_in If true this is the last parameter name or parameter value of the command line
+*/
+void ConfigCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
+{
+	if (bFlag)
+	{
+		// flags with a mandatory argument
+		if (bLast == FALSE)
+		{
+			if (_tcsicmp(lpszParam, _T("profile")) == 0)
+				m_LastFlag = FLAG_PROFILE;
+		}
+	}
+	else
+	{
+		switch(m_LastFlag)
+		{
+			case FLAG_PROFILE:
+				m_ProfileName = lpszParam;
+			break;
+		}
+	}
+}
+
 BOOL WindowerConfigApp::InitInstance()
 {
 	// InitCommonControlsEx() is required on Windows XP if an application
@@ -48,6 +75,15 @@ BOOL WindowerConfigApp::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
+
+	ConfigCmdLine CmdInfo;
+	CString ProfileName;
+
+	ParseCommandLine(CmdInfo);
+	CmdInfo.GetProfileName(ProfileName);
+
+	if (ProfileName.IsEmpty() == false)
+		m_pSettingsManager->SetDefaultProfile(ProfileName);
 
 	Windower::WindowerConfigDlg ConfigDlg(m_pSettingsManager);
 	m_pMainWnd = &ConfigDlg;
