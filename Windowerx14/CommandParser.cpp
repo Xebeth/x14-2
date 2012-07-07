@@ -206,92 +206,17 @@ namespace Windower
 	*/
 	int CommandParser::Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out)
 	{
-		std::string::size_type DelimiterPos = 0, SeparatorPos = 0, NotSeparatorPos = 0, LastPos;
-		std::string Separator(" "), Delimiter("\"");
-		unsigned int ParamsCount = 0;
+		unsigned int ParamsCount = tokenize<char>(RawCommand_in, Params_out, " ", "\"");
 
-		SeparatorPos = RawCommand_in.find_first_of(Separator);
-
-		if (SeparatorPos == std::string::npos)
+		if (Params_out.empty() == false)
 		{
-			// no separator found => no parameter
-			Command_out = RawCommand_in;
-			// if the command is empty => no param found
-			if (RawCommand_in.empty() == false)
-				++ParamsCount;
-
-			return ParamsCount;
+			// the first token is the command
+			Command_out = Params_out.front();
+			// remove it from the queue
+			Params_out.pop();
+			--ParamsCount;
 		}
-		else
-		{
-			std::string TmpStr;
 
-			// the first token is the name of the command
-			Command_out = RawCommand_in.substr(0, SeparatorPos);
-			TmpStr = RawCommand_in.substr(++SeparatorPos);
-			++ParamsCount;
-
-			// loop until the command buffer has been consumed or only separators are left
-			while (TmpStr.empty() == false && NotSeparatorPos != std::string::npos)
-			{
-				// find the next character that is not a separator
-				NotSeparatorPos = TmpStr.find_first_not_of(Separator);
-
-				if (NotSeparatorPos != std::string::npos)
-				{
-					// find the next separator in the buffer
-					SeparatorPos = TmpStr.find_first_of(Separator, NotSeparatorPos);
-					// no separator found => this is the last token
-					if (SeparatorPos == std::string::npos)
-					{
-						Params_out.push(TmpStr.substr(NotSeparatorPos));
-
-						return ++ParamsCount;
-					}
-					else
-					{
-						// if the next valid character is not a delimiter => unquoted token
-						if (TmpStr[NotSeparatorPos] != Delimiter[0])
-						{
-							Params_out.push(TmpStr.substr(NotSeparatorPos, SeparatorPos - NotSeparatorPos));
-							TmpStr = TmpStr.substr(++SeparatorPos);
-							++ParamsCount;
-						}
-						else
-						{
-							// the first valid character is the opening delimiter
-							DelimiterPos = NotSeparatorPos++;
-							LastPos = TmpStr.length() - 1;
-
-							do
-							{
-								// look for the closing delimiter (delimiter followed by a separator) until
-								DelimiterPos = TmpStr.find_first_of(Delimiter, DelimiterPos + 1);
-							}
-							while (DelimiterPos != std::string::npos			// no delimiter was found or
-								&& DelimiterPos != LastPos
-								&& TmpStr[DelimiterPos + 1] != Separator[0]);	// a delimiter a closing delimiter was found
-
-							// a closing delimiter was found
-							if (DelimiterPos != std::string::npos)
-							{
-								Params_out.push(TmpStr.substr(NotSeparatorPos, DelimiterPos - NotSeparatorPos));
-								TmpStr = TmpStr.substr(++DelimiterPos);
-								++ParamsCount;
-							}
-							// we found a stray delimiter => add it as a parameter
-							else
-							{
-								TmpStr = TmpStr.substr(NotSeparatorPos);
-								Params_out.push("" + Delimiter);
-								++ParamsCount;
-							}
-						}
-					}
-				}
-			}
-
-			return ParamsCount;
-		}
+		return ParamsCount;
 	}
 }
