@@ -243,10 +243,15 @@ namespace Windower
 	*/
 	bool WindowerEngine::UnregisterCommand(WindowerCommand *pCommand_in)
 	{
-		if (m_pCommandDispatcher != NULL)
-			return m_pCommandDispatcher->UnregisterCommand(pCommand_in);
+		bool Result = false;
 
-		return false;
+		if (m_pCommandDispatcher != NULL)
+		{
+			Result = m_pCommandDispatcher->UnregisterCommand(pCommand_in);
+			delete pCommand_in;
+		}
+
+		return Result;
 	}
 
 	/*! \brief Unregisters the commands with the command dispatcher
@@ -256,11 +261,17 @@ namespace Windower
 	{
 		if (m_pCommandDispatcher != NULL)
 		{
+			WindowerCommand *pCommand;
 			bool Result = true;
 
-			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "unload");
-			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "load");
-			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "list");
+			pCommand = m_pCommandDispatcher->FindCommand("unload");
+			Result &= UnregisterCommand(pCommand);
+
+			pCommand = m_pCommandDispatcher->FindCommand("unload");
+			Result &= UnregisterCommand(pCommand);
+
+			pCommand = m_pCommandDispatcher->FindCommand("unload");
+			Result &= UnregisterCommand(pCommand);
 
 			return Result;
 		}
