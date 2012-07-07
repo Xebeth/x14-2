@@ -35,6 +35,7 @@ namespace Windower
 
 	public:
 		explicit CommandDispatcher(PluginEngine &Engine_in_out);
+		virtual ~CommandDispatcher();
 
 		// ICoreModule interface implementation
 

@@ -107,6 +107,10 @@ namespace Windower
 		UnregisterCommands();
 		Detach();
 
+		// destroy before GameChatCore or any subscribed services
+		delete m_pInjectVersion;
+		m_pInjectVersion = NULL;
+
 		delete m_pGraphicsCore;
 		m_pGraphicsCore = NULL;
 
@@ -124,9 +128,6 @@ namespace Windower
 
 		delete m_pSettingsManager;
 		m_pSettingsManager = NULL;
-
-		delete m_pInjectVersion;
-		m_pInjectVersion = NULL;
 
 #if defined _DEBUG && defined _TESTING
 		delete m_pTestCore;
@@ -259,6 +260,7 @@ namespace Windower
 
 			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "unload");
 			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "load");
+			Result &= m_pCommandDispatcher->UnregisterCommand(ENGINE_KEY, "list");
 
 			return Result;
 		}

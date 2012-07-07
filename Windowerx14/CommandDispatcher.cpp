@@ -46,6 +46,17 @@ namespace Windower
 		}
 	}
 
+	//! \brief CommandDispatcher destructor
+	CommandDispatcher::~CommandDispatcher()
+	{
+		RegisteredCommands::const_iterator Iter, EndIt = m_Commands.end();
+
+		for (Iter = m_Commands.begin(); Iter != EndIt; ++Iter)
+			delete Iter->second;
+
+		m_Commands.clear();
+	}
+
 	/*! \brief Registers the specified command in the dispatcher
 		\param[in] Command_in : the command to register
 		\return true if the command was registered successfully; false otherwise

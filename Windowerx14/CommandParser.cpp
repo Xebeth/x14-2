@@ -43,7 +43,6 @@ namespace Windower
 									char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out)
 	{
 		std::string RawCommand, FeedbackMsg, CommandName;
-		RegisteredCommands::const_iterator Iter;
 		std::queue<std::string> Params;
 		WindowerCommand *pCommand;
 		int Result;
