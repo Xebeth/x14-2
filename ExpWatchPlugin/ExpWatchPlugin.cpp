@@ -24,7 +24,7 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	ExpWatchPlugin::ExpWatchPlugin(PluginFramework::IPluginServices *pServices_in)
-		: ICreateTextNodePlugin(pServices_in, "Next"), CommandHandler(0xEB71A021, "ExpWatchPlugin"),
+		: IGameChatPlugin(pServices_in), CommandHandler(0xEB71A021, "ExpWatchPlugin"),
 		  m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL),
 		  m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L) {}
 
@@ -159,7 +159,7 @@ namespace Windower
 			if (pFeedback_in_out != NULL)
 				*pFeedback_in_out = "ExpWatch started gathering statistics on experience points earned.";
 
-			m_pTargetPtr = NULL;
+//			m_pTargetPtr = NULL;
 			m_bStarted = true;
 			Subscribe();
 			Reset();			
@@ -202,7 +202,7 @@ namespace Windower
 					   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
 			}
 
-			m_pTargetPtr = NULL;
+//			m_pTargetPtr = NULL;
 			m_bStarted = false;
 			Unsubscribe();			
 		}
@@ -233,7 +233,7 @@ namespace Windower
 		\param[in] pText_in : the text used to create the string node
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return the modified version of the text
-	*/
+	*
 	const char* ExpWatchPlugin::OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out)
 	{
 		Unsubscribe_out = false;
@@ -265,15 +265,17 @@ namespace Windower
 
 		return pText_in;
 	}
+*/
 }
 
 using Windower::ExpWatchPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+	\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+	\return true if the initialization succeeded; false otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin()
+extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
-	return PluginFramework::IPlugin::Initialize(ExpWatchPlugin::Create, ExpWatchPlugin::Destroy,
-												ExpWatchPlugin::Query, NULL);
+	return PluginFramework::IPlugin::Initialize(RegisterParams_out, ExpWatchPlugin::Create, 
+												ExpWatchPlugin::Destroy, ExpWatchPlugin::Query, NULL);
 }

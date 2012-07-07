@@ -10,7 +10,7 @@
 
 namespace Windower
 {
-	class ExpWatchPlugin : public ICreateTextNodePlugin, public CommandHandler
+	class ExpWatchPlugin : public IGameChatPlugin, public CommandHandler
 	{
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
@@ -37,7 +37,7 @@ namespace Windower
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   bool &Unsubscribe_out);
 
-		const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
+		// const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
 
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 

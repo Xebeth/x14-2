@@ -145,10 +145,11 @@ namespace Windower
 using Windower::AutoLoginPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+	\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+	\return true if the initialization succeeded; false otherwise
 */
-extern "C" PLUGIN_API PluginFramework::RegisterParams* InitPlugin()
+extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
-	return PluginFramework::IPlugin::Initialize(AutoLoginPlugin::Create, AutoLoginPlugin::Destroy,
+	return PluginFramework::IPlugin::Initialize(RegisterParams_out, AutoLoginPlugin::Create, AutoLoginPlugin::Destroy,
 												AutoLoginPlugin::Query, AutoLoginPlugin::Configure);
 }

@@ -160,8 +160,11 @@ namespace PluginFramework
 		fnConfigure ConfigureFunc;
 	};
 
-	//! function pointer to an Initialize function
-	typedef RegisterParams* (*fnInitialize)();
+	/*! function pointer to an Initialize function
+		\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+		\return true if the initialization succeeded; false otherwise
+	*/
+	typedef bool (*fnInitialize)(RegisterParams &RegisterParams_out);
 
 	/*! \brief Base plugin interface */
 	class IPlugin
@@ -276,13 +279,16 @@ namespace PluginFramework
 		*/
 		static void CleanupName(string_t Name_in_out);
 		/*! \brief Initializes the plugin
+			\param[out] RegisterParams_out : Registration structure to be able to use the plugin
 			\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
 			\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
 			\param[in] pfnQueryFunc_in : a pointer to the 'Query' function of the plugin
 			\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
+			\return true if the initialization succeeded; false otherwise
 		*/
-		static RegisterParams* Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
-										  fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in = NULL);
+		static bool Initialize(RegisterParams &RegisterParams_out, fnCreate pfnCreateFunc_in, 
+							   fnDestroy pfnDestroyFunc_in, fnQuery pfnQueryFunc_in,
+							   fnConfigure pfnConfigureFunc_in = NULL);
 
 		//! \brief Fills a PluginInfo structure with the plugin information
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
@@ -347,10 +353,10 @@ namespace PluginFramework
 extern "C"
 {
 	/*! \brief Function exposed by the plugin DLL to initialize the plugin object
-		\param[in] pServices_in : services used to (un)subscribe to services and invoke them
-		\return a pointer to the plugin registration parameters if successful; NULL otherwise
+		\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+		\return true if the initialization succeeded; false otherwise
 	*/
-	PLUGIN_API PluginFramework::RegisterParams* InitPlugin();
+	PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out);
 }
 
 #endif//__IPLUGIN_H__

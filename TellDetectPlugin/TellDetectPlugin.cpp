@@ -109,10 +109,11 @@ namespace Windower
 using Windower::TellDetectPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+	\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+	\return true if the initialization succeeded; false otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin()
+extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
-	return PluginFramework::IPlugin::Initialize(TellDetectPlugin::Create, TellDetectPlugin::Destroy,
+	return PluginFramework::IPlugin::Initialize(RegisterParams_out, TellDetectPlugin::Create, TellDetectPlugin::Destroy,
 												TellDetectPlugin::Query, TellDetectPlugin::Configure);
 }

@@ -47,7 +47,7 @@ namespace PluginFramework
 	*/
 	UINT PluginManager::ListPlugins(const string_t &Directory_in, DWORD CompatibilityFlags_in)
 	{
-		PluginIterator Iter(Directory_in, *this);
+		PluginIterator Iter(Directory_in, *this, CompatibilityFlags_in);
 		UINT PluginCount = 0;
 		HANDLE hFile;
 
@@ -73,7 +73,6 @@ namespace PluginFramework
 
 		if ((hPlugin = LoadDLL(pPluginPath_in)) != NULL)
 		{
-			fnQuery QueryFunc = NULL;
 			PluginInfo Info;
 
 			if (CheckDLLExports(hPlugin, Info))
@@ -122,12 +121,11 @@ namespace PluginFramework
 
 			if (pInitialize != NULL)
 			{
-				RegisterParams *pParams = pInitialize();
+				RegisterParams RegParams;
 
-				if (pParams != NULL)
+				if (pInitialize(RegParams))
 				{
-					Info_out = pParams->Info;
-					delete pParams;
+					Info_out = RegParams.Info;
 
 					return CheckPluginInfo(Info_out);
 				}
@@ -310,13 +308,13 @@ namespace PluginFramework
 
 		if (pInitialize != NULL)
 		{
-			RegisterParams *pResult = pInitialize();
+			RegisterParams *pRegParams = new RegisterParams;
 
-			if (pResult != NULL)
+			if (pInitialize(*pRegParams))
 			{
-				pResult->Info.m_hHandle = hModule_in;
+				pRegParams->Info.m_hHandle = hModule_in;
 
-				return pResult;
+				return pRegParams;
 			}
 		}
 

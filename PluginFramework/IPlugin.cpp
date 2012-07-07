@@ -37,30 +37,31 @@ namespace PluginFramework
 		  QueryFunc(NULL), ConfigureFunc(NULL) {}
 
 	/*! \brief Initializes the plugin
+		\param[out] RegisterParams_out : Registration structure to be able to use the plugin
 		\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
 		\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
 		\param[in] pfnQueryFunc_in : a pointer to the 'Query' function of the plugin
 		\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
+		\return true if the initialization succeeded; false otherwise
 	*/
-	RegisterParams* IPlugin::Initialize(fnCreate pfnCreateFunc_in, fnDestroy pfnDestroyFunc_in,
-										fnQuery pfnQueryFunc_in, fnConfigure pfnConfigureFunc_in)
+	bool IPlugin::Initialize(RegisterParams &RegisterParams_out, fnCreate pfnCreateFunc_in, 
+							 fnDestroy pfnDestroyFunc_in, fnQuery pfnQueryFunc_in,
+							 fnConfigure pfnConfigureFunc_in)
 	{
 		if (pfnCreateFunc_in != NULL && pfnDestroyFunc_in != NULL && pfnQueryFunc_in != NULL)
 		{
-			RegisterParams *pRegisterParams = new RegisterParams;
+			RegisterParams_out.ConfigureFunc = pfnConfigureFunc_in;
+			RegisterParams_out.DestroyFunc = pfnDestroyFunc_in;
+			RegisterParams_out.CreateFunc = pfnCreateFunc_in;
+			RegisterParams_out.QueryFunc = pfnQueryFunc_in;
 
-			pRegisterParams->ConfigureFunc = pfnConfigureFunc_in;
-			pRegisterParams->DestroyFunc = pfnDestroyFunc_in;
-			pRegisterParams->CreateFunc = pfnCreateFunc_in;
-			pRegisterParams->QueryFunc = pfnQueryFunc_in;
+			pfnQueryFunc_in(RegisterParams_out.Info);
+			Query(RegisterParams_out.Info);
 
-			pfnQueryFunc_in(pRegisterParams->Info);
-			Query(pRegisterParams->Info);
-
-			return pRegisterParams;
+			return true;
 		}
 
-		return NULL;
+		return false;
 	}
 	
 	/*! \brief Displays the configuration screen of the plugin

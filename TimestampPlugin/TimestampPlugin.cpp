@@ -224,10 +224,11 @@ namespace Windower
 using Windower::TimestampPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\return a pointer to the plugin registration parameters if successful; NULL otherwise
+	\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+	\return true if the initialization succeeded; false otherwise
 */
-extern "C" PLUGIN_API RegisterParams* InitPlugin()
+extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
-	return PluginFramework::IPlugin::Initialize(TimestampPlugin::Create, TimestampPlugin::Destroy,
+	return PluginFramework::IPlugin::Initialize(RegisterParams_out, TimestampPlugin::Create, TimestampPlugin::Destroy,
 												TimestampPlugin::Query, TimestampPlugin::Configure);
 }
