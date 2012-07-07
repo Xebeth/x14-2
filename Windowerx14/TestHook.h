@@ -67,4 +67,8 @@ int WINAPI SetJobHook(LPVOID pThis_in_out, int*, int Unk1_in, int Unk2_in);
 #define TEST_SET_JOB_OPCODES_OFFSET			-11
 #define TEST_SET_JOB_OPCODES_HOOK_SIZE		9
 
+// int __thiscall sub_7751E0(int this, void *a2, int a3, int a4)
+typedef int (WINAPI *fnFatSub)(LPVOID pThis_in_out, void *a2, int a3, int a4);
+int WINAPI FatSubHook(LPVOID pThis_in_out, void *a2, int a3, int a4);
+
 #endif//__TEST_HOOK_H__

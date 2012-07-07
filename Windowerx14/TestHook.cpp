@@ -25,3 +25,8 @@ int WINAPI SetJobHook(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_i
 {
 	return g_pEngine->Test().SetJob(pThis_in_out, pJob_in, Unk1_in, Unk2_in);
 }
+
+int WINAPI FatSubHook(LPVOID pThis_in_out, void *a2, int a3, int a4)
+{
+	return g_pEngine->Test().FatSub(pThis_in_out, a2, a3, a4);
+}

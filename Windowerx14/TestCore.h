@@ -19,6 +19,7 @@ namespace Windower
 		TestCore(WindowerEngine &Engine_in_out);
 
 		int SetJob(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in);
+		int FatSub(LPVOID pThis_in_out, void * a2, int a3, int a4);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
@@ -26,6 +27,14 @@ namespace Windower
 
 	protected:
 		fnSetJob m_pSetJobTrampoline;
+		fnFatSub m_pFatSubTrampoline;
+
+		eJob m_CurrentJob;
+		LPVOID m_pUnknownUI;
+		LPVOID m_pPlayerUI;
+
+	private:
+		string_t m_StrDebug;
 	};
 }
 
