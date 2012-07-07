@@ -56,7 +56,7 @@ void ConfigCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 		switch(m_LastFlag)
 		{
 			case FLAG_PROFILE:
-				m_ProfileName = lpszParam;
+				m_ProfileName.Format(_T("%s%s"), PROFILE_PREFIX, lpszParam);
 			break;
 		}
 	}
