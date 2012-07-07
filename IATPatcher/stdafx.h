@@ -8,7 +8,6 @@
 #ifndef __IAT_PATCHER_AFX_H__
 #define __IAT_PATCHER_AFX_H__
 
-// #define __USE_VLD
 #include <stdhdr.h>
 
 // Library DECL specification for exports

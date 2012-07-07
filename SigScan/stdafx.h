@@ -8,7 +8,6 @@
 #ifndef __SIG_SCAN_AFX_H__
 #define __SIG_SCAN_AFX_H__
 
-// #define __USE_VLD
 #include <stdhdr.h>
 
 #endif//__SIG_SCAN_AFX_H__

@@ -8,7 +8,6 @@
 #ifndef __HOOK_MANAGER_AFX_H__
 #define __HOOK_MANAGER_AFX_H__
 
-// #define __USE_VLD
 #include <stdhdr.h>
 #include <vector>
 

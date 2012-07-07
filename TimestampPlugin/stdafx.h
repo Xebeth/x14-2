@@ -8,7 +8,6 @@
 #ifndef __TELL_DETECT_PLUGIN_AFX_H__
 #define __TELL_DETECT_PLUGIN_AFX_H__
 
-// #define __USE_VLD
 #include <stdhdr.h>
 #include <string_t.h>
 

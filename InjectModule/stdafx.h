@@ -8,7 +8,6 @@
 #ifndef __INJECT_MODULE_AFX_H__
 #define __INJECT_MODULE_AFX_H__
 
-// #define __USE_VLD
 #include <stdhdr.h>
 
 // Library DECL specification for exports

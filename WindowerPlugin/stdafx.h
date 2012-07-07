@@ -10,7 +10,6 @@
 
 #include <set>
 
-// #define __USE_VLD
 #define __USE_DETOURS
 
 #include <stdhdr.h>
