@@ -425,9 +425,14 @@ namespace Windower
 
 			if (pDirect3D != NULL)
 			{
+				int CurrentX, CurrentY;
+
+				CurrentX = m_pCurrentSettings->GetResX();
+				CurrentY = m_pCurrentSettings->GetResY();
+
 				if ((DisplayModesCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8)) > 0)
 				{
-					int CurrentX, CurrentY, x, y;
+					int x, y;
 
 					CurrentX = m_pCurrentSettings->GetResX();
 					CurrentY = m_pCurrentSettings->GetResY();
@@ -443,21 +448,29 @@ namespace Windower
 							_ltot_s(DisplayMode.Width,  StrX, 10);
 							_ltot_s(DisplayMode.Height, StrY, 10);
 
-							// avoid duplicates
-							if (pResX->FindString(0, StrX) == CB_ERR)
+							// the engine forces a minimal resolution of 1024x720
+							if (DisplayMode.Width >= 1024)
 							{
-								x = pResX->AddString(StrX);
-								// save the index of the current value
-								if (DisplayMode.Width == CurrentX)
-									iX = x;
+								// avoid duplicates
+								if (pResX->FindString(0, StrX) == CB_ERR)
+								{
+									x = pResX->AddString(StrX);
+									// save the index of the current value
+									if (DisplayMode.Width == CurrentX)
+										iX = x;
+								}
 							}
-							// avoid duplicates
-							if (pResY->FindString(0, StrY) == CB_ERR)
+							// the engine forces a minimal resolution of 1024x720
+							if (DisplayMode.Height >= 720)
 							{
-								y = pResY->AddString(StrY);
-								// save the index of the current value
-								if (DisplayMode.Height == CurrentY)
-									iY = y;
+								// avoid duplicates
+								if (pResY->FindString(0, StrY) == CB_ERR)
+								{
+									y = pResY->AddString(StrY);
+									// save the index of the current value
+									if (DisplayMode.Height == CurrentY)
+										iY = y;
+								}
 							}
 						}
 						else
@@ -465,19 +478,22 @@ namespace Windower
 					}
 				}
 
-				_ltot_s(m_pCurrentSettings->GetResX(), StrX, 10);
-				_ltot_s(m_pCurrentSettings->GetResY(), StrY, 10);
-
 				// set the current resolution in the combo boxes
 				if (iX >= 0 && EnumSuccess)
 					pResX->SetCurSel(iX);
-				else
-					pResX->SetCurSel(pResX->AddString(StrX));
+				else if (CurrentX >= 1024)
+				{
+					_ltot_s(CurrentX, StrX, 10);
+					pResX->SetCurSel(pResX->InsertString(0, StrX));
+				}
 
 				if (iY >= 0 && EnumSuccess)
 					pResY->SetCurSel(iY);
-				else
-					pResY->SetCurSel(pResY->AddString(StrY));
+				else if (CurrentY >= 720)
+				{
+					_ltot_s(CurrentY, StrY, 10);
+					pResY->SetCurSel(pResY->InsertString(0, StrY));
+				}
 
 				pDirect3D->Release();
 			}

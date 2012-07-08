@@ -127,10 +127,18 @@ namespace Windower
 
 				if (pProfile != NULL)
 				{
+					LONG ResX = pProfile->GetResX();
+					LONG ResY = pProfile->GetResY();
 					pName = pProfile->GetName();
 
-					m_pSettingsFile->SetLong(pName, _T("ResX"),  pProfile->GetResX());
-					m_pSettingsFile->SetLong(pName, _T("ResY"),  pProfile->GetResY());
+					// the engine forces a minimal resolution of 1024x720
+					if (ResX < 1024L)
+						ResX = 1024L;
+					if (ResY < 720L)
+						ResY = 720L;
+
+					m_pSettingsFile->SetLong(pName, _T("ResX"), ResX);
+					m_pSettingsFile->SetLong(pName, _T("ResY"), ResY);
 					m_pSettingsFile->SetLong(pName, _T("VSync"), pProfile->GetVSync());
 
 					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
@@ -178,9 +186,28 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
+			LONG ResX = m_pSettingsFile->GetLong(pProfileName_in, _T("ResX"), GetSystemMetrics(SM_CXSCREEN));
+			LONG ResY = m_pSettingsFile->GetLong(pProfileName_in, _T("ResY"), GetSystemMetrics(SM_CYSCREEN));
+			bool ForceSave = false;
+
+			if (ResX < 1024)
+			{
+				m_pSettingsFile->SetLong(pProfileName_in, _T("ResX"), 1024);
+				ForceSave = true;
+				ResX = 1024;
+			}
+			if (ResY < 720)
+			{
+				m_pSettingsFile->SetLong(pProfileName_in, _T("ResY"), 720);
+				ForceSave = true;
+				ResY = 720;
+			}
+
+			if (ForceSave)
+				m_pSettingsFile->Save();
+
 			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync")));
-			Settings_out.SetResolution(m_pSettingsFile->GetLong(pProfileName_in, _T("ResX")),
-									   m_pSettingsFile->GetLong(pProfileName_in, _T("ResY")));
+			Settings_out.SetResolution(ResX, ResY);
 			Settings_out.SetName(pProfileName_in);
 
 			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, _T("Plugins"));
@@ -264,8 +291,6 @@ namespace Windower
 
 					if (LoadProfile(SectionIter->pItem, *pSettings))
 					{
-						//SectionIter->
-
 						m_Profiles[SectionIter->pItem] = pSettings;
 						Result = true;
 					}
