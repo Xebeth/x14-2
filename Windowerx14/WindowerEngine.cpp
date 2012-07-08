@@ -23,6 +23,7 @@
 #include "FormatChatMessageHook.h"
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "ReadConfigHook.h"
 #include "Direct3D9Hook.h"
 #ifdef _DEBUG
 	#include "TestHook.h"

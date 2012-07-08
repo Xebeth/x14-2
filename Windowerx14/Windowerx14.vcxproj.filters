@@ -124,6 +124,9 @@
     <ClCompile Include="CommandDispatcher.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
+    <ClCompile Include="ReadConfigHook.cpp">
+      <Filter>Windower\Hooks\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -197,6 +200,9 @@
     </ClInclude>
     <ClInclude Include="CommandDispatcher.h">
       <Filter>Windower\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadConfigHook.h">
+      <Filter>Windower\Hooks\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

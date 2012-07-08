@@ -15,16 +15,17 @@
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "ReadConfigHook.h"
+#include "Direct3D9Hook.h"
 #include "WndProcHook.h"
 
 #include "WindowerSettings.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
-#include "SystemCore.h"
-
-#include "Direct3D9Hook.h"
 #include "GraphicsCore.h"
+#include "SystemCore.h"
+#include <SigScan.h>
 
 namespace Windower
 {
@@ -36,6 +37,7 @@ namespace Windower
 		m_pRegisterClassExWTrampoline = RegisterClassExW;
 		m_pCreateWindowExATrampoline = CreateWindowExA;
 		m_dwPID = GetCurrentProcessId();
+		m_pReadConfigTrampoline = NULL;
 		m_hMainThreadHandle = NULL;
 		m_MinimizeVKey = VK_F11;
 		m_pGameWndProc = NULL;
@@ -95,11 +97,10 @@ namespace Windower
 
 			if (bIsGameWnd)
 			{
-				// force the game window to appear in the taskbar
-				dwExStyle_in |= WS_EX_APPWINDOW;
+				const Windower::WindowerProfile &Settings = static_cast<WindowerEngine&>(m_Engine).Settings();
 
-				X_in = static_cast<WindowerEngine&>(m_Engine).Settings().GetResX();
-				Y_in = static_cast<WindowerEngine&>(m_Engine).Settings().GetResY();
+				nWidth_in = Settings.GetResX();
+				nHeight_in = Settings.GetResY();
 			}
 
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
@@ -156,22 +157,22 @@ namespace Windower
 	*/
 	LRESULT SystemCore::WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in)
 	{
-		if (uMsg_in == WM_NCDESTROY)
+		switch (uMsg_in)
 		{
-			// start shutting down the engine
-			static_cast<WindowerEngine&>(m_Engine).OnShutdown();
-			// remove the WndProc hook before the game window is destroyed
-			RestoreWndProc();
-		}
-		else if (uMsg_in == WM_KEYUP || uMsg_in == WM_KEYDOWN)
-		{
-			return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
-		}
-		else if (uMsg_in == WM_ACTIVATE && wParam_in == WA_ACTIVE)
-		{
-			static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(true);
-
-			return FALSE;
+			case WM_NCDESTROY:
+				// start shutting down the engine
+				static_cast<WindowerEngine&>(m_Engine).OnShutdown();
+				// remove the WndProc hook before the game window is destroyed
+				RestoreWndProc();
+			break;
+			case WM_KEYDOWN:
+			case WM_KEYUP:
+				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
+			break;
+			case WM_ACTIVATE:
+				if (wParam_in == WA_ACTIVE)
+					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(true);
+			break;
 		}
 
 		if (m_pGameWndProc != NULL)
@@ -218,9 +219,25 @@ namespace Windower
 	void SystemCore::RegisterHooks(IHookManager &HookManager_in)
 	{
 		// register the RegisterClassExW hook
-		HookManager_in.RegisterHook("RegisterClassExW", "user32.dll", NULL, ::RegisterClassExWHook);
+		HookManager_in.RegisterHook("RegisterClassExW", "user32.dll", RegisterClassExW, ::RegisterClassExWHook);
 		// register the CreateWindowExA hook 
-		HookManager_in.RegisterHook("CreateWindowExA", "user32.dll", NULL, ::CreateWindowExAHook);
+		HookManager_in.RegisterHook("CreateWindowExA", "user32.dll", CreateWindowExA, ::CreateWindowExAHook);
+		// register the ReadConfig hook
+		SigScan::SigScan MemScan;
+		DWORD_PTR dwFuncAddr;
+
+		MemScan.Initialize(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
+
+		dwFuncAddr = MemScan.Scan(READ_CONFIG_OPCODES_SIGNATURE,
+								  READ_CONFIG_OPCODES_OFFSET);
+		// set m_pReadConfigTrampoline with the address of the original function in case of failure
+		m_pReadConfigTrampoline = (fnReadConfig)dwFuncAddr;
+
+		if (dwFuncAddr != NULL)
+		{
+			HookManager_in.RegisterHook("ReadConfig", SIGSCAN_GAME_PROCESSA,
+										(LPVOID)dwFuncAddr, ::ReadConfigHook);
+		}
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -230,5 +247,25 @@ namespace Windower
 	{
 		m_pRegisterClassExWTrampoline = (fnRegisterClassExW)HookManager_in.GetTrampolineFunc("RegisterClassExW");
 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
+		m_pReadConfigTrampoline = (fnReadConfig)HookManager_in.GetTrampolineFunc("ReadConfig");
+	}
+
+	/*! \brief Reads the config.sys file
+		\param[in] pConfigData_out : the buffer receiving the configuration data
+		\return unknown value
+	*/
+	int SystemCore::ReadConfigHook(BYTE *pConfigData_out)
+	{
+		int Result = m_pReadConfigTrampoline(pConfigData_out);
+
+		if (pConfigData_out != NULL)
+		{
+			const Windower::WindowerProfile &Profile = static_cast<WindowerEngine&>(m_Engine).Settings();
+
+			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESX_OFFSET) = Profile.GetResX();
+			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESY_OFFSET) = Profile.GetResY();
+		}
+
+		return Result;
 	}
 }

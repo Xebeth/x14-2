@@ -107,6 +107,7 @@
     <ClCompile Include="IDirect3D9Wrapper.cpp" />
     <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
     <ClCompile Include="InjectVersion.cpp" />
+    <ClCompile Include="ReadConfigHook.cpp" />
     <ClCompile Include="RegisterClassExHook.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -138,6 +139,7 @@
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
     <ClInclude Include="InjectVersion.h" />
+    <ClInclude Include="ReadConfigHook.h" />
     <ClInclude Include="RegisterClassExHook.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemCore.h" />
