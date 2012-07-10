@@ -89,7 +89,7 @@ namespace Windower
 		\return true if the message was logged; false otherwise
 	*/
 	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const StringNode *pSender_in,
-									  StringNode *pMessage_in_out, const char *pOriginalMsg_in,
+									  const StringNode *pMessage_in_out, const char *pOriginalMsg_in,
 									  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 									  bool &Unsubscribe_out)
 	{
