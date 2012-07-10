@@ -15,9 +15,18 @@ namespace Windower
 	typedef HookEngineLib::IHookManager IHookManager;
 
 	//! \brief Game chat module
-	class GameChatCore : public WindowerCore
+	class GameChatCore : public WindowerCore, public CommandHandler
 	{
 	public:
+		//! IDs of the registered commands
+		enum CommandMap
+		{
+			CMD_START = 0,	//!< start chat
+			CMD_STOP,		//!< stop chat
+			CMD_TOGGLE,		//!< toggle chat
+			CMD_COUNT		//!< number of registered commands
+		};
+
 		GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in);
 		~GameChatCore();
 
@@ -29,9 +38,12 @@ namespace Windower
 		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
 
 		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in = -1);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
 	protected:
 		bool DisplayWindowerVersion();
+		bool UnregisterCommands();
+		bool RegisterCommands();
 
 		virtual void OnSubscribe(const string_t &ServiceName_in,
 								 const PluginSet &Subscribers_in);
@@ -46,9 +58,16 @@ namespace Windower
 		fnCreateTextNode m_pCreateTextNodeTrampoline;
 
 	private:
+		bool FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in,
+						   StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
+						   bool AlwaysShow_in = false);
+
 		PluginSet					 m_ChatFormatSubscribers;
 		PluginSet					 m_CreateTextNodeSubscribers;
 		bool						 m_bCreateTextNodeSubEmpty;
+
+		//! vector keeping track of the chat head positions
+		std::vector<char*> m_ChatHeadVector;
 		//! the module service for the chat message formatting method
 		ModuleService *m_pFormatChatMessage;
 		//! the module service for the text node creation method
@@ -61,6 +80,8 @@ namespace Windower
 		std::string	m_InjectVersion;
 		//! critical section for thread synchronization
 		CRITICAL_SECTION m_Lock;
+		//! flag specifying if the chat log is on hold
+		bool m_Active;
 	};
 }
 

@@ -66,8 +66,7 @@ namespace Windower
 	*/
 	bool InjectVersion::Subscribe()
 	{
-		return (SubscribeService(_T("GameChat"), _T("CreateTextNode"))
-			 && SubscribeService(_T("GameChat"), _T("OnChatMessage")));
+		return SubscribeService(_T("GameChat"), _T("CreateTextNode"));
 	}
 
 	/*! \brief Removes the plugin as a subscriber to the game chat service
@@ -75,7 +74,6 @@ namespace Windower
 	*/
 	bool InjectVersion::Unsubscribe()
 	{
-		return (UnsubscribeService(_T("GameChat"), _T("CreateTextNode"))
-			 && UnsubscribeService(_T("GameChat"), _T("OnChatMessage")));
+		return UnsubscribeService(_T("GameChat"), _T("CreateTextNode"));
 	}
 }

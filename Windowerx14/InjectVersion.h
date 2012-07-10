@@ -22,17 +22,17 @@ namespace Windower
 		/*! \brief Callback invoked when the game chat receives a new line
 			\param[in] MessageType_in : the type of the message
 			\param[in] pSender_in : the sender of the message
-			\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
+			\param[in,out] pMessage_in : the message
 			\param[in] pOriginalMsg_in : a pointer to the unmodified message
 			\param[in] dwOriginalMsgSize_in : the size of the original message
 			\param[in] pBuffer_in_out : the resulting text modified by the plugin
 			\param[in] Unsubscribe_out : 
-			\return true if the message was logged; false otherwise
+			\return the size of the message
 		*/
-		virtual bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-								   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-								   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-								   bool &Unsubscribe_out) { return true; }
+		DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
+							const StringNode* pMessage_in, const char *pOriginalMsg_in,
+							DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+							bool &Unsubscribe_out) { return dwOriginalMsgSize_in; }
 	protected:
 		bool Subscribe();
 		bool Unsubscribe();

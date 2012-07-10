@@ -33,16 +33,15 @@ namespace Windower
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
 
-		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   bool &Unsubscribe_out);
+		virtual DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
+									const StringNode* pMessage_in, const char *pOriginalMsg_in,
+									DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+									bool &Unsubscribe_out);
 
 	protected:
-		bool UnregisterCommands();
-		bool RegisterCommands();
+		virtual bool UnregisterCommands();
+		virtual bool RegisterCommands();
 
-	private:
 		//! Timestamp plugin settings
 		TimestampSettings *m_pSettings;
 		//! the format of the timestamp plugin

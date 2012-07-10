@@ -93,22 +93,12 @@ namespace Windower
 
 		if (m_pCreateWindowExATrampoline != NULL)
 		{
-			bool bIsGameWnd = (lpWindowName_in != NULL && strcmp(lpWindowName_in, FFXIV_WINDOW_NAMEA) == 0);
-
-			if (bIsGameWnd)
-			{
-				const Windower::WindowerProfile &Settings = static_cast<WindowerEngine&>(m_Engine).Settings();
-
-				nWidth_in = Settings.GetResX();
-				nHeight_in = Settings.GetResY();
-			}
-
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
 												   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
 
-			if (bIsGameWnd && hWnd_in != NULL)
+			if (hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpWindowName_in, FFXIV_WINDOW_NAMEA) == 0)
 			{
-				CreateEngineThread();
+				// CreateEngineThread();
 				m_hGameWnd = hWnd_in;
 			}
 		}

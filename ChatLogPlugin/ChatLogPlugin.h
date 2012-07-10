@@ -10,7 +10,7 @@
 
 namespace Windower
 {
-	class ChatLogPlugin : public Windower::IGameChatPlugin
+	class ChatLogPlugin : public TimestampPlugin
 	{
 	public:
 		explicit ChatLogPlugin(PluginFramework::IPluginServices *pServices_in);
@@ -23,19 +23,33 @@ namespace Windower
 		bool StartLog();
 		void StopLog();
 
-		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   bool &Unsubscribe_out);
+		DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
+						    StringNode* pMessage_in_out, const char *pOriginalMsg_in,
+						    DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+						    bool &Unsubscribe_out);
 	protected:
+		/*! \brief Unregisters the commands of the plugin with the command dispatcher
+			\return true if all the commands were unregistered successfully; false otherwise
+		*/
+		virtual bool UnregisterCommands() { return true; }
+		/*! \brief Registers the commands of the plugin with the command dispatcher
+			\return true if all the commands were registered successfully; false otherwise
+		*/
+		virtual bool RegisterCommands() { return true; }
 		bool WriteLine(const string_t &Line_in);
+
+		void UpdateTimestamp();
 
 		//! string buffer used to write in the log file
 		string_t	 m_Buffer;
+		//! timestamp format in unicode
+		string_t	 m_TimestampFormatW;
 		//! flag specifying if the log file is open
 		bool		 m_bOpened;
 		//! handle of the log file
 		FILE		*m_pFile;
+		//! buffer to hold the timestamp
+		TCHAR		*m_pTimestamp;
 	};
 }
 

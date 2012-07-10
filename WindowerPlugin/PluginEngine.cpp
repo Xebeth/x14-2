@@ -26,7 +26,7 @@ namespace Windower
 		// create the plugin manager
 		m_pPluginManager = new PluginManager(m_pPluginServices);
 
-		m_pPluginManager->BlacklistPlugin(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
+//		m_pPluginManager->BlacklistPlugin(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
 	}
 
 	PluginEngine::~PluginEngine()

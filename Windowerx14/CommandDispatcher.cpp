@@ -215,7 +215,7 @@ namespace Windower
 
 		for (Iter = m_Commands.begin(); Iter != m_Commands.end(); ++Iter)
 		{
-			if (Iter->second != NULL)
+			if (Iter->second != NULL && Iter->second->IsPublic() && Iter->second->IsRestricted() == false)
 			{
 				if (HelpMsg_out.empty() == false)
 					HelpMsg_out += '\n';

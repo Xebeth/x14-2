@@ -33,9 +33,9 @@ namespace Windower
 {
 	/*! \brief GameChatCore constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
-		: WindowerCore(Engine_in_out), m_CommandParser(Parser_in), m_CommandDispatcher(Dispatcher_in), 
-		  m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL), m_pCreateTextNode(NULL),
-		  m_bCreateTextNodeSubEmpty(true)
+		: WindowerCore(Engine_in_out), CommandHandler(ENGINE_KEY, "GameChatCore"), m_CommandParser(Parser_in),
+		  m_CommandDispatcher(Dispatcher_in), m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL),
+		  m_pCreateTextNode(NULL), m_bCreateTextNodeSubEmpty(true), m_Active(true)
 	{
 		InitializeCriticalSection(&m_Lock);
 		// create the services
@@ -51,6 +51,8 @@ namespace Windower
 		m_CompatiblePlugins.insert(UUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// Tell detect
 		m_CompatiblePlugins.insert(UUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// Tell detect
 		m_CompatiblePlugins.insert(UUID.FromString(_T("932E0F5D-1D24-40B1-BA63-D729A6E42C90")));	// Version inject
+
+		RegisterCommands();
 	}
 
 	
@@ -58,6 +60,7 @@ namespace Windower
 	GameChatCore::~GameChatCore()
 	{
 		DeleteCriticalSection(&m_Lock);
+		UnregisterCommands();
 	}
 
 	/*! \brief Register the hooks for this module
@@ -149,10 +152,9 @@ namespace Windower
 
 				if (pMessage_in_out->dwSize > 2)
 				{
-					DWORD dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = 0;
-					const char *pOriginalMsg = pMessage_in_out->pResBuf;
 					char *pFeedbackMsg = NULL;
 					WindowerCommand Command;
+					DWORD dwNewSize = 0UL;
 					int ParseResult;
 
 					if ((ParseResult = m_CommandParser.ParseCommand(pMessage_in_out->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
@@ -168,18 +170,8 @@ namespace Windower
 						}
 					}
 					
-					if (pFeedbackMsg != NULL)
-					{
-						pMessage_in_out->dwSize = dwNewSize;
-						pMessage_in_out->pResBuf = pFeedbackMsg;
-						// display the error message instead of the typed command
-						Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
-						// restore the original message
-						pMessage_in_out->dwSize = dwOriginalSize;
-						pMessage_in_out->pResBuf = pOriginalMsg;
-						// cleanup
-						free(pFeedbackMsg);
-					}
+					Result = FormatMessage(pThis_in_out, MessageType_in, pSender_in,
+										   pMessage_in_out, pFeedbackMsg, dwNewSize, true);
 				}
 
 				return Result;
@@ -187,6 +179,36 @@ namespace Windower
 		}
 
 		return false;
+	}
+
+	bool GameChatCore::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in,
+									 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
+									 bool AlwaysShow_in)
+	{
+		bool Result = false;
+
+		if (m_Active || AlwaysShow_in)
+		{
+			DWORD dwOriginalSize = pMessage_in_out->dwSize;
+			char *pOriginalMsg = pMessage_in_out->pResBuf;		
+
+			if (pModifiedMsg_in != NULL)
+			{
+				pMessage_in_out->dwSize = NewSize_in;
+				pMessage_in_out->pResBuf = pModifiedMsg_in;
+			}
+			// display the error message instead of the typed command
+			Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
+			// restore the original message
+			pMessage_in_out->dwSize = dwOriginalSize;
+			pMessage_in_out->pResBuf = pOriginalMsg;
+		}
+
+		// cleanup
+		if (pModifiedMsg_in != NULL)
+			free(pModifiedMsg_in);
+
+		return Result;
 	}
 
 	/*! \brief Formats a message received by the game chat log
@@ -202,12 +224,12 @@ namespace Windower
 	{
 		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
 		{
+			DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;
 			const char *pOriginalMsg = pMessage_in_out->pResBuf;
-			DWORD dwOriginalSize = pMessage_in_out->dwSize;
-			PluginSet::const_iterator PluginIt;
-			IGameChatPlugin *pPlugin;
+			PluginSet::const_iterator PluginIt;			
+			bool bResult = false, bUnsubscribe;
 			char *pModifiedMsg = NULL;
-			bool bResult, bUnsubscribe;
+			IGameChatPlugin *pPlugin;
 
 			for (PluginIt = m_ChatFormatSubscribers.begin(); PluginIt != m_ChatFormatSubscribers.end(); ++PluginIt)
 			{
@@ -215,20 +237,16 @@ namespace Windower
 
 				if (pPlugin != NULL)
 				{
-					pPlugin->OnChatMessage(MessageType_in, pSender_in, pMessage_in_out, pOriginalMsg,
-										   dwOriginalSize, &pModifiedMsg, bUnsubscribe);
+					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in, pMessage_in_out, pOriginalMsg,
+													  dwOriginalSize, &pModifiedMsg, bUnsubscribe);
+
+					if (pModifiedMsg != NULL && dwResult > dwNewSize)
+						dwNewSize = dwResult;
 				}
 			}
-			// call the original function
-			bResult = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
-			// restore the original pointer and size of the message object
-			pMessage_in_out->pResBuf = pOriginalMsg;
-			pMessage_in_out->dwSize = dwOriginalSize;
-			// cleanup
-			if (pModifiedMsg != NULL)
-				free(pModifiedMsg);
-		
-			return bResult;
+
+			return FormatMessage(pThis_in_out, MessageType_in, pSender_in,
+								 pMessage_in_out, pModifiedMsg, dwNewSize);
 		}
 
 		return false;
@@ -260,15 +278,14 @@ namespace Windower
 
 					if (bUnsubscribe)
 					{
-						m_CreateTextNodeSubscribers.erase(Iter);
+						Iter = m_CreateTextNodeSubscribers.erase(Iter);
 
-						if (m_CreateTextNodeSubscribers.empty())
+						// stop looping if the set becomes empty
+						if (Iter == m_CreateTextNodeSubscribers.end())
 						{
 							m_bCreateTextNodeSubEmpty = true;
 							break;
 						}
-						else
-							Iter = m_CreateTextNodeSubscribers.begin();
 					}
 				}
 			}
@@ -277,5 +294,74 @@ namespace Windower
 		}
 
 		return m_pCreateTextNodeTrampoline(pTextObject_out, pText_in, TextLength_in);
+	}
+
+	/*! \brief Executes the command specified by its ID
+		\param[in] CmdID_in : the ID of the command to execute
+		\param[in] Command_in : the command to execute
+		\param[out] Feedback_out : the result of the execution
+		\return true if the command was executed successfully; false otherwise
+	*/
+	bool GameChatCore::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
+	{
+		switch(CmdID_in)
+		{
+			case CMD_TOGGLE:
+				m_Active = !m_Active;
+			break;
+			case CMD_START:
+				m_Active = true;
+			break;
+			case CMD_STOP:
+				m_Active = false;
+			break;
+			default:
+				return false;
+		}
+
+		if (m_Active)
+			Feedback_out = "The chat is now on.";
+		else
+			Feedback_out = "The chat is now off.";
+
+		return true;
+	}
+
+	/*! \brief Registers the commands of the plugin with the command dispatcher
+		\return true if all the commands were registered successfully; false otherwise
+	*/
+	bool GameChatCore::RegisterCommands()
+	{
+		WindowerCommand *pCmd;
+
+		pCmd = new WindowerCommand(ENGINE_KEY, CMD_TOGGLE, "chat::toggle", "Toggles the chat on/off", this, false);
+
+		if (m_CommandDispatcher.RegisterCommand(pCmd))
+			m_Commands[CMD_TOGGLE] = pCmd;
+
+		pCmd = new WindowerCommand(ENGINE_KEY, CMD_STOP, "chat::off", "Prevents the chat from displaying messages", this, false);
+		
+		if (m_CommandDispatcher.RegisterCommand(pCmd))
+			m_Commands[CMD_STOP] = pCmd;
+
+		pCmd = new WindowerCommand(ENGINE_KEY, CMD_START, "chat::on", "Resumes the chat displaying messages", this, false);
+		
+		if (m_CommandDispatcher.RegisterCommand(pCmd))
+			m_Commands[CMD_START] = pCmd;
+
+		return true;
+	}
+
+	/*! \brief Unregisters the commands of the plugin with the command dispatcher
+		\return true if all the commands were unregistered successfully; false otherwise
+	*/
+	bool GameChatCore::UnregisterCommands()
+	{
+		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::toggle");
+		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::off");
+		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::on");
+		m_Commands.clear();
+
+		return true;
 	}
 }

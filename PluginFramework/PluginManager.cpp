@@ -55,7 +55,8 @@ namespace PluginFramework
 
 		// iterating effectively loads every DLLs in the directory to check them (see PluginIterator::IsValid())
 		for (hFile = Iter.Begin(); hFile != Iter.End(); hFile = ++Iter)
-			++PluginCount;
+			if (hFile != NULL)
+				++PluginCount;
 
 		SetErrorMode(PrevErrorMode);
 
@@ -82,9 +83,9 @@ namespace PluginFramework
 
 				if ((Flags & CompatibilityFlags_in) == Flags)
 					bResult = RegisterPlugin(Info);
-
-				UnloadDLL(hPlugin);
 			}
+
+			UnloadDLL(hPlugin);
 
 			return bResult;
 		}
@@ -142,7 +143,10 @@ namespace PluginFramework
 	*/
 	bool PluginManager::CheckPluginInfo(const PluginInfo &Info_in) const
 	{
-		return (m_pServices != NULL && Info_in.m_FrameworkVersion == m_pServices->GetVersion());
+		PluginUUID UUID(Info_in.GetIndentifier().c_str());
+
+		return (m_pServices != NULL && Info_in.m_FrameworkVersion == m_pServices->GetVersion()
+			 && m_Blacklist.find(UUID) == m_Blacklist.end());
 	}
 
 	/*! \brief Registers a plugin

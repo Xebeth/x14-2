@@ -82,7 +82,10 @@ HANDLE FileIterator::operator++()
 		while (bFileFound && FileIterator::IsValid() == false);
 	}
 
-	return (bFileFound && IsValid()) ? m_hFile : INVALID_HANDLE_VALUE;
+	if (bFileFound)
+		return IsValid() ? m_hFile : NULL;
+	else
+		return INVALID_HANDLE_VALUE;
 }
 
 /*! \brief Moves the iterator to the next file (postfix increment)

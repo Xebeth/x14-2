@@ -21,10 +21,10 @@ namespace Windower
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-						   StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   bool &Unsubscribe_out);
+		DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
+							const StringNode* pMessage_in, const char *pOriginalMsg_in,
+							DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+							bool &Unsubscribe_out);
 
 	protected:
 		//! Timestamp plugin settings

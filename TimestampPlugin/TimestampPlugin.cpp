@@ -127,23 +127,23 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
-		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
+		\param[in,out] pMessage_in : the message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] dwOriginalMsgSize_in : the size of the original message
 		\param[in] pBuffer_in_out : the resulting text modified by the plugin
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
-		\return true if the message was logged; false otherwise
+		\return the size of the message
 	*/
-	bool TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-										StringNode* pMessage_in_out, const char *pOriginalMsg_in,
-										DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-										bool &Unsubscribe_out)
+	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
+										 const StringNode* pMessage_in, const char *pOriginalMsg_in,
+										 DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+										 bool &Unsubscribe_out)
 	{
-		if (pMessage_in_out->pResBuf != NULL)
+		if (pMessage_in->pResBuf != NULL)
 		{
 			DWORD dwNewSize;
 			// add 11 characters for the timestamp
-			dwNewSize = pMessage_in_out->dwSize + m_TimestampLength;
+			dwNewSize = pMessage_in->dwSize + m_TimestampLength;
 			// allocate a new buffer
 			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize * sizeof(char));
 
@@ -153,21 +153,19 @@ namespace Windower
 				// clear the buffer
 				memset(*pBuffer_in_out, 0, dwNewSize);
 				// get the current time
-				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL, m_TimestampFormat.c_str(),
+				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
+							   m_TimestampFormat.c_str(),
 							   *pBuffer_in_out, m_TimestampLength);
 				// copy the original text
 				memcpy_s(*pBuffer_in_out + m_TimestampLength,
-						 pMessage_in_out->dwSize * sizeof(char),
-						 pMessage_in_out->pResBuf, pMessage_in_out->dwSize);
-				// replace the object data with timestamp + text
-				pMessage_in_out->pResBuf = *pBuffer_in_out;
-				pMessage_in_out->dwSize = dwNewSize;
+						 pMessage_in->dwSize * sizeof(char),
+						 pMessage_in->pResBuf, pMessage_in->dwSize);
 
-				return true;
+				return dwNewSize;
 			}
 		}
 
-		return false;
+		return dwOriginalMsgSize_in;
 	}
 
 	
@@ -221,14 +219,16 @@ namespace Windower
 	}
 }
 
-using Windower::TimestampPlugin;
+#ifndef NO_EXPORT
+	using Windower::TimestampPlugin;
 
-/*! \brief Function exposed by the plugin DLL to initialize the plugin object
-	\param[out] RegisterParams_out : Registration structure to be able to use the plugin
-	\return true if the initialization succeeded; false otherwise
-*/
-extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
-{
-	return PluginFramework::IPlugin::Initialize(RegisterParams_out, TimestampPlugin::Create, TimestampPlugin::Destroy,
-												TimestampPlugin::Query, TimestampPlugin::Configure);
-}
+	/*! \brief Function exposed by the plugin DLL to initialize the plugin object
+		\param[out] RegisterParams_out : Registration structure to be able to use the plugin
+		\return true if the initialization succeeded; false otherwise
+	*/
+	extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
+	{
+		return PluginFramework::IPlugin::Initialize(RegisterParams_out, TimestampPlugin::Create, TimestampPlugin::Destroy,
+													TimestampPlugin::Query, TimestampPlugin::Configure);
+	}
+#endif // NO_EXPORT
