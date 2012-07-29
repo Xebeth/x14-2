@@ -338,16 +338,22 @@ namespace Windower
 
 		if (m_CommandDispatcher.RegisterCommand(pCmd))
 			m_Commands[CMD_TOGGLE] = pCmd;
+		else
+			delete pCmd;
 
 		pCmd = new WindowerCommand(ENGINE_KEY, CMD_STOP, "chat::off", "Prevents the chat from displaying messages", this, false);
 		
 		if (m_CommandDispatcher.RegisterCommand(pCmd))
 			m_Commands[CMD_STOP] = pCmd;
+		else
+			delete pCmd;
 
 		pCmd = new WindowerCommand(ENGINE_KEY, CMD_START, "chat::on", "Resumes the chat displaying messages", this, false);
 		
 		if (m_CommandDispatcher.RegisterCommand(pCmd))
 			m_Commands[CMD_START] = pCmd;
+		else
+			delete pCmd;
 
 		return true;
 	}
@@ -360,6 +366,12 @@ namespace Windower
 		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::toggle");
 		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::off");
 		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::on");
+
+		HandlerCommands::const_iterator CmdIt, EndIt(m_Commands.end());
+
+		for (CmdIt = m_Commands.begin(); CmdIt != EndIt; ++CmdIt)
+			delete CmdIt->second;
+
 		m_Commands.clear();
 
 		return true;

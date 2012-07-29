@@ -252,6 +252,7 @@ namespace Windower
 		{
 			const Windower::WindowerProfile &Profile = static_cast<WindowerEngine&>(m_Engine).Settings();
 
+			*reinterpret_cast<long*>(pConfigData_out + CONFIG_FULLSCREEN_OFFSET) = 1L;
 			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESX_OFFSET) = Profile.GetResX();
 			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESY_OFFSET) = Profile.GetResY();
 		}
