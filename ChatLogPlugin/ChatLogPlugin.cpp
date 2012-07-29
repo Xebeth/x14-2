@@ -30,7 +30,11 @@ namespace Windower
 		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(NULL), m_pTimestamp(NULL)
 	{
 		m_TimestampFormatW = m_pSettings->GetFormat();
-		CreateDirectory(_T("logs"), NULL);		
+		CreateDirectory(_T("logs"), NULL);
+
+		convert_utf8(TEXT_COLOR_START, m_ColorTagStart);
+		convert_utf8(TEXT_COLOR_END, m_ColorTagEnd);
+		convert_utf8(TEXT_CHAT_PAUSE, m_ChatPause);
 	}
 
 	//! \brief ChatLogPlugin destructor
@@ -96,10 +100,28 @@ namespace Windower
 		if (StartLog())
 		{
 			string_t Sender, Message, Line;
+			size_t StrPos;
 
 			UpdateTimestamp();
 			convert_utf8(pSender_in->pResBuf, Sender);
 			convert_utf8(pOriginalMsg_in, Message);
+
+			// remove color tags
+			StrPos = Message.find(m_ColorTagStart);
+
+			if (StrPos != string_t::npos)
+			{
+				Message.replace(StrPos, TEXT_COLOR_START_LEN, _T(""));
+				StrPos = Message.find(m_ColorTagEnd);
+
+				if (StrPos != string_t::npos)
+					Message.replace(StrPos, TEXT_COLOR_END_LEN, _T(""));
+			}
+			// remove chat log pause
+			StrPos = Message.find(m_ChatPause);
+
+			if (StrPos != string_t::npos)
+				Message.replace(StrPos, TEXT_CHAT_PAUSE_LEN, _T(""));
 
 			if (Sender.empty())
 				format(m_Buffer, _T("%s%s\n"), m_pTimestamp, Message.c_str());
@@ -164,7 +186,7 @@ namespace Windower
 	{
 		if (m_bOpened && m_pFile != NULL)
 		{
-			WriteLine(_T("== End of session ==============================\r\n"));
+			WriteLine(_T("== End of session =======================\r\n"));
 
 			fclose(m_pFile);
 			m_pFile = NULL;
@@ -180,8 +202,8 @@ namespace Windower
 		memset(m_pTimestamp, 0, m_TimestampLength + 1);
 		// get the current time
 		GetTimeFormatW(LOCALE_INVARIANT, NULL, NULL,
-						m_TimestampFormatW.c_str(),
-						m_pTimestamp, m_TimestampLength);
+					   m_TimestampFormatW.c_str(),
+					   m_pTimestamp, m_TimestampLength);
 	}
 }
 

@@ -24,13 +24,13 @@ extern Windower::WindowerEngine *g_pEngine;
 /*! \brief Formats a message received by the game chat log
 	\param[in] pThis_in_out : a pointer to the class containing the hooked method
 	\param[in] MessageType_in : the type of the message
-	\param[in] pSender_in : the sender of the message
+	\param[in,out] pSender_in_out : the sender of the message
 	\param[in,out] pMessage_in_out : the message
 	\return true if the message was formatted successfully; false otherwise
 */
-bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out)
+bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out)
 {
-	return g_pEngine->GameChat().FormatChatMessageHook(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
+	return g_pEngine->GameChat().FormatChatMessageHook(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out);
 }
 
 /*! \brief Creates a text node from the specified string

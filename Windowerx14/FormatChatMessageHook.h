@@ -11,8 +11,8 @@
 #include <ICreateTextNodePlugin.h>
 
 // int __thiscall sub_4CCB50(void *this, unsigned __int16 a2, int a3, int a4) => search for %04X in disassembly
-typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
-bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
+typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out);
+bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out);
 
 #define FORMAT_CHAT_HEAD_POINTER_OFFSET					64
 #define FORMAT_CHAT_TAIL_POINTER_OFFSET					68

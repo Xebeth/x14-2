@@ -81,7 +81,7 @@ namespace Windower
 		// Commander parser
 		m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
 		// Game chat related hooks
-		m_pGameChatCore = new GameChatCore(*this, *m_pCommandParser, *m_pCommandDispatcher);
+		m_pGameChatCore = new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
 		// Direct3D related hooks
 		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(), m_Settings.GetVSync());
 

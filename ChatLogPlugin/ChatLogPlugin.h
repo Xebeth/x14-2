@@ -50,6 +50,12 @@ namespace Windower
 		FILE		*m_pFile;
 		//! buffer to hold the timestamp
 		TCHAR		*m_pTimestamp;
+		//! buffer for the text color tag start
+		string_t	 m_ColorTagStart;
+		//! buffer for the text color tag end
+		string_t	 m_ColorTagEnd;
+		//! buffer for the chat pause tag
+		string_t	 m_ChatPause;
 	};
 }
 

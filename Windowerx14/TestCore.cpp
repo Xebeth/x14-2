@@ -55,10 +55,6 @@ namespace Windower
 			HookManager_in.RegisterHook("OnSetJob", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::SetJobHook, TEST_SET_JOB_OPCODES_HOOK_SIZE);
 		}
-		// fat sub
-		m_pFatSubTrampoline = (fnFatSub)0x007751E0;
-		HookManager_in.RegisterHook("FatSub", SIGSCAN_GAME_PROCESSA,
-									(LPVOID)0x007751E0, ::FatSubHook, 13);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -67,7 +63,6 @@ namespace Windower
 	void TestCore::OnHookInstall(IHookManager &HookManager_in)
 	{
 		m_pSetJobTrampoline	= (fnSetJob)HookManager_in.GetTrampolineFunc("OnSetJob");
-		m_pFatSubTrampoline	= (fnFatSub)HookManager_in.GetTrampolineFunc("FatSub");
 	}
 
 	int TestCore::SetJob(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in)
@@ -91,13 +86,5 @@ namespace Windower
 		}
 
 		return m_pSetJobTrampoline(pThis_in_out, pJob_in, Unk1_in, Unk2_in);
-	}
-
-	int TestCore::FatSub(LPVOID pThis_in_out, void * a2, int a3, int a4)
-	{
-// 		format(m_StrDebug, _T("TestCore::FatSub>> 0x%08X 0x%08X 0x%08X 0x%08X\n"), pThis_in_out, a2, a3, a4);
-// 		OutputDebugString(m_StrDebug.c_str());
-
-		return m_pFatSubTrampoline(pThis_in_out, a2, a3, a4);
 	}
 }

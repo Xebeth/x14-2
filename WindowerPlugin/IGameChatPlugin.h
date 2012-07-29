@@ -8,6 +8,13 @@
 #ifndef __IGAME_CHAT_PLUGIN_H__
 #define __IGAME_CHAT_PLUGIN_H__
 
+#define TEXT_COLOR_START "\x02\x13\x06"
+#define TEXT_COLOR_END "\x02\x14\x02"
+#define TEXT_CHAT_PAUSE "\x02\x17\x01\x03\x00"
+#define TEXT_COLOR_START_LEN  18
+#define TEXT_COLOR_END_LEN 10
+#define TEXT_CHAT_PAUSE_LEN 5
+
 typedef struct _StringNode
 {
 	char		*pResBuf;		// +4

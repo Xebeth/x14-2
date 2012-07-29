@@ -32,10 +32,11 @@
 namespace Windower
 {
 	/*! \brief GameChatCore constructor */
-	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
+	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, IHookManager &HookManager_in,
+							   CommandParser &Parser_in, CommandDispatcher &Dispatcher_in) 
 		: WindowerCore(Engine_in_out), CommandHandler(ENGINE_KEY, "GameChatCore"), m_CommandParser(Parser_in),
 		  m_CommandDispatcher(Dispatcher_in), m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL),
-		  m_pCreateTextNode(NULL), m_bCreateTextNodeSubEmpty(true), m_Active(true)
+		  m_pCreateTextNode(NULL), m_bCreateTextNodeSubEmpty(true), m_Active(true), m_HookMgr(HookManager_in)
 	{
 		InitializeCriticalSection(&m_Lock);
 		// create the services
@@ -136,12 +137,12 @@ namespace Windower
 	/*! \brief Filters commands received by the chat log and processes them
 		\param[in] pThis_in_out : a pointer to the class containing the hooked method
 		\param[in] MessageType_in : the type of the message
-		\param[in] pSender_in : the sender of the message
+		\param[in,out] pSender_in_out : the sender of the message
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
 	bool GameChatCore::FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
-									  const StringNode* pSender_in, StringNode* pMessage_in_out)
+									  StringNode* pSender_in_out, StringNode* pMessage_in_out)
 	{
 		if (pMessage_in_out != NULL && pMessage_in_out->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_INVALID_MESSAGE)
 		{
@@ -170,7 +171,7 @@ namespace Windower
 						}
 					}
 					
-					Result = FormatMessage(pThis_in_out, MessageType_in, pSender_in,
+					Result = FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
 										   pMessage_in_out, pFeedbackMsg, dwNewSize, true);
 				}
 
@@ -181,27 +182,40 @@ namespace Windower
 		return false;
 	}
 
-	bool GameChatCore::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in,
+	bool GameChatCore::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 									 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
 									 bool AlwaysShow_in)
 	{
+		bool HasChatPauseTag = (strstr(pMessage_in_out->pResBuf, TEXT_CHAT_PAUSE) != NULL);
 		bool Result = false;
 
-		if (m_Active || AlwaysShow_in)
+		if (m_Active || AlwaysShow_in || HasChatPauseTag)
 		{
-			DWORD dwOriginalSize = pMessage_in_out->dwSize;
-			char *pOriginalMsg = pMessage_in_out->pResBuf;		
+			DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
+			DWORD dwOriginalMgsSize = pMessage_in_out->dwSize;
+			char *pOriginalSender = pSender_in_out->pResBuf;
+			char *pOriginalMsg = pMessage_in_out->pResBuf;			
 
-			if (pModifiedMsg_in != NULL)
+			if (HasChatPauseTag && m_Active == false)
+			{
+				pMessage_in_out->dwSize = TEXT_CHAT_PAUSE_LEN;
+				pMessage_in_out->pResBuf = TEXT_CHAT_PAUSE;
+				pSender_in_out->pResBuf = " \0";
+				pSender_in_out->dwSize = 1UL;
+			}
+			else if (pModifiedMsg_in != NULL)
 			{
 				pMessage_in_out->dwSize = NewSize_in;
 				pMessage_in_out->pResBuf = pModifiedMsg_in;
 			}
 			// display the error message instead of the typed command
-			Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out);
-			// restore the original message
-			pMessage_in_out->dwSize = dwOriginalSize;
-			pMessage_in_out->pResBuf = pOriginalMsg;
+			Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in,
+													pSender_in_out, pMessage_in_out);
+			// restore the original message and sender
+			pSender_in_out->dwSize = dwOriginalSenderSize;
+			pMessage_in_out->dwSize = dwOriginalMgsSize;
+			pSender_in_out->pResBuf = pOriginalSender;
+			pMessage_in_out->pResBuf = pOriginalMsg;			
 		}
 
 		// cleanup
@@ -214,15 +228,14 @@ namespace Windower
 	/*! \brief Formats a message received by the game chat log
 		\param[in] pThis_in_out : a pointer to the class containing the hooked method
 		\param[in] MessageType_in : the type of the message
-		\param[in] pSender_in : the sender of the message
+		\param[in,out] pSender_in_out : the sender of the message
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
 	bool GameChatCore::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in,
-											 const StringNode* pSender_in,
-											 StringNode* pMessage_in_out)
+											 StringNode* pSender_in_out, StringNode* pMessage_in_out)
 	{
-		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
+		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
 		{
 			DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;
 			const char *pOriginalMsg = pMessage_in_out->pResBuf;
@@ -237,7 +250,7 @@ namespace Windower
 
 				if (pPlugin != NULL)
 				{
-					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in, pMessage_in_out, pOriginalMsg,
+					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out, pMessage_in_out, pOriginalMsg,
 													  dwOriginalSize, &pModifiedMsg, bUnsubscribe);
 
 					if (pModifiedMsg != NULL && dwResult > dwNewSize)
@@ -245,7 +258,7 @@ namespace Windower
 				}
 			}
 
-			return FormatMessage(pThis_in_out, MessageType_in, pSender_in,
+			return FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
 								 pMessage_in_out, pModifiedMsg, dwNewSize);
 		}
 
@@ -283,7 +296,8 @@ namespace Windower
 						// stop looping if the set becomes empty
 						if (Iter == m_CreateTextNodeSubscribers.end())
 						{
-							m_bCreateTextNodeSubEmpty = true;
+							m_HookMgr.UninstallHook("CreateTextNode");
+							m_bCreateTextNodeSubEmpty = true;							
 							break;
 						}
 					}

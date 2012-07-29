@@ -27,7 +27,8 @@ namespace Windower
 			CMD_COUNT		//!< number of registered commands
 		};
 
-		GameChatCore(WindowerEngine &Engine_in_out, CommandParser &Parser_in, CommandDispatcher &Dispatcher_in);
+		GameChatCore(WindowerEngine &Engine_in_out, IHookManager &HookManager_in,
+					 CommandParser &Parser_in, CommandDispatcher &Dispatcher_in);
 		~GameChatCore();
 
 		// ICoreModule interface implementation
@@ -35,7 +36,8 @@ namespace Windower
 		void OnHookInstall(IHookManager &HookManager_in);
 
 		//! \brief OnChatMessage hook
-		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in, StringNode* pMessage_in_out);
+		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, 
+								   StringNode* pSender_in_out, StringNode* pMessage_in_out);
 
 		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in = -1);
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
@@ -50,15 +52,14 @@ namespace Windower
 		virtual void OnUnsubscribe(const string_t &ServiceName_in,
 								   const PluginSet &Subscribers_in);
 		bool FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
-							const StringNode* pSender_in,
-							StringNode* pMessage_in);
+							StringNode* pSender_in_out, StringNode* pMessage_in);
 		//! function pointer to the original FormatChatMessage function
 		fnFormatChatMessage	m_pFormatChatMessageTrampoline;
 		//! function pointer to the original CreateTextNode function
 		fnCreateTextNode m_pCreateTextNodeTrampoline;
 
 	private:
-		bool FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, const StringNode* pSender_in,
+		bool FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 						   StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
 						   bool AlwaysShow_in = false);
 
@@ -66,6 +67,8 @@ namespace Windower
 		PluginSet					 m_CreateTextNodeSubscribers;
 		bool						 m_bCreateTextNodeSubEmpty;
 
+		//! Hook manager
+		IHookManager &m_HookMgr;
 		//! vector keeping track of the chat head positions
 		std::vector<char*> m_ChatHeadVector;
 		//! the module service for the chat message formatting method
