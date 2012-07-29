@@ -39,7 +39,8 @@ namespace Windower
 		ON_CBN_EDITCHANGE(IDC_RESY_COMBO, &WindowerConfigDlg::OnResolutionChange)		
 
 		ON_BN_CLICKED(IDC_DELETE_PROFILE, &WindowerConfigDlg::OnDeleteProfile)
-		ON_BN_CLICKED(IDC_NEW_PROFILE, &WindowerConfigDlg::OnNewProfile)
+		ON_BN_CLICKED(IDC_BORDERLESS, &WindowerConfigDlg::OnBorderlessChange)
+		ON_BN_CLICKED(IDC_NEW_PROFILE, &WindowerConfigDlg::OnNewProfile)		
 		ON_BN_CLICKED(IDC_VSYNC, &WindowerConfigDlg::OnVSyncChange)
 
 		ON_NOTIFY(NM_DBLCLK, IDC_PLUGIN_LIST, OnConfigure)
@@ -372,6 +373,7 @@ namespace Windower
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
 		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
+		CButton *pBorderless = static_cast<CButton*>(GetDlgItem(IDC_BORDERLESS));
 		CButton *pVSync		 = static_cast<CButton*>(GetDlgItem(IDC_VSYNC));
 
 		if (m_pCurrentSettings != NULL)
@@ -379,7 +381,7 @@ namespace Windower
 
 		m_pCurrentSettings = NULL;
 
-		if (pProfiles != NULL && pResX != NULL && pResY != NULL && pVSync != NULL)
+		if (pProfiles != NULL && pResX != NULL && pResY != NULL && pVSync != NULL && pBorderless != NULL)
 		{
 			m_CurrentSel = pProfiles->GetCurSel();
 
@@ -399,6 +401,7 @@ namespace Windower
 					pResX->SetWindowText(StrX);
 					pResY->SetWindowText(StrY);
 
+					pBorderless->SetCheck(m_pCurrentSettings->GetBorderless() ? BST_CHECKED : BST_UNCHECKED);
 					pVSync->SetCheck(m_pCurrentSettings->GetVSync() ? BST_CHECKED : BST_UNCHECKED);
 
 					pResX->FindStringExact(0, StrX);
@@ -608,6 +611,16 @@ namespace Windower
 		if (m_pSettingsManager != NULL && pVSync != NULL)
 		{
 			m_pCurrentSettings->SetVSync(pVSync->GetCheck() == BST_CHECKED);
+		}
+	}
+
+	void WindowerConfigDlg::OnBorderlessChange()
+	{
+		CButton *pBorderless = static_cast<CButton*>(GetDlgItem(IDC_BORDERLESS));
+
+		if (m_pSettingsManager != NULL && pBorderless != NULL)
+		{
+			m_pCurrentSettings->SetBorderless(pBorderless->GetCheck() == BST_CHECKED);
 		}
 	}
 

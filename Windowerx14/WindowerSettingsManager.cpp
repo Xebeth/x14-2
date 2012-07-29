@@ -140,6 +140,7 @@ namespace Windower
 					m_pSettingsFile->SetLong(pName, _T("ResX"), ResX);
 					m_pSettingsFile->SetLong(pName, _T("ResY"), ResY);
 					m_pSettingsFile->SetLong(pName, _T("VSync"), pProfile->GetVSync());
+					m_pSettingsFile->SetLong(pName, _T("Borderless"), pProfile->GetBorderless());
 
 					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
 					ActivePlugins::size_type Count = Plugins.size(), Index = 0;
@@ -206,7 +207,8 @@ namespace Windower
 			if (ForceSave)
 				m_pSettingsFile->Save();
 
-			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync")));
+			Settings_out.SetBorderless(m_pSettingsFile->GetLong(pProfileName_in, _T("Borderless"), 1L));
+			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync"), 0L));
 			Settings_out.SetResolution(ResX, ResY);
 			Settings_out.SetName(pProfileName_in);
 
@@ -320,7 +322,7 @@ namespace Windower
 
 		LONG ResX = GetSystemMetrics(SM_CXSCREEN);
 		LONG ResY = GetSystemMetrics(SM_CYSCREEN);
-		WindowerProfile Settings(ResX, ResY, TRUE, DEFAULT_PROFILE_NAME);
+		WindowerProfile Settings(ResX, ResY, TRUE, TRUE, DEFAULT_PROFILE_NAME);
 
 		SetDefaultProfile(DEFAULT_PROFILE_NAME);
 		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
@@ -363,6 +365,7 @@ namespace Windower
 		if (pProfile != NULL)
 		{
 			pProfile->SetResolution(Src_in.GetResX(), Src_in.GetResY());
+			pProfile->SetBorderless(Src_in.GetBorderless());
 			pProfile->SetVSync(Src_in.GetVSync());
 			pProfile->SetName(Src_in.GetName());
 		}

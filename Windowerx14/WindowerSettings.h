@@ -23,7 +23,7 @@ namespace Windower
 	{
 	public:
 		//! \brief WindowerProfile default constructor
-		WindowerProfile() { m_ResX = m_ResY = 0L; m_VSync = FALSE; }
+		WindowerProfile() : m_ResX(0L), m_ResY(0L), m_VSync(FALSE), m_Borderless(FALSE) {}
 		/*! \brief WindowerProfile copy constructor
 			\param[in] Settings_in : the settings to copy
 		*/
@@ -37,10 +37,11 @@ namespace Windower
 		*/
 		void Copy(const WindowerProfile &Settings_in)
 		{
-			m_Name = Settings_in.GetName();
-			m_ResX = Settings_in.GetResX();
-			m_ResY = Settings_in.GetResY();
-			m_VSync = Settings_in.GetVSync();
+			m_Name = Settings_in.m_Name;
+			m_ResX = Settings_in.m_ResX;
+			m_ResY = Settings_in.m_ResY;
+			m_VSync = Settings_in.m_VSync;
+			m_Borderless = Settings_in.m_Borderless;
 
 			m_ActivePlugins = Settings_in.m_ActivePlugins;
 		}
@@ -49,16 +50,21 @@ namespace Windower
 			\param[in] ResX_in : the width of the rendering surface
 			\param[in] ResY_in : the height of the rendering surface
 			\param[in] VSync_in : flag specifying if vertical synchronization is in use
+			\param[in] Borderless_in: flag specifying if the window border is visible
 			\param[in] pName_in : the name of the profile
 		*/
-		WindowerProfile(LONG ResX_in, LONG ResY_in, BOOL VSync_in, const TCHAR *pName_in)
-			: m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_Name(pName_in) {}
+		WindowerProfile(LONG ResX_in, LONG ResY_in, BOOL VSync_in, BOOL Borderless_in, const TCHAR *pName_in)
+			: m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_Borderless(Borderless_in), m_Name(pName_in) {}
 
 		/*! \brief Sets the flag specifying if vertical synchronization is in use
 			\param[in] VSync_in : the new value of the flag
 		*/
 		void SetVSync(BOOL VSync_in) { m_VSync = VSync_in; }
-		/*! \brief Sets the the name of the profile
+		/*! \brief Sets the flag specifying if the window border is visible
+			\param[in] Borderless_in : the new value of the flag
+		*/
+		void SetBorderless(BOOL Borderless_in) { m_Borderless = Borderless_in; }
+		/*! \brief Sets the name of the profile
 			\param[in] pName_in : the new name of the profile
 		*/
 		void SetName(const TCHAR *pName_in) { m_Name = pName_in; }
@@ -80,6 +86,10 @@ namespace Windower
 			\return the flag specifying if vertical synchronization is in use
 		*/
 		BOOL GetVSync() const { return m_VSync; }
+		/*! \brief Retrieves the flag specifying if the window border is visible
+			\return the flag specifying if the window border is visible
+		*/
+		BOOL GetBorderless() const { return m_Borderless; }
 		/*! \brief Retrieves the name of the profile
 			\return the name of the profile
 		*/
@@ -112,6 +122,8 @@ namespace Windower
 		LONG m_ResX;
 		//! the height of the rendering surface
 		LONG m_ResY;
+		//! flag specifying if the window border is visible
+		BOOL m_Borderless;
 		//! flag specifying if vertical synchronization is in use
 		BOOL m_VSync;
 		//! the name of the profile

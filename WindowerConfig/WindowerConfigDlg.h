@@ -48,6 +48,7 @@ namespace Windower
 		afx_msg void OnProfilesChange();
 		
 		afx_msg void OnDeleteProfile();
+		afx_msg void OnBorderlessChange();
 		afx_msg void OnVSyncChange();
 		afx_msg void OnNewProfile();
 		afx_msg void OnLaunch();

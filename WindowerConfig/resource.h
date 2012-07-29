@@ -12,6 +12,7 @@
 #define IDC_DELETE_PROFILE              1005
 #define IDC_PLUGIN_LIST                 1006
 #define IDC_SAVE                        1007
+#define IDC_BORDERLESS                  1008
 
 // Next default values for new objects
 // 
