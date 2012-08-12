@@ -44,14 +44,24 @@ ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene() 
 {
+	HRESULT Result = S_OK;
+
 	if (m_bRender && m_bSceneStarted == false)
 	{
 		m_bSceneStarted = true;
 
-		return m_pDirect3dDevice->BeginScene();
+		Result = m_pDirect3dDevice->BeginScene();
+/*
+		if (m_bShowFPS)
+		{
+			m_pRenderTimer->Update();
+			format(m_FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS() * 0.02f);
+			m_pFont->Print(m_FPS.c_str(), 5, 5, D3DCOLOR_XRGB(255, 0, 0));
+		}
+*/
 	}
-	else
-		return S_OK;
+
+	return Result;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene() 
@@ -59,14 +69,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene()
 	if (m_bRender && m_bSceneStarted)
 	{
 		m_bSceneStarted = false;
-/*
-		if (m_bShowFPS)
-		{
-			m_pRenderTimer->Update();
-			format(m_FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS());
-			m_pFont->Print(m_FPS.c_str(), 5, 5, D3DCOLOR_XRGB(255, 0, 0));
-		}
-*/
+
 		return m_pDirect3dDevice->EndScene();
 	}
 	

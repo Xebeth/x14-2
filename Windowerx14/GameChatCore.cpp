@@ -282,7 +282,7 @@ namespace Windower
 #ifdef _DEBUG
 		if (BreakAgain)
 		{
-			DebugBreak();
+			bool lol = true;
 		}
 		else if (pText_in && strstr(pText_in, "[en]") != NULL)
 		{

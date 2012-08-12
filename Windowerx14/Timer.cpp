@@ -56,10 +56,7 @@ void Timer::Update()
 	++m_numFrames;
 	if (m_currentTime - m_lastFPSUpdate >= m_FPSUpdateInterval)
 	{
-		float currentTime = (float)m_currentTime / (float)m_ticksPerSecond;
-		float lastTime = (float)m_lastFPSUpdate / (float)m_ticksPerSecond;
-		m_fps = (float)m_numFrames / (currentTime - lastTime);
-
+		m_fps = (float)(m_numFrames * m_ticksPerSecond) / (m_currentTime - m_lastFPSUpdate);
 		m_lastFPSUpdate = m_currentTime;
 		m_numFrames = 0;
 	}
