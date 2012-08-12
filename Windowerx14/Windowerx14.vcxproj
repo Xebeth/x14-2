@@ -120,6 +120,7 @@
     <ClCompile Include="TestHook.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="WindowerCore.cpp" />
     <ClCompile Include="WindowerEngine.cpp" />
     <ClCompile Include="WindowerSettingsManager.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="TestHook.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerCore.h" />
     <ClInclude Include="WindowerEngine.h" />

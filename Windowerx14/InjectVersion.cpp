@@ -51,7 +51,9 @@ namespace Windower
 			format(m_InjectedText, "%s\nWindower x14 Version: %i.%i.%i.%i",
 				   pText_in, MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
 				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);
-
+#ifdef _DEBUG
+			m_InjectedText += " debug build";
+#endif // _DEBUG
 			// only need to inject once
 			Unsubscribe_out = true;
 

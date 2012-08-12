@@ -23,6 +23,8 @@ namespace Windower
 
 		void SetRendering(bool bEnable_in);
 		void ToggleRendering();
+		void ToggleWireframe();
+		void ToggleFPS();
 
 		// events
 		void OnCreateDevice(IDirect3DDevice9Wrapper *pDeviceWrapper_in);

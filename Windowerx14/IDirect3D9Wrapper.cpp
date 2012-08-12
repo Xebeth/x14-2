@@ -29,13 +29,12 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 
 	m_hGameWnd = hFocusWindow;
 	// force the windowed mode
-	pPresentationParameters->BackBufferFormat = D3DFMT_UNKNOWN;
 	pPresentationParameters->BackBufferCount = 2;
 	pPresentationParameters->Windowed = TRUE;
 	// force vertical sync
 	if (m_VSync)
 	{
-		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 		pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_FLIP;
 	}
@@ -51,7 +50,7 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 		DeviceSubscribers::iterator Iter;
 
 		// wrap the device up
-		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9);
+		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters);
 		// give the subscribers a copy of the new device wrapper
 		for (Iter = m_Subscribers.begin(); Iter != m_Subscribers.end(); ++Iter)
 			*(*Iter) = m_pWrappedDevice;

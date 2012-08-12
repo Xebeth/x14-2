@@ -1,33 +1,24 @@
 #include "stdafx.h"
-#include <tchar.h>
+
 #include <d3dx9.h>
 #include <d3d9.h>
 #include <vector>
 
 #include "Font.h"
+#include "Timer.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
-IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice)
+IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice, D3DPRESENT_PARAMETERS &PresentParams_in)
+	: m_pDirect3dDevice(*pDirect3dDevice), m_bSceneStarted(false), m_PresentParams(PresentParams_in),
+	  m_bRender(true), m_FillMode(0), m_bShowFPS(false)/*, m_pFont(new Font), m_pRenderTimer(new Timer)*/
 {
-	m_pDirect3dDevice = *pDirect3dDevice;
-//	m_pRenderTimer = new HiResTimer();
-	m_bSceneStarted = false;
-	m_pFont = new Font();	
-	m_bRender = true;
-	m_FillMode = 0;
-	m_pFps = NULL;
-
-	if (m_pFont != NULL)
-		m_pFont->Initialize(m_pDirect3dDevice, _T("Arial"), 12);
-
-// 	if (m_pRenderTimer != NULL)
-// 		m_pRenderTimer->Start();
+/*
+	m_pFont->Initialize(m_pDirect3dDevice, _T("Arial"), 12);
+	m_pRenderTimer->Start();
+*/
 }
 
-
-/*! \brief 
-*/
 IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 {
 /*
@@ -36,19 +27,13 @@ IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 		delete m_pRenderTimer;
 		m_pRenderTimer = NULL;
 	}
-*/
+
 	if (m_pFont != NULL)
 	{
 		delete m_pFont;
 		m_pFont = NULL;
 	}
-
-	if (m_pFps != NULL)
-	{
-		free(m_pFps);
-		m_pFps = NULL;
-	}
-
+*/
 	m_pDirect3dDevice = NULL;
 }
 
@@ -74,7 +59,14 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene()
 	if (m_bRender && m_bSceneStarted)
 	{
 		m_bSceneStarted = false;
-
+/*
+		if (m_bShowFPS)
+		{
+			m_pRenderTimer->Update();
+			format(m_FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS());
+			m_pFont->Print(m_FPS.c_str(), 5, 5, D3DCOLOR_XRGB(255, 0, 0));
+		}
+*/
 		return m_pDirect3dDevice->EndScene();
 	}
 	
@@ -164,9 +156,14 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) 
 {
 	if (m_bRender)
-		return m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-	else
-		return S_OK;
+	{
+		HRESULT hRes = m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+
+		if (hRes == D3DERR_DEVICELOST)
+			m_pDirect3dDevice->Reset(&m_PresentParams);
+	}
+
+	return S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9** ppBackBuffer) 

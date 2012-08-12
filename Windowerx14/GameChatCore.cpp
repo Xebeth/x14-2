@@ -38,6 +38,10 @@ namespace Windower
 		  m_CommandDispatcher(Dispatcher_in), m_pFormatChatMessageTrampoline(NULL), m_pFormatChatMessage(NULL),
 		  m_pCreateTextNode(NULL), m_bCreateTextNodeSubEmpty(true), m_Active(true), m_HookMgr(HookManager_in)
 	{
+#ifdef _DEBUG
+		m_Active = ((GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0);
+#endif // _DEBUG
+
 		InitializeCriticalSection(&m_Lock);
 		// create the services
 		m_pFormatChatMessage = RegisterService(_T("OnChatMessage"), false);
@@ -273,6 +277,19 @@ namespace Windower
 	*/
 	StringNode* GameChatCore::CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in)
 	{
+		static bool BreakAgain = false;
+
+#ifdef _DEBUG
+		if (BreakAgain)
+		{
+			DebugBreak();
+		}
+		else if (pText_in && strstr(pText_in, "[en]") != NULL)
+		{
+			BreakAgain = true;
+		}
+#endif // _DEBUG
+
 		if (m_bCreateTextNodeSubEmpty == false)
 		{
 			EnterCriticalSection(&m_Lock);
@@ -296,7 +313,9 @@ namespace Windower
 						// stop looping if the set becomes empty
 						if (Iter == m_CreateTextNodeSubscribers.end())
 						{
+#ifndef _DEBUG
 							m_HookMgr.UninstallHook("CreateTextNode");
+#endif // _DEBUG
 							m_bCreateTextNodeSubEmpty = true;							
 							break;
 						}

@@ -91,6 +91,18 @@ namespace Windower
 			m_pDeviceWrapper->SetRendering(bEnable_in);
 	}
 
+	void GraphicsCore::ToggleWireframe()
+	{
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->ToggleWireframe();
+	}
+
+	void GraphicsCore::ToggleFPS()
+	{
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->ToggleFPS();
+	}
+
 	/*! \brief Callback function invoked when the Direct3D9 device is created
 		\param[in] pDeviceWrapper_in : the newly created device
 	*/

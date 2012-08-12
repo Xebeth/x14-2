@@ -55,6 +55,9 @@
     <Filter Include="Windower\Hooks\Test">
       <UniqueIdentifier>{a36cfda0-c52c-4a11-a42f-3f0a11991591}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{8972e526-d987-4b5b-8152-e48bc060e539}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -126,6 +129,9 @@
     </ClCompile>
     <ClCompile Include="ReadConfigHook.cpp">
       <Filter>Windower\Hooks\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +209,9 @@
     </ClInclude>
     <ClInclude Include="ReadConfigHook.h">
       <Filter>Windower\Hooks\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

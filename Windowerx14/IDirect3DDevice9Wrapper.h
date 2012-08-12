@@ -1,15 +1,16 @@
 #ifndef __IDIRECT3DDEVICE9_WRAPPER_H
 #define __IDIRECT3DDEVICE9_WRAPPER_H
 
-class HiResTimer;
+class Timer;
 
 class IDirect3DDevice9Wrapper: public IDirect3DDevice9
 {
 public:
-	IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice);
+	IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice, D3DPRESENT_PARAMETERS &PresentParams_in);
 	virtual ~IDirect3DDevice9Wrapper();
 
 	bool IsRendering() const { return m_bRender; }
+	void ToggleFPS() { m_bShowFPS = !m_bShowFPS; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
 	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }
 	void ToggleWireframe()  { m_FillMode = (m_FillMode == D3DFILL_SOLID) ? D3DFILL_WIREFRAME : D3DFILL_SOLID;
@@ -157,12 +158,16 @@ public:
 */
 	//Internal Method and member variables
 protected:
-	LPDIRECT3DDEVICE9		 m_pDirect3dDevice;
-//	HiResTimer				*m_pRenderTimer;
-	DWORD					 m_FillMode;
-	TCHAR					*m_pFps;
+	D3DPRESENT_PARAMETERS m_PresentParams;
+	LPDIRECT3DDEVICE9 m_pDirect3dDevice;
+/*
+	Timer					*m_pRenderTimer;
+	string_t				 m_FPS;
 	Font					*m_pFont;
+*/
+	DWORD					 m_FillMode;
 	bool					 m_bRender;
+	bool					 m_bShowFPS;
 	bool					 m_bSceneStarted;
 };
 
