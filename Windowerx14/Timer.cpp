@@ -13,10 +13,12 @@ Timer::Timer()
 	QueryPerformanceFrequency((LARGE_INTEGER *)&m_ticksPerSecond);
 
 	m_currentTime = m_lastTime = m_lastFPSUpdate = 0;
+	m_LastTick = m_TickInterval = 0;
 	m_numFrames = 0;
 	m_runningTime = m_timeElapsed = m_fps = 0.0f;
 	m_FPSUpdateInterval = m_ticksPerSecond >> 1;
-	m_timerStopped = TRUE;
+	m_timerStopped = true;
+	m_bTicked = false;
 }
 
 void Timer::Start()
@@ -60,6 +62,14 @@ void Timer::Update()
 		m_lastFPSUpdate = m_currentTime;
 		m_numFrames = 0;
 	}
+
+	if (m_TickInterval > 0 && m_currentTime - m_LastTick >= m_TickInterval)
+	{
+		m_LastTick = m_currentTime;
+		m_bTicked = true;
+	}
+	else
+		m_bTicked = false;
 
 	m_lastTime = m_currentTime;
 }
