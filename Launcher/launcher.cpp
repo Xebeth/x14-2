@@ -8,7 +8,7 @@
 #include "stdafx.h"
 
 #include <InjectModule.h>
-#include "SettingsManager.h"
+#include <SettingsManager.h>
 #include "WindowerSettings.h"
 #include "WindowerSettingsManager.h"
 

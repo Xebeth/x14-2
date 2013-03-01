@@ -98,7 +98,7 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/Detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)bootstrap.dll" "J:\Final Fantasy XIV\"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "J:\Final Fantasy XIV\boot\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,7 +119,7 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/Detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)bootstrap.dll" "J:\Final Fantasy XIV\"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "J:\Final Fantasy XIV\boot\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

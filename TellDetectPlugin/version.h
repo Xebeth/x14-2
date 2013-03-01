@@ -19,7 +19,7 @@
 
 #define MODULE_FILE_DESC			"x14 Tell detect plugin\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
-#define MODULE_COPYRIGHT			"2011-2012 (c) North Edge.  All rights reserved.\0"
+#define MODULE_COPYRIGHT			"2010-2013 (c) North Edge.  All rights reserved.\0"
 #define MODULE_PRODUCT_NAME			"Windower for Final Fantasy XIV\0"
 
 #define MODULE_FILENAME				"TellDetect.dll\0"

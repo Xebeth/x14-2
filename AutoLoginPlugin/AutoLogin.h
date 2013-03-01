@@ -46,9 +46,9 @@ protected:
 	bool AutoCompleteForm();
 
 	IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
-	bool WaitUntilDocumentComplete(long Timeout_in);
-	bool IsStatus(const TCHAR *pStatus_in);
-	bool UpdateDocumentState();
+	bool WaitUntilDocumentComplete(IHTMLDocument2 *pDoc_in, long Timeout_in);
+	bool IsStatus(IHTMLDocument2 *pDoc_in, const TCHAR *pStatus_in);
+	bool UpdateDocumentState(IHTMLDocument2 *pDoc_in);
 
 	LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
 	HWND GetIEServerWindow(long Timeout_in);

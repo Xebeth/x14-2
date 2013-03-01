@@ -66,20 +66,10 @@ void AutoLogin::MonitorForms()
 	{
 		while (m_LoginComplete == false)
 		{
-			if (m_pHTMLDoc != NULL)
+			if (GetHTMLDocument(5000) && m_pHTMLDoc != NULL)
 			{
-#if defined _DEBUG && defined _DUMP_HTML
-				IPersistFile* pFile = NULL;
-
-				if(SUCCEEDED(m_pHTMLDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
-				{
-					LPCOLESTR file = L"c:\\ffxivlogin.htm";
-					pFile->Save(file, TRUE);
-				}
-#endif // _DEBUG
-
 				// check if the document is ready
-				if (IsStatus(_T("complete")))
+				if (IsStatus(m_pHTMLDoc, _T("complete")))
 				{
 					// try to auto-complete the login form
 					if (m_PasswordSet == false && AutoCompleteForm())
@@ -87,7 +77,7 @@ void AutoLogin::MonitorForms()
 
 					Sleep(100);
 				}
-				else if (WaitUntilDocumentComplete(10000))
+				else if (WaitUntilDocumentComplete(m_pHTMLDoc, 10000))
 				{
 					if (m_pFormIterator != NULL)
 					{
@@ -102,8 +92,6 @@ void AutoLogin::MonitorForms()
 					}
 				}
 			}
-			else 
-				GetHTMLDocument(5000);
 		}
 		// cleanup
 		m_pFormIterator->Release();
@@ -316,18 +304,21 @@ HWND AutoLogin::GetIEServerWindow(long Timeout_in)
 	\param[in] Timeout_in : a timeout value
 	\return true if the document is complete; false otherwise
 */
-bool AutoLogin::WaitUntilDocumentComplete(long Timeout_in)
+bool AutoLogin::WaitUntilDocumentComplete(IHTMLDocument2 *pDoc_in, long Timeout_in)
 {
 	bool Result = false;
 
-	while (Timeout_in >= 0 && Result == false)
+	if (pDoc_in != NULL)
 	{
-		Result = IsStatus(_T("complete"));
-
-		if (Result == false)
+		while (Timeout_in >= 0 && Result == false)
 		{
-			Timeout_in -= 250;
-			Sleep(250);
+			Result = IsStatus(pDoc_in, _T("complete"));
+
+			if (Result == false)
+			{
+				Timeout_in -= 250;
+				Sleep(250);
+			}
 		}
 	}
 
@@ -372,13 +363,63 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			while (Timeout_in >= 0 && Result == false)
 			{
 				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD*)&lRes);
-				Result = SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pHTMLDoc));
+				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pHTMLDoc)) && m_pHTMLDoc != NULL);
 
 				if (Result == false)
 				{
 					Timeout_in -= 250;
 					Sleep(250);
 				}
+			}
+		}
+
+		if (Result)
+		{
+			// find the login iframe	
+			IHTMLFramesCollection2 *pIFrames = NULL;
+			// wait for the document to load
+			WaitUntilDocumentComplete(m_pHTMLDoc, Timeout_in);
+
+			if (SUCCEEDED(m_pHTMLDoc->get_frames(&pIFrames)) && pIFrames != NULL)
+			{
+				VARIANT Index, FrameItem;
+
+				Index.vt = VT_I4;
+				Index.lVal = 0;
+
+				FrameItem.vt = VT_DISPATCH;
+				FrameItem.pdispVal = NULL;
+
+				if (SUCCEEDED(pIFrames->item(&Index, &FrameItem)) && FrameItem.pdispVal != NULL)
+				{
+					IHTMLWindow2 *pFrame = NULL;
+					IHTMLDocument2 *pDoc = NULL;
+
+					if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL
+					 && SUCCEEDED(pFrame->get_document(&pDoc)) && pDoc != NULL)
+					{
+						m_pHTMLDoc->Release();
+						m_pHTMLDoc = pDoc;
+
+						WaitUntilDocumentComplete(m_pHTMLDoc, Timeout_in);
+
+#if defined _DEBUG && defined _DUMP_HTML
+						IPersistFile* pFile = NULL;
+
+						if(SUCCEEDED(m_pHTMLDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+						{
+							LPCOLESTR file = L"ffxivloginframe.htm";
+							pFile->Save(file, TRUE);
+						}
+#endif // _DEBUG
+						// cleanup
+						pFrame->Release();
+					}
+					// cleanup
+					FrameItem.pdispVal->Release();
+				}
+				// cleanup
+				pIFrames->Release();
 			}
 		}
 	}
@@ -390,27 +431,31 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 	\param[in] pStatus_in : the status to check against the status of the document
 	\return true if the statuses match
 */
-bool AutoLogin::IsStatus(const TCHAR *pStatus_in)
+bool AutoLogin::IsStatus(IHTMLDocument2 *pDoc_in, const TCHAR *pStatus_in)
 {
-	return (pStatus_in != NULL && UpdateDocumentState() 
+	return (pStatus_in != NULL && UpdateDocumentState(pDoc_in) 
 		 && m_DocumentState.compare(pStatus_in) == 0);
 }
 
 /*! \brief Retrieves the status of the document
 	\return true if the status was retrieved successfully; false otherwise
 */
-bool AutoLogin::UpdateDocumentState()
+bool AutoLogin::UpdateDocumentState(IHTMLDocument2 *pDoc_in)
 {
-	BSTR DocState = SysAllocString(_T(""));
 	bool Result = false;
 
-	if (SUCCEEDED(m_pHTMLDoc->get_readyState(&DocState)))
+	if (pDoc_in != NULL)
 	{
-		m_DocumentState = DocState;
-		Result = true;
-	}
+		BSTR DocState = SysAllocString(_T(""));
 
-	SysFreeString(DocState);
+		if (SUCCEEDED(pDoc_in->get_readyState(&DocState)))
+		{
+			m_DocumentState = DocState;
+			Result = true;
+		}
+
+		SysFreeString(DocState);
+	}
 
 	return Result;
 }

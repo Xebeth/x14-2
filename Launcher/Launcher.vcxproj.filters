@@ -8,11 +8,11 @@
     <Filter Include="Resources\images">
       <UniqueIdentifier>{6bd85a61-c106-43f7-939b-9b3d96594d74}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{0b4045e6-23e5-4b8c-8af0-1ea389ca99a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Settings">
       <UniqueIdentifier>{ba47284f-421b-44ba-9908-799c3c4ef793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{d6c69072-4a97-4dca-93b2-077b55052f5c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,17 +32,20 @@
     <ClInclude Include="..\SettingsManager\SimpleIni.h">
       <Filter>Settings</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\string_t.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="launcher.cpp" />
-    <ClCompile Include="..\Common\string_t.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
       <Filter>Settings</Filter>
     </ClCompile>
     <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp">
       <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\string_t.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

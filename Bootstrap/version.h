@@ -17,16 +17,16 @@
 #define MAKE_VER(major, minor, release, test, sep)      MAKE_VER_(N, major, minor, release, test, sep)
 #define MAKE_VER_W(major, minor, release, test, sep)    MAKE_VER_(W, major, minor, release, test, sep)
 
-#define MODULE_FILE_DESC			"x14 Bootstrap\0"
+#define MODULE_FILE_DESC			"x14-2 Bootstrap\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
-#define MODULE_COPYRIGHT			"2011-2012 (c) North Edge.  All rights reserved.\0"
+#define MODULE_COPYRIGHT			"2010-2013 (c) North Edge.  All rights reserved.\0"
 #define MODULE_PRODUCT_NAME			"Windower for Final Fantasy XIV\0"
 
 #define MODULE_FILENAME				"bootstrap.dll\0"
 
-#define MODULE_MAJOR_VERSION		1
+#define MODULE_MAJOR_VERSION		2
 #define MODULE_MINOR_VERSION		0
-#define MODULE_RELEASE_VERSION		4
+#define MODULE_RELEASE_VERSION		0
 #define MODULE_TEST_VERSION			0
 
 #define MODULE_PRODUCT_VERSION MAKE_VER(MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION, MODULE_RELEASE_VERSION, MODULE_TEST_VERSION, ".")

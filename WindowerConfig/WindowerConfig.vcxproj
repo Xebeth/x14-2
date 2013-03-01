@@ -169,7 +169,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "J:\Final Fantasy XIV\"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "J:\Final Fantasy XIV\boot\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">

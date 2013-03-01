@@ -87,25 +87,46 @@ namespace Bootstrap
 									   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
 									   LPPROCESS_INFORMATION lpProcessInformation_out)
 	{
+		// at least one of the strings should be valid
+		if (lpCommandLine_in_out == NULL && lpApplicationName_in == NULL)
+			return FALSE;
+
 		TCHAR DLL32Path[_MAX_PATH];
 		TCHAR DirPath[_MAX_PATH];
 		char DLLPath[_MAX_PATH];
-		BOOL Result = FALSE;		
+		BOOL Result = FALSE;
 
 		GetCurrentDirectory(_MAX_PATH, DirPath);
 
-		if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL || _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL)
+		if ((lpCommandLine_in_out != NULL && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
+		 || (lpApplicationName_in != NULL && _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL))
+		{
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\windowerx14.dll"), DirPath);
+			// Result = TRUE;
+		}
 		else
+		{
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
+			Result = TRUE;
+		}
 
-		WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
+		if (Result)
+		{
+			WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
 
-		// attach the DLL to the next process in the chain
-		Result = DetourCreateProcessWithDllW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
-											 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
-											 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-											 lpProcessInformation_out, NULL, DLLPath, m_pCreateProcessTrampoline);
+			// attach the DLL to the next process in the chain
+			Result = DetourCreateProcessWithDllW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+												 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
+												 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
+												 lpProcessInformation_out, NULL, DLLPath, m_pCreateProcessTrampoline);
+		}
+		else
+		{
+			Result = m_pCreateProcessTrampoline(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+												lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in, 
+												lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in, 
+												lpProcessInformation_out);
+		}
 
 		return Result;
 	}
