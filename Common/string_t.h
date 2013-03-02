@@ -58,7 +58,8 @@ template<typename T> std::basic_string<T>& format(std::basic_string<T> &String_o
 				
 				if (format_arglist(&pBuffer, StrLength, pFormat_in, ArgList_in) == StrLength)
 				{
-					String_out.assign(pBuffer, StrLength);
+					// -1 => skip the null terminator
+					String_out.assign(pBuffer, StrLength - 1);
 				}
 				// cleanup
 				delete[](pBuffer);
