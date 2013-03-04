@@ -459,22 +459,27 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 							}
 						}
 
-						if (pDoc != NULL && pDoc != m_pIFrameDoc)
+						if (pDoc != NULL)
 						{
-							if (m_pIFrameDoc != NULL)
-								m_pIFrameDoc->Release();
-							// assign the document
-							m_pIFrameDoc = pDoc;
-							ResetForms();
-							// wait for the iframe to load
-							WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
-#if defined _DEBUG && defined _DUMP_HTML
-							if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+							if (pDoc != m_pIFrameDoc)
 							{
-								LPCOLESTR file = L"ffxivloginframe.htm";
-								pFile->Save(file, TRUE);
-							}
+								if (m_pIFrameDoc != NULL)
+									m_pIFrameDoc->Release();
+								// assign the document
+								m_pIFrameDoc = pDoc;
+								ResetForms();
+								// wait for the iframe to load
+								WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
+#if defined _DEBUG && defined _DUMP_HTML
+								if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+								{
+									LPCOLESTR file = L"ffxivloginframe.htm";
+									pFile->Save(file, TRUE);
+								}
 #endif // _DEBUG
+							}
+							else
+								pDoc->Release();
 						}
 
 						// cleanup
