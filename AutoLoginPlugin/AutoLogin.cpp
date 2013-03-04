@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 #include <MsHTML.h>
+#include <ExDisp.h>
 
 #include "CryptUtils.h"
 #include "AutoLogin.h"
@@ -63,9 +64,9 @@ void AutoLogin::MonitorForms()
 
 	if (m_hIEServer != NULL)
 	{
-		while (GetHTMLDocument(5000) && m_bLoop)
+		while (m_bLoop)
 		{
-			if (m_pIFrameDoc != NULL && IsStatus(m_pIFrameDoc, _T("complete")))
+			if (GetHTMLDocument(5000) && IsStatus(m_pIFrameDoc, _T("complete")))
 			{
 				// try to auto-complete the login form
 				if (m_UserSet == false && m_PasswordSet == false)
@@ -75,8 +76,12 @@ void AutoLogin::MonitorForms()
 			}
 		}
 		// cleanup
-		m_pFormIterator->Release();
-		m_pIFrameDoc->Release();
+		if (m_pFormIterator != NULL)
+			m_pFormIterator->Release();
+		if (m_pIFrameDoc != NULL)
+			m_pIFrameDoc->Release();
+		if (m_pPageDoc != NULL)
+			m_pPageDoc->Release();
 
 		ResetForms();
 	}
@@ -421,10 +426,40 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 					IHTMLWindow2 *pFrame = NULL;
 					IHTMLDocument2 *pDoc = NULL;
 
-					if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL
-					 && SUCCEEDED(pFrame->get_document(&pDoc)) && pDoc != NULL)
+					if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL)
 					{
-						if (pDoc != m_pIFrameDoc)
+						HRESULT hRes = pFrame->get_document(&pDoc);
+
+						// if the access to the iframe document is denied, we'll have to work around cross-frame restrictions
+						if (hRes == E_ACCESSDENIED)
+						{
+							IServiceProvider *pProvider = NULL;
+
+							// retrieve the service provider interface
+							if (SUCCEEDED(pFrame->QueryInterface(IID_IServiceProvider, (LPVOID*)&pProvider)) && pProvider != NULL)
+							{
+								IWebBrowser2 *pBrowser = NULL;
+
+								// retrieve the web browser service
+								if (SUCCEEDED(pProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, (LPVOID*)&pBrowser)) && pBrowser != NULL)
+								{
+									IDispatch *pDispatch = NULL;
+
+									// retrieve the document
+									if (SUCCEEDED(pBrowser->get_Document(&pDispatch)) && pDispatch != NULL)
+									{
+										pDispatch->QueryInterface(IID_IHTMLDocument2, (LPVOID*)&pDoc);
+										pDispatch->Release();
+									}
+
+									pBrowser->Release();
+								}
+
+								pProvider->Release();
+							}
+						}
+
+						if (pDoc != NULL && pDoc != m_pIFrameDoc)
 						{
 							if (m_pIFrameDoc != NULL)
 								m_pIFrameDoc->Release();
