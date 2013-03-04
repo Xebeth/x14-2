@@ -20,7 +20,7 @@ class TellDetectConfigDlg : public CDialog
 {
 	enum { IDD = IDD_TELLDETECT_CONFIG };
 public:
-	TellDetectConfigDlg(const TCHAR *pProfileName_in, CWnd* pParent = NULL);
+	TellDetectConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
 	~TellDetectConfigDlg();
 
 protected:

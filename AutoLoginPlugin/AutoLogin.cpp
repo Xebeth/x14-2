@@ -40,10 +40,8 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
 AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_UserSet(false),
-	  m_pPasswordInput(NULL), m_pFormIterator(NULL), m_pHTMLDoc(NULL),
-	  m_LoginComplete(false), m_PasswordSet(false), m_pUserInput(NULL),
-	  m_pTokenInput(NULL)
+	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_PasswordSet(false),
+	  m_bLoop(true), m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL), m_UserSet(false)
 {
 	m_hParentWnd = Settings_in.GetParentWnd();
 	// initialize COM
@@ -53,6 +51,7 @@ AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
 //! \brief AutoLogin destructor
 AutoLogin::~AutoLogin()
 {
+	ResetForms();
 	// shutdown COM
 	::CoUninitialize();
 }
@@ -64,41 +63,22 @@ void AutoLogin::MonitorForms()
 
 	if (m_hIEServer != NULL)
 	{
-		while (m_LoginComplete == false)
+		while (GetHTMLDocument(5000) && m_bLoop)
 		{
-			if (GetHTMLDocument(5000) && m_pHTMLDoc != NULL)
+			if (m_pIFrameDoc != NULL && IsStatus(m_pIFrameDoc, _T("complete")))
 			{
-				// check if the document is ready
-				if (IsStatus(m_pHTMLDoc, _T("complete")))
-				{
-					// try to auto-complete the login form
-					if (m_PasswordSet == false && AutoCompleteForm())
-						SetFocusOnTokenInput();
-
-					Sleep(100);
-				}
-				else if (WaitUntilDocumentComplete(m_pHTMLDoc, 10000))
-				{
-					if (m_pFormIterator != NULL)
-					{
-						m_pFormIterator->Reset();
-						m_PasswordSet = false;
-						// invalidate the password
-						if (m_pPasswordInput != NULL)
-						{
-							m_pPasswordInput->Release();
-							m_pPasswordInput = NULL;
-						}
-					}
-				}
+				// try to auto-complete the login form
+				if (m_UserSet == false && m_PasswordSet == false)
+					AutoCompleteForm();
+				// go easy on the CPU
+				Sleep(500);
 			}
 		}
 		// cleanup
 		m_pFormIterator->Release();
-		m_pHTMLDoc->Release();
+		m_pIFrameDoc->Release();
 
-		delete m_pFormIterator;
-		m_pFormIterator = NULL;
+		ResetForms();
 	}
 }
 
@@ -111,48 +91,58 @@ bool AutoLogin::AutoCompleteForm()
 	IHTMLElement *pElement = NULL;
 
 	if (m_pFormIterator == NULL)
-		m_pFormIterator = new HTMLFormIterator(*m_pHTMLDoc);
+		m_pFormIterator = new HTMLFormIterator(*m_pIFrameDoc);
 
-	while (m_PasswordSet == false && m_pFormIterator->End() == false)
+	while (m_pFormIterator->End() == false)
 	{
 		pCurrentForm = m_pFormIterator->Next();
 
 		if (pCurrentForm != NULL)
 		{
 			string_t Username = m_Settings.GetUsername();
-
-			// the one time password input hasn't been found yet
-			if (m_pTokenInput == NULL)
-			{
-				// look for it in the current form
-				m_pTokenInput = FindChildById(pCurrentForm, _T("inputOTP"));
-			}
-
+			IHTMLInputElement *pInputElement = NULL;
+		
 			// the user input hasn't been found yet
-			if (Username.empty() == false && m_pUserInput == NULL)
+			if (Username.empty() == false && m_UserSet == false)
 			{
 				// look for it in the current form
-				pElement = FindChildById(pCurrentForm, _T("sqexid"));
+				pElement = FindChildById(pCurrentForm, _T("sqexid1"));
 
-				if (pElement != NULL && SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&m_pUserInput)) && m_pUserInput != NULL)
-					m_UserSet = SetInputValue(m_pUserInput, Username.c_str());
+				if (pElement != NULL)
+				{
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&pInputElement)) && pInputElement != NULL)
+					{
+						m_UserSet = SetInputValue(pInputElement, Username.c_str());
+
+						pInputElement->Release();
+						pInputElement = NULL;
+					}
+					else
+						m_bLoop = false;
+
+					pElement->Release();
+					pElement = NULL;
+				}
 			}
 
 			// the password input hasn't been found yet
-			if (m_pPasswordInput == NULL)
+			if (m_UserSet && m_PasswordSet == false)
 			{
 				// look for it in the current form
 				pElement = FindChildById(pCurrentForm, _T("passwd"));
 
 				if (pElement != NULL)
 				{
-					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&m_pPasswordInput)) && m_pPasswordInput != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&pInputElement)) && pInputElement != NULL)
 					{
-						string_t Key;
+						string_t Key, ConfigPath = m_Settings.GetConfigFile();
+						std::list<string_t> Tokens;						
 						long KeyHash;
 
+						tokenize(ConfigPath, Tokens, _T("\\"), _T("\""));
+
 						// retrieve the key used to encrypt the password
-						CryptUtils::GenerateMachineID(Key);
+						CryptUtils::GenerateMachineID(Key, Tokens.front().c_str());
 						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
@@ -168,15 +158,41 @@ bool AutoLogin::AutoCompleteForm()
 								string_t Password;
 
 								CryptUtils::Crypt(Key, CryptedPassword, Password);
-								m_LoginComplete = m_PasswordSet = SetInputValue(m_pPasswordInput, Password.c_str());
+								m_PasswordSet = SetInputValue(pInputElement, Password.c_str());
 							}
 						}
 
-						m_pPasswordInput->Release();
-						m_pPasswordInput = NULL;
+						pInputElement->Release();
+						pInputElement = NULL;
 					}
+					else
+						m_bLoop = false;
 
 					pElement->Release();
+					pElement = NULL;
+				}
+
+				if (m_UserSet && m_PasswordSet)
+				{
+					// look for it in the current form
+					pElement = FindChildById(pCurrentForm, _T("inputOTP"));
+
+					if (pElement != NULL)
+					{
+						IHTMLElement2 *pFocusInput = NULL;
+
+						if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pFocusInput)) && pFocusInput != NULL)
+						{
+							pFocusInput->focus();
+							pFocusInput->Release();
+							pFocusInput = NULL;
+						}
+						else
+							m_bLoop = false;
+
+						pElement->Release();
+						pElement = NULL;
+					}
 				}
 			}
 		}
@@ -351,7 +367,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 {
 	bool Result = false;
 
-	if (m_pHTMLDoc == NULL && m_hIEServer != NULL)
+	if (m_hIEServer != NULL)
 	{
 		LPFNOBJECTFROMLRESULT fnObjectFromLRESULT = GetObjectFromLParamAddr();
 
@@ -363,7 +379,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			while (Timeout_in >= 0 && Result == false)
 			{
 				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD*)&lRes);
-				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pHTMLDoc)) && m_pHTMLDoc != NULL);
+				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pPageDoc)) && m_pPageDoc != NULL);
 
 				if (Result == false)
 				{
@@ -378,9 +394,19 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			// find the login iframe	
 			IHTMLFramesCollection2 *pIFrames = NULL;
 			// wait for the document to load
-			WaitUntilDocumentComplete(m_pHTMLDoc, Timeout_in);
+			WaitUntilDocumentComplete(m_pPageDoc, Timeout_in);
 
-			if (SUCCEEDED(m_pHTMLDoc->get_frames(&pIFrames)) && pIFrames != NULL)
+#if defined _DEBUG && defined _DUMP_HTML
+			IPersistFile* pFile = NULL;
+
+			if(SUCCEEDED(m_pPageDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+			{
+				LPCOLESTR file = L"ffxivlogin.htm";
+				pFile->Save(file, TRUE);
+			}
+#endif // _DEBUG
+
+			if (SUCCEEDED(m_pPageDoc->get_frames(&pIFrames)) && pIFrames != NULL)
 			{
 				VARIANT Index, FrameItem;
 
@@ -398,20 +424,24 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 					if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL
 					 && SUCCEEDED(pFrame->get_document(&pDoc)) && pDoc != NULL)
 					{
-						m_pHTMLDoc->Release();
-						m_pHTMLDoc = pDoc;
-
-						WaitUntilDocumentComplete(m_pHTMLDoc, Timeout_in);
-
-#if defined _DEBUG && defined _DUMP_HTML
-						IPersistFile* pFile = NULL;
-
-						if(SUCCEEDED(m_pHTMLDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+						if (pDoc != m_pIFrameDoc)
 						{
-							LPCOLESTR file = L"ffxivloginframe.htm";
-							pFile->Save(file, TRUE);
-						}
+							if (m_pIFrameDoc != NULL)
+								m_pIFrameDoc->Release();
+							// assign the document
+							m_pIFrameDoc = pDoc;
+							ResetForms();
+							// wait for the iframe to load
+							WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
+#if defined _DEBUG && defined _DUMP_HTML
+							if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+							{
+								LPCOLESTR file = L"ffxivloginframe.htm";
+								pFile->Save(file, TRUE);
+							}
 #endif // _DEBUG
+						}
+
 						// cleanup
 						pFrame->Release();
 					}
@@ -424,7 +454,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 		}
 	}
 
-	return Result;
+	return (m_pIFrameDoc != NULL);
 }
 
 /*! \brief Checks if the specified status matches the status of the document
@@ -460,30 +490,11 @@ bool AutoLogin::UpdateDocumentState(IHTMLDocument2 *pDoc_in)
 	return Result;
 }
 
-/*! \brief Sets the focus on the one time password input
-	\return true if the focus was set; false otherwise
-*/
-bool AutoLogin::SetFocusOnTokenInput()
+void AutoLogin::ResetForms()
 {
-	IHTMLElement2 *pTokenInput = NULL;
-	bool Result = false;
-
-	if (m_pTokenInput != NULL)
-	{
-		if (SUCCEEDED(m_pTokenInput->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pTokenInput)) && pTokenInput != NULL)
-		{
-			Result = (pTokenInput->focus() == S_OK);
-
-			pTokenInput->Release();
-			pTokenInput = NULL;
-		}
-		// we're done here
-		if (Result)
-		{
-			m_pTokenInput->Release();
-			m_pTokenInput = NULL;
-		}
-	}
-
-	return Result;
+	// reset the form
+	m_UserSet = m_PasswordSet = false;
+	delete m_pFormIterator;
+	m_pFormIterator = NULL;
+	m_bLoop = true;
 }

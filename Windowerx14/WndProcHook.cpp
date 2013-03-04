@@ -15,7 +15,6 @@
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
-#include "ReadConfigHook.h"
 #include "WndProcHook.h"
 
 #include "ICoreModule.h"

@@ -70,6 +70,11 @@ namespace PluginFramework
 		virtual bool UnsubscribeService(const string_t &ModuleName_in,
 										const string_t &ServiceName_in,
 										IPlugin* pPlugin_in) const =0;
+		/*! \brief Retrieves the configuration file path
+			\return the configuration file path
+		*/
+		virtual const TCHAR* GetConfigFile() const =0;
+
 
 		/*! \brief Retrieves the framework version of the plugin services
 			\return the framework version of the plugin services

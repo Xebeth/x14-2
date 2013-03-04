@@ -29,9 +29,9 @@ extern HINSTANCE g_hInstance;
 /*! \brief TellDetectConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-TellDetectConfigDlg::TellDetectConfigDlg(const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
+TellDetectConfigDlg::TellDetectConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
 	: CDialog(TellDetectConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Windower::TellDetectSettings(_T("config.ini"), pProfileName_in))
+	  m_pSettings(new Windower::TellDetectSettings(pConfigFile_in, pProfileName_in))
 {
 	CWinApp *pApp = AfxGetApp();
 

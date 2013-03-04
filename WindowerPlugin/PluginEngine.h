@@ -20,9 +20,10 @@ namespace PluginFramework
 //! compatibility flags
 enum eCompatibilityFlags
 {
-	PLUGIN_COMPATIBILITY_WINDOWER	= 0x00000001,
-	PLUGIN_COMPATIBILITY_BOOTSTRAP	= 0x00000002,
-	PLUGIN_COMPATIBILITY_ANY		= 0xFFFFFFFF
+	PLUGIN_COMPATIBILITY_NONE		= 0x00000000U,
+	PLUGIN_COMPATIBILITY_WINDOWER	= 0x00000001U,
+	PLUGIN_COMPATIBILITY_BOOTSTRAP	= 0x00000002U,
+	PLUGIN_COMPATIBILITY_ANY		= (PLUGIN_COMPATIBILITY_WINDOWER | PLUGIN_COMPATIBILITY_BOOTSTRAP)
 };
 
 namespace Windower
@@ -38,8 +39,10 @@ namespace Windower
 	class PluginEngine : public BaseEngine
 	{
 	public:
-		explicit PluginEngine(const TCHAR *pConfigFile_in);
+		PluginEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		virtual ~PluginEngine();
+
+		static const TCHAR* GetCompatibilityFlagsText(DWORD Flags_in);
 
 		virtual bool Detach();
 
@@ -51,7 +54,14 @@ namespace Windower
 
 		PluginFramework::IPlugin* GetPluginInstance(const string_t &PluginName_in);
 
+		/*! \brief Retrieves the working directory of windower
+			\return the working directory of windower
+		*/
+		const string_t& GetWorkingDir() const { return m_WorkingDir; }
+
 	protected:
+		void SetWorkingDir(HMODULE hModule_in);
+
 		//! plugin engine version
 		static const PluginFramework::VersionInfo m_FrameworkVersion;
 		//! the plugin services
@@ -60,6 +70,8 @@ namespace Windower
 		PluginManager *m_pPluginManager;
 		//! a hash map of plugin instances (name => instance)
 		WindowerPlugins m_Plugins;	
+		//! the working directory of windower
+		string_t m_WorkingDir;
 		//! the modules containing the services
 		CoreModules m_Modules;
 	};

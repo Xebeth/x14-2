@@ -18,7 +18,7 @@ class AutoLoginConfigDlg : public CDialog
 {
 	enum { IDD = IDD_CONFIG_DIALOG };
 public:
-	AutoLoginConfigDlg(const TCHAR *pProfileName_in, CWnd* pParent = NULL);
+	AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
 	~AutoLoginConfigDlg();
 
 protected:

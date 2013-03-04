@@ -18,21 +18,14 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out);
 
-		int SetJob(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in);
+		int sub570F30Hook(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
 	protected:
-		fnSetJob m_pSetJobTrampoline;
-
-		eJob m_CurrentJob;
-		LPVOID m_pUnknownUI;
-		LPVOID m_pPlayerUI;
-
-	private:
-		string_t m_StrDebug;
+		fn570F30 m_pSetJobTrampoline;
 	};
 }
 

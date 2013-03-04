@@ -149,7 +149,7 @@ namespace SigScan
 			{
 				//Increase the comparison size.
 				++cmpsize;
-				//convert the 2 byte string to a byte value ("14" == 0x14 == 20)
+				//convert the 2 byte string to a byte value ("14" == 0x14-2 == 20)
 				if (byte1 <= '9')
 					buffer[i] += byte1 - '0';
 				else

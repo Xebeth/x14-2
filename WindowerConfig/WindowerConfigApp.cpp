@@ -23,7 +23,10 @@ WindowerConfigApp g_pApp;
 
 WindowerConfigApp::WindowerConfigApp()
 {
-	m_pSettingsManager = new Windower::SettingsManager(L"config.ini");
+	TCHAR DirPath[_MAX_PATH] = { '\0' };
+
+	GetCurrentDirectory(_MAX_PATH, DirPath);
+	m_pSettingsManager = new Windower::SettingsManager(DirPath, L"config.ini");
 }
 
 WindowerConfigApp::~WindowerConfigApp()

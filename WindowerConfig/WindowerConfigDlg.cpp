@@ -31,17 +31,14 @@ namespace Windower
 		ON_WM_QUERYDRAGICON()
 
 		ON_CBN_SELCHANGE(IDC_PROFILES_COMBO, &WindowerConfigDlg::OnProfilesChange)
-		ON_CBN_SELCHANGE(IDC_RESX_COMBO, &WindowerConfigDlg::OnResolutionChange)
-		ON_CBN_SELCHANGE(IDC_RESY_COMBO, &WindowerConfigDlg::OnResolutionChange)
-
 		ON_CBN_KILLFOCUS(IDC_PROFILES_COMBO, &WindowerConfigDlg::OnProfileRename)
-		ON_CBN_EDITCHANGE(IDC_RESX_COMBO, &WindowerConfigDlg::OnResolutionChange)
-		ON_CBN_EDITCHANGE(IDC_RESY_COMBO, &WindowerConfigDlg::OnResolutionChange)		
 
 		ON_BN_CLICKED(IDC_DELETE_PROFILE, &WindowerConfigDlg::OnDeleteProfile)
-		ON_BN_CLICKED(IDC_BORDERLESS, &WindowerConfigDlg::OnBorderlessChange)
+		ON_BN_CLICKED(IDC_BROWSE_GAME_PATH, &WindowerConfigDlg::OnPathBrowse)
 		ON_BN_CLICKED(IDC_NEW_PROFILE, &WindowerConfigDlg::OnNewProfile)		
-		ON_BN_CLICKED(IDC_VSYNC, &WindowerConfigDlg::OnVSyncChange)
+		ON_BN_CLICKED(IDC_VSYNC, &WindowerConfigDlg::OnVSyncChange)		
+
+		ON_EN_CHANGE(IDC_GAME_PATH, &WindowerConfigDlg::OnPathChange)
 
 		ON_NOTIFY(NM_DBLCLK, IDC_PLUGIN_LIST, OnConfigure)
 		
@@ -49,13 +46,11 @@ namespace Windower
 		ON_BN_CLICKED(IDOK, &WindowerConfigDlg::OnLaunch)		
 	END_MESSAGE_MAP()
 
-	WindowerConfigDlg::WindowerConfigDlg(SettingsManager *pSettingsManager,CWnd* pParent)
+	WindowerConfigDlg::WindowerConfigDlg(SettingsManager *pSettingsManager, CWnd* pParent)
 		: CDialog(WindowerConfigDlg::IDD, pParent), m_pSettingsManager(pSettingsManager)
 	{
-		m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__);
+		m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetWorkingDir() + _T("config.ini"));
 		m_pPluginManager = new PluginManager(m_pServices);
-
-		// m_pPluginManager->BlacklistPlugin(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
 
 		m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 		m_pCurrentSettings = NULL;
@@ -116,14 +111,14 @@ namespace Windower
 		LvItem.iSubItem = LIST_COL_COMPAT;
 		switch(PluginInfo_in.GetCompatibilityFlags())
 		{
-			case 1:
-				Text = _T("Windower");
+		case 1:
+			Text = _T("Windower");
 			break;
-			case 2:
-				Text = _T("Bootstrap");
+		case 2:
+			Text = _T("Bootstrap");
 			break;
-			case -1:
-				Text = _T("Any");
+		case -1:
+			Text = _T("Any");
 			break;
 		}
 		LvItem.pszText = (LPTSTR)Text.c_str();
@@ -145,6 +140,8 @@ namespace Windower
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
 		CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
+		CEdit *pGamePath = static_cast<CEdit*>(GetDlgItem(IDC_GAME_PATH));
+		string_t GamePath = m_pSettingsManager->GetGamePath();
 
 		CDialog::OnInitDialog();
 
@@ -162,6 +159,16 @@ namespace Windower
 		pPluginList->InsertColumn(LIST_COL_COMPAT,		_T("Compatibility"), LVCFMT_LEFT, 80);
 		pPluginList->InsertColumn(LIST_COL_DESC,		_T("Description"),	 LVCFMT_LEFT, 400);
 		pPluginList->InsertColumn(LIST_COL_PATH,		_T("Filename"),		 LVCFMT_LEFT, 300);
+
+		pGamePath->SetWindowText(GamePath.c_str());
+
+		while (m_pSettingsManager->IsGamePathValid() == false)
+		{
+			if (m_pSettingsManager->SelectDirectory(GamePath))
+				pGamePath->SetWindowText(GamePath.c_str());
+			else
+				break;
+		}
 
 		if (pProfiles != NULL)
 		{
@@ -191,12 +198,11 @@ namespace Windower
 			}
 
 			OnProfilesChange();
-			FillSupportedRes();
 
 			GetDlgItem(IDC_DELETE_PROFILE)->EnableWindow(ItemCount > 1);
 		}
 
-		if (m_pPluginManager != NULL && m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir()) > 0U)
+		if (m_pPluginManager != NULL && m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins")) > 0U)
 		{
 			const RegisteredPlugins& Plugins = m_pPluginManager->GetRegisteredPlugins();
 			RegisteredPlugins::const_iterator PluginIt;
@@ -319,34 +325,6 @@ namespace Windower
 		}
 	}
 
-	void WindowerConfigDlg::OnResolutionChange()
-	{
-		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
-		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
-
-		if (m_pCurrentSettings != NULL && pResX != NULL && pResY != NULL)
-		{
-			CString CurrentValue;
-			int SelectedIndex;
-			LONG ResX, ResY;
-
-			SelectedIndex = pResX->GetCurSel();
-			if (SelectedIndex == -1)
-				pResX->GetWindowText(CurrentValue);
-			else
-				pResX->GetLBText(SelectedIndex, CurrentValue);
-			ResX = _ttol(CurrentValue);
-			SelectedIndex = pResY->GetCurSel();
-			if (SelectedIndex == -1)
-				pResY->GetWindowText(CurrentValue);
-			else
-				pResY->GetLBText(SelectedIndex, CurrentValue);
-			ResY = _ttol(CurrentValue);
-
-			m_pCurrentSettings->SetResolution(ResX, ResY);
-		}
-	}
-
 	void WindowerConfigDlg::RefreshPluginList()
 	{
 		if (m_pCurrentSettings != NULL)
@@ -371,9 +349,7 @@ namespace Windower
 	void WindowerConfigDlg::OnProfilesChange()
 	{
 		CComboBox *pProfiles = static_cast<CComboBox*>(GetDlgItem(IDC_PROFILES_COMBO));
-		CComboBox *pResX	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
-		CComboBox *pResY	 = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
-		CButton *pBorderless = static_cast<CButton*>(GetDlgItem(IDC_BORDERLESS));
+		CEdit *pGamePath	 = static_cast<CEdit*>(GetDlgItem(IDC_GAME_PATH));
 		CButton *pVSync		 = static_cast<CButton*>(GetDlgItem(IDC_VSYNC));
 
 		if (m_pCurrentSettings != NULL)
@@ -381,7 +357,7 @@ namespace Windower
 
 		m_pCurrentSettings = NULL;
 
-		if (pProfiles != NULL && pResX != NULL && pResY != NULL && pVSync != NULL && pBorderless != NULL)
+		if (pProfiles != NULL && pVSync != NULL && pGamePath != NULL)
 		{
 			m_CurrentSel = pProfiles->GetCurSel();
 
@@ -391,114 +367,13 @@ namespace Windower
 
 				if (m_pCurrentSettings != NULL)
 				{
-					TCHAR StrX[8], StrY[8];
-
 					m_pSettingsManager->SetDefaultProfile(m_pCurrentSettings->GetName());
 
-					_ltot_s(m_pCurrentSettings->GetResX(), StrX, 10);
-					_ltot_s(m_pCurrentSettings->GetResY(), StrY, 10);
-
-					pResX->SetWindowText(StrX);
-					pResY->SetWindowText(StrY);
-
-					pBorderless->SetCheck(m_pCurrentSettings->GetBorderless() ? BST_CHECKED : BST_UNCHECKED);
 					pVSync->SetCheck(m_pCurrentSettings->GetVSync() ? BST_CHECKED : BST_UNCHECKED);
-
-					pResX->FindStringExact(0, StrX);
-					pResY->FindStringExact(0, StrY);
+					pGamePath->SetWindowText(m_pSettingsManager->GetGamePath());
 
 					RefreshPluginList();
 				}
-			}
-		}
-	}
-
-	void WindowerConfigDlg::FillSupportedRes()
-	{
-		CComboBox *pResX = static_cast<CComboBox*>(GetDlgItem(IDC_RESX_COMBO));
-		CComboBox *pResY = static_cast<CComboBox*>(GetDlgItem(IDC_RESY_COMBO));
-
-		if (pResX != NULL && pResY != NULL && m_pCurrentSettings != NULL)
-		{
-			LPDIRECT3D9 pDirect3D = Direct3DCreate9(D3D_SDK_VERSION);
-			int DisplayModesCount, iX = -1, iY = -1;
-			D3DDISPLAYMODE DisplayMode;
-			bool EnumSuccess = false;
-			TCHAR StrX[8], StrY[8];
-
-			if (pDirect3D != NULL)
-			{
-				int CurrentX, CurrentY;
-
-				CurrentX = m_pCurrentSettings->GetResX();
-				CurrentY = m_pCurrentSettings->GetResY();
-
-				if ((DisplayModesCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8)) > 0)
-				{
-					int x, y;
-
-					CurrentX = m_pCurrentSettings->GetResX();
-					CurrentY = m_pCurrentSettings->GetResY();
-
-					// enumerate the display modes supported by the graphics card
-					for (int i = 0; i < DisplayModesCount; i++)
-					{
-						if(pDirect3D->EnumAdapterModes(D3DADAPTER_DEFAULT, D3DFMT_X8R8G8B8, i, &DisplayMode) == D3D_OK)
-						{
-							if (EnumSuccess == false)
-								EnumSuccess = true;
-
-							_ltot_s(DisplayMode.Width,  StrX, 10);
-							_ltot_s(DisplayMode.Height, StrY, 10);
-
-							// the engine forces a minimal resolution of 1024x720
-							if (DisplayMode.Width >= 1024)
-							{
-								// avoid duplicates
-								if (pResX->FindString(0, StrX) == CB_ERR)
-								{
-									x = pResX->AddString(StrX);
-									// save the index of the current value
-									if (DisplayMode.Width == CurrentX)
-										iX = x;
-								}
-							}
-							// the engine forces a minimal resolution of 1024x720
-							if (DisplayMode.Height >= 720)
-							{
-								// avoid duplicates
-								if (pResY->FindString(0, StrY) == CB_ERR)
-								{
-									y = pResY->AddString(StrY);
-									// save the index of the current value
-									if (DisplayMode.Height == CurrentY)
-										iY = y;
-								}
-							}
-						}
-						else
-							break;
-					}
-				}
-
-				// set the current resolution in the combo boxes
-				if (iX >= 0 && EnumSuccess)
-					pResX->SetCurSel(iX);
-				else if (CurrentX >= 1024)
-				{
-					_ltot_s(CurrentX, StrX, 10);
-					pResX->SetCurSel(pResX->InsertString(0, StrX));
-				}
-
-				if (iY >= 0 && EnumSuccess)
-					pResY->SetCurSel(iY);
-				else if (CurrentY >= 720)
-				{
-					_ltot_s(CurrentY, StrY, 10);
-					pResY->SetCurSel(pResY->InsertString(0, StrY));
-				}
-
-				pDirect3D->Release();
 			}
 		}
 	}
@@ -510,11 +385,9 @@ namespace Windower
 		PROCESS_INFORMATION ProcessInfo;
 		TCHAR DLL32Path[_MAX_PATH];
 		TCHAR ExePath[_MAX_PATH];
-		TCHAR DirPath[_MAX_PATH];
 
-		GetCurrentDirectory(_MAX_PATH, DirPath);
-		_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
-		_stprintf_s(ExePath, _MAX_PATH, _T("%s\\ffxivboot.exe"), DirPath);
+		_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), m_pSettingsManager->GetWorkingDir().c_str());
+		_stprintf_s(ExePath, _MAX_PATH, _T("%sboot\\ffxivboot.exe"), m_pSettingsManager->GetGamePath());
 
 		InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CREATE_DEFAULT_ERROR_MODE |
 									  CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, DLL32Path, NULL);
@@ -614,22 +487,12 @@ namespace Windower
 		}
 	}
 
-	void WindowerConfigDlg::OnBorderlessChange()
-	{
-		CButton *pBorderless = static_cast<CButton*>(GetDlgItem(IDC_BORDERLESS));
-
-		if (m_pSettingsManager != NULL && pBorderless != NULL)
-		{
-			m_pCurrentSettings->SetBorderless(pBorderless->GetCheck() == BST_CHECKED);
-		}
-	}
-
 	void WindowerConfigDlg::ActivateAllPlugins()
 	{
 		if (m_pCurrentSettings != NULL)
 		{
 			bool Configure = (MessageBox(_T("Would you like to configure the plugins?"),
-				_T("Windower configuration"), MB_YESNO | MB_ICONQUESTION) == IDYES);
+										 _T("Windower configuration"), MB_YESNO | MB_ICONQUESTION) == IDYES);
 
 			CListCtrl *pPluginList = static_cast<CListCtrl*>(GetDlgItem(IDC_PLUGIN_LIST));
 
@@ -680,6 +543,49 @@ namespace Windower
 					m_pCurrentSettings->ActivatePlugin(PluginName, Active);
 				}
 			}
+		}
+	}
+
+	void WindowerConfigDlg::OnPathBrowse()
+	{
+		CEdit *pGamePath = static_cast<CEdit*>(GetDlgItem(IDC_GAME_PATH));
+		bool ValidPath = false;
+		string_t GamePath;
+
+		if (m_pSettingsManager->SelectDirectory(GamePath) == false)
+		{
+			TCHAR CurrentDirectory[_MAX_PATH];
+
+			GetCurrentDirectory(_MAX_PATH, CurrentDirectory);
+			GamePath = CurrentDirectory;
+
+			if (GamePath.back() != '\\')
+				GamePath += '\\';
+		}
+
+		if (pGamePath != NULL)
+			pGamePath->SetWindowText(GamePath.c_str());
+	}
+
+	void WindowerConfigDlg::OnPathChange()
+	{
+		CEdit *pGamePath = static_cast<CEdit*>(GetDlgItem(IDC_GAME_PATH));
+		CButton *pLaunch = static_cast<CButton*>(GetDlgItem(IDOK));
+
+		if (pLaunch != NULL && pGamePath != NULL)
+		{
+			CString Path;
+			bool Valid;
+
+			pGamePath->GetWindowText(Path);
+			// check the game path
+			Valid = m_pSettingsManager->CheckGamePath(Path.GetBuffer());
+			pLaunch->EnableWindow(Valid);
+
+			if (Valid)
+				m_pSettingsManager->SetGamePath(Path);
+			else
+				MessageBox(_T("The specified game directory is incorrect ('boot'/'game' missing)."), _T("Error!"), MB_OK | MB_ICONSTOP);
 		}
 	}
 }

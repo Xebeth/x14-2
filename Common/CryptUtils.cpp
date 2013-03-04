@@ -5,8 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Crypt function wrapper
 **************************************************************************/
+#include <windows.h>
 #include <string_t.h>
-#include <stdhdr.h>
 #include <locale>
 
 #include "CryptUtils.h"
@@ -98,15 +98,26 @@ string_t CryptUtils::CombineHash(const string_t &InputStr1_in, const string_t &I
 	return format(_T("%08X%08X"), Hash1, Hash2);
 }
 
-size_t CryptUtils::GenerateMachineID(string_t &MachineID_out)
+size_t CryptUtils::GenerateMachineID(string_t &MachineID_out, const TCHAR *pRootPath_in)
 {
 	TCHAR VolumeName[_MAX_PATH], FileSystem[_MAX_PATH];
 	unsigned long VolumeSerialNumber;
 	HW_PROFILE_INFO hwProfileInfo;
+	string_t RootPath;
+
+	if (pRootPath_in != NULL)
+	{
+		RootPath = pRootPath_in;
+		// normalize the path
+		if (RootPath.back() != '\\')
+			RootPath += '\\';
+
+		pRootPath_in = RootPath.c_str();
+	}
 
 	MachineID_out.clear();
 
-	if (GetVolumeInformation(NULL, VolumeName, _MAX_PATH,
+	if (GetVolumeInformation(pRootPath_in, VolumeName, _MAX_PATH,
 		&VolumeSerialNumber, NULL, NULL, FileSystem, _MAX_PATH)
 		&& GetCurrentHwProfile(&hwProfileInfo))
 	{
@@ -119,7 +130,7 @@ size_t CryptUtils::GenerateMachineID(string_t &MachineID_out)
 		hex[3] = (VolumeSerialNumber & 0xff);
 
 		format(SerialNumber, _T("%02X:%02X:%02X:%02X"),
-			hex[0], hex[1], hex[2], hex[3]);
+			   hex[0], hex[1], hex[2], hex[3]);
 
 		MachineID_out = CombineHash(SerialNumber, hwProfileInfo.szHwProfileGuid);
 

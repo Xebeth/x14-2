@@ -3,7 +3,7 @@
 	filename	: 	WindowerEngine.h
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	Windower x14 engine
+	purpose		:	Windower x14-2 engine
 **************************************************************************/
 #ifndef __WINDOWER_ENGINE_H__
 #define __WINDOWER_ENGINE_H__
@@ -34,7 +34,7 @@ namespace Windower
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
 
-	//! \brief Windower x14 engine
+	//! \brief Windower x14-2 engine
 	class WindowerEngine : public PluginEngine, public ICommandHandler
 	{
 		//! IDs of the commands registered with the plugin
@@ -46,7 +46,7 @@ namespace Windower
 			CMD_COUNT				//!< number of registered commands
 		};
 	public:
-		explicit WindowerEngine(const TCHAR *pConfigFile_in);
+		explicit WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		virtual ~WindowerEngine();
 
 		virtual bool Attach();

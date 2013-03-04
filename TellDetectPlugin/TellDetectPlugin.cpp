@@ -24,7 +24,7 @@ namespace Windower
 {
 	//! \brief TellDetectPlugin constructor
 	TellDetectPlugin::TellDetectPlugin(PluginFramework::IPluginServices *pServices_in)
-		: IGameChatPlugin(pServices_in), m_pSettings(new TellDetectSettings(_T("config.ini"), NULL))
+		: IGameChatPlugin(pServices_in), m_pSettings(new TellDetectSettings(IPlugin::GetConfigFile(), NULL))
 	{
 		if (m_pSettings != NULL)
 			m_SoundFile = m_pSettings->GetFilename();
@@ -79,7 +79,7 @@ namespace Windower
 	*/
 	bool TellDetectPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		TellDetectConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
+		TellDetectConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
 	}

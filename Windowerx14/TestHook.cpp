@@ -21,7 +21,7 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-int WINAPI SetJobHook(LPVOID pThis_in_out, int *pJob_in, int Unk1_in, int Unk2_in)
+int WINAPI sub570F30Hook(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList)
 {
-	return g_pEngine->Test().SetJob(pThis_in_out, pJob_in, Unk1_in, Unk2_in);
+	return g_pEngine->Test().sub570F30Hook(pThis_in_out, a2, a3, a4, ArgList);
 }

@@ -8,6 +8,7 @@
 #ifndef __SETTINGS_MANAGER_AFX_H__
 #define __SETTINGS_MANAGER_AFX_H__
 
+#define __USE_VLD
 #include <stdhdr.h>
 #include <string_t.h>
 

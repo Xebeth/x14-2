@@ -31,30 +31,32 @@ namespace Windower
 {
 	/*! \brief GraphicsCore constructor
 		\param[in,out] Engine_in_out : the windower engine
-		\param[in] ResX_in : the width of the rendering surface
-		\param[in] ResY_in : the height of the rendering surface
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
-	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, LONG ResX_in, LONG ResY_in, BOOL VSync_in)
-		: WindowerCore(Engine_in_out), m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in)
+	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, BOOL VSync_in)
+		: WindowerCore(Engine_in_out), m_VSync(VSync_in)
 	{
 		m_pDirect3DCreate9Trampoline = Direct3DCreate9;
-		m_pDirect3DWrapper = NULL;
-		m_pDeviceWrapper = NULL;
-
 		m_Engine.RegisterModule(_T("Graphics"), this);
 	}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
 	{
-		m_pDeviceWrapper = NULL;
+		Direct3DWrappers::const_iterator EndD3DIt = m_Direct3DWrappers.end();
+		Direct3DWrappers::const_iterator D3DIt = m_Direct3DWrappers.begin();
+		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
+		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();		
 
-		if (m_pDirect3DWrapper != NULL)
-		{
-			delete m_pDirect3DWrapper;
-			m_pDirect3DWrapper = NULL;
-		}
+		for (; DevIt != EndDevIt; ++DevIt)
+			delete *DevIt;
+
+		m_DeviceWrappers.clear();
+
+		for (; D3DIt != EndD3DIt; ++D3DIt)
+			delete *D3DIt;
+
+		m_Direct3DWrappers.clear();
 	}
 
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
@@ -69,46 +71,57 @@ namespace Windower
 
 			if (pDirect3D != NULL)
 			{
-				m_pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_ResX, m_ResY, m_VSync);
+				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_VSync);
+				IDirect3DDevice9Wrapper *pDeviceWrapper = NULL;
+
+				m_Direct3DWrappers.push_back(pDirect3DWrapper);
+				m_DeviceWrappers.push_back(pDeviceWrapper);				
+
 				// subscribe for a pointer to the Direct3DDevice wrapper
-				m_pDirect3DWrapper->Subscribe(&m_pDeviceWrapper);
+				pDirect3DWrapper->Subscribe(&pDeviceWrapper);
+
+				return pDirect3DWrapper;
 			}
 		}
 
-		return m_pDirect3DWrapper;
+		return NULL;
 	}
 
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleRendering();
+		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
+		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
+
+		for (; DevIt != EndDevIt; ++DevIt)
+			(*DevIt)->ToggleRendering();
 	}
 
 	void GraphicsCore::SetRendering(bool bEnable_in)
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->SetRendering(bEnable_in);
+		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
+		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
+
+		for (; DevIt != EndDevIt; ++DevIt)
+			(*DevIt)->SetRendering(bEnable_in);
 	}
 
 	void GraphicsCore::ToggleWireframe()
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleWireframe();
+		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
+		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
+
+		for (; DevIt != EndDevIt; ++DevIt)
+			(*DevIt)->ToggleWireframe();
 	}
 
 	void GraphicsCore::ToggleFPS()
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleFPS();
-	}
+		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
+		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
 
-	/*! \brief Callback function invoked when the Direct3D9 device is created
-		\param[in] pDeviceWrapper_in : the newly created device
-	*/
-	void GraphicsCore::OnCreateDevice(IDirect3DDevice9Wrapper *pDeviceWrapper_in)
-	{
-		m_pDeviceWrapper = pDeviceWrapper_in;
+		for (; DevIt != EndDevIt; ++DevIt)
+			(*DevIt)->ToggleFPS();
 	}
 
 	/*! \brief Register the hooks for this module

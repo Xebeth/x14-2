@@ -14,7 +14,7 @@ class TimestampConfigDlg : public CDialog
 {
 	enum { IDD = IDD_TIMESTAMP_CONFIG };
 public:
-	TimestampConfigDlg(const TCHAR *pProfileName_in, CWnd* pParent = NULL);
+	TimestampConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
 	~TimestampConfigDlg();
 
 protected:

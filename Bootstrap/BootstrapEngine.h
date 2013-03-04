@@ -28,7 +28,7 @@ namespace Bootstrap
 	class BootstrapEngine : public Windower::PluginEngine
 	{
 	public:
-		explicit BootstrapEngine(const TCHAR *pConfigFile_in);
+		BootstrapEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		virtual ~BootstrapEngine();
 
 		virtual bool Attach();

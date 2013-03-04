@@ -859,6 +859,11 @@ public:
         bool *          a_pHasMultiple = NULL
      ) const;
 
+	bool KeyExists(const SI_CHAR * a_pSection, const SI_CHAR * a_pKey) const;
+	bool SectionExists(const SI_CHAR * a_pSection) const;
+
+	bool DeleteKey(const SI_CHAR * a_pSection, const SI_CHAR * a_pKey);
+
     /** Retrieve a numeric value for a specific key. If multiple keys are enabled
         (see SetMultiKey) then only the first value associated with that key
         will be returned, see GetAllValues for getting all values with multikey.
@@ -1891,6 +1896,43 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::AddEntry(
     }
     iKey->second = a_pValue;
     return bInserted ? SI_INSERTED : SI_UPDATED;
+}
+
+template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
+bool CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::KeyExists(const SI_CHAR * a_pSection, const SI_CHAR * a_pKey) const
+{
+	typename TSection::const_iterator iSection = m_data.find(a_pSection);
+	
+	if (iSection != m_data.end())
+		return iSection->second.find(a_pKey) != iSection->second.end();
+	
+	return false;
+}
+
+template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
+bool CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::SectionExists(const SI_CHAR * a_pSection) const
+{
+	return (m_data.find(a_pSection) != m_data.end());
+}
+
+template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
+bool CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::DeleteKey(const SI_CHAR * a_pSection, const SI_CHAR * a_pKey)
+{
+	typename TSection::iterator iSection = m_data.find(a_pSection);
+
+	if (iSection != m_data.end())
+	{
+		typename TKeyVal::const_iterator iKeyVal = iSection->second.find(a_pKey);
+
+		if (iKeyVal != iSection->second.end())
+		{
+			iSection->second.erase(iKeyVal);
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>

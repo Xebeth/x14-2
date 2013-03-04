@@ -13,9 +13,7 @@ namespace Windower
 	typedef HookEngineLib::IHookManager IHookManager;
 
 	//! the class name of the target window
-	#define FFXIV_WINDOW_CLASSW		_T("RAPTURE")
-	//! the title of the target window
-	#define FFXIV_WINDOW_NAMEA		"FINAL FANTASY XIV"
+	#define FFXIV_WINDOW_CLASSA		"FFXIVGAME"
 
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public WindowerCore
@@ -39,19 +37,16 @@ namespace Windower
 		void OnHookInstall(IHookManager &HookManager_in);
 
 		// hooks
-		int ReadConfigHook(BYTE *pConfigData_out);
-		ATOM RegisterClassExWHook(const WNDCLASSEXW *pWndClass_in);
+		ATOM RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
 		LRESULT WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		HWND CreateWindowExAHook(DWORD dwExStyle_in, LPCSTR lpClassName_in, LPCSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in, 
-										int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in);
+								 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in);
 
 	protected:
-		//! function pointer to the original RegisterClassExW function
-		fnRegisterClassExW		m_pRegisterClassExWTrampoline;
+		//! function pointer to the original RegisterClassExA function
+		fnRegisterClassExA		m_pRegisterClassExATrampoline;
 		//! function pointer to the original CreateWindowExA function
 		fnCreateWindowExA		m_pCreateWindowExATrampoline;
-		//! function pointer to the original ReadConfig function
-		fnReadConfig			m_pReadConfigTrampoline;
 
 		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);

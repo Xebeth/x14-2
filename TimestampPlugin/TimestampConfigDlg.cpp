@@ -25,9 +25,9 @@ END_MESSAGE_MAP()
 /*! \brief TimestampConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-TimestampConfigDlg::TimestampConfigDlg(const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
+TimestampConfigDlg::TimestampConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
 	: CDialog(TimestampConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Windower::TimestampSettings(_T("config.ini"), pProfileName_in))
+	  m_pSettings(new Windower::TimestampSettings(pConfigFile_in, pProfileName_in))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_TIMESTAMP);
 }

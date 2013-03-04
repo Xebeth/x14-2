@@ -16,7 +16,7 @@ namespace Windower
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in)
-		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL) 
+		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL), m_ConfigFile(pSettingsFile_in)
 	{
 		if (pProfileName_in != NULL)
 			m_SectionName = pProfileName_in;

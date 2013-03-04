@@ -91,22 +91,20 @@ namespace Bootstrap
 		if (lpCommandLine_in_out == NULL && lpApplicationName_in == NULL)
 			return FALSE;
 
+		string_t WorkingDir = m_Engine.GetWorkingDir();
 		TCHAR DLL32Path[_MAX_PATH];
-		TCHAR DirPath[_MAX_PATH];
 		char DLLPath[_MAX_PATH];
 		BOOL Result = FALSE;
-
-		GetCurrentDirectory(_MAX_PATH, DirPath);
 
 		if ((lpCommandLine_in_out != NULL && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		 || (lpApplicationName_in != NULL && _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL))
 		{
-			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\windowerx14.dll"), DirPath);
-			// Result = TRUE;
+			_stprintf_s(DLL32Path, _MAX_PATH, _T("%swindowerx14.dll"), WorkingDir.c_str());
+			Result = TRUE;
 		}
 		else
 		{
-			_stprintf_s(DLL32Path, _MAX_PATH, _T("%s\\bootstrap.dll"), DirPath);
+			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sbootstrap.dll"), WorkingDir.c_str());
 			Result = TRUE;
 		}
 

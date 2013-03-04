@@ -20,13 +20,14 @@ namespace Windower
 	const VersionInfo PluginEngine::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
 	PluginServices *PluginEngine::m_pPluginServices = NULL;
 
-	PluginEngine::PluginEngine(const TCHAR *pConfigFile_in)
+	PluginEngine::PluginEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
 	{
-		m_pPluginServices = new PluginServices(m_FrameworkVersion, m_Modules);
+		// set the working directory
+		SetWorkingDir(hModule_in);
+		// create the plugin services
+		m_pPluginServices = new PluginServices(m_FrameworkVersion, m_Modules, m_WorkingDir + pConfigFile_in);
 		// create the plugin manager
 		m_pPluginManager = new PluginManager(m_pPluginServices);
-
-//		m_pPluginManager->BlacklistPlugin(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
 	}
 
 	PluginEngine::~PluginEngine()
@@ -125,5 +126,44 @@ namespace Windower
 		}
 
 		return false;
+	}
+
+	/*! \brief Retrieves the compatibility flags of the plugin
+		\return the compatibility flags text
+	*/
+	const TCHAR* PluginEngine::GetCompatibilityFlagsText(DWORD Flags_in)
+	{
+		switch(Flags_in)
+		{
+			case PLUGIN_COMPATIBILITY_WINDOWER:
+				return _T("Windower");
+			case PLUGIN_COMPATIBILITY_BOOTSTRAP:
+				return _T("Bootstrap");
+			case PLUGIN_COMPATIBILITY_ANY:
+				return _T("Any");
+		}
+
+		return _T("None");
+	}
+
+	/*! \brief Sets the working directory of windower
+		\param[in] hModule_in : the handle of the DLL
+	*/
+	void PluginEngine::SetWorkingDir(HMODULE hModule_in)
+	{
+		TCHAR DirPath[_MAX_PATH] = { '\0' };
+		TCHAR *pLastSlash = NULL;
+
+		// retrieve the name of the module
+		GetModuleFileName(hModule_in, DirPath, _MAX_PATH);
+		// find the last backslash
+		pLastSlash = _tcsrchr(DirPath, '\\') + 1;
+
+		if (pLastSlash != NULL)
+		{
+			*pLastSlash = '\0';
+			// set the working directory
+			m_WorkingDir.assign(DirPath);
+		}
 	}
 }

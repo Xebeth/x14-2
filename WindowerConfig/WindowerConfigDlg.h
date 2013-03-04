@@ -44,12 +44,12 @@ namespace Windower
 		afx_msg void OnConfigure(NMHDR* pNMHDR, LRESULT* pResult);
 
 		afx_msg void OnProfileRename();
-		afx_msg void OnResolutionChange();
 		afx_msg void OnProfilesChange();
 		
 		afx_msg void OnDeleteProfile();
-		afx_msg void OnBorderlessChange();
 		afx_msg void OnVSyncChange();
+		afx_msg void OnPathBrowse();
+		afx_msg void OnPathChange();
 		afx_msg void OnNewProfile();
 		afx_msg void OnLaunch();
 		afx_msg void OnSave();
@@ -58,12 +58,15 @@ namespace Windower
 		class DummyServices : public PluginFramework::IPluginServices
 		{
 		public:
-			explicit DummyServices(const PluginFramework::VersionInfo &Version_in)
-				: PluginFramework::IPluginServices(Version_in) {}
+			explicit DummyServices(const PluginFramework::VersionInfo &Version_in, const string_t& WorkingDir_in)
+				: PluginFramework::IPluginServices(Version_in), m_WorkingDir(WorkingDir_in) {}
 		private:
 			virtual bool InvokeService(const string_t&, const string_t&, const PluginFramework::ServiceParam&) const { return true; }
 			virtual bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
 			virtual bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
+			virtual const TCHAR* GetConfigFile() const { return m_WorkingDir.c_str(); }
+
+			string_t m_WorkingDir;
 		};
 
 		HICON m_hIcon;
@@ -77,13 +80,12 @@ namespace Windower
 		void UpdateActivePlugins();
 		void ActivateAllPlugins();		
 		void RefreshPluginList();
-		void FillSupportedRes();
 
 		// Generated message map functions
 		virtual BOOL OnInitDialog();
 		afx_msg void OnPaint();
 		afx_msg HCURSOR OnQueryDragIcon();
-		DECLARE_MESSAGE_MAP()
+		DECLARE_MESSAGE_MAP()		
 	};
 }
 

@@ -3,7 +3,7 @@
 	filename	: 	launcher.cpp
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	Windower x14 DLL injector
+	purpose		:	Windower x14-2 DLL injector
 **************************************************************************/
 #include "stdafx.h"
 
@@ -33,42 +33,57 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	DWORD CreationFlags(CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT);
 	TCHAR DirPath[_MAX_PATH] = { '\0' };
 	PROCESS_INFORMATION ProcessInfo;
-	string_t DLL32Path, ExePath;	
+	string_t DLL32Path, ExePath;
 
 	GetCurrentDirectory(_MAX_PATH, DirPath);
-	format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
-	format(ExePath, _T("%s\\ffxivboot.exe"), DirPath);
 
-	if (lpCmdLine != NULL && _tcslen(lpCmdLine) > 0U)
+	Windower::SettingsManager SettingsMgr(DirPath, _T("config.ini"));
+
+	if (SettingsMgr.IsGamePathValid())
 	{
-		string_t CmdLine = lpCmdLine;
-		std::queue<string_t> Parameters;
-		unsigned int ParamsCount = tokenize<TCHAR>(CmdLine, Parameters, _T(" "), _T("\""));
-		
-		if (ParamsCount > 1U)
+		format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
+		format(ExePath, _T("%sboot\\ffxivboot.exe"), SettingsMgr.GetGamePath());
+
+		if (lpCmdLine != NULL && _tcslen(lpCmdLine) > 0U)
 		{
-			string_t Token = Parameters.front();
-			Parameters.pop();
+			string_t CmdLine = lpCmdLine;
+			std::list<string_t> Parameters;
+			unsigned int ParamsCount = tokenize<TCHAR>(CmdLine, Parameters, _T(" "), _T("\""));
 
-			if (_tcsicmp(Token.c_str(), _T("/profile")) == 0)
+			if (ParamsCount > 1U)
 			{
-				Windower::SettingsManager SettingsMgr(_T("config.ini"));
-				string_t ProfileName;
+				string_t Token = Parameters.front();
+				Parameters.pop_front();
 
-				// generate the name of the profile
-				format(Token, _T("%s%s"), PROFILE_PREFIX, Parameters.front().c_str());
-				Parameters.pop();
-
-				// if it exits, set it as default
-				if (SettingsMgr.GetSettings(Token.c_str()) != NULL)
+				if (_tcsicmp(Token.c_str(), _T("/profile")) == 0)
 				{
-					SettingsMgr.SetDefaultProfile(Token.c_str());
-					SettingsMgr.Save();
+					string_t ProfileName;
+
+					// generate the name of the profile
+					format(Token, _T("%s%s"), PROFILE_PREFIX, Parameters.front().c_str());
+					Parameters.pop_front();
+
+					// if it exits, set it as default
+					if (SettingsMgr.GetSettings(Token.c_str()) != NULL)
+					{
+						SettingsMgr.SetDefaultProfile(Token.c_str());
+						SettingsMgr.Save();
+					}
 				}
 			}
 		}
+
+		return (InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CreationFlags,
+											  DLL32Path.c_str(), NULL) == FALSE);
+	}
+	else
+	{
+		MessageBox(NULL, _T("The configuration file is missing or invalid.\n")
+				   _T("Starting the configuration utility..."),
+				   _T("Error!"), MB_OK | MB_ICONWARNING);
+		// start the configuration tool
+		ShellExecute(NULL, NULL, _T("WindowerConfig.exe"), NULL, DirPath, SW_SHOW);
 	}
 
-	return (InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CreationFlags,
-										  DLL32Path.c_str(), NULL) == FALSE);
+	return -1;
 }

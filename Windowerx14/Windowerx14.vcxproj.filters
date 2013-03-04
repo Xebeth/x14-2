@@ -127,9 +127,6 @@
     <ClCompile Include="CommandDispatcher.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="ReadConfigHook.cpp">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
@@ -206,9 +203,6 @@
     </ClInclude>
     <ClInclude Include="CommandDispatcher.h">
       <Filter>Windower\Modules\Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="ReadConfigHook.h">
-      <Filter>Windower\Hooks\System</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>

@@ -190,4 +190,33 @@ namespace Settings
 
 		return Sections_out.size();
 	}
+
+	/*! \brief Checks if the specified section exists
+		\param[in] SectionName_in : section to check
+		\return true if the section exists; false otherwise
+	*/
+	bool SettingsIniFile::SectionExists(const string_t &SectionName_in) const
+	{
+		return (m_pIni != NULL) ? m_pIni->SectionExists(SectionName_in.c_str()) : false;
+	}
+
+	/*! \brief Checks if the specified key exists within the specified section
+		\param[in] SectionName_in : section containing the key
+		\param[in] KeyName_in : key to check
+		\return true if the key exists in the specified section; false otherwise
+	*/
+	bool SettingsIniFile::KeyExists(const string_t &SectionName_in, const string_t &KeyName_in) const
+	{
+		return (m_pIni != NULL) ? m_pIni->KeyExists(SectionName_in.c_str(), KeyName_in.c_str()) : false;
+	}
+
+	/*! \brief Deletes the specified key exists within the specified section
+		\param[in] SectionName_in : section containing the key
+		\param[in] KeyName_in : key to delete
+		\return true if the key was deleted in the specified section; false otherwise
+	*/
+	bool SettingsIniFile::DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const
+	{
+		return (m_pIni != NULL) ? m_pIni->DeleteKey(SectionName_in.c_str(), KeyName_in.c_str()) : false;
+	}
 }

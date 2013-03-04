@@ -26,13 +26,18 @@ END_MESSAGE_MAP()
 /*! \brief AutoLoginConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
+AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
 	: CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Windower::AutoLoginSettings(_T("config.ini"), pProfileName_in))
+	  m_pSettings(new Windower::AutoLoginSettings(pConfigFile_in, pProfileName_in))
 {
+	string_t ConfigFile = pConfigFile_in;
+	std::list<string_t> Tokens;
+
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_CONFIG);
+	// retrieve the drive letter from the config path
+	tokenize(ConfigFile, Tokens, _T("\\"), _T("\""));	
 	// generate the encryption key
-	CryptUtils::GenerateMachineID(m_EncryptionKey);		
+	CryptUtils::GenerateMachineID(m_EncryptionKey, Tokens.front().c_str());
 }
 
 //! \brief AutoLoginConfigDlg destructor
@@ -55,21 +60,24 @@ BOOL AutoLoginConfigDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
-	// retrieve the encryption key hash
-	long KeyHash = CryptUtils::Hash(m_EncryptionKey);
-	CString StrKeyHash;
-
-	// set the edit text with the encryption key hash
-	StrKeyHash.Format(_T("0x%08x"), KeyHash);
-	SetDlgItemText(IDC_ENCRYPTION_KEY_HASH, StrKeyHash);
-
-	if (m_pSettings != NULL)
+	if (m_pSettings->Load())
 	{
-		m_PasswordHash = m_pSettings->GetPassword();
-		SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
+		// retrieve the encryption key hash
+		long KeyHash = CryptUtils::Hash(m_EncryptionKey);
+		CString StrKeyHash;
 
-		m_Username = m_pSettings->GetUsername();
-		SetDlgItemText(IDC_USERNAME, m_Username.c_str());
+		// set the edit text with the encryption key hash
+		StrKeyHash.Format(_T("0x%08x"), KeyHash);
+		SetDlgItemText(IDC_ENCRYPTION_KEY_HASH, StrKeyHash);
+
+		if (m_pSettings != NULL)
+		{
+			m_PasswordHash = m_pSettings->GetPassword();
+			SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
+
+			m_Username = m_pSettings->GetUsername();
+			SetDlgItemText(IDC_USERNAME, m_Username.c_str());
+		}
 	}
 
 	return TRUE;

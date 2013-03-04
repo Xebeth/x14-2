@@ -31,7 +31,7 @@ namespace Windower
 	*/
 	TimestampPlugin::TimestampPlugin(PluginFramework::IPluginServices *pServices_in) 
 		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
-		  m_pSettings(new TimestampSettings(_T("config.ini"), NULL))
+		  m_pSettings(new TimestampSettings(IPlugin::GetConfigFile(), NULL))
 	{
 		if (m_pSettings != NULL)
 		{
@@ -92,7 +92,7 @@ namespace Windower
 	*/
 	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		TimestampConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
+		TimestampConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
 	}

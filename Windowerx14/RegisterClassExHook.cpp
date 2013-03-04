@@ -15,8 +15,6 @@
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
-#include "ReadConfigHook.h"
-
 #include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "SystemCore.h"
@@ -27,7 +25,7 @@ extern Windower::WindowerEngine *g_pEngine;
 	\param[in] pWndClass_in : pointer to a WNDCLASSEX structure
 	\return class atom that uniquely identifies the class being registered if successfuly; NULL otherwise
 */
-ATOM WINAPI RegisterClassExWHook(const WNDCLASSEXW *pWndClass_in)
+ATOM WINAPI RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in)
 {
-	return g_pEngine->System().RegisterClassExWHook(const_cast<WNDCLASSEXW*>(pWndClass_in));
+	return g_pEngine->System().RegisterClassExAHook(const_cast<WNDCLASSEXA*>(pWndClass_in));
 }

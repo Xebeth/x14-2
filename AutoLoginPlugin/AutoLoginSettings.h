@@ -56,6 +56,8 @@ namespace Windower
 		*/
 		HWND GetParentWnd() const { return m_hParentWnd; }
 
+		const TCHAR* GetConfigFile() const { return m_ConfigFile.c_str(); }
+
 	protected:
 		//! the handle to the IE server window
 		HWND			m_hParentWnd;
@@ -67,6 +69,8 @@ namespace Windower
 		long			m_KeyHash;
 		//! the section in which the parameters are written or read
 		string_t		m_SectionName;
+		//! config file path
+		string_t		m_ConfigFile;
 	};
 }
 

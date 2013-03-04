@@ -42,27 +42,31 @@ namespace Bootstrap
 	/*! \brief BootstrapEngine constructor
 		\param[in] pConfigFile_in : the name of the configuration file
 	*/
-	BootstrapEngine::BootstrapEngine(const TCHAR *pConfigFile_in)
-		: PluginEngine(pConfigFile_in)
+	BootstrapEngine::BootstrapEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
+		: PluginEngine(hModule_in, pConfigFile_in)
 	{
+		string_t ConfigPath;
+
 		m_hTarget = GetModuleHandle(NULL);
 
 		// create the settings
-		m_pSettingsManager = new Windower::SettingsManager(pConfigFile_in);
+		m_pSettingsManager = new Windower::SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		m_pSettings = new Windower::WindowerProfile;
-		// create the hook manager
-		m_pHookManager = new HookEngine;
 
-		m_pSettingsManager->LoadDefaultProfile(*m_pSettings);
-		// Win32 related hooks
-		m_pSystemCore = new SystemCore(*this);
-		// Commander dispatcher
-		m_pCommandDispatcher = new Windower::CommandDispatcher(*this);
-		// load plugins
-		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir(),
-									  PLUGIN_COMPATIBILITY_BOOTSTRAP);
+		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(*m_pSettings))
+		{
+			// create the hook manager
+			m_pHookManager = new HookEngine;
+			// Win32 related hooks
+			m_pSystemCore = new SystemCore(*this);
+			// Commander dispatcher
+			m_pCommandDispatcher = new Windower::CommandDispatcher(*this);
+			// load plugins
+			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
+										  PLUGIN_COMPATIBILITY_BOOTSTRAP);
 
-		Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
+			Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
+		}
 	}
 	
 	//! \brief BootstrapEngine destructor

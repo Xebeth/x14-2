@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <tchar.h>
 #include <string>
-#include <queue>
+#include <list>
 
 typedef std::basic_string<TCHAR> string_t;
 typedef string_t::size_type pos_t;
@@ -130,7 +130,7 @@ template<typename T> std::basic_string<T>& append_format(std::basic_string<T> &S
 	\param[in] Replace_in : the string to replace with
 */
 template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_in_out, const std::basic_string<T> &Find_in, 
-														 const std::basic_string<T> &Replace_in, size_t StrPos_in = 0)
+												   const std::basic_string<T> &Replace_in, size_t StrPos_in = 0)
 {
 	std::basic_string<T>::size_type ReplaceLength = Replace_in.length();
 	std::basic_string<T>::size_type FindLength = Find_in.length();
@@ -151,7 +151,7 @@ template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_
 	\param[in] Delimiter_in : the delimiter used to parse the string
 	\return the number of tokens found
 */
-template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std::queue< std::basic_string<T> > &Tokens_out,
+template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std::list< std::basic_string<T> > &Tokens_out,
 									 const T* Separator_in, const T* Delimiter_in)
 {
 	std::basic_string<T>::size_type DelimiterPos = 0, SeparatorPos = 0, NotSeparatorPos = 0, LastPos;
@@ -162,13 +162,13 @@ template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std:
 	{
 		// no separator found => no parameter
 		if (String_in.empty() == false)
-			Tokens_out.push(String_in);
+			Tokens_out.push_back(String_in);
 	}
 	else
 	{
 		std::basic_string<T> TmpStr = String_in.substr(0, SeparatorPos);
 
-		Tokens_out.push(TmpStr);
+		Tokens_out.push_back(TmpStr);
 		TmpStr = String_in.substr(++SeparatorPos);
 
 		// loop until the buffer has been consumed or only separators are left
@@ -186,7 +186,7 @@ template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std:
 				// no separator found => this is the last token
 				if (SeparatorPos == std::basic_string<T>::npos && DelimiterPos == SeparatorPos)
 				{
-					Tokens_out.push(TmpStr.substr(NotSeparatorPos));
+					Tokens_out.push_back(TmpStr.substr(NotSeparatorPos));
 
 					return Tokens_out.size();
 				}
@@ -195,7 +195,7 @@ template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std:
 					// if the next valid character is not a delimiter => unquoted token
 					if (TmpStr[NotSeparatorPos] != Delimiter_in[0])
 					{
-						Tokens_out.push(TmpStr.substr(NotSeparatorPos, SeparatorPos - NotSeparatorPos));
+						Tokens_out.push_back(TmpStr.substr(NotSeparatorPos, SeparatorPos - NotSeparatorPos));
 						TmpStr = TmpStr.substr(++SeparatorPos);
 					}
 					else
@@ -216,14 +216,14 @@ template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std:
 						// a closing delimiter was found
 						if (DelimiterPos != std::basic_string<T>::npos)
 						{
-							Tokens_out.push(TmpStr.substr(NotSeparatorPos, DelimiterPos - NotSeparatorPos));
+							Tokens_out.push_back(TmpStr.substr(NotSeparatorPos, DelimiterPos - NotSeparatorPos));
 							TmpStr = TmpStr.substr(++DelimiterPos);
 						}
 						// we found a stray delimiter => add it as a parameter
 						else
 						{
 							TmpStr = TmpStr.substr(NotSeparatorPos);
-							Tokens_out.push(Delimiter_in);
+							Tokens_out.push_back(Delimiter_in);
 						}
 					}
 				}

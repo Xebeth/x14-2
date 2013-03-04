@@ -49,9 +49,9 @@ namespace Windower
 		if (pText_in == m_pTargetPtr)
 		{
 #ifdef _DEBUG
-			format(m_InjectedText, "%s\nWindower x14 Version: %i.%i.%i.%i debug build",
+			format(m_InjectedText, "%s\nWindower x14-2 Version: %i.%i.%i.%i debug build",
 #else
-			format(m_InjectedText, "%s\nWindower x14 Version: %i.%i.%i.%i",
+			format(m_InjectedText, "%s\nWindower x14-2 Version: %i.%i.%i.%i",
 #endif // _DEBUG
 				   pText_in, MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION,
 				   MODULE_RELEASE_VERSION, MODULE_TEST_VERSION);

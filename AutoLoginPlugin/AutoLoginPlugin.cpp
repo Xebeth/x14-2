@@ -28,7 +28,7 @@ namespace Windower
 	//! \brief AutoLoginPlugin default constructor
 	AutoLoginPlugin::AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in)
 		: CommandHandler(0x18E5F530, "AutoLogin"), PluginFramework::IPlugin(pServices_in),
-		  m_hThread(NULL), m_pSettings(new AutoLoginSettings(_T("config.ini"), NULL)) {}
+		  m_hThread(NULL), m_pSettings(new AutoLoginSettings(IPlugin::GetConfigFile(), NULL)) {}
 
 	//! \brief AutoLoginPlugin destructor
 	AutoLoginPlugin::~AutoLoginPlugin()
@@ -78,7 +78,7 @@ namespace Windower
 	*/
 	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		AutoLoginConfigDlg ConfigDlg(reinterpret_cast<const TCHAR*>(pUserData_in));
+		AutoLoginConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
 	}

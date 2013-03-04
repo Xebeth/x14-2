@@ -40,7 +40,7 @@ namespace Windower
 						 char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out);
 
 	protected:
-		int Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out);
+		int Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::list<std::string> &Params_out);
 		int SetFeedback(int Code_in, WindowerCommand &Command_in_out, size_t ParamCount_in,
 						const char *pParamName_in, const char *pParamValue_in,
 						char **pFeedbackMsg_out, DWORD &MsgSize_out);

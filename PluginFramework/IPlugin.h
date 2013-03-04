@@ -302,6 +302,8 @@ namespace PluginFramework
 								  const string_t &ServiceName_in,
 								  const ServiceParam &Params_in);
 
+		static const TCHAR* GetConfigFile();
+
 	protected:
 		/*! \brief Removes a plugin subscription from the service in the specified module
 			\param[in] ModuleName_in : the name of the module

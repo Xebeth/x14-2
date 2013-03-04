@@ -43,7 +43,7 @@ namespace Windower
 									char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out)
 	{
 		std::string RawCommand, FeedbackMsg, CommandName;
-		std::queue<std::string> Params;
+		std::list<std::string> Params;
 		WindowerCommand *pCommand;
 		int Result;
 
@@ -89,7 +89,7 @@ namespace Windower
 				do
 				{
 					CurrentParam = Params.front();
-					Params.pop();
+					Params.pop_front();
 
 					switch(ParamIter->second->GetType())
 					{
@@ -204,7 +204,7 @@ namespace Windower
 		\param[out] Params_out : the parameters of the command
 		\return the number of parameters
 	*/
-	int CommandParser::Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::queue<std::string> &Params_out)
+	int CommandParser::Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::list<std::string> &Params_out)
 	{
 		unsigned int ParamsCount = tokenize<char>(RawCommand_in, Params_out, " ", "\"");
 
@@ -212,8 +212,8 @@ namespace Windower
 		{
 			// the first token is the command
 			Command_out = Params_out.front();
-			// remove it from the queue
-			Params_out.pop();
+			// remove it from the list
+			Params_out.pop_front();
 			--ParamsCount;
 		}
 

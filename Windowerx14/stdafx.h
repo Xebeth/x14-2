@@ -8,6 +8,7 @@
 #ifndef __X14_AFX_H__
 #define __X14_AFX_H__
 
+#define __USE_VLD
 #include <stdhdr.h>
 
 #include <string_t.h>
@@ -21,7 +22,7 @@
 // #define __USE_EASYHOOK
 // #define __USE_IATHOOK
 
-#define SIGSCAN_GAME_PROCESSW	_T("ffxivgame.exe")
-#define SIGSCAN_GAME_PROCESSA	"ffxivgame.exe"
+#define SIGSCAN_GAME_PROCESSW	_T("ffxiv.exe")
+#define SIGSCAN_GAME_PROCESSA	"ffxiv.exe"
 
 #endif//__X14_AFX_H__

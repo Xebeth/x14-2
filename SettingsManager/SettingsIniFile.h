@@ -37,6 +37,11 @@ namespace Settings
 		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
 		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
 		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
+
+		bool DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const;
+		bool KeyExists(const string_t &SectionName_in, const string_t &KeyName_in) const;
+		bool SectionExists(const string_t &SectionName_in) const;		
+
 	protected:
 		//! the path of the INI file
 		string_t m_SourceFile;

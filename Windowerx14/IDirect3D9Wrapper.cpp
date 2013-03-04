@@ -7,8 +7,8 @@
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
-IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, LONG ResX_in, LONG ResY_in, BOOL VSync_in)
-	: m_ResX(ResX_in), m_ResY(ResY_in), m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
+IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, BOOL VSync_in)
+	: m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
 	  m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
 
 /*! \brief IDirect3D9Wrapper destructor */
@@ -30,17 +30,13 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 	m_hGameWnd = hFocusWindow;
 	// force the windowed mode
 	pPresentationParameters->BackBufferCount = 2;
-	pPresentationParameters->Windowed = TRUE;
+//	pPresentationParameters->Windowed = TRUE;
 	// force vertical sync
 	if (m_VSync)
 	{
-		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-		pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_FLIP;
 	}
-	// force the resolution
-	pPresentationParameters->BackBufferWidth  = m_ResX;
-	pPresentationParameters->BackBufferHeight = m_ResY;
 
 	// create the Direct3D device
 	Result = m_pDirect3D9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, &pDirect3dDevice9);

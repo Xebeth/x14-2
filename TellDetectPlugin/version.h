@@ -17,7 +17,7 @@
 #define MAKE_VER(major, minor, release, test, sep)      MAKE_VER_(N, major, minor, release, test, sep)
 #define MAKE_VER_W(major, minor, release, test, sep)    MAKE_VER_(W, major, minor, release, test, sep)
 
-#define MODULE_FILE_DESC			"x14 Tell detect plugin\0"
+#define MODULE_FILE_DESC			"x14-2 Tell detect plugin\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
 #define MODULE_COPYRIGHT			"2010-2013 (c) North Edge.  All rights reserved.\0"
 #define MODULE_PRODUCT_NAME			"Windower for Final Fantasy XIV\0"

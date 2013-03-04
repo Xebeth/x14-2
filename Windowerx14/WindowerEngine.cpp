@@ -23,7 +23,6 @@
 #include "FormatChatMessageHook.h"
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
-#include "ReadConfigHook.h"
 #include "Direct3D9Hook.h"
 #ifdef _DEBUG
 	#include "TestHook.h"
@@ -55,51 +54,47 @@ namespace Windower
 	/*! \brief WindowerEngine constructor
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
-	WindowerEngine::WindowerEngine(const TCHAR *pConfigFile_in)
-		: PluginEngine(pConfigFile_in)
+	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
+		: PluginEngine(hModule_in, pConfigFile_in), m_bThreadInit(false),
+		  m_bShutdown(false), m_hGameWnd(NULL)
 	{
-		m_bThreadInit = false;
-		m_bShutdown = false;
-		m_hGameWnd = NULL;
-
 		// create the settings
-		m_pSettingsManager = new SettingsManager(pConfigFile_in);
-		// create the hook manager
-		m_pSettingsManager->LoadDefaultProfile(m_Settings);
+		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 
-		// create the services
-
-		// testing
+		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
+		{
+			// testing
 #if defined _DEBUG && defined _TESTING
-		m_pTestCore = new TestCore(*this);
-		RegisterModule(_T("Testing"), m_pTestCore);
+			m_pTestCore = new TestCore(*this);
+			RegisterModule(_T("Testing"), m_pTestCore);
 #endif // _DEBUG
-		// Win32 related hooks
-		m_pSystemCore = new SystemCore(*this);
-		// Commander dispatcher
-		m_pCommandDispatcher = new CommandDispatcher(*this);
-		// Commander parser
-		m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
-		// Game chat related hooks
-		m_pGameChatCore = new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
-		// Direct3D related hooks
-		m_pGraphicsCore = new GraphicsCore(*this, m_Settings.GetResX(), m_Settings.GetResY(), m_Settings.GetVSync());
+			// Win32 related hooks
+			m_pSystemCore = new SystemCore(*this);
+			// Commander dispatcher
+			m_pCommandDispatcher = new CommandDispatcher(*this);
+			// Commander parser
+			m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
+			// Game chat related hooks
+			m_pGameChatCore = NULL; // new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
+			// Direct3D related hooks
+			m_pGraphicsCore = NULL; // new GraphicsCore(*this, m_Settings.GetVSync());
 
-		m_pPluginManager->ListPlugins(m_pSettingsManager->GetPluginsAbsoluteDir(),
-									  PLUGIN_COMPATIBILITY_WINDOWER);
-		ICoreModule::SetPluginManager(*m_pPluginManager);
+			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
+										  PLUGIN_COMPATIBILITY_WINDOWER);
+			ICoreModule::SetPluginManager(*m_pPluginManager);
 
-		// load active plugins
-		const ActivePlugins &Plugins = m_Settings.GetActivePlugins();
-		ActivePlugins::const_iterator PluginIt;
+			// load active plugins
+			const ActivePlugins &Plugins = m_Settings.GetActivePlugins();
+			ActivePlugins::const_iterator PluginIt;
 
-		for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
-			PluginEngine::LoadPlugin(*PluginIt);
+			for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
+				PluginEngine::LoadPlugin(*PluginIt);
 
-		RegisterCommands();
+			RegisterCommands();
 
-		// injects the windower version on the main menu
-		m_pInjectVersion = new InjectVersion(m_pPluginServices);
+			// injects the windower version on the main menu
+			m_pInjectVersion = new InjectVersion(m_pPluginServices);
+		}
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -111,13 +106,13 @@ namespace Windower
 		// destroy before GameChatCore or any subscribed services
 		delete m_pInjectVersion;
 		m_pInjectVersion = NULL;
-
+/*
 		delete m_pGraphicsCore;
 		m_pGraphicsCore = NULL;
 
 		delete m_pGameChatCore;
 		m_pGameChatCore = NULL;
-
+*/
 		delete m_pCommandParser;
 		m_pCommandParser = NULL;
 
@@ -141,19 +136,22 @@ namespace Windower
 	*/
 	bool WindowerEngine::Attach()
 	{
-		CoreModules::const_iterator Iter;
-
-		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-			if (Iter->second != NULL)
-				Iter->second->RegisterHooks(m_HookManager);
-
-		if (m_HookManager.InstallRegisteredHooks())
+		if (m_pSystemCore != NULL)
 		{
+			CoreModules::const_iterator Iter;
+
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 				if (Iter->second != NULL)
-					Iter->second->OnHookInstall(m_HookManager);
+					Iter->second->RegisterHooks(m_HookManager);
 
-			return true;
+			if (m_HookManager.InstallRegisteredHooks())
+			{
+				for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+					if (Iter->second != NULL)
+						Iter->second->OnHookInstall(m_HookManager);
+
+				return true;
+			}
 		}
 
 		return false;

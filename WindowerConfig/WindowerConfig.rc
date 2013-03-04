@@ -60,7 +60,7 @@ END
 // Dialog
 //
 
-IDD_CONFIG_DIALOG DIALOGEX 0, 0, 285, 292
+IDD_CONFIG_DIALOG DIALOGEX 0, 0, 285, 316
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Windower configuration"
@@ -69,19 +69,17 @@ BEGIN
     COMBOBOX        IDC_PROFILES_COMBO,7,19,166,169,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Delete",IDC_DELETE_PROFILE,175,17,50,16
     PUSHBUTTON      "New Profile",IDC_NEW_PROFILE,228,17,50,16
-    COMBOBOX        IDC_RESX_COMBO,47,52,126,105,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_RESY_COMBO,47,68,126,105,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Vertical Sync",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,54,87,10
-    CONTROL         "Borderless",IDC_BORDERLESS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,70,87,10
-    CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,100,271,162
-    DEFPUSHBUTTON   "Launch",IDOK,122,269,50,16
-    PUSHBUTTON      "Save",IDC_SAVE,175,269,50,16
-    PUSHBUTTON      "Cancel",IDCANCEL,228,269,50,16
+    EDITTEXT        IDC_GAME_PATH,7,48,249,12,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BROWSE_GAME_PATH,259,48,19,12
+    CONTROL         "vSync / Triple buffering",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,7,80,97,10
+    CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,104,271,186
+    DEFPUSHBUTTON   "Launch",IDOK,122,293,50,16,WS_DISABLED
+    PUSHBUTTON      "Save",IDC_SAVE,175,293,50,16
+    PUSHBUTTON      "Cancel",IDCANCEL,228,293,50,16
     LTEXT           "Current profile :",IDC_STATIC,7,7,52,8
-    LTEXT           "Display resolution :",IDC_STATIC,7,38,62,8
-    LTEXT           "Width",IDC_STATIC,13,55,20,8
-    LTEXT           "Height",IDC_STATIC,13,71,22,8
-    LTEXT           "Plugins :",IDC_STATIC,7,87,28,8
+    LTEXT           "Game directory :",IDC_STATIC,7,36,54,8
+    LTEXT           "Plugins :",IDC_STATIC,7,92,28,8
+    LTEXT           "Graphics :",IDC_STATIC,7,69,33,8
 END
 
 
@@ -99,39 +97,61 @@ IDR_MAINFRAME           ICON                    "../Common/config.ico"
 // Version
 //
 
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x40004L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040c04b0"
-        BEGIN
-            VALUE "CompanyName", "North Edge"
-            VALUE "FileDescription", "Windower for Final Fantasy XIV"
-            VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "WindowerConfig.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2011 North Edge.  All rights reserved."
-            VALUE "OriginalFilename", "WindowerConfig.exe"
-            VALUE "ProductName", "Windower x14 Configurator"
-            VALUE "ProductVersion", "1.0.0.0"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x40c, 1200
-    END
-END
+#include "version.h"
 
+#if defined MODULE_MAJOR_VERSION   && defined MODULE_MINOR_VERSION && \
+	defined MODULE_RELEASE_VERSION && defined MODULE_TEST_VERSION
+	#include <verrsrc.h>
+
+	VS_VERSION_INFO VERSIONINFO
+		FILEVERSION MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION, MODULE_RELEASE_VERSION, MODULE_TEST_VERSION
+		PRODUCTVERSION MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION, 0, 0
+		FILEFLAGSMASK 0x3fL
+	#ifdef _DEBUG
+		FILEFLAGS 0x1L
+	#else
+		FILEFLAGS 0x0L
+	#endif
+	FILEOS 0x40004L
+	FILETYPE 0x2L
+	FILESUBTYPE 0x0L
+	BEGIN
+		BLOCK "StringFileInfo"
+		BEGIN
+			BLOCK "040c04b0"
+			BEGIN
+	#ifdef MODULE_COMPANY_NAME
+				VALUE "CompanyName", MODULE_COMPANY_NAME
+	#endif
+	#ifdef MODULE_FILE_DESC
+				VALUE "FileDescription", MODULE_FILE_DESC
+	#endif
+	#ifdef MODULE_PRODUCT_VERSION
+				VALUE "FileVersion", MODULE_PRODUCT_VERSION
+	#endif
+	#ifdef MODULE_FILENAME
+				VALUE "InternalName", MODULE_FILENAME
+	#endif
+	#ifdef MODULE_COPYRIGHT
+				VALUE "LegalCopyright", MODULE_COPYRIGHT
+	#endif
+	#ifdef MODULE_FILENAME
+				VALUE "OriginalFilename", MODULE_FILENAME
+	#endif
+	#ifdef MODULE_PRODUCT_NAME
+				VALUE "ProductName", MODULE_PRODUCT_NAME
+	#endif
+	#ifdef MODULE_PRODUCT_VERSION
+				VALUE "ProductVersion", MODULE_PRODUCT_VERSION
+	#endif
+			END
+		END
+		BLOCK "VarFileInfo"
+		BEGIN
+			VALUE "Translation", 0x40c, 1200
+		END
+	END
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -150,12 +170,14 @@ BEGIN
         VERTGUIDE, 173
         VERTGUIDE, 191
         TOPMARGIN, 7
-        BOTTOMMARGIN, 285
+        BOTTOMMARGIN, 309
         HORZGUIDE, 17
-        HORZGUIDE, 38
-        HORZGUIDE, 52
-        HORZGUIDE, 68
-        HORZGUIDE, 87
+        HORZGUIDE, 36
+        HORZGUIDE, 48
+        HORZGUIDE, 69
+        HORZGUIDE, 80
+        HORZGUIDE, 92
+        HORZGUIDE, 104
     END
 END
 #endif    // APSTUDIO_INVOKED

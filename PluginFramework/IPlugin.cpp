@@ -84,7 +84,7 @@ namespace PluginFramework
 
 	//! \brief PluginInfo constructor
 	PluginInfo::PluginInfo() : m_Initialized(false), m_hHandle(NULL),
-		m_CompatibilityFlags(0x00000001) {}
+		m_CompatibilityFlags(0U) {}
 
 	/*! \brief Retrieves the string representation of the plugin info
 		\return the string representation of the plugin info
@@ -178,5 +178,13 @@ namespace PluginFramework
 								const ServiceParam &Params_in)
 	{
 		return (m_pServices != NULL && m_pServices->InvokeService(ModuleName_in, ServiceName_in, Params_in));
+	}
+
+	/*! \brief Retrieves the configuration file path
+		\return the configuration file path
+	*/
+	const TCHAR* IPlugin::GetConfigFile()
+	{
+		return m_pServices->GetConfigFile();
 	}
 }

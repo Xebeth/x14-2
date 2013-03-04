@@ -15,7 +15,6 @@
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
-#include "ReadConfigHook.h"
 #include "Direct3D9Hook.h"
 #include "WndProcHook.h"
 
@@ -34,10 +33,9 @@ namespace Windower
 	*/
 	SystemCore::SystemCore(WindowerEngine &Engine_in_out) : WindowerCore(Engine_in_out)
 	{
-		m_pRegisterClassExWTrampoline = RegisterClassExW;
+		m_pRegisterClassExATrampoline = RegisterClassExA;
 		m_pCreateWindowExATrampoline = CreateWindowExA;
 		m_dwPID = GetCurrentProcessId();
-		m_pReadConfigTrampoline = NULL;
 		m_hMainThreadHandle = NULL;
 		m_MinimizeVKey = VK_F11;
 		m_pGameWndProc = NULL;
@@ -96,7 +94,7 @@ namespace Windower
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
 												   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
 
-			if (hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpWindowName_in, FFXIV_WINDOW_NAMEA) == 0)
+			if (hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)
 			{
 				// CreateEngineThread();
 				m_hGameWnd = hWnd_in;
@@ -111,21 +109,21 @@ namespace Windower
 		\param[in] pWndClass_in : pointer to a WNDCLASSEX structure
 		\return class atom that uniquely identifies the class being registered if successfuly; NULL otherwise
 	*/
-	ATOM SystemCore::RegisterClassExWHook(const WNDCLASSEXW *pWndClass_in)
+	ATOM SystemCore::RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in)
 	{
 		ATOM Result = 0L;
 
-		if (m_pRegisterClassExWTrampoline != NULL)
+		if (m_pRegisterClassExATrampoline != NULL)
 		{
-			WNDCLASSEXW *pWndClass = const_cast<WNDCLASSEXW *>(pWndClass_in);
+			WNDCLASSEXA *pWndClass = const_cast<WNDCLASSEXA *>(pWndClass_in);
 
-			if (_tcscmp(pWndClass->lpszClassName, FFXIV_WINDOW_CLASSW) == 0)
+			if (strcmp(pWndClass->lpszClassName, FFXIV_WINDOW_CLASSA) == 0)
 			{
 				m_pGameWndProc = pWndClass->lpfnWndProc;
 				pWndClass->lpfnWndProc = ::WndProcHook;
 			}
 
-			Result = m_pRegisterClassExWTrampoline(pWndClass);
+			Result = m_pRegisterClassExATrampoline(pWndClass);
 		}
 
 		return Result;
@@ -150,6 +148,7 @@ namespace Windower
 		switch (uMsg_in)
 		{
 			case WM_NCDESTROY:
+			case WM_QUIT:
 				// start shutting down the engine
 				static_cast<WindowerEngine&>(m_Engine).OnShutdown();
 				// remove the WndProc hook before the game window is destroyed
@@ -159,9 +158,11 @@ namespace Windower
 			case WM_KEYUP:
 				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
 			break;
+/*
 			case WM_ACTIVATE:
 				if (wParam_in == WA_ACTIVE)
 					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(true);
+*/
 			break;
 		}
 
@@ -208,26 +209,10 @@ namespace Windower
 	*/
 	void SystemCore::RegisterHooks(IHookManager &HookManager_in)
 	{
-		// register the RegisterClassExW hook
-		HookManager_in.RegisterHook("RegisterClassExW", "user32.dll", RegisterClassExW, ::RegisterClassExWHook);
+		// register the RegisterClassExA hook
+		HookManager_in.RegisterHook("RegisterClassExA", "user32.dll", RegisterClassExA, ::RegisterClassExAHook);
 		// register the CreateWindowExA hook 
 		HookManager_in.RegisterHook("CreateWindowExA", "user32.dll", CreateWindowExA, ::CreateWindowExAHook);
-		// register the ReadConfig hook
-		SigScan::SigScan MemScan;
-		DWORD_PTR dwFuncAddr;
-
-		MemScan.Initialize(GetCurrentProcessId(), SIGSCAN_GAME_PROCESSW);
-
-		dwFuncAddr = MemScan.Scan(READ_CONFIG_OPCODES_SIGNATURE,
-								  READ_CONFIG_OPCODES_OFFSET);
-		// set m_pReadConfigTrampoline with the address of the original function in case of failure
-		m_pReadConfigTrampoline = (fnReadConfig)dwFuncAddr;
-
-		if (dwFuncAddr != NULL)
-		{
-			HookManager_in.RegisterHook("ReadConfig", SIGSCAN_GAME_PROCESSA,
-										(LPVOID)dwFuncAddr, ::ReadConfigHook);
-		}
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -235,30 +220,7 @@ namespace Windower
 	*/
 	void SystemCore::OnHookInstall(IHookManager &HookManager_in)
 	{
-		m_pRegisterClassExWTrampoline = (fnRegisterClassExW)HookManager_in.GetTrampolineFunc("RegisterClassExW");
+		m_pRegisterClassExATrampoline = (fnRegisterClassExA)HookManager_in.GetTrampolineFunc("RegisterClassExA");
 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
-		m_pReadConfigTrampoline = (fnReadConfig)HookManager_in.GetTrampolineFunc("ReadConfig");
-	}
-
-	/*! \brief Reads the config.sys file
-		\param[in] pConfigData_out : the buffer receiving the configuration data
-		\return unknown value
-	*/
-	int SystemCore::ReadConfigHook(BYTE *pConfigData_out)
-	{
-		int Result = m_pReadConfigTrampoline(pConfigData_out);
-
-		if (pConfigData_out != NULL)
-		{
-			const Windower::WindowerProfile &Profile = static_cast<WindowerEngine&>(m_Engine).Settings();
-
-			// force borderless
-			*reinterpret_cast<long*>(pConfigData_out + CONFIG_FULLSCREEN_OFFSET) = Profile.GetBorderless();
-			// force the game resolution
-			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESX_OFFSET) = Profile.GetResX();
-			*reinterpret_cast<long*>(pConfigData_out + CONFIG_RESY_OFFSET) = Profile.GetResY();
-		}
-
-		return Result;
 	}
 }

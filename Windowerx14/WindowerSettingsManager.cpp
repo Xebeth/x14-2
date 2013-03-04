@@ -17,26 +17,30 @@ namespace Windower
 	/*! \brief SettingsManager constructor
 		\param[in] pIniFile_in : the path of the configuration file
 	*/
-	SettingsManager::SettingsManager(const TCHAR *pIniFile_in)
-		: m_PluginsDir(DEFAULT_PLUGINS_DIR)
+	SettingsManager::SettingsManager(const TCHAR *pWorkingDir_in, const TCHAR *pIniFile_in)
+		: m_WorkingDir(pWorkingDir_in)
 	{
 		bool bEmpty = true;
 
-		if (pIniFile_in != NULL)
+		if (pIniFile_in != NULL && pWorkingDir_in != NULL)
 		{
-			m_pSettingsFile = new SettingsIniFile(pIniFile_in);
+			if (m_WorkingDir.back() != '\\')
+				m_WorkingDir += '\\';
+
+			m_ConfigPath = m_WorkingDir + pIniFile_in;
+			m_pSettingsFile = new SettingsIniFile(m_ConfigPath);
 
 			if (m_pSettingsFile->Load())
 				bEmpty = !Load();
+
+			if (bEmpty)
+			{
+				CreateDefaultProfile(INI_DEFAULT_CURRENT_PROFILE);
+				Save();
+			}
 		}
 		else
 			m_pSettingsFile = NULL;
-
-		if (bEmpty)
-		{
-			CreateDefaultProfile();
-			Save();
-		}
 	}
 
 	//! \brief SettingsManager destructor
@@ -127,20 +131,9 @@ namespace Windower
 
 				if (pProfile != NULL)
 				{
-					LONG ResX = pProfile->GetResX();
-					LONG ResY = pProfile->GetResY();
 					pName = pProfile->GetName();
 
-					// the engine forces a minimal resolution of 1024x720
-					if (ResX < 1024L)
-						ResX = 1024L;
-					if (ResY < 720L)
-						ResY = 720L;
-
-					m_pSettingsFile->SetLong(pName, _T("ResX"), ResX);
-					m_pSettingsFile->SetLong(pName, _T("ResY"), ResY);
-					m_pSettingsFile->SetLong(pName, _T("VSync"), pProfile->GetVSync());
-					m_pSettingsFile->SetLong(pName, _T("Borderless"), pProfile->GetBorderless());
+					m_pSettingsFile->SetLong(pName, INI_KEY_VSYNC, pProfile->GetVSync());
 
 					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
 					ActivePlugins::size_type Count = Plugins.size(), Index = 0;
@@ -156,7 +149,7 @@ namespace Windower
 					}
 
 					if (PluginList.empty() == false)
-						m_pSettingsFile->SetString(pName, _T("Plugins"), PluginList);
+						m_pSettingsFile->SetString(pName, INI_KEY_PLUGINS, PluginList);
 				}
 			}
 
@@ -170,7 +163,8 @@ namespace Windower
 			if (GetSettings(m_DefaultProfile.c_str()) == NULL && m_Profiles.empty() == false)
 				m_DefaultProfile = m_Profiles.begin()->first;
 
-			m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, m_DefaultProfile);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, m_GamePath);
 
 			return m_pSettingsFile->Save();
 		}
@@ -185,34 +179,12 @@ namespace Windower
 	*/
 	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out)
 	{
-		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
-			LONG ResX = m_pSettingsFile->GetLong(pProfileName_in, _T("ResX"), GetSystemMetrics(SM_CXSCREEN));
-			LONG ResY = m_pSettingsFile->GetLong(pProfileName_in, _T("ResY"), GetSystemMetrics(SM_CYSCREEN));
-			bool ForceSave = false;
-
-			if (ResX < 1024)
-			{
-				m_pSettingsFile->SetLong(pProfileName_in, _T("ResX"), 1024);
-				ForceSave = true;
-				ResX = 1024;
-			}
-			if (ResY < 720)
-			{
-				m_pSettingsFile->SetLong(pProfileName_in, _T("ResY"), 720);
-				ForceSave = true;
-				ResY = 720;
-			}
-
-			if (ForceSave)
-				m_pSettingsFile->Save();
-
-			Settings_out.SetBorderless(m_pSettingsFile->GetLong(pProfileName_in, _T("Borderless"), 1L));
-			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, _T("VSync"), 0L));
-			Settings_out.SetResolution(ResX, ResY);
+			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_VSYNC, INI_DEFAULT_VSYNC));
 			Settings_out.SetName(pProfileName_in);
 
-			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, _T("Plugins"));
+			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, INI_KEY_PLUGINS, INI_DEFAULT_PLUGINS);
 			string_t::size_type Pos, Offset = 0;
 			string_t Current;
 
@@ -254,10 +226,7 @@ namespace Windower
 	*/
 	bool SettingsManager::Reload()
 	{
-		if (m_pSettingsFile != NULL)
-			return m_pSettingsFile->Reload();
-
-		return false;
+		return (m_pSettingsFile != NULL) ? m_pSettingsFile->Reload() : false;
 	}
 
 	/*! \brief Loads the configuration
@@ -272,11 +241,13 @@ namespace Windower
 			SectionsIterator SectionIter;
 			bool Exists, Result = false;
 			WindowerProfile *pSettings;
-			
 
-			SetDefaultProfile(m_pSettingsFile->GetString(_T("General"), _T("CurrentProfile"), DEFAULT_PROFILE_NAME));
-			SetPluginsDir(m_pSettingsFile->GetString(_T("General"), _T("PluginsDir"), DEFAULT_PLUGINS_DIR));
-
+			// verify the configuration
+			VerifyConfig();
+			// get the general parameters
+			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE));
+			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));
+			// load the sections
 			m_pSettingsFile->GetSections(Sections);
 
 			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
@@ -315,19 +286,20 @@ namespace Windower
 	/*! \brief Creates the default profile
 		\return true if successful; false otherwise
 	*/
-	bool SettingsManager::CreateDefaultProfile()
+	bool SettingsManager::CreateDefaultProfile(const TCHAR *pProfileName_in)
 	{
-		if (m_pSettingsFile == NULL)
-			return false;
+		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+		{
+			WindowerProfile Settings(pProfileName_in, TRUE);
 
-		LONG ResX = GetSystemMetrics(SM_CXSCREEN);
-		LONG ResY = GetSystemMetrics(SM_CYSCREEN);
-		WindowerProfile Settings(ResX, ResY, TRUE, TRUE, DEFAULT_PROFILE_NAME);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, pProfileName_in);
 
-		SetDefaultProfile(DEFAULT_PROFILE_NAME);
-		m_pSettingsFile->SetString(_T("General"), _T("CurrentProfile"), m_DefaultProfile);
+			SetDefaultProfile(pProfileName_in);
 
-		return DuplicateProfile(DEFAULT_PROFILE_NAME, Settings) != NULL;
+			return (DuplicateProfile(pProfileName_in, Settings) != NULL);
+		}
+
+		return false;
 	}
 
 	/*! \brief Retrieves the position of the profile specified by its name
@@ -364,8 +336,6 @@ namespace Windower
 
 		if (pProfile != NULL)
 		{
-			pProfile->SetResolution(Src_in.GetResX(), Src_in.GetResY());
-			pProfile->SetBorderless(Src_in.GetBorderless());
 			pProfile->SetVSync(Src_in.GetVSync());
 			pProfile->SetName(Src_in.GetName());
 		}
@@ -463,6 +433,139 @@ namespace Windower
 					}
 				}
 			}
+		}
+
+		return false;
+	}
+
+	/*! \brief Asks the user to select a folder
+		\param[out] SelectedDir_out : a string receiving the path to the selected folder
+		\return true if the path was selected; false otherwise
+	*/
+	bool SettingsManager::SelectDirectory(string_t &SelectedDir_out) const
+	{
+		LPCITEMIDLIST pSelectedPIDL = NULL;
+		LPITEMIDLIST PIDL = NULL;
+		BROWSEINFO BrowseInfo;
+		bool Result = false;
+
+		SecureZeroMemory(&BrowseInfo, sizeof(BrowseInfo));
+
+		CoInitialize(NULL);
+		SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &PIDL);
+
+		BrowseInfo.hwndOwner = NULL;
+		BrowseInfo.pidlRoot = PIDL;
+		BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NONEWFOLDERBUTTON | BIF_USENEWUI | BIF_RETURNFSANCESTORS;
+		BrowseInfo.lpszTitle = _T("Please select the Final Fantasy XIV installation folder or type the complete path in the edit box below:");
+
+		// select the directory manually
+		pSelectedPIDL = SHBrowseForFolder(&BrowseInfo);
+
+		if (pSelectedPIDL != NULL)
+		{
+			LPTSTR pPathBuffer = new TCHAR[_MAX_PATH];
+
+			if (SHGetPathFromIDList(pSelectedPIDL, pPathBuffer))
+			{
+				SelectedDir_out.assign(pPathBuffer);
+
+				if (SelectedDir_out.back() != '\\')
+					SelectedDir_out += '\\';
+
+				Result = true;				
+			}
+
+			delete[] pPathBuffer;
+		}
+
+		CoUninitialize();
+
+		return Result;
+	}
+
+	/*! \brief Checks that the specified game path contains a 'boot' and 'game' directory
+		\return true if the path is valid; false otherwise
+	*/
+	bool SettingsManager::CheckGamePath(const string_t &GamePath_in) const
+	{
+		string_t BootPath = GamePath_in + BOOT_SUBFOLDER;
+		string_t GamePath = GamePath_in + GAME_SUBFOLDER;
+		DWORD Attributes;		
+
+		Attributes = GetFileAttributes(BootPath.c_str());
+
+		if (Attributes == INVALID_FILE_ATTRIBUTES || (Attributes & FILE_ATTRIBUTE_DIRECTORY) == 0UL)
+			return false;
+
+		Attributes = GetFileAttributes(GamePath.c_str());
+
+		if (Attributes == INVALID_FILE_ATTRIBUTES || (Attributes & FILE_ATTRIBUTE_DIRECTORY) == 0UL)
+			return false;
+
+		return true;
+	}
+
+	/*! \brief Checks the configuration file and attempts to fix errors
+		\return true if the configuration file is valid; false otherwise
+	*/
+	bool SettingsManager::VerifyConfig()
+	{
+		if (m_pSettingsFile != NULL)
+		{
+			const TCHAR *pFirstProfile = NULL;
+			bool bSave = false;
+
+			// 1. Check that the general section exists
+			if (m_pSettingsFile->SectionExists(INI_SECTION_GENERAL) == false)
+			{
+				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE);
+				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH);
+				bSave = true;
+			}
+
+			// 2. Remove outdated entries
+			const TCHAR *pOutdatedKeys[3] = { _T("ResX"), _T("ResY"), _T("Borderless") };
+			CSimpleIni::TNamesDepend Sections;
+			SectionsIterator SectionIter;
+
+			// load the sections
+			m_pSettingsFile->GetSections(Sections);
+
+			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
+			{
+				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
+				{
+					if (pFirstProfile == NULL)
+						pFirstProfile = SectionIter->pItem;
+
+					for (int i = 0; i < 3; ++i)
+						bSave |= m_pSettingsFile->DeleteKey(SectionIter->pItem, pOutdatedKeys[i]);
+				}
+			}
+
+			// 3. Check if the default profile exists
+			string_t DefaultProfile = m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE);
+
+			if (DefaultProfile.empty())
+			{
+				// set the first profile as default
+				if (pFirstProfile == NULL)
+					pFirstProfile = INI_DEFAULT_CURRENT_PROFILE;
+
+				SetDefaultProfile(pFirstProfile);
+				DefaultProfile = pFirstProfile;				
+				bSave = true;
+			}
+
+			if (m_pSettingsFile->SectionExists(DefaultProfile) == false)
+				bSave |= CreateDefaultProfile(DefaultProfile.c_str());
+
+			if (bSave)
+				Save();
+
+			// 4. Check if the game path is correct
+			return CheckGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));
 		}
 
 		return false;

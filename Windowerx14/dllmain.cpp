@@ -27,11 +27,11 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 	if (dwReason_in == DLL_PROCESS_ATTACH) 
 	{
 #ifdef _DEBUG
-		Sleep(5000);
+		// Sleep(5000);
 #endif // _DEBUG
 		if (g_pEngine == NULL)
 		{
-			g_pEngine = new Windower::WindowerEngine(_T("config.ini"));
+			g_pEngine = new Windower::WindowerEngine(hModule_in, _T("config.ini"));
 			bResult = g_pEngine->Attach();
 		}
 	}

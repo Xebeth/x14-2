@@ -5,14 +5,13 @@
 #define IDD_CONFIG_DIALOG               100
 #define IDR_MAINFRAME                   128
 #define IDC_PROFILES_COMBO              1000
-#define IDC_RESX_COMBO                  1001
-#define IDC_RESY_COMBO                  1002
-#define IDC_NEW_PROFILE                 1003
-#define IDC_VSYNC                       1004
-#define IDC_DELETE_PROFILE              1005
-#define IDC_PLUGIN_LIST                 1006
-#define IDC_SAVE                        1007
-#define IDC_BORDERLESS                  1008
+#define IDC_NEW_PROFILE                 1001
+#define IDC_VSYNC                       1002
+#define IDC_BROWSE_GAME_PATH            1003
+#define IDC_DELETE_PROFILE              1004
+#define IDC_PLUGIN_LIST                 1005
+#define IDC_SAVE                        1006
+#define IDC_GAME_PATH                   1007
 
 // Next default values for new objects
 // 
@@ -20,7 +19,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
