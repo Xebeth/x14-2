@@ -15,6 +15,9 @@
 #define TEXT_COLOR_END_LEN 10
 #define TEXT_CHAT_PAUSE_LEN 5
 
+#define TEXT_ARROW "\xe2\x87\x92 "
+#define TEXT_ARROW_LEN 3
+
 typedef struct _StringNode
 {
 	char		*pResBuf;		// +4
@@ -27,16 +30,22 @@ typedef struct _StringNode
 
 enum CHAT_MESSAGE_TYPE
 {
-	CHAT_MESSAGE_TYPE_SAY_MESSAGE				= 0x0001,	//!< say
-	CHAT_MESSAGE_TYPE_SHOUT_MESSAGE				= 0x0002,	//!< shout
-	CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE		= 0x0003,	//!< incoming tell
+	CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE			= 0x0003,	//!< system
+	CHAT_MESSAGE_TYPE_SAY_MESSAGE				= 0x000A,	//!< say
+	CHAT_MESSAGE_TYPE_SHOUT_MESSAGE				= 0x000B,	//!< shout
+	CHAT_MESSAGE_TYPE_OUTGOING_TELL_MESSAGE		= 0x000C,	//!< outgoing tell
+	CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE		= 0x000D,	//!< incoming tell
 	CHAT_MESSAGE_TYPE_PARTY_MESSAGE				= 0x0004,	//!< party
 	CHAT_MESSAGE_TYPE_LINKSHELL_MESSAGE			= 0x0011,	//!< linkshell
-	CHAT_MESSAGE_TYPE_OUTGOING_TELL_MESSAGE		= 0x000D,	//!< outgoing tell
-	CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE			= 0x001D,	//!< system
-	CHAT_MESSAGE_TYPE_ECHO_MESSAGE				= 0x0020,	//!< echo
 	CHAT_MESSAGE_TYPE_INVALID_MESSAGE			= 0x0021,	//!< invalid
+	CHAT_MESSAGE_TYPE_ECHO_MESSAGE				= 0x0038,	//!< echo
+	CHAT_MESSAGE_TYPE_SANCTUARY					= 0x0039,	//!< sanctuary?
+	CHAT_MESSAGE_TYPE_ERROR_MESSAGE				= 0x003C,	//!< error
 	CHAT_MESSAGE_TYPE_BATTLE_MESSAGE			= 0x0067,	//!< battle
+
+	BATTLE_MESSAGE_TYPE_ABILITY					= 0x042B,	//!< ability
+	BATTLE_MESSAGE_TYPE_ABILITY_RESULT			= 0x042C,	//!< ability result?
+	BATTLE_MESSAGE_TYPE_STATUS_EFFECT			= 0x04AE,	//!< status effect
 };
 
 namespace Windower

@@ -36,8 +36,8 @@ namespace Windower
 		void OnHookInstall(IHookManager &HookManager_in);
 
 		//! \brief OnChatMessage hook
-		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, 
-								   StringNode* pSender_in_out, StringNode* pMessage_in_out);
+		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
+								   StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
 
 		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in = -1);
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);

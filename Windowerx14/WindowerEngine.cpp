@@ -75,7 +75,7 @@ namespace Windower
 			// Commander parser
 			m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
 			// Game chat related hooks
-			m_pGameChatCore = NULL; // new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
+			m_pGameChatCore = new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
 			// Direct3D related hooks
 			m_pGraphicsCore = NULL; // new GraphicsCore(*this, m_Settings.GetVSync());
 
@@ -109,10 +109,10 @@ namespace Windower
 /*
 		delete m_pGraphicsCore;
 		m_pGraphicsCore = NULL;
-
+*/
 		delete m_pGameChatCore;
 		m_pGameChatCore = NULL;
-*/
+
 		delete m_pCommandParser;
 		m_pCommandParser = NULL;
 

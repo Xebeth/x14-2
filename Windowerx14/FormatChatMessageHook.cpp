@@ -28,9 +28,9 @@ extern Windower::WindowerEngine *g_pEngine;
 	\param[in,out] pMessage_in_out : the message
 	\return true if the message was formatted successfully; false otherwise
 */
-bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out)
+bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
 {
-	return g_pEngine->GameChat().FormatChatMessageHook(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out);
+	return g_pEngine->GameChat().FormatChatMessageHook(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out, pTimestamp_in);
 }
 
 /*! \brief Creates a text node from the specified string

@@ -88,7 +88,7 @@ namespace Windower
 			HookManager_in.RegisterHook("OnChatMessage", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::FormatChatMessageHook, FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 		}
-
+/*
 		dwFuncAddr = MemScan.Scan(CREATETEXTNODE_OPCODES_SIGNATURE,
 								  CREATETEXTNODE_OPCODES_SIGNATURE_OFFSET);
 		// set m_pCreateTextNodeTrampoline with the address of the original function in case of failure
@@ -99,6 +99,7 @@ namespace Windower
 			HookManager_in.RegisterHook("CreateTextNode", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr,
 										::CreateTextNodeHook, CREATETEXTNODE_OPCODES_HOOK_SIZE);
 		}
+*/
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -120,12 +121,13 @@ namespace Windower
 
 		if (ServiceName_in.compare(_T("OnChatMessage")) == 0)
 			m_ChatFormatSubscribers = Subscribers_in;
+/*
 		if (ServiceName_in.compare(_T("CreateTextNode")) == 0)
 		{
 			m_bCreateTextNodeSubEmpty = Subscribers_in.empty();
 			m_CreateTextNodeSubscribers = Subscribers_in;
 		}
-
+*/
 		LeaveCriticalSection(&m_Lock);
 	}
 
@@ -148,7 +150,7 @@ namespace Windower
 	bool GameChatCore::FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
 									  StringNode* pSender_in_out, StringNode* pMessage_in_out)
 	{
-		if (pMessage_in_out != NULL && pMessage_in_out->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_INVALID_MESSAGE)
+		if (pMessage_in_out != NULL && pMessage_in_out->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_ECHO_MESSAGE)
 		{
 			// the message starts with 2 forward slashes => expect a command
 			if (strstr(pMessage_in_out->pResBuf, "//") == pMessage_in_out->pResBuf)
@@ -214,7 +216,7 @@ namespace Windower
 			}
 			// display the error message instead of the typed command
 			Result = m_pFormatChatMessageTrampoline(pThis_in_out, MessageType_in,
-													pSender_in_out, pMessage_in_out);
+													pSender_in_out, pMessage_in_out, NULL);
 			// restore the original message and sender
 			pSender_in_out->dwSize = dwOriginalSenderSize;
 			pMessage_in_out->dwSize = dwOriginalMgsSize;
@@ -236,9 +238,34 @@ namespace Windower
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
-	bool GameChatCore::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in,
-											 StringNode* pSender_in_out, StringNode* pMessage_in_out)
+	bool GameChatCore::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
+											 StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
 	{
+#ifdef _DEBUG
+		switch(MessageType_in)
+		{
+			case CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE:
+			case CHAT_MESSAGE_TYPE_SAY_MESSAGE:
+			case CHAT_MESSAGE_TYPE_SHOUT_MESSAGE:
+			case CHAT_MESSAGE_TYPE_OUTGOING_TELL_MESSAGE:
+			case CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE:
+			case CHAT_MESSAGE_TYPE_PARTY_MESSAGE:
+			case CHAT_MESSAGE_TYPE_LINKSHELL_MESSAGE:
+			case CHAT_MESSAGE_TYPE_INVALID_MESSAGE:
+			case CHAT_MESSAGE_TYPE_ECHO_MESSAGE:
+			case CHAT_MESSAGE_TYPE_SANCTUARY:
+			case CHAT_MESSAGE_TYPE_ERROR_MESSAGE:
+			case CHAT_MESSAGE_TYPE_BATTLE_MESSAGE:
+			case BATTLE_MESSAGE_TYPE_ABILITY:
+			case BATTLE_MESSAGE_TYPE_ABILITY_RESULT:
+			case BATTLE_MESSAGE_TYPE_STATUS_EFFECT:			
+				// known message
+			break;
+			default:
+				string_t Dummy;
+		}
+#endif // _DEBUG \xe2\x87\x92
+
 		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
 		{
 			DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;

@@ -11,14 +11,16 @@
 #include <ICreateTextNodePlugin.h>
 
 // int __thiscall sub_4CCB50(void *this, unsigned __int16 a2, int a3, int a4) => search for %04X in disassembly
-typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out);
-bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out);
+typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
+bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out, StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
 
 #define FORMAT_CHAT_HEAD_POINTER_OFFSET					64
 #define FORMAT_CHAT_TAIL_POINTER_OFFSET					68
 
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@78010000??A3000000000F"
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-60
+														 //81ECAC0200008B8424B80200005355578BF9		2013-03-01
+														 //81ECAC0200008B8424B80200005355578BF9		2013-03-08
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@81EC????00008B8424????00005355578BF9"
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-18
 #define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 13
 
 #define CREATETEXTNODE_OPCODES_SIGNATURE				"@@538B5C2408568BF1BA01000000"

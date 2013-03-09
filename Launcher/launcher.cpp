@@ -33,7 +33,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	DWORD CreationFlags(CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT);
 	TCHAR DirPath[_MAX_PATH] = { '\0' };
 	PROCESS_INFORMATION ProcessInfo;
-	string_t DLL32Path, ExePath;
+	TCHAR *pCmdLine = NULL;
+	string_t DLL32Path, ExePath;	
 
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 
@@ -41,8 +42,21 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	if (SettingsMgr.IsGamePathValid())
 	{
-		format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
+#ifdef _DEBUG
+		pCmdLine = _T("\"DEV.TestSID=f224fc939ad28432d1ea4ffa48dfccce\"")
+				   _T(" \"DEV.UseSqPack=1\" \"DEV.DataPathType=1\"")
+				   _T(" \"DEV.LobbyHost=neolobby01.ffxiv.com\"")
+				   _T("\"SYS.LobbyHost=neolobby01.ffxiv.com\"")
+				   _T(" \"SYS.Region=3\"")
+				   _T(" \"language=1\"")
+				   _T(" \"ver=2013.03.07.0000.0000\"");
+
+		format(ExePath, _T("%sgame\\ffxiv.exe"), SettingsMgr.GetGamePath());
+		format(DLL32Path, _T("%s\\windowerx14.dll"), DirPath);
+#else
 		format(ExePath, _T("%sboot\\ffxivboot.exe"), SettingsMgr.GetGamePath());
+		format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
+#endif // _DEBUG
 
 		if (lpCmdLine != NULL && _tcslen(lpCmdLine) > 0U)
 		{
@@ -73,7 +87,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			}
 		}
 
-		return (InjectModule::CreateProcessEx(ExePath, ProcessInfo, NULL, CreationFlags,
+		return (InjectModule::CreateProcessEx(ExePath, ProcessInfo, pCmdLine, CreationFlags,
 											  DLL32Path.c_str(), NULL) == FALSE);
 	}
 	else

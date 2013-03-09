@@ -37,8 +37,11 @@ namespace Windower
 		{
 			convert_ansi(m_pSettings->GetFormat(), m_TimestampFormat);
 			m_TimestampFormat += " ";
-			m_TimestampLength = m_TimestampFormat.length();
 		}
+		else
+			m_TimestampFormat = "[HH:mm:ss] ";
+
+		m_TimestampLength = m_TimestampFormat.length();
 	}
 
 	//! \brief TimestampPlugin destructor

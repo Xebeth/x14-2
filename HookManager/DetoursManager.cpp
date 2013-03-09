@@ -63,7 +63,7 @@ namespace HookEngineLib
 			{
 				// try to find it in the module
 				pHook_in_out->m_pOriginalFunc = DetourFindFunction(pHook_in_out->m_sModuleName.c_str(),
-															pHook_in_out->m_sFuncName.c_str());
+																   pHook_in_out->m_sFuncName.c_str());
 			}
 
 			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
@@ -84,8 +84,8 @@ namespace HookEngineLib
 					{
 						// use DetourClassFunc (Azorbix@Game Deception)
 						pHook_in_out->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
-																   (LPBYTE)pHook_in_out->m_pHookFunc,
-																   pHook_in_out->m_dwOpCodesSize);
+																		  (LPBYTE)pHook_in_out->m_pHookFunc,
+																		  pHook_in_out->m_dwOpCodesSize);
 						// flag the hook has been installed (no real way to check success)
 						pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
 					}

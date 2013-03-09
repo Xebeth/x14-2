@@ -94,7 +94,7 @@ namespace Windower
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
 												   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
 
-			if (hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)
+			if (m_hGameWnd == NULL && hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)
 			{
 				// CreateEngineThread();
 				m_hGameWnd = hWnd_in;
