@@ -2,10 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by WindowerConfig.rc
 //
-#define MODULE_MINOR_VERSION            0
-#define MODULE_RELEASE_VERSION          0
-#define MODULE_TEST_VERSION             0
-#define MODULE_MAJOR_VERSION            2
+
 #define IDD_CONFIG_DIALOG               100
 #define IDR_MAINFRAME                   128
 #define IDC_PROFILES_COMBO              1000
