@@ -8,11 +8,7 @@
 #include "stdafx.h"
 #include "HookEngine.h"
 
-#ifdef _DEBUG
-	#pragma comment(lib, "detours_d.lib")
-#else
-	#pragma comment(lib, "detours.lib")
-#endif // _DEBUG
+#pragma comment(lib, "detours.lib")
 
 namespace HookEngineLib
 {

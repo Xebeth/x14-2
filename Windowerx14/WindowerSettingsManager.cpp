@@ -134,6 +134,7 @@ namespace Windower
 					pName = pProfile->GetName();
 
 					m_pSettingsFile->SetLong(pName, INI_KEY_VSYNC, pProfile->GetVSync());
+					m_pSettingsFile->SetLong(pName, INI_KEY_LNG, pProfile->GetLanguage(), INI_COMMENT_LNG);
 
 					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
 					ActivePlugins::size_type Count = Plugins.size(), Index = 0;
@@ -182,6 +183,7 @@ namespace Windower
 		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
 			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_VSYNC, INI_DEFAULT_VSYNC));
+			Settings_out.SetLanguage(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_LNG, INI_DEFAULT_LNG));
 			Settings_out.SetName(pProfileName_in);
 
 			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, INI_KEY_PLUGINS, INI_DEFAULT_PLUGINS);
@@ -290,7 +292,7 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			WindowerProfile Settings(pProfileName_in, TRUE);
+			WindowerProfile Settings(pProfileName_in, INI_DEFAULT_LNG, INI_DEFAULT_VSYNC);
 
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, pProfileName_in);
 

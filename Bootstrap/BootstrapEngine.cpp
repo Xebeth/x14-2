@@ -173,4 +173,37 @@ namespace Bootstrap
 
 		return Windower::DISPATCHER_RESULT_INVALID_CALL;
 	}
+
+	/*! \brief Replaces the parameters from the command line with user settings
+		\param[in,out] CmdLine_in_out : the command line to modify
+		\return true if the command line was modified; false otherwise
+	*/
+	bool BootstrapEngine::UpdateCmdLineFromSettings(string_t &CmdLine_in_out)
+	{
+		std::list<string_t> Parameters;
+		string_t Token, LngParam;
+
+		// break up the command line in parameters
+		tokenize<TCHAR>(CmdLine_in_out, Parameters, _T(" "), _T("\""));
+
+		while(Parameters.empty() == false)
+		{
+			Token = Parameters.front();
+			Parameters.pop_front();
+
+			if (Token.find(_T("language")) != STRING_T_NPOS)
+			{
+				// retrieve the language setting from the current profile
+				long Lng = m_pSettings->GetLanguage();
+
+				// replace the language by the user setting
+				format(LngParam, _T("language=%ld"), Lng);
+				replace(CmdLine_in_out, Token, LngParam);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

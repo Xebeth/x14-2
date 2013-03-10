@@ -139,10 +139,10 @@ namespace Settings
 		\param[in] Key_in : the name of the key
 		\param[in] NewValue_in : the new value for the key
 	*/
-	void SettingsIniFile::SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in)
+	void SettingsIniFile::SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in)
 	{
 		if (m_pIni != NULL)
-			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in);
+			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in, pComment_in);
 	}
 
 	/*! \brief Sets the specified key value as an hexadecimal representation of a long in the specified section
@@ -150,10 +150,10 @@ namespace Settings
 		\param[in] Key_in : the name of the key
 		\param[in] NewValue_in : the new value for the key
 	*/
-	void SettingsIniFile::SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in)
+	void SettingsIniFile::SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in)
 	{
 		if (m_pIni != NULL)
-			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in, NULL, true);
+			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in, pComment_in, true);
 	}
 
 	/*! \brief Retrieves the string value corresponding to the specified key and section
@@ -175,10 +175,10 @@ namespace Settings
 		\param[in] Key_in : the name of the key
 		\param[in] NewValue_in : the new value for the key
 	*/
-	void SettingsIniFile::SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in) 
+	void SettingsIniFile::SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in) 
 	{
 		if (m_pIni != NULL)
-			m_pIni->SetValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in.c_str());
+			m_pIni->SetValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in.c_str(), pComment_in);
 	}
 
 	/*! \brief Retrieves a collection of all the sections in the INI file
@@ -218,5 +218,31 @@ namespace Settings
 	bool SettingsIniFile::DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const
 	{
 		return (m_pIni != NULL) ? m_pIni->DeleteKey(SectionName_in.c_str(), KeyName_in.c_str()) : false;
+	}
+
+	/*! \brief 
+	*/
+	string_t SettingsIniFile::GetSettingsPath() const
+	{
+		string_t::size_type Pos = m_SourceFile.find_last_of('\\');
+		string_t Path;
+
+		if (Pos != STRING_T_NPOS)
+			Path = m_SourceFile.substr(0, Pos + 1);
+
+		return Path;
+	}
+
+	/*! \brief 
+	*/
+	string_t SettingsIniFile::GetSettingsDrive() const
+	{
+		string_t::size_type Pos = m_SourceFile.find_first_of('\\');
+		string_t Path;
+
+		if (Pos != STRING_T_NPOS)
+			Path = m_SourceFile.substr(0, Pos + 1);
+
+		return Path;
 	}
 }

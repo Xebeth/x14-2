@@ -59,9 +59,9 @@ namespace HookEngineLib
 		void RegisterHook(const char* pFuncName_in, const char* pModuleName_in, LPVOID pOriginalFunc_in,
 						  LPVOID pHookFunc_in, DWORD dwOpCodeSize_in = 0);
 		void UnregisterHook(const char* pFuncName_in);
-		LPVOID GetTrampolineFunc(const char* pFuncName_in);
-		LPVOID GetOriginalFunc(const char* pFuncName_in);
-		LPVOID GetHookFunc(const char* pFuncName_in);
+		LPVOID GetTrampolineFunc(const char* pFuncName_in) const;
+		LPVOID GetOriginalFunc(const char* pFuncName_in) const;
+		LPVOID GetHookFunc(const char* pFuncName_in) const;
 
 		virtual bool InstallHook(const char* pFuncName_in);
 		virtual bool UninstallHook(const char* pFuncName_in);

@@ -23,7 +23,7 @@ namespace Windower
 	{
 	public:
 		//! \brief WindowerProfile default constructor
-		WindowerProfile() : m_VSync(FALSE) {}
+		WindowerProfile() : m_VSync(FALSE), m_Language(1L) {}
 		/*! \brief WindowerProfile copy constructor
 			\param[in] Settings_in : the settings to copy
 		*/
@@ -47,13 +47,19 @@ namespace Windower
 			\param[in] VSync_in : flag specifying if vertical synchronization is in use
 			\param[in] pName_in : the name of the profile
 		*/
-		WindowerProfile(const TCHAR *pName_in, BOOL VSync_in)
-			: m_VSync(VSync_in), m_Name(pName_in) {}
+		WindowerProfile(const TCHAR *pName_in, long Lng_in, BOOL VSync_in)
+			: m_VSync(VSync_in), m_Name(pName_in), m_Language(Lng_in) {}
 
 		/*! \brief Sets the flag specifying if vertical synchronization is in use
 			\param[in] VSync_in : the new value of the flag
 		*/
 		void SetVSync(BOOL VSync_in) { m_VSync = VSync_in; }
+
+		/*! \brief Sets the language ID
+			\param[in] Lng_in : the new language ID
+		*/
+		void SetLanguage(long Lng_in) { m_Language = Lng_in; }
+
 		/*! \brief Sets the name of the profile
 			\param[in] pName_in : the new name of the profile
 		*/
@@ -63,6 +69,11 @@ namespace Windower
 			\return the flag specifying if vertical synchronization is in use
 		*/
 		BOOL GetVSync() const { return m_VSync; }
+
+		/*! \brief Retrieves the language ID
+			\return the language ID
+		*/
+		long GetLanguage() const { return m_Language; }
 
 		/*! \brief Retrieves the name of the profile
 			\return the name of the profile
@@ -94,6 +105,8 @@ namespace Windower
 	protected:
 		//! flag specifying if vertical synchronization is in use
 		BOOL m_VSync;
+		//! language ID
+		long m_Language;
 		//! the name of the profile
 		string_t m_Name;
 		//! set of active plugins

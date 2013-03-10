@@ -20,13 +20,12 @@ namespace InjectModule
 		\param[out]		ProcessInfo_out : a PROCESS_INFORMATION structure receiving the result of CreateProcess(...)
 		\param[in,out]	pCmdLine_in_out : the command line to be executed
 		\param[in]		CreateProcessFlags_in : user-defined to be passed to the dwCreationFlags parameter of CreateProcess(...)
-		\param[in]		pDllPathX86_in : the path to the injected DLL for an x86 target
-		\param[in]		pDllPathX64_in : the path to the injected DLL for an x64 target
+		\param[in]		pDllPath_in : the path to the injected DLL for an x86 target
 		\return TRUE if the injection succeeded; FALSE otherwise
 	*/
 	BOOL CreateProcessEx(const string_t &ExePath_in, PROCESS_INFORMATION &ProcessInfo_out,
-						 TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in,
-						 const TCHAR *pDllPathX86_in, const TCHAR *pDllPathX64_in)
+						 const TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in,
+						 const TCHAR *pDllPath_in)
 	{
 		BOOL Result;
 
@@ -37,17 +36,12 @@ namespace InjectModule
 		// Create the target process
 		//
 
-#ifdef _M_X64
-		const TCHAR* pDllPath(pDllPathX64_in);
-#else
-		const TCHAR* pDllPath(pDllPathX86_in);
-#endif
-		if ((Result = CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out, CreateProcessFlags_in)) && pDllPath != NULL)
+		if ((Result = CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out, CreateProcessFlags_in)) && pDllPath_in != NULL)
 		{
 			////////////////////////////////////////////////////////////////////
 			// Inject the DLL by creating a thread in the target process
 			// 
-			SIZE_T DataSize = (_tcslen(pDllPath) + 1) * sizeof(TCHAR);
+			SIZE_T DataSize = (_tcslen(pDllPath_in) + 1) * sizeof(TCHAR);
 			SIZE_T DataWritten = 0;
 			HANDLE hThread = NULL;
 			DWORD RetCode = 0UL;
@@ -57,7 +51,7 @@ namespace InjectModule
 			if (pReservedSpace != NULL)
 			{
 				// write the path to the DLL in the memory of the target process
-				if (WriteProcessMemory(ProcessInfo_out.hProcess, pReservedSpace, pDllPath, DataSize, &DataWritten))
+				if (WriteProcessMemory(ProcessInfo_out.hProcess, pReservedSpace, pDllPath_in, DataSize, &DataWritten))
 				{
 					// create a remote thread in the target process executing LoadLibrary
 					// with the path of the DLL as its parameter (this will attach the DLL)
@@ -118,9 +112,11 @@ namespace InjectModule
 		\return the result of the CreateProcess(...) call
 	*/
 	BOOL CreateSuspendedProcess(const string_t &ExePath_in, PROCESS_INFORMATION &ProcessInfo_out,
-								TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in)
+								const TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in)
 	{
+		TCHAR *pCmdLine = _tcsdup(pCmdLine_in_out);
 		STARTUPINFO StartupInfo;
+		BOOL bResult;
 
 		// initialize the STARTUPINFO structure
 		RtlZeroMemory(&StartupInfo, sizeof(StartupInfo));
@@ -134,9 +130,13 @@ namespace InjectModule
 
 		CurrentDirectory = (IndexOf != STRING_T_NPOS) ? ExePath_in.substr(0, IndexOf + 1) : _T(".");
 
-		return CreateProcess(ExePath_in.c_str(), pCmdLine_in_out, NULL, NULL, FALSE,
-							 CreateProcessFlags_in | CREATE_SUSPENDED | NORMAL_PRIORITY_CLASS,
-							 NULL, CurrentDirectory.c_str(), &StartupInfo, &ProcessInfo_out);
+		bResult = CreateProcess(ExePath_in.c_str(), pCmdLine, NULL, NULL, FALSE,
+								CreateProcessFlags_in | CREATE_SUSPENDED | NORMAL_PRIORITY_CLASS,
+								NULL, CurrentDirectory.c_str(), &StartupInfo, &ProcessInfo_out);
+		// cleanup
+		free(pCmdLine);
+
+		return bResult;
 	}
 
 	/*! \brief Imports 'NtCreateThreadEx' from 'ntdll.dll' and calls it to create a thread

@@ -42,6 +42,8 @@ namespace Bootstrap
 		*/
 		SystemCore& System() const { return *m_pSystemCore; }
 
+		bool UpdateCmdLineFromSettings(string_t &CmdLine_in_out);
+
 	protected:
 		//! the plugin dispatcher of the engine
 		Windower::CommandDispatcher *m_pCommandDispatcher;

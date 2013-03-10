@@ -29,12 +29,9 @@ namespace Windower
 	ChatLogPlugin::ChatLogPlugin(PluginFramework::IPluginServices *pServices_in)
 		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(NULL), m_pTimestamp(NULL)
 	{
-		m_TimestampFormatW = m_pSettings->GetFormat();
-		CreateDirectory(_T("logs"), NULL);
-
-		convert_utf8(TEXT_COLOR_START, m_ColorTagStart);
-		convert_utf8(TEXT_COLOR_END, m_ColorTagEnd);
-		convert_utf8(TEXT_CHAT_PAUSE, m_ChatPause);
+		m_LogPath = m_pSettings->GetSettingsPath() + _T("logs");
+		m_TimestampFormatW = m_pSettings->GetFormat();		
+		CreateDirectory(m_LogPath.c_str(), NULL);
 	}
 
 	//! \brief ChatLogPlugin destructor
@@ -97,36 +94,18 @@ namespace Windower
 									  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 									  bool &Unsubscribe_out)
 	{
-		if (StartLog())
+		if (StartLog() && pOriginalMsg_in != NULL && strlen(pOriginalMsg_in) > 0U)
 		{
 			string_t Sender, Message, Line;
-			size_t StrPos;
 
 			UpdateTimestamp();
 			convert_utf8(pSender_in->pResBuf, Sender);
 			convert_utf8(pOriginalMsg_in, Message);
 
-			// remove color tags
-			StrPos = Message.find(m_ColorTagStart);
-
-			if (StrPos != string_t::npos)
-			{
-				Message.replace(StrPos, TEXT_COLOR_START_LEN, _T(""));
-				StrPos = Message.find(m_ColorTagEnd);
-
-				if (StrPos != string_t::npos)
-					Message.replace(StrPos, TEXT_COLOR_END_LEN, _T(""));
-			}
-			// remove chat log pause
-			StrPos = Message.find(m_ChatPause);
-
-			if (StrPos != string_t::npos)
-				Message.replace(StrPos, TEXT_CHAT_PAUSE_LEN, _T(""));
-
 			if (Sender.empty())
-				format(m_Buffer, _T("%s%s\n"), m_pTimestamp, Message.c_str());
+				format(m_Buffer, _T("%s %s\r\n"), m_pTimestamp, Message.c_str());
 			else
-				format(m_Buffer, _T("%s%s: %s\n"), m_pTimestamp, Sender.c_str(), Message.c_str());
+				format(m_Buffer, _T("%s %s: %s\r\n"), m_pTimestamp, Sender.c_str(), Message.c_str());
 
 			WriteLine(m_Buffer);
 		}
@@ -164,7 +143,9 @@ namespace Windower
 			SYSTEMTIME Time;
 
 			GetSystemTime(&Time);
-			format(LogFilename, _T("logs\\chatlog_%d-%02d-%02d.log"), Time.wYear, Time.wMonth, Time.wDay);
+			// create the file in the logs directory
+			format(LogFilename, _T("%s\\chatlog_%d-%02d-%02d.log"), m_LogPath.c_str(), 
+				   Time.wYear, Time.wMonth, Time.wDay);
 			// open the file in shared mode for reading only
 			m_pFile = _wfsopen(LogFilename.c_str(), _T("a+, ccs=UTF-8"), _SH_DENYWR);
 			m_bOpened = (m_pFile != NULL);

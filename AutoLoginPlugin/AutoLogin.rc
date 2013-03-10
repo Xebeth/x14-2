@@ -69,7 +69,7 @@ IDI_CONFIG              ICON                    "res\\AutoLogin.ico"
 // Dialog
 //
 
-IDD_CONFIG_DIALOG DIALOGEX 0, 0, 328, 138
+IDD_CONFIG_DIALOG DIALOGEX 0, 0, 328, 149
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "AutoLogin Configurator"
@@ -79,11 +79,13 @@ BEGIN
     EDITTEXT        IDC_PASSWORD,17,40,293,14,ES_PASSWORD | ES_AUTOHSCROLL
     EDITTEXT        IDC_PASSWORD_HASH,17,65,293,14,ES_AUTOHSCROLL | ES_READONLY
     EDITTEXT        IDC_ENCRYPTION_KEY_HASH,17,90,293,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "Automatically validate the form (don't check if a security token is needed to login)",IDC_AUTOSUBMIT_CHK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,110,293,10
+    DEFPUSHBUTTON   "Save",IDOK,205,126,50,16
+    PUSHBUTTON      "Cancel",IDCANCEL,260,126,50,16
     LTEXT           "Password :",IDC_STATIC,17,32,36,8
     LTEXT           "Encryption key hash :",IDC_STATIC,17,82,70,8
     LTEXT           "Password hash :",IDC_STATIC,17,57,54,8
-    DEFPUSHBUTTON   "Save",IDOK,205,115,50,16
-    PUSHBUTTON      "Cancel",IDCANCEL,260,115,50,16
     LTEXT           "Username :",IDC_STATIC,17,7,38,8
 END
 
@@ -103,12 +105,12 @@ BEGIN
         VERTGUIDE, 17
         VERTGUIDE, 310
         TOPMARGIN, 7
-        BOTTOMMARGIN, 131
+        BOTTOMMARGIN, 142
         HORZGUIDE, 15
         HORZGUIDE, 40
         HORZGUIDE, 65
         HORZGUIDE, 90
-        HORZGUIDE, 115
+        HORZGUIDE, 120
     END
 END
 #endif    // APSTUDIO_INVOKED

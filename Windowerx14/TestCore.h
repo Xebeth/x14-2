@@ -18,14 +18,15 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out);
 
-		int sub570F30Hook(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList);
+		char sub98B710Hook(LPVOID pThis, int a2, int a3, int a4, int a5);
+		void sub5AEB30Hook(int a1, int a2);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
 	protected:
-		fn570F30 m_pSetJobTrampoline;
+		fn98B710 m_p98B710Trampoline;
 	};
 }
 

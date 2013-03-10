@@ -50,6 +50,7 @@ protected:
 	bool IsStatus(IHTMLDocument2 *pDoc_in, const TCHAR *pStatus_in);
 	bool UpdateDocumentState(IHTMLDocument2 *pDoc_in);
 
+	IHTMLDocument2* GetIFrameDocument(long Timeout_in);
 	LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
 	HWND GetIEServerWindow(long Timeout_in);
 	bool GetHTMLDocument(long Timeout_in);	
@@ -70,6 +71,8 @@ protected:
 	bool m_PasswordSet;
 	//! flag specifying if the username field is set
 	bool m_UserSet;
+	//! flag specifying if the auto-submit flag has been enforced
+	bool m_AutoSubmitted;
 	//! flag specifying if forms are monitored
 	bool m_bLoop;
 	//! the handle on the parent window

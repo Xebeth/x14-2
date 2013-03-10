@@ -142,7 +142,7 @@ namespace Windower
 										 DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 										 bool &Unsubscribe_out)
 	{
-		if (pMessage_in->pResBuf != NULL)
+		if (pMessage_in->pResBuf != NULL && strlen(pMessage_in->pResBuf) > 0U)
 		{
 			DWORD dwNewSize;
 			// add 11 characters for the timestamp

@@ -17,8 +17,6 @@
 #include "AutoLoginSettings.h"
 #include "HTMLFormIterator.h"
 
-// #define _DUMP_HTML
-
 /*! \brief global function used to start the working thread
 	\param[in] pUserData_in : thread user data holding a pointer to the settings
 	\return the thread exit code (0 on success; -1 otherwise)
@@ -41,7 +39,7 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
 AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_PasswordSet(false),
+	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_PasswordSet(false), m_AutoSubmitted(false),
 	  m_bLoop(true), m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL), m_UserSet(false)
 {
 	m_hParentWnd = Settings_in.GetParentWnd();
@@ -75,6 +73,7 @@ void AutoLogin::MonitorForms()
 				Sleep(500);
 			}
 		}
+
 		// cleanup
 		if (m_pFormIterator != NULL)
 			m_pFormIterator->Release();
@@ -140,14 +139,11 @@ bool AutoLogin::AutoCompleteForm()
 				{
 					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&pInputElement)) && pInputElement != NULL)
 					{
-						string_t Key, ConfigPath = m_Settings.GetConfigFile();
-						std::list<string_t> Tokens;						
+						string_t Key;				
 						long KeyHash;
 
-						tokenize(ConfigPath, Tokens, _T("\\"), _T("\""));
-
 						// retrieve the key used to encrypt the password
-						CryptUtils::GenerateMachineID(Key, Tokens.front().c_str());
+						CryptUtils::GenerateMachineID(Key, m_Settings.GetSettingsDrive().c_str());
 						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
@@ -177,26 +173,42 @@ bool AutoLogin::AutoCompleteForm()
 					pElement = NULL;
 				}
 
-				if (m_UserSet && m_PasswordSet)
+				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
 				{
-					// look for it in the current form
-					pElement = FindChildById(pCurrentForm, _T("inputOTP"));
-
-					if (pElement != NULL)
+					if (m_Settings.GetAutoSubmit())
 					{
-						IHTMLElement2 *pFocusInput = NULL;
+						// auto-submit the form
+						pElement = FindChildById(pCurrentForm, _T("btLogin"));
 
-						if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pFocusInput)) && pFocusInput != NULL)
+						if (pElement != NULL)
 						{
-							pFocusInput->focus();
-							pFocusInput->Release();
-							pFocusInput = NULL;
+							pElement->click();
+							pElement->Release();
+							m_AutoSubmitted = true;
 						}
 						else
 							m_bLoop = false;
+					}
+					else
+					{
+						// look for the one-time password field in the current form
+						pElement = FindChildById(pCurrentForm, _T("inputOTP"));
 
-						pElement->Release();
-						pElement = NULL;
+						if (pElement != NULL)
+						{
+							IHTMLElement2 *pFocusInput = NULL;
+
+							if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pFocusInput)) && pFocusInput != NULL)
+							{
+								pFocusInput->focus();
+								pFocusInput->Release();
+								m_AutoSubmitted = true;
+							}
+							else
+								m_bLoop = false;
+
+							pElement->Release();
+						}
 					}
 				}
 			}
@@ -364,6 +376,75 @@ LPFNOBJECTFROMLRESULT AutoLogin::GetObjectFromLParamAddr()
 	return pResult;
 }
 
+/*! \brief 
+*/
+IHTMLDocument2* AutoLogin::GetIFrameDocument(long Timeout_in)
+{
+	IHTMLFramesCollection2 *pIFrames = NULL;
+	IHTMLDocument2 *pDoc = NULL;
+
+	if (SUCCEEDED(m_pPageDoc->get_frames(&pIFrames)) && pIFrames != NULL)
+	{
+		VARIANT Index, FrameItem;
+		long Count = 0L;
+
+		Index.vt = VT_I4;
+		Index.lVal = 0;
+
+		FrameItem.vt = VT_DISPATCH;
+		FrameItem.pdispVal = NULL;
+
+		pIFrames->get_length(&Count);
+
+		if (Count > 0L && SUCCEEDED(pIFrames->item(&Index, &FrameItem)) && FrameItem.pdispVal != NULL)
+		{
+			IHTMLWindow2 *pFrame = NULL;
+
+			if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL)
+			{
+				HRESULT hRes = pFrame->get_document(&pDoc);
+
+				// if the access to the iframe document is denied, we'll have to work around cross-frame restrictions
+				if (hRes == E_ACCESSDENIED)
+				{
+					IServiceProvider *pProvider = NULL;
+
+					// retrieve the service provider interface
+					if (SUCCEEDED(pFrame->QueryInterface(IID_IServiceProvider, (LPVOID*)&pProvider)) && pProvider != NULL)
+					{
+						IWebBrowser2 *pBrowser = NULL;
+
+						// retrieve the web browser service
+						if (SUCCEEDED(pProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, (LPVOID*)&pBrowser)) && pBrowser != NULL)
+						{
+							IDispatch *pDispatch = NULL;
+
+							// retrieve the document
+							if (SUCCEEDED(pBrowser->get_Document(&pDispatch)) && pDispatch != NULL)
+							{
+								pDispatch->QueryInterface(IID_IHTMLDocument2, (LPVOID*)&pDoc);
+								pDispatch->Release();
+							}
+
+							pBrowser->Release();
+						}
+
+						pProvider->Release();
+					}
+				}
+				// cleanup
+				pFrame->Release();
+			}
+			// cleanup
+			FrameItem.pdispVal->Release();
+		}
+		// cleanup
+		pIFrames->Release();
+	}
+
+	return pDoc;
+}
+
 /*! \brief Retrieves the HTML document
 	\param[in] Timeout_in : a timeout value
 	\return true if the document was found; false otherwise
@@ -396,100 +477,51 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 
 		if (Result)
 		{
-			// find the login iframe	
-			IHTMLFramesCollection2 *pIFrames = NULL;
 			// wait for the document to load
 			WaitUntilDocumentComplete(m_pPageDoc, Timeout_in);
+/*
+			// try to change the language combo => seems to have no effect (event not triggered?)
+			IHTMLElement *pBody = NULL, *pElement = NULL;
 
-#if defined _DEBUG && defined _DUMP_HTML
-			IPersistFile* pFile = NULL;
-
-			if(SUCCEEDED(m_pPageDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+			if (m_pIFrameDoc == NULL && SUCCEEDED(m_pPageDoc->get_body(&pBody)) && pBody != NULL)
 			{
-				LPCOLESTR file = L"ffxivlogin.htm";
-				pFile->Save(file, TRUE);
-			}
-#endif // _DEBUG
+				pElement = FindChildById(pBody, _T("langSelectPulldown"));
 
-			if (SUCCEEDED(m_pPageDoc->get_frames(&pIFrames)) && pIFrames != NULL)
-			{
-				VARIANT Index, FrameItem;
-
-				Index.vt = VT_I4;
-				Index.lVal = 0;
-
-				FrameItem.vt = VT_DISPATCH;
-				FrameItem.pdispVal = NULL;
-
-				if (SUCCEEDED(pIFrames->item(&Index, &FrameItem)) && FrameItem.pdispVal != NULL)
+				if (pElement != NULL)
 				{
-					IHTMLWindow2 *pFrame = NULL;
-					IHTMLDocument2 *pDoc = NULL;
+					IHTMLSelectElement *pLngCombo = NULL;
 
-					if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLSelectElement, (LPVOID*)&pLngCombo)) && pLngCombo != NULL)
 					{
-						HRESULT hRes = pFrame->get_document(&pDoc);
-
-						// if the access to the iframe document is denied, we'll have to work around cross-frame restrictions
-						if (hRes == E_ACCESSDENIED)
-						{
-							IServiceProvider *pProvider = NULL;
-
-							// retrieve the service provider interface
-							if (SUCCEEDED(pFrame->QueryInterface(IID_IServiceProvider, (LPVOID*)&pProvider)) && pProvider != NULL)
-							{
-								IWebBrowser2 *pBrowser = NULL;
-
-								// retrieve the web browser service
-								if (SUCCEEDED(pProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, (LPVOID*)&pBrowser)) && pBrowser != NULL)
-								{
-									IDispatch *pDispatch = NULL;
-
-									// retrieve the document
-									if (SUCCEEDED(pBrowser->get_Document(&pDispatch)) && pDispatch != NULL)
-									{
-										pDispatch->QueryInterface(IID_IHTMLDocument2, (LPVOID*)&pDoc);
-										pDispatch->Release();
-									}
-
-									pBrowser->Release();
-								}
-
-								pProvider->Release();
-							}
-						}
-
-						if (pDoc != NULL)
-						{
-							if (pDoc != m_pIFrameDoc)
-							{
-								if (m_pIFrameDoc != NULL)
-									m_pIFrameDoc->Release();
-								// assign the document
-								m_pIFrameDoc = pDoc;
-								ResetForms();
-								// wait for the iframe to load
-								WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
-#if defined _DEBUG && defined _DUMP_HTML
-								if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
-								{
-									LPCOLESTR file = L"ffxivloginframe.htm";
-									pFile->Save(file, TRUE);
-								}
-#endif // _DEBUG
-							}
-							else
-								pDoc->Release();
-						}
-
-						// cleanup
-						pFrame->Release();
+						pLngCombo->put_selectedIndex(m_Settings.GetLanguage());
+						pLngCombo->Release();
 					}
-					// cleanup
-					FrameItem.pdispVal->Release();
+
+					pElement->Release();
 				}
+
 				// cleanup
-				pIFrames->Release();
+				pBody->Release();
+			}
+*/
+			// find the login iframe
+			IHTMLDocument2 *pDoc = GetIFrameDocument(Timeout_in);
+
+			// update the document of the iframe
+			if (pDoc != NULL)
+			{
+				if (pDoc != m_pIFrameDoc)
+				{
+					if (m_pIFrameDoc != NULL)
+						m_pIFrameDoc->Release();
+					// assign the document
+					m_pIFrameDoc = pDoc;
+					ResetForms();
+					// wait for the iframe to load
+					WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
+				}
+				else
+					pDoc->Release();
 			}
 		}
 	}

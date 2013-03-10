@@ -45,6 +45,8 @@ namespace Windower
 
 		afx_msg void OnProfileRename();
 		afx_msg void OnProfilesChange();
+
+		afx_msg void OnLanguageChange();
 		
 		afx_msg void OnDeleteProfile();
 		afx_msg void OnVSyncChange();

@@ -56,6 +56,26 @@ namespace Windower
 		*/
 		HWND GetParentWnd() const { return m_hParentWnd; }
 
+		/*! \brief Sets the language ID
+			\param[in] Lng_in : the new language ID
+		*/
+		void SetLanguage(long Lng_in) { m_Language = Lng_in; }
+
+		/*! \brief Retrieves the language ID
+			\return the language ID
+		*/
+		long GetLanguage() const { return m_Language; }
+
+		/*! \brief Checks if auto-submitting is active
+			\return true if auto-submitting is active; false otherwise
+		*/
+		bool GetAutoSubmit() const { return m_AutoSubmit; }
+
+		/*! \brief Sets the flag specifying if auto-submitting is active
+			\param[in] AutoSubmit_in : the new flag value
+		*/
+		void SetAutoSubmit(bool AutoSubmit_in) { m_AutoSubmit = AutoSubmit_in; }
+
 		const TCHAR* GetConfigFile() const { return m_ConfigFile.c_str(); }
 
 	protected:
@@ -71,6 +91,10 @@ namespace Windower
 		string_t		m_SectionName;
 		//! config file path
 		string_t		m_ConfigFile;
+		//! language ID
+		long			m_Language;
+		//! auto submit
+		bool			m_AutoSubmit;
 	};
 }
 

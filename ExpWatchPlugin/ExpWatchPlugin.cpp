@@ -117,9 +117,10 @@ namespace Windower
 			// You earn 332 (+20%) experience points.
 			long ExpValue = 0, BonusValue = 0;
 
-			if (sscanf_s(pOriginalMsg_in, "You earn %ld (+%ld%%) experience points.", &ExpValue, &BonusValue) >= 1)
+			if (sscanf_s(pOriginalMsg_in, "You gain %ld (+%ld%%) experience points.", &ExpValue, &BonusValue) >= 1)
 			{
 				m_TotalExp += ExpValue;
+				m_TotalExp += BonusValue;
 				++m_KillCounter;
 			}
 		}

@@ -8,8 +8,11 @@
 #ifndef __TEST_HOOK_H__
 #define __TEST_HOOK_H__
 
-// int __thiscall sub_570F30(void *this, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList)
-typedef int (WINAPI *fn570F30)(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList);
-int WINAPI sub570F30Hook(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList);
+// char __thiscall sub_98B710(int this, int a2, int a3, int a4, int a5)
+typedef char(WINAPI *fn98B710)(LPVOID pThis, int a2, int a3, int a4, int a5);
+char WINAPI sub98B710Hook(LPVOID pThis, int a2, int a3, int a4, int a5);
+
+// void __usercall sub_5AEB30(int a1<ecx>, int a2<ebp>)
+void WINAPI sub5AEB30NakedHook();
 
 #endif//__TEST_HOOK_H__

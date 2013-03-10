@@ -16,7 +16,8 @@ namespace Windower
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in)
-		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_hParentWnd(NULL), m_ConfigFile(pSettingsFile_in)
+		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_Language(1L), 
+		  m_hParentWnd(NULL), m_ConfigFile(pSettingsFile_in), m_AutoSubmit(false)
 	{
 		if (pProfileName_in != NULL)
 			m_SectionName = pProfileName_in;
@@ -30,8 +31,10 @@ namespace Windower
 	*/
 	bool AutoLoginSettings::Save()
 	{
+		SetLong(m_SectionName.c_str(), _T("AutoSubmit"), m_AutoSubmit ? 1L : 0L);
 		SetString(m_SectionName.c_str(), _T("Password"), m_Password);
 		SetString(m_SectionName.c_str(), _T("Username"), m_Username);
+		SetLong(m_SectionName.c_str(), _T("Language"), m_Language);		
 		SetHex(m_SectionName.c_str(), _T("KeyHash"), m_KeyHash);
 
 		return SettingsIniFile::Save();
@@ -49,7 +52,9 @@ namespace Windower
 
 			m_Username = GetString(m_SectionName.c_str(), _T("Username"));
 			m_Password = GetString(m_SectionName.c_str(), _T("Password"));
+			m_Language = GetLong(m_SectionName.c_str(), _T("Language"), 1L);
 			m_KeyHash = GetUnsignedLong(m_SectionName.c_str(), _T("KeyHash"));
+			m_AutoSubmit = (GetLong(m_SectionName.c_str(), _T("AutoSubmit")) == 1L);
 
 			return true;
 		}

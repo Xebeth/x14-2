@@ -33,14 +33,17 @@ namespace Settings
 		// Settings accessors
 		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue = 0L) const;
 		ULONG GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in, ULONG DefaultValue = 0UL) const;
-		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
-		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in);
+		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
+		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
 		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
-		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in);
+		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
 
 		bool DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const;
 		bool KeyExists(const string_t &SectionName_in, const string_t &KeyName_in) const;
-		bool SectionExists(const string_t &SectionName_in) const;		
+		bool SectionExists(const string_t &SectionName_in) const;
+
+		string_t GetSettingsDrive() const;
+		string_t GetSettingsPath() const;
 
 	protected:
 		//! the path of the INI file

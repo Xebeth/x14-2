@@ -8,7 +8,7 @@
 #ifndef __BOOTSTRAP_AFX_H__
 #define __BOOTSTRAP_AFX_H__
 
-#define __USE_VLD
+// #define __USE_VLD
 #include <stdhdr.h>
 #include <string_t.h>
 #include <set>

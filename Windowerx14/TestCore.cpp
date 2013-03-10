@@ -26,29 +26,23 @@
 
 #include <SigScan.h>
 
+DWORD g_5AEB30JumpAddr = NULL;
+
 namespace Windower
 {
 	/*! \brief TestCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
 	TestCore::TestCore(WindowerEngine &Engine_in_out)
-		: WindowerCore(Engine_in_out), m_pSetJobTrampoline(NULL) {}
+		: WindowerCore(Engine_in_out), m_p98B710Trampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
 	void TestCore::RegisterHooks(IHookManager &HookManager_in)
 	{
-		DWORD_PTR dwFuncAddr;
-
-		dwFuncAddr = 0x570F30;
-		// set m_pFormatChatMessageTrampoline with the address of the original function in case of failure
-		m_pSetJobTrampoline = (fn570F30)dwFuncAddr;
-
-		if (dwFuncAddr != NULL)
-		{
-			HookManager_in.RegisterHook("On570F30", SIGSCAN_GAME_PROCESSA, (LPVOID)dwFuncAddr, ::sub570F30Hook, 13);
-		}
+		HookManager_in.RegisterHook("On98B710", SIGSCAN_GAME_PROCESSA, (LPVOID)0x0098B710, ::sub98B710Hook, 11);
+		HookManager_in.RegisterHook("On5AEB30", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005AEB30, ::sub5AEB30NakedHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -56,11 +50,17 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(IHookManager &HookManager_in)
 	{
-		m_pSetJobTrampoline	= (fn570F30)HookManager_in.GetTrampolineFunc("On570F30");
+		m_p98B710Trampoline = (fn98B710)HookManager_in.GetTrampolineFunc("On98B710");
+		g_5AEB30JumpAddr = (DWORD)HookManager_in.GetTrampolineFunc("On5AEB30");
 	}
 
-	int TestCore::sub570F30Hook(LPVOID pThis_in_out, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList)
+	char TestCore::sub98B710Hook(LPVOID pThis, int a2, int a3, int a4, int a5)
 	{
-		return m_pSetJobTrampoline(pThis_in_out, a2, a3, a4, ArgList);
+		return m_p98B710Trampoline(pThis, a2, a3, a4, a5);
+	}
+
+	void TestCore::sub5AEB30Hook(int a1, int a2)
+	{
+		
 	}
 }

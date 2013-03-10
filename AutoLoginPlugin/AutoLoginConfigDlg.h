@@ -27,6 +27,7 @@ protected:
 	string_t m_EncryptionKey;
 	string_t m_PasswordHash;
 	string_t m_Username;
+	bool m_AutoSubmit;
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
@@ -37,6 +38,7 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnPasswordChange();
 	afx_msg void OnUsernameChange();
+	afx_msg void OnAutoSubmitCheck();
 };
 
 #endif//__AUTOLOGIN_CONFIG_DLG_H__

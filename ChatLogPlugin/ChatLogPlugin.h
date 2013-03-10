@@ -40,6 +40,8 @@ namespace Windower
 
 		void UpdateTimestamp();
 
+		//! path of the logs
+		string_t	 m_LogPath;
 		//! string buffer used to write in the log file
 		string_t	 m_Buffer;
 		//! timestamp format in unicode
@@ -50,12 +52,6 @@ namespace Windower
 		FILE		*m_pFile;
 		//! buffer to hold the timestamp
 		TCHAR		*m_pTimestamp;
-		//! buffer for the text color tag start
-		string_t	 m_ColorTagStart;
-		//! buffer for the text color tag end
-		string_t	 m_ColorTagEnd;
-		//! buffer for the chat pause tag
-		string_t	 m_ChatPause;
 	};
 }
 

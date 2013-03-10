@@ -8,7 +8,7 @@
 #ifndef __LAUNCHER_AFX_H__
 #define __LAUNCHER_AFX_H__
 
-#define __USE_VLD
+// #define __USE_VLD
 #include <stdhdr.h>
 
 // Icon resource ID -- used for the executable

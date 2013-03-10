@@ -94,11 +94,20 @@ namespace Bootstrap
 		string_t WorkingDir = m_Engine.GetWorkingDir();
 		TCHAR DLL32Path[_MAX_PATH];
 		char DLLPath[_MAX_PATH];
+		TCHAR *pCmdLine = NULL;
 		BOOL Result = FALSE;
 
 		if ((lpCommandLine_in_out != NULL && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		 || (lpApplicationName_in != NULL && _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL))
 		{
+			if (lpCommandLine_in_out != NULL)
+			{
+				string_t CmdLine(lpCommandLine_in_out);
+
+				if (static_cast<BootstrapEngine&>(m_Engine).UpdateCmdLineFromSettings(CmdLine))
+					pCmdLine = _tcsdup(CmdLine.c_str());
+			}
+
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%swindowerx14.dll"), WorkingDir.c_str());
 			Result = TRUE;
 		}
@@ -108,23 +117,30 @@ namespace Bootstrap
 			Result = TRUE;
 		}
 
+		// if replacing the language failed, use the original command line
+		if (pCmdLine == NULL && lpCommandLine_in_out != NULL)
+			pCmdLine = _tcsdup(lpCommandLine_in_out);
+
 		if (Result)
 		{
 			WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
 
 			// attach the DLL to the next process in the chain
-			Result = DetourCreateProcessWithDllW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+			Result = DetourCreateProcessWithDllW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
 												 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
 												 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-												 lpProcessInformation_out, NULL, DLLPath, m_pCreateProcessTrampoline);
+												 lpProcessInformation_out, DLLPath, m_pCreateProcessTrampoline);
 		}
 		else
 		{
-			Result = m_pCreateProcessTrampoline(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+			Result = m_pCreateProcessTrampoline(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
 												lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in, 
 												lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in, 
 												lpProcessInformation_out);
 		}
+		// cleanup
+		if (pCmdLine != NULL)
+			free(pCmdLine);
 
 		return Result;
 	}

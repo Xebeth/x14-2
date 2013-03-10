@@ -192,24 +192,16 @@ namespace Windower
 									 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
 									 bool AlwaysShow_in)
 	{
-		bool HasChatPauseTag = (strstr(pMessage_in_out->pResBuf, TEXT_CHAT_PAUSE) != NULL);
 		bool Result = false;
 
-		if (m_Active || AlwaysShow_in || HasChatPauseTag)
+		if (m_Active || AlwaysShow_in)
 		{
 			DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
 			DWORD dwOriginalMgsSize = pMessage_in_out->dwSize;
 			char *pOriginalSender = pSender_in_out->pResBuf;
 			char *pOriginalMsg = pMessage_in_out->pResBuf;			
 
-			if (HasChatPauseTag && m_Active == false)
-			{
-				pMessage_in_out->dwSize = TEXT_CHAT_PAUSE_LEN;
-				pMessage_in_out->pResBuf = TEXT_CHAT_PAUSE;
-				pSender_in_out->pResBuf = " \0";
-				pSender_in_out->dwSize = 1UL;
-			}
-			else if (pModifiedMsg_in != NULL)
+			if (pModifiedMsg_in != NULL)
 			{
 				pMessage_in_out->dwSize = NewSize_in;
 				pMessage_in_out->pResBuf = pModifiedMsg_in;
@@ -255,6 +247,8 @@ namespace Windower
 			case CHAT_MESSAGE_TYPE_ECHO_MESSAGE:
 			case CHAT_MESSAGE_TYPE_SANCTUARY:
 			case CHAT_MESSAGE_TYPE_ERROR_MESSAGE:
+			case CHAT_MESSAGE_TYPE_PARTY_INVITE:
+			case CHAT_MESSAGE_TYPE_PARTY_JOIN:
 			case CHAT_MESSAGE_TYPE_BATTLE_MESSAGE:
 			case BATTLE_MESSAGE_TYPE_ABILITY:
 			case BATTLE_MESSAGE_TYPE_ABILITY_RESULT:
@@ -264,7 +258,7 @@ namespace Windower
 			default:
 				string_t Dummy;
 		}
-#endif // _DEBUG \xe2\x87\x92
+#endif // _DEBUG
 
 		if (FilterCommands(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out) == false && m_pFormatChatMessageTrampoline != NULL)
 		{

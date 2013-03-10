@@ -73,9 +73,9 @@ namespace HookEngineLib
 		\param[in] pFuncName_in : the name of the hook
 		\return a function pointer to original function
 	*/
-	LPVOID IHookManager::GetOriginalFunc(const char* pFuncName_in)
+	LPVOID IHookManager::GetOriginalFunc(const char* pFuncName_in) const
 	{
-		HookPtrMap::iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
 
 		if (Iter != m_HookMap.end() && Iter->second != NULL)
 			return Iter->second->m_pOriginalFunc;
@@ -87,7 +87,7 @@ namespace HookEngineLib
 		\param[in] pFuncName_in : the name of the hook
 		\return a function pointer to hook function
 	*/
-	LPVOID IHookManager::GetHookFunc(const char* pFuncName_in)
+	LPVOID IHookManager::GetHookFunc(const char* pFuncName_in) const
 	{
 		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
 
@@ -101,7 +101,7 @@ namespace HookEngineLib
 		\param[in] pFuncName_in : the name of the hook
 		\return a function pointer to trampoline function
 	*/
-	LPVOID IHookManager::GetTrampolineFunc(const char* pFuncName_in)
+	LPVOID IHookManager::GetTrampolineFunc(const char* pFuncName_in) const
 	{
 		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
 

@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(AutoLoginConfigDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &AutoLoginConfigDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_AUTOSUBMIT_CHK, &AutoLoginConfigDlg::OnAutoSubmitCheck)
 	ON_EN_CHANGE(IDC_PASSWORD, &AutoLoginConfigDlg::OnPasswordChange)
 	ON_EN_CHANGE(IDC_USERNAME, &AutoLoginConfigDlg::OnUsernameChange)
 END_MESSAGE_MAP()
@@ -28,16 +29,13 @@ END_MESSAGE_MAP()
  */
 AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
 	: CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Windower::AutoLoginSettings(pConfigFile_in, pProfileName_in))
+	  m_pSettings(new Windower::AutoLoginSettings(pConfigFile_in, pProfileName_in)), m_AutoSubmit(false)
 {
-	string_t ConfigFile = pConfigFile_in;
-	std::list<string_t> Tokens;
-
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_CONFIG);
-	// retrieve the drive letter from the config path
-	tokenize(ConfigFile, Tokens, _T("\\"), _T("\""));	
+
 	// generate the encryption key
-	CryptUtils::GenerateMachineID(m_EncryptionKey, Tokens.front().c_str());
+	if (m_pSettings != NULL)
+		CryptUtils::GenerateMachineID(m_EncryptionKey, m_pSettings->GetSettingsDrive().c_str());
 }
 
 //! \brief AutoLoginConfigDlg destructor
@@ -77,6 +75,13 @@ BOOL AutoLoginConfigDlg::OnInitDialog()
 
 			m_Username = m_pSettings->GetUsername();
 			SetDlgItemText(IDC_USERNAME, m_Username.c_str());
+
+			m_AutoSubmit = m_pSettings->GetAutoSubmit();
+
+			CButton *pAutoSubmitChk = static_cast<CButton*>(GetDlgItem(IDC_AUTOSUBMIT_CHK));
+
+			if (pAutoSubmitChk != NULL)
+				pAutoSubmitChk->SetCheck(m_AutoSubmit ? BST_CHECKED : BST_UNCHECKED);
 		}
 	}
 
@@ -124,7 +129,8 @@ void AutoLoginConfigDlg::OnBnClickedOk()
 {
 	m_pSettings->SetUsername(m_Username);
 	m_pSettings->SetPassword(m_PasswordHash);
-	m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));
+	m_pSettings->SetAutoSubmit(m_AutoSubmit);
+	m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));	
 
 	m_pSettings->Save();
 
@@ -153,4 +159,12 @@ void AutoLoginConfigDlg::OnUsernameChange()
 
 	GetDlgItemText(IDC_USERNAME, Username);
 	m_Username = Username.GetBuffer();
+}
+
+//! \brief Message handler called when the username clicks the auto-submit checkbox
+void AutoLoginConfigDlg::OnAutoSubmitCheck()
+{
+	CButton *pAutoSubmitChk = static_cast<CButton*>(GetDlgItem(IDC_AUTOSUBMIT_CHK));
+
+	m_AutoSubmit = (pAutoSubmitChk != NULL && pAutoSubmitChk->GetCheck() == BST_CHECKED);
 }

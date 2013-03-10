@@ -48,7 +48,7 @@ namespace Settings
 			\param[in] Key_in : the name of the key
 			\param[in] NewValue_in : the new value for the key
 		*/
-		virtual void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in) =0;
+		virtual void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL) =0;
 		/*! \brief Retrieves the string value corresponding to the specified key and section
 			\param[in] SectionName_in : the section containing the key
 			\param[in] Key_in : the name of the key
@@ -61,7 +61,7 @@ namespace Settings
 			\param[in] Key_in : the name of the key
 			\param[in] NewValue_in : the new value for the key
 		*/
-		virtual void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in) =0;
+		virtual void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL) =0;
 	};
 }
 

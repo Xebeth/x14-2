@@ -46,12 +46,7 @@
 #ifdef __USE_DETOURS
 	#include <detours.h>
 
-	#ifdef _DEBUG
-		#pragma comment(lib, "detours_d.lib")
-	#else
-		#pragma comment(lib, "detours.lib")
-	#endif // _DEBUG
-
+	#pragma comment(lib, "detours.lib")
 	// this function is exported on ordinal 1 so that the DLL can be loaded with DetourCreateProcessWithDll
 	extern "C" __declspec(dllexport) void DetourAndErrorCheck(PVOID* pFunctionToDetour, PVOID pReplacement, const char* functionName)
 	{
