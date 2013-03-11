@@ -124,6 +124,29 @@ namespace HookEngineLib
 		return true;
 	}
 
+	/*! \brief Checks if the hook specified by the function name is installed
+		\param[in] pFuncName_in : the name of the hook
+		\return true if the hook is installed; false otherwise
+	*/
+	bool IHookManager::IsHookInstalled(const char* pFuncName_in)
+	{
+		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+
+		return (Iter != m_HookMap.end() && Iter->second->m_bInstalled);
+	}
+
+	/*! \brief Checks if the hook specified by the function name is registered
+		\param[in] pFuncName_in : the name of the hook
+		\return true if the hook is registered; false otherwise
+	*/
+	bool IHookManager::IsHookRegistered(const char* pFuncName_in)
+	{
+		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+
+		return (Iter != m_HookMap.end());
+	}
+
+
 	/*! \brief Uninstall a hook given its name
 		\param[in] pFuncName_in : the name of the hook
 	*/

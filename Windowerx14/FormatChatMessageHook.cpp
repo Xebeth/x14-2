@@ -32,14 +32,3 @@ bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, St
 {
 	return g_pEngine->GameChat().FormatChatMessageHook(pThis_in_out, MessageType_in, pSender_in_out, pMessage_in_out, pTimestamp_in);
 }
-
-/*! \brief Creates a text node from the specified string
-	\param[out] pTextObject_out : a pointer to the class containing the hooked method
-	\param[in] pText_in : the text used to initialize the node
-	\param[in] TextLength_in : the length of the text
-	\return a pointer to the text node
-*/
-StringNode* WINAPI CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in)
-{
-	return g_pEngine->GameChat().CreateTextNodeHook(pTextObject_out, pText_in, TextLength_in);
-}

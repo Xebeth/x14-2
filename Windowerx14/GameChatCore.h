@@ -35,11 +35,9 @@ namespace Windower
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
-		//! \brief OnChatMessage hook
 		bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 								   StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
 
-		StringNode* CreateTextNodeHook(StringNode *pTextObject_out, const char *pText_in, int TextLength_in = -1);
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
 	protected:
@@ -55,8 +53,6 @@ namespace Windower
 							StringNode* pSender_in_out, StringNode* pMessage_in);
 		//! function pointer to the original FormatChatMessage function
 		fnFormatChatMessage	m_pFormatChatMessageTrampoline;
-		//! function pointer to the original CreateTextNode function
-		fnCreateTextNode m_pCreateTextNodeTrampoline;
 
 	private:
 		bool FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
@@ -64,25 +60,17 @@ namespace Windower
 						   bool AlwaysShow_in = false);
 
 		PluginSet					 m_ChatFormatSubscribers;
-		PluginSet					 m_CreateTextNodeSubscribers;
-		bool						 m_bCreateTextNodeSubEmpty;
 
 		//! Hook manager
 		IHookManager &m_HookMgr;
 		//! vector keeping track of the chat head positions
 		std::vector<char*> m_ChatHeadVector;
-		//! the module service for the chat message formatting method
-		ModuleService *m_pFormatChatMessage;
-		//! the module service for the text node creation method
-		ModuleService *m_pCreateTextNode;
 		//! the command dispatcher
 		CommandDispatcher &m_CommandDispatcher;
 		//! the command parser
 		CommandParser &m_CommandParser;
 		//! the windower version injected in the start screen
 		std::string	m_InjectVersion;
-		//! critical section for thread synchronization
-		CRITICAL_SECTION m_Lock;
 		//! flag specifying if the chat log is on hold
 		bool m_Active;
 	};

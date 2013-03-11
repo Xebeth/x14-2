@@ -42,7 +42,7 @@ namespace Windower
 	void TestCore::RegisterHooks(IHookManager &HookManager_in)
 	{
 		HookManager_in.RegisterHook("On98B710", SIGSCAN_GAME_PROCESSA, (LPVOID)0x0098B710, ::sub98B710Hook, 11);
-		HookManager_in.RegisterHook("On5AEB30", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005AEB30, ::sub5AEB30NakedHook);
+		// HookManager_in.RegisterHook("On5AEB30", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005AEB30, ::sub5AEB30NakedHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed

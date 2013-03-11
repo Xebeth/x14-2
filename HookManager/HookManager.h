@@ -65,6 +65,8 @@ namespace HookEngineLib
 
 		virtual bool InstallHook(const char* pFuncName_in);
 		virtual bool UninstallHook(const char* pFuncName_in);
+		virtual bool IsHookInstalled(const char* pFuncName_in);
+		virtual bool IsHookRegistered(const char* pFuncName_in);
 
 		/*! \brief Installs all the hooks currently registered in the manager
 			\return true if all the hooks were installed successfully; false otherwise
