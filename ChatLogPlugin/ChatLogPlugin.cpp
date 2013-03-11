@@ -98,15 +98,21 @@ namespace Windower
 		{
 			string_t Sender, Message, Line;
 
+			// update the timestamp
 			UpdateTimestamp();
+			// convert to Unicode
 			convert_utf8(pSender_in->pResBuf, Sender);
 			convert_utf8(pOriginalMsg_in, Message);
-
+			// format the line
 			if (Sender.empty())
-				format(m_Buffer, _T("%s %s\r\n"), m_pTimestamp, Message.c_str());
+				format(m_Buffer, _T("%s %s"), m_pTimestamp, Message.c_str());
 			else
-				format(m_Buffer, _T("%s %s: %s\r\n"), m_pTimestamp, Sender.c_str(), Message.c_str());
-
+				format(m_Buffer, _T("%s %s: %s"), m_pTimestamp, Sender.c_str(), Message.c_str());
+			// remove any non-printable character
+			purge(m_Buffer);
+			// add CRLF after purging or they'll be removed
+			m_Buffer += _T("\r\n");
+			// write the line in the log
 			WriteLine(m_Buffer);
 		}
 

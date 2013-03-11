@@ -144,6 +144,16 @@ template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_
 	return String_in_out;
 }
 
+/*! \brief Removes all control characters
+	\param[in,out] String_in_out : the string to clean up
+*/
+template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in_out)
+{
+	String_in_out.erase(remove_if(String_in_out.begin(),String_in_out.end(), iscntrl), String_in_out.end());  
+
+	return String_in_out;
+}
+
 /*! \brief Tokenize a string given a delimiter and separator
 	\param[in] String_in : the string to tokenize
 	\param[out] Tokens_out : the tokens parsed from the string
