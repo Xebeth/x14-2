@@ -39,6 +39,7 @@ namespace Windower
 		{
 			m_Name = Settings_in.m_Name;
 			m_VSync = Settings_in.m_VSync;
+			m_Language = Settings_in.m_Language;
 
 			m_ActivePlugins = Settings_in.m_ActivePlugins;
 		}
