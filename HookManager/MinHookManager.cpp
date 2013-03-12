@@ -6,7 +6,12 @@
 	purpose		:	Hook manager using MinHook
 **************************************************************************/
 #include "stdafx.h"
-#include "HookEngine.h"
+#ifdef __USE_MINHOOK
+
+#include <MinHook.h>
+
+#include "HookManager.h"
+#include "MinHookManager.h"
 
 #ifdef _DEBUG
 	#ifdef _M_X64
@@ -24,113 +29,45 @@
 
 namespace HookEngineLib
 {
-	/*! \brief Installs all the hooks currently registered in the manager
-		\return true if all the hooks were installed successfully; false otherwise
+	/*! \brief Initializes the hooking process
+		\return true if the initialization succeeded; false otherwise
 	*/
-	bool MinHookManager::InstallRegisteredHooks()
+	bool MinHookManager::Initialize()
 	{
-		HookPtrMap::const_iterator Iter;
-		bool bResult = true;
+		m_bInit = (MH_Initialize() == MH_OK);
 
-		if (m_bInit == false)
-			m_bInit = (MH_Initialize() == MH_OK);
-
-		if (m_bInit)
-		{
-			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
-				if (Iter->second != NULL && Iter->second->m_bInstalled == false)
-					bResult &= InstallHook(Iter->second);
-		}
-
-		return (m_bInit && bResult);
+		return m_bInit;
 	}
 
-	/*! \brief Uninstalls all the hooks currently registered in the manager
-		\return true if all the hooks were uninstalled successfully; false otherwise
+	/*! \brief Terminates the hooking process
+		\return true if the termination succeeded; false otherwise
 	*/
-	bool MinHookManager::UninstallRegisteredHooks()
+	void MinHookManager::Shutdown()
 	{
-		HookPtrMap::const_iterator Iter;
-		bool bResult = true;
-
-		if (m_bInit)
-		{
-			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
-				if (Iter->second != NULL && Iter->second->m_bInstalled)
-					bResult &= UninstallHook(Iter->second);
-
-			m_bInit = !(MH_Uninitialize() == MH_OK);
-		}
-
-		return (!m_bInit && bResult);
+		m_bInit = !(MH_Uninitialize() == MH_OK);
 	}
 
-	/*! \brief Installs the specified hook using MinHook
-		\param[in,out] pHook_in_out : a pointer to the hook to be installed
-		\return true if successful; false otherwise
+	/*! \brief Creates a hook by patching the original function
+		\param[in] pHook_in : the hook to create
+		\return true if the hook was created; false otherwise
 	*/
-	bool MinHookManager::InstallHook(Hook *pHook_in_out)
+	bool MinHookManager::CreateHook(Hook *pHook_in_out)
 	{
-		if (pHook_in_out != NULL && pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
-		{
-			// if the hook isn't already installed
-			if (pHook_in_out->m_bInstalled == false)
-			{
-				// if we're not hooking a class member
-				if (pHook_in_out->m_dwOpCodesSize == 0)
-				{
-					// flag the hook has installed if no error occurred
-					pHook_in_out->m_bInstalled = (MH_CreateHook(pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc, &pHook_in_out->m_pTrampolineFunc) == MH_OK);
-					pHook_in_out->m_bInstalled &= (MH_EnableHook(pHook_in_out->m_pOriginalFunc) == MH_OK);
-				}
-				else
-				{
-					// use DetourClassFunc (Azorbix@Game Deception)
-					pHook_in_out->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
-																(LPBYTE)pHook_in_out->m_pHookFunc,
-																pHook_in_out->m_dwOpCodesSize);
-					// flag the hook has been installed (no real way to check success)
-					pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
-				}
-			}
-
-			return pHook_in_out->m_bInstalled;
-		}
-
-		return false;
+		// use Detours to install the hook
+		return (MH_CreateHook(pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc,
+							  &pHook_in_out->m_pTrampolineFunc) == MH_OK
+			 && MH_EnableHook(pHook_in_out->m_pOriginalFunc) == MH_OK);
 	}
 
-	/*! \brief Uninstalls the specified hook using MinHook
-		\param[in,out] pHook_in_out : a pointer to the hook to be uninstalled
-		\return true if successful; false otherwise
+	/*! \brief Destroys a hook by restoring the original function
+		\param[in] pHook_in : the hook to destroy
+		\return true if the hook was destroyed; false otherwise
 	*/
-	bool MinHookManager::UninstallHook(Hook *pHook_in_out)
+	bool MinHookManager::DestroyHook(const Hook *pHook_in)
 	{
-		if (pHook_in_out != NULL && pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
-		{
-			// if the hook is installed
-			if (pHook_in_out->m_bInstalled)
-			{
-				// if we're not unhooking a class member
-				if (pHook_in_out->m_dwOpCodesSize == 0)
-				{
-					// flag the hook has uninstalled if no error occurred
-					pHook_in_out->m_bInstalled = !(MH_DisableHook(pHook_in_out->m_pOriginalFunc) == MH_OK);
-				}
-				else
-				{
-					// use RetourClassFunc (Azorbix@Game Deception)
-					RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
-									(LPBYTE)pHook_in_out->m_pTrampolineFunc,
-									pHook_in_out->m_dwOpCodesSize);
-					// flag the hook has been uninstalled (no real way to check success)
-					pHook_in_out->m_bInstalled = false;
-				}
-			}
-
-			return !pHook_in_out->m_bInstalled;
-		}
-
-		return false;
+		// use Detours to remove the hook
+		return (MH_DisableHook(pHook_in->m_pOriginalFunc) == MH_OK);
 	}
 }
+
+#endif//__USE_MINHOOK

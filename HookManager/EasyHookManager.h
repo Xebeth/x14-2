@@ -13,16 +13,13 @@ namespace HookEngineLib
 	//! \brief Hook manager using EasyHook
 	class EasyHookManager : public IHookManager
 	{
-	public:
-		//! EasyHookManager default constructor
-		EasyHookManager() : m_bInit(false) {}
-
-		virtual bool InstallRegisteredHooks();
-		virtual bool UninstallRegisteredHooks();
-
 	protected:
-		virtual bool InstallHook(Hook *pHook_in_out);
-		virtual bool UninstallHook(Hook *pHook_in_out);
+		bool DestroyHook(const Hook *pHook_in);
+		bool CreateHook(Hook *pHook_in_out);
+		bool CommitTransaction();
+		bool BeginTransaction();
+		bool Initialize();
+		void Shutdown();
 
 		//! EasyHook trace structure
 		HOOK_TRACE_INFO m_hHook;

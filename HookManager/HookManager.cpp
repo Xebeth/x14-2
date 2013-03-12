@@ -6,13 +6,16 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
-#include "HookEngine.h"
+#include "HookManager.h"
 
 namespace HookEngineLib
 {
 	//! \brief IHookManager destructor
 	IHookManager::~IHookManager()
 	{
+		UninstallRegisteredHooks();
+		Shutdown();
+
 		HookPtrMap::iterator Iter;
 
 		for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
@@ -22,6 +25,123 @@ namespace HookEngineLib
 
 		for (AsmIter = m_AsmData.begin(); AsmIter != m_AsmData.end(); ++AsmIter)
 			free(*AsmIter);
+	}
+
+	/*! \brief Installs all the hooks currently registered in the manager
+		\return true if all the hooks were installed successfully; false otherwise
+	*/
+	bool IHookManager::InstallRegisteredHooks()
+	{
+		if (m_bInit == false)
+			m_bInit = Initialize();
+
+		if (m_bInit && BeginTransaction())
+		{
+			HookPtrMap::const_iterator Iter;
+			bool bResult = true;
+
+			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
+				if (Iter->second != NULL && Iter->second->m_bInstalled == false)
+					bResult &= InstallHook(Iter->second);
+
+			return (CommitTransaction() && bResult);
+		}
+
+		return false;
+	}
+
+	/*! \brief Uninstalls all the hooks currently registered in the manager
+		\return true if all the hooks were uninstalled successfully; false otherwise
+	*/
+	bool IHookManager::UninstallRegisteredHooks()
+	{
+		if (m_bInit && BeginTransaction())
+		{
+			HookPtrMap::const_iterator Iter;
+			bool bResult = true;
+
+			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
+				if (Iter->second != NULL && Iter->second->m_bInstalled)
+					bResult &= UninstallHook(Iter->second);
+
+			return (CommitTransaction() && bResult);
+		}
+
+		return false;
+	}
+
+	/*! \brief Installs the specified hook using Detours
+		\param[in,out] pHook_in_out : a pointer to the hook to be installed
+		\return true if successful; false otherwise
+	*/
+	bool IHookManager::InstallHook(Hook *pHook_in_out)
+	{
+		if (pHook_in_out != NULL)
+		{
+			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
+			{
+				// if the hook isn't already installed
+				if (pHook_in_out->m_bInstalled == false)
+				{
+					// if we're not hooking a class member
+					if (pHook_in_out->m_dwOpCodesSize == 0)
+					{
+						// flag the hook has installed if no error occurred
+						pHook_in_out->m_bInstalled = CreateHook(pHook_in_out);
+					}
+					else
+					{
+						// use DetourClassFunc
+						pHook_in_out->m_pTrampolineFunc = DetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+																		  (LPBYTE)pHook_in_out->m_pHookFunc,
+																		  pHook_in_out->m_dwOpCodesSize);
+						// flag the hook has been installed (no real way to check success)
+						pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
+					}
+				}
+
+				return pHook_in_out->m_bInstalled;
+			}
+		}
+
+		return false;
+	}
+
+	/*! \brief Uninstalls the specified hook using Detours
+		\param[in,out] pHook_in_out : a pointer to the hook to be uninstalled
+		\return true if successful; false otherwise
+	*/
+	bool IHookManager::UninstallHook(Hook *pHook_in_out)
+	{
+		if (pHook_in_out != NULL)
+		{
+			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
+			{
+				// if the hook is installed
+				if (pHook_in_out->m_bInstalled)
+				{
+					// if we're not unhooking a class member
+					if (pHook_in_out->m_dwOpCodesSize == 0)
+					{
+						// flag the hook has uninstalled if no error occurred
+						pHook_in_out->m_bInstalled = DestroyHook(pHook_in_out);
+					}
+					else
+					{
+						// use RetourClassFunc to restore the original function
+						RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+										(LPBYTE)pHook_in_out->m_pTrampolineFunc,
+										pHook_in_out->m_dwOpCodesSize);
+						// flag the hook has been uninstalled (no real way to check success)
+						pHook_in_out->m_bInstalled = false;
+					}
+				}
+
+				return !pHook_in_out->m_bInstalled;
+			}
+		}
+
+		return false;
 	}
 
 	/*! \brief Registers a new hook

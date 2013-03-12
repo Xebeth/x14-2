@@ -8,10 +8,6 @@
 #ifndef __HOOK_ENGINE_H__
 #define __HOOK_ENGINE_H__
 
-#include <hash_map>
-#include <string>
-
-#include <NonCopyable.h>
 #include "HookManager.h"
 
 #ifdef __USE_MINHOOK
@@ -35,7 +31,7 @@
 
 	typedef HookEngineLib::IATHookManager HookEngine;
 #else
-	#error Unsupported hook engine
+	#error No hook engine selected : define __USE_DETOURS, __USE_EASYHOOK, __USE_IATHOOK or __USE_MINHOOK
 #endif
 
 #endif//__HOOK_ENGINE_H__

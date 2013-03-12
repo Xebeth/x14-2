@@ -8,18 +8,20 @@
 #ifndef __DETOURS_MANAGER_H__
 #define __DETOURS_MANAGER_H__
 
+#ifdef __USE_DETOURS
+
 namespace HookEngineLib
 {
 	class DetoursManager : public IHookManager
 	{
-	public:
-		virtual bool InstallRegisteredHooks();
-		virtual bool UninstallRegisteredHooks();
-
 	protected:
-		virtual bool InstallHook(Hook *pHook_in_out);
-		virtual bool UninstallHook(Hook *pHook_in_out);
+		bool DestroyHook(const Hook *pHook_in);
+		bool CreateHook(Hook *pHook_in_out);
+		bool CommitTransaction();
+		bool BeginTransaction();
 	};
 }
+
+#endif//__USE_DETOURS
 
 #endif//__DETOURS_MANAGER_H__

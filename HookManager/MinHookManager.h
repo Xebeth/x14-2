@@ -8,22 +8,23 @@
 #ifndef __MINHOOK_MANAGER_H__
 #define __MINHOOK_MANAGER_H__
 
+#ifdef __USE_MINHOOK
+
 namespace HookEngineLib
 {
 	//! \brief Hook manager using MinHook
 	class MinHookManager : public IHookManager
 	{
-	public:
-		//! MinHookManager default constructor
-		MinHookManager() : m_bInit(false) {}
-
-		virtual bool InstallRegisteredHooks();
-		virtual bool UninstallRegisteredHooks();
-
 	protected:
-		virtual bool InstallHook(Hook *pHook_in_out);
-		virtual bool UninstallHook(Hook *pHook_in_out);
+		bool DestroyHook(const Hook *pHook_in);
+		bool CreateHook(Hook *pHook_in_out);
+		bool CommitTransaction();
+		bool BeginTransaction();
+		bool Initialize();
+		void Shutdown();
 	};
 }
+
+#endif//__USE_MINHOOK
 
 #endif//__MINHOOK_MANAGER_H__

@@ -8,6 +8,10 @@
 #ifndef __HOOK_MANAGER_H__
 #define __HOOK_MANAGER_H__
 
+#include <string>
+#include <hash_map>
+#include <NonCopyable.h>
+
 namespace HookEngineLib
 {
 	//! \brief Hook structure
@@ -54,7 +58,9 @@ namespace HookEngineLib
 			OPCODE_POP_ECX	= 0x59		//!< POP ECX
 		};
 
-		virtual ~IHookManager();
+		//! \brief IHookManager default constructor
+		IHookManager() : NonCopyable(), m_bInit(false) {}
+		~IHookManager();
 
 		void RegisterHook(const char* pFuncName_in, const char* pModuleName_in, LPVOID pOriginalFunc_in,
 						  LPVOID pHookFunc_in, DWORD dwOpCodeSize_in = 0);
@@ -63,35 +69,49 @@ namespace HookEngineLib
 		LPVOID GetOriginalFunc(const char* pFuncName_in) const;
 		LPVOID GetHookFunc(const char* pFuncName_in) const;
 
-		virtual bool InstallHook(const char* pFuncName_in);
-		virtual bool UninstallHook(const char* pFuncName_in);
-		virtual bool IsHookInstalled(const char* pFuncName_in);
-		virtual bool IsHookRegistered(const char* pFuncName_in);
+		bool InstallHook(const char* pFuncName_in);
+		bool UninstallHook(const char* pFuncName_in);
+		bool IsHookInstalled(const char* pFuncName_in);
+		bool IsHookRegistered(const char* pFuncName_in);
 
-		/*! \brief Installs all the hooks currently registered in the manager
-			\return true if all the hooks were installed successfully; false otherwise
-		*/
-		virtual bool InstallRegisteredHooks() =0;
-		/*! \brief Uninstalls all the hooks currently registered in the manager
-			\return true if all the hooks were uninstalled successfully; false otherwise
-		*/
-		virtual bool UninstallRegisteredHooks() =0;
+		bool UninstallRegisteredHooks();
+		bool InstallRegisteredHooks();
 
-		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);
 		void RetourClassFunc(const LPBYTE pSrc_in, LPBYTE pTrampoline_in, DWORD OpCodesSize_in);
+		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);		
 
 	protected:
-		/*! \brief Installs the specified hook
-			\param[in] pHook_in : the hook to install
-			\return true if the hook was installed successfully; false otherwise
+		/*! \brief Destroys a hook by restoring the original function
+			\param[in] pHook_in : the hook to destroy
+			\return true if the hook was destroyed; false otherwise
 		*/
-		virtual bool InstallHook(Hook *pHook_in) =0;
-		/*! \brief Uninstalls the specified hook
-			\param[in] pHook_in : the hook to install
-			\return true if the hook was uninstalled successfully; false otherwise
+		virtual bool DestroyHook(const Hook *pHook_in) =0;
+		/*! \brief Creates a hook by patching the original function
+		\param[in] pHook_in : the hook to create
+		\return true if the hook was created; false otherwise
 		*/
-		virtual bool UninstallHook(Hook *pHook_in) =0;
-		virtual void UnregisterHook(const HookPtrMap::iterator &Iter_in);
+		virtual bool CreateHook(Hook *pHook_in_out) =0;
+		/*! \brief Initializes the hooking process
+			\return true if the initialization succeeded; false otherwise
+		*/
+		virtual bool Initialize() { return true; }
+		/*! \brief Terminates the hooking process
+			\return true if the termination succeeded; false otherwise
+		*/
+		virtual void Shutdown() { m_bInit = false; }
+
+		/*! \brief Ends the installation process
+		\return true if the termination succeeded; false otherwise
+		*/
+		virtual bool CommitTransaction() { return true; }
+		/*! \brief Commits the installation process
+			\return true if the commit succeeded; false otherwise
+		*/
+		virtual bool BeginTransaction() { return true; }
+
+		void UnregisterHook(const HookPtrMap::iterator &Iter_in);
+		bool UninstallHook(Hook *pHook_in_out);
+		bool InstallHook(Hook *pHook_in_out);
 
 		//! map of installed hooks
 		HookPtrMap m_HookMap;
