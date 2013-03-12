@@ -20,7 +20,7 @@ namespace IATPatcher
 	*/
 	bool PatchIAT(HMODULE hmMod_in, const char *psImportedModuleName_in,
 				  const char *psImportedProcName_in,
-				  PVOID *ppvOriginalProc_out, PVOID pvHookingProc_in)
+				  PVOID *ppvOriginalProc_out, const PVOID pvHookingProc_in)
 	{
 		PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor;
 		PIMAGE_DOS_HEADER pDOSHeader;
@@ -92,7 +92,7 @@ namespace IATPatcher
 		\return true if the IAT was successfully patched; false otherwise
 	*/
 	bool RestoreIAT(HMODULE hmMod_in, const char *psImportedModuleName_in,
-					const char *psImportedProcName_in, PVOID pvOriginalProc_in)
+					const char *psImportedProcName_in, const PVOID pvOriginalProc_in)
 	{
 		PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor;
 		PIMAGE_DOS_HEADER pDOSHeader;
