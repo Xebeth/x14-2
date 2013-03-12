@@ -28,11 +28,14 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 	if (dwReason_in == DLL_PROCESS_ATTACH) 
 	{
-#ifdef _DEBUG
-		// Sleep(5000);
-#endif // _DEBUG
+		// Restore the IAT table
+		DetourRestoreAfterWith();
+
 		if (g_pEngine == NULL)
 		{
+#ifdef _DEBUG
+			// Sleep(5000);
+#endif // _DEBUG
 			g_pEngine = new Bootstrap::BootstrapEngine(hModule_in, _T("config.ini"));
 			bResult = g_pEngine->Attach();
 		}
@@ -41,8 +44,8 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 	{
 		if (g_pEngine != NULL)
 		{
-			g_pEngine->Detach();
-
+			bResult = g_pEngine->Detach();
+			// cleanup
 			delete g_pEngine;
 			g_pEngine = NULL;
 		}
