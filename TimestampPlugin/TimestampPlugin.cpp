@@ -33,14 +33,15 @@ namespace Windower
 		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
 		  m_pSettings(new TimestampSettings(IPlugin::GetConfigFile(), NULL))
 	{
+		// retrieve the format from the settings
 		if (m_pSettings != NULL)
-		{
 			convert_ansi(m_pSettings->GetFormat(), m_TimestampFormat);
-			m_TimestampFormat += " ";
-		}
 		else
-			m_TimestampFormat = "[HH:mm:ss] ";
-
+			m_TimestampFormat = "[HH:mm:ss]";
+		// add a space if there is none after the timestamp
+		if (m_TimestampFormat.back() != ' ')
+			m_TimestampFormat += ' ';
+		
 		m_TimestampLength = m_TimestampFormat.length();
 	}
 
