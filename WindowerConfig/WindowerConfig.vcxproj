@@ -24,6 +24,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp" />
+    <ClCompile Include="..\WindowerPlugin\ModuleService.cpp" />
     <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp" />
     <ClCompile Include="WindowerConfigApp.cpp" />
     <ClCompile Include="WindowerConfigDlg.cpp" />
@@ -33,6 +34,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\WindowerPlugin\ICoreModule.h" />
+    <ClInclude Include="..\WindowerPlugin\ModuleService.h" />
     <ClInclude Include="..\Windowerx14\WindowerSettings.h" />
     <ClInclude Include="..\Common\CryptUtils.h" />
     <ClInclude Include="..\Common\string_t.h" />

@@ -27,8 +27,8 @@ namespace Bootstrap
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
-	SystemCore::SystemCore(Windower::PluginEngine &Engine_in_out)
-		: Windower::WindowerCore(Engine_in_out)
+	SystemCore::SystemCore(Windower::PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
+		: Windower::WindowerCore(Engine_in_out, HookManager_in_out)
 	{
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 

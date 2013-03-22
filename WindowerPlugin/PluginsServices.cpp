@@ -9,7 +9,6 @@
 #include <PluginFramework.h>
 #include <PluginManager.h>
 #include <HookEngine.h>
-#include <HookManager.h>
 
 #include "PluginsServices.h"
 #include "ICoreModule.h"

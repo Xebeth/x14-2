@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>../IATPatcher/;$(CPP_SDK_PATH)/MinHook/include/;$(CPP_SDK_PATH)/Detours/include/;$(CPP_SDK_PATH)/EasyHook/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../HookManager/;../SigScan/;../IATPatcher/;$(CPP_SDK_PATH)/MinHook/include/;$(CPP_SDK_PATH)/Detours/include/;$(CPP_SDK_PATH)/EasyHook/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

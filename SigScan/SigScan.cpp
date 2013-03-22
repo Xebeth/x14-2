@@ -30,50 +30,55 @@ namespace SigScan
 		\param[in] ProcessID_in : the process ID of the scanned process
 		\param[in] pModule_in : the name of the process
 	*/
-	void SigScan::Initialize(DWORD ProcessID_in, const TCHAR *pModule_in)
+	bool SigScan::Initialize(DWORD ProcessID_in, const TCHAR *pModule_in)
 	{
-		MODULEENTRY32 uModule;
-
-		SecureZeroMemory(&uModule, sizeof(uModule));
-		uModule.dwSize = sizeof(uModule); 
-		// Create snapshot of modules and Iterate them
-		HANDLE hModuleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, ProcessID_in);
-
-		for(BOOL bContinue = Module32First(hModuleSnapshot, &uModule); bContinue; bContinue = Module32Next(hModuleSnapshot, &uModule))
+		if (m_bInitialized == false && pModule_in != NULL && _tcslen(pModule_in) > 0)
 		{
+			MODULEENTRY32 uModule;
+
+			SecureZeroMemory(&uModule, sizeof(uModule));
 			uModule.dwSize = sizeof(uModule); 
+			// Create snapshot of modules and Iterate them
+			HANDLE hModuleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, ProcessID_in);
 
-			if(_tcsicmp(uModule.szModule, pModule_in) == 0)
+			for(BOOL bContinue = Module32First(hModuleSnapshot, &uModule); bContinue; bContinue = Module32Next(hModuleSnapshot, &uModule))
 			{
-				TerminateSigScan();
-				m_pBaseAddress = uModule.modBaseAddr;
-				m_dwModSize = uModule.modBaseSize;
+				uModule.dwSize = sizeof(uModule); 
 
-				if(GetCurrentProcessId() == ProcessID_in)
+				if(_tcsicmp(uModule.szModule, pModule_in) == 0)
 				{
-					m_bIsLocal = m_bInitialized = true;
-					m_pProcessMemory = m_pBaseAddress;
-				}
-				else
-				{
-					HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, ProcessID_in);
+					TerminateSigScan();
+					m_pBaseAddress = uModule.modBaseAddr;
+					m_dwModSize = uModule.modBaseSize;
 
-					m_pProcessMemory = new BYTE[m_dwModSize];
-					m_bIsLocal = false;
-
-					if(hProcess)
+					if(GetCurrentProcessId() == ProcessID_in)
 					{
-						if(ReadProcessMemory(hProcess,(LPCVOID)m_pBaseAddress,m_pProcessMemory,m_dwModSize,NULL))
-							m_bInitialized = true;
-
-						CloseHandle(hProcess);
+						m_bIsLocal = m_bInitialized = true;
+						m_pProcessMemory = m_pBaseAddress;
 					}
+					else
+					{
+						HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, ProcessID_in);
+
+						m_pProcessMemory = new BYTE[m_dwModSize];
+						m_bIsLocal = false;
+
+						if(hProcess)
+						{
+							if(ReadProcessMemory(hProcess, (LPCVOID)m_pBaseAddress, m_pProcessMemory, m_dwModSize, NULL))
+								m_bInitialized = true;
+
+							CloseHandle(hProcess);
+						}
+					}
+					break;
 				}
-				break;
 			}
+
+			CloseHandle(hModuleSnapshot);
 		}
 
-		CloseHandle(hModuleSnapshot);
+		return m_bInitialized;
 	}
 
 	//! \brief Terminates the scanning process and cleans memory up

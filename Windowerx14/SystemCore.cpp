@@ -24,14 +24,14 @@
 #include "WindowerCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
-#include <SigScan.h>
 
 namespace Windower
 {
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
-	SystemCore::SystemCore(WindowerEngine &Engine_in_out) : WindowerCore(Engine_in_out)
+	SystemCore::SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
+		: WindowerCore(Engine_in_out, HookManager_in_out)
 	{
 		m_pRegisterClassExATrampoline = RegisterClassExA;
 		m_pCreateWindowExATrampoline = CreateWindowExA;
@@ -94,10 +94,14 @@ namespace Windower
 			hWnd_in = m_pCreateWindowExATrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
 												   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
 
-			if (m_hGameWnd == NULL && hWnd_in != NULL && lpWindowName_in != NULL && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)
+			if (m_hGameWnd == NULL && hWnd_in != NULL				// stop checking after the game HWND was found
+			 && (ATOM)lpClassName_in != NULL						// lpClassName can be an ATOM (16-bit)
+			 && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)	// check for the game class name
 			{
 				// CreateEngineThread();
 				m_hGameWnd = hWnd_in;
+				// remove the hook since it is no longer needed
+				m_Engine.OnHookCall("CreateWindowExA");
 			}
 		}
 
@@ -115,12 +119,17 @@ namespace Windower
 
 		if (m_pRegisterClassExATrampoline != NULL)
 		{
+			// replacing the pointer to the window procedure
 			WNDCLASSEXA *pWndClass = const_cast<WNDCLASSEXA *>(pWndClass_in);
 
+			// check for the game class name
 			if (strcmp(pWndClass->lpszClassName, FFXIV_WINDOW_CLASSA) == 0)
 			{
+				// save the original window procedure then replace it
 				m_pGameWndProc = pWndClass->lpfnWndProc;
 				pWndClass->lpfnWndProc = ::WndProcHook;
+				// remove the hook since it is no longer needed
+				m_Engine.OnHookCall("RegisterClassExA");
 			}
 
 			Result = m_pRegisterClassExATrampoline(pWndClass);
@@ -147,7 +156,6 @@ namespace Windower
 	{
 		switch (uMsg_in)
 		{
-			case WM_NCDESTROY:
 			case WM_QUIT:
 				// start shutting down the engine
 				static_cast<WindowerEngine&>(m_Engine).OnShutdown();
@@ -157,12 +165,6 @@ namespace Windower
 			case WM_KEYDOWN:
 			case WM_KEYUP:
 				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
-			break;
-/*
-			case WM_ACTIVATE:
-				if (wParam_in == WA_ACTIVE)
-					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(true);
-*/
 			break;
 		}
 
@@ -189,11 +191,11 @@ namespace Windower
 			{
 				if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000)
 				{
-					static_cast<WindowerEngine&>(m_Engine).Graphics().ToggleRendering();
+//					static_cast<WindowerEngine&>(m_Engine).Graphics().ToggleRendering();
 				}
 				else
 				{
-					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(false);
+//					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(false);
 					ShowWindow(m_hGameWnd, SW_MINIMIZE);
 				}
 

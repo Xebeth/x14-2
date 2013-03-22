@@ -13,6 +13,8 @@
 #include "PluginManager.h"
 #include "PluginEngine.h"
 
+#include "utf8_convert.h"
+
 namespace Windower
 {
 	using namespace PluginFramework;
@@ -121,6 +123,76 @@ namespace Windower
 
 			if (Iter != m_Plugins.end())
 				m_Plugins.erase(Iter);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/*! \brief Loads a set of plugins
+		\param[in] PluginSet_in : a list of plugins name to load
+		\return the number of loaded plugins
+	*/
+	size_t PluginEngine::LoadPlugins(const ActivePlugins& PluginSet_in)
+	{
+		size_t Count = 0U;
+
+		ActivePlugins::const_iterator PluginIt;
+
+		for (PluginIt = PluginSet_in.begin(); PluginIt != PluginSet_in.end(); ++PluginIt)
+			if (LoadPlugin(*PluginIt))
+				++Count;
+
+		return Count;
+	}
+
+   
+
+	/*! \brief Lists all the available plugins and their state (loaded or not)
+		\param[out] Feedback_out : the string receiving the result
+		\return true if the list was retrieved successfully; false otherwise
+	*/
+	bool PluginEngine::ListPlugins(std::string &Feedback_out) const
+	{
+		if  (m_pPluginManager != NULL)
+		{
+			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
+			PluginFramework::RegisteredPlugins::const_iterator PluginEnd = Plugins.end();
+			PluginFramework::RegisteredPlugins::const_iterator PluginIt = Plugins.begin();
+			std::string Info, LoadedList, AvailableList;
+			UINT LoadedCount = 0U, AvailableCount = 0U;
+
+			for (; PluginIt != PluginEnd; ++PluginIt)
+			{
+				convert_ansi(PluginIt->second.ToString(), Info);
+
+				if (m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()))
+				{
+					append_format(LoadedList, "- %s", Info.c_str());
+					++LoadedCount;
+				}
+				else
+				{
+					append_format(AvailableList, "- %s", Info.c_str());
+					++AvailableCount;
+				}
+			}
+
+			if (LoadedCount > 0U)
+			{
+				append_format(Feedback_out, "Loaded plugins (%u found):\n%s",
+							  LoadedCount, LoadedList.c_str());
+			}
+
+			if (AvailableCount > 0U)
+			{
+				if (LoadedCount > 0U)
+					Feedback_out += "\n";
+
+				append_format(Feedback_out, "Available plugins (%u found):\n%s",
+							  AvailableCount, AvailableList.c_str());
+			}
 
 			return true;
 		}

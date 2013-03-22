@@ -9,6 +9,7 @@
 #define __COMMAND_DISPATCHER_H__
 
 #include "ICoreModule.h"
+#include "ModuleService.h"
 #include "WindowerCore.h"
 
 #include "WindowerCommand.h"
@@ -34,19 +35,8 @@ namespace Windower
 		};
 
 	public:
-		explicit CommandDispatcher(PluginEngine &Engine_in_out);
+		explicit CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
 		virtual ~CommandDispatcher();
-
-		// ICoreModule interface implementation
-
-		/*! \brief Register the hooks for this module
-			\param[in] HookManager_in : the hook manager
-		*/
-		void RegisterHooks(IHookManager &HookManager_in) {}
-		/*! \brief Callback invoked when the hooks of the module are installed
-			\param[in] HookManager_in : the hook manager
-		*/
-		void OnHookInstall(IHookManager &HookManager_in) {}
 
 		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in);
 

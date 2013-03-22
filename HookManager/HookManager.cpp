@@ -8,6 +8,8 @@
 #include "stdafx.h"
 #include "HookManager.h"
 
+#include <utf8_convert.h>
+
 namespace HookEngineLib
 {
 	//! \brief IHookManager destructor
@@ -42,7 +44,7 @@ namespace HookEngineLib
 
 			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
 				if (Iter->second != NULL && Iter->second->m_bInstalled == false)
-					bResult &= InstallHook(Iter->second);
+					bResult &= (InstallHook(Iter->second) != NULL);
 
 			return (CommitTransaction() && bResult);
 		}
@@ -74,10 +76,17 @@ namespace HookEngineLib
 		\param[in,out] pHook_in_out : a pointer to the hook to be installed
 		\return true if successful; false otherwise
 	*/
-	bool IHookManager::InstallHook(Hook *pHook_in_out)
+	LPVOID IHookManager::InstallHook(Hook *pHook_in_out)
 	{
 		if (pHook_in_out != NULL)
 		{
+			if (pHook_in_out->m_pOriginalFunc == NULL)
+			{
+				// try to find the function automatically
+				pHook_in_out->m_pOriginalFunc = FindModuleFunction(pHook_in_out->m_sModuleName.c_str(),
+																   pHook_in_out->m_sFuncName.c_str());
+			}
+
 			if (pHook_in_out->m_pOriginalFunc != NULL && pHook_in_out->m_pHookFunc != NULL)
 			{
 				// if the hook isn't already installed
@@ -99,12 +108,12 @@ namespace HookEngineLib
 						pHook_in_out->m_bInstalled = (pHook_in_out->m_pTrampolineFunc != NULL);
 					}
 				}
-
-				return pHook_in_out->m_bInstalled;
 			}
+
+			return pHook_in_out->m_pTrampolineFunc;
 		}
 
-		return false;
+		return NULL;
 	}
 
 	/*! \brief Uninstalls the specified hook using Detours
@@ -161,6 +170,39 @@ namespace HookEngineLib
 			UninstallHook(Iter->second);
 
 		m_HookMap[pFuncName_in] = new Hook(pFuncName_in, pModuleName_in, pOriginalFunc_in, pHookFunc_in, dwOpCodeSize_in);
+	}
+
+	/*! \brief Registers a new hook given a memory signature
+		\param[in] pFuncName_in : the name of the target function
+		\param[in] pModuleName_in : the name of the module containing the hooked function
+		\param[in] pPattern_in : 
+		\param[in] Offset_in : 
+		\param[in] pHookFunc_in : function pointer to the replacement function
+		\param[in] dwOpCodeSize_in : the size of the instructions being overwritten for class member hook
+	*/
+	void IHookManager::RegisterHook(const char* pFuncName_in, const char* pModuleName_in,
+									const char* pPattern_in, int Offset_in, 
+									LPVOID pHookFunc_in, DWORD dwOpCodeSize_in)
+	{
+		// initialize the scanner if needed
+		if (m_MemScan.IsInitialized() == false)
+		{
+			string_t ProcessName;
+
+			// convert the process name to ANSI
+			convert_utf8(std::string(pModuleName_in), ProcessName);
+			// initialize the memory scanner
+			m_MemScan.Initialize(::GetCurrentProcessId(), ProcessName.c_str());
+		}
+
+		if (m_MemScan.IsInitialized())
+		{
+			// scan for the pattern
+			DWORD_PTR dwFuncAddr = m_MemScan.Scan(pPattern_in, Offset_in);
+
+			if (dwFuncAddr != NULL)
+				RegisterHook(pFuncName_in, pModuleName_in, (LPVOID)dwFuncAddr, pHookFunc_in, dwOpCodeSize_in);
+		}
 	}
 
 	/*! \brief Unregisters a hook given the hook name
@@ -234,14 +276,14 @@ namespace HookEngineLib
 	/*! \brief Installs a hook given its name
 		\param[in] pFuncName_in : the name of the hook
 	*/
-	bool IHookManager::InstallHook(const char* pFuncName_in)
+	LPVOID IHookManager::InstallHook(const char* pFuncName_in)
 	{
 		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
 
 		if (Iter != m_HookMap.end() && Iter->second != NULL)
 			return InstallHook(Iter->second);
 
-		return true;
+		return NULL;
 	}
 
 	/*! \brief Checks if the hook specified by the function name is installed
@@ -298,6 +340,24 @@ namespace HookEngineLib
 
 			VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
 			memcpy(pTrampoline + 3, pSrc_in, OpCodesSize_in);
+			LPBYTE pCallOp = NULL;
+			long JumpAddr;
+
+			for (DWORD i = 0; i < OpCodesSize_in; ++i)
+			{
+				pCallOp = pTrampoline + 3 + i;
+
+				// try to fix a relative call
+				if (*pCallOp == 0xE8)
+				{
+					++pCallOp;
+					JumpAddr = *(long*)(pCallOp);						// 1. jump offset
+					JumpAddr = *(long*)(&pSrc_in) + i + 4 + JumpAddr;	// 2. find the real destination
+					JumpAddr = *(long*)(&pTrampoline - JumpAddr);		// 3. ???
+					memcpy(pCallOp, &JumpAddr, sizeof(long));			// 4. profit
+					break;
+				}
+			}
 
 			// write the hook code
 			pTrampoline[0] = OPCODE_POP_EAX;						// POP EAX
@@ -345,5 +405,86 @@ namespace HookEngineLib
 		*(DWORD*)(pTrampoline_in+4) = (DWORD)(pSrc_in - (pTrampoline_in+3)) - 5;
 
 		VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+	}
+
+	/*! \brief Installs a set of hooks given their names
+		\param[in] HookList_in : a list of the hooks to install
+		\return true if all the hooks were installed; false otherwise
+	*/
+	bool IHookManager::InstallHooks(HookPointers& HookList_in_out)
+	{
+		HookPointers::const_iterator EndIt = HookList_in_out.end();
+		HookPointers::iterator HookIt = HookList_in_out.begin();
+		LPVOID pTrampoline = NULL;
+		bool Result = true;
+
+		for (; HookIt != EndIt; ++HookIt)
+		{
+			// install the hook
+			pTrampoline = InstallHook(HookIt->first.c_str());
+			Result &= (pTrampoline != NULL);
+			HookIt->second = pTrampoline;			
+		}
+
+		return Result;
+	}
+
+	/*! \brief Installs a set of hooks given their names
+		\param[in] HookList_in : a list of the hooks to install
+		\return true if all the hooks were installed; false otherwise
+	*/
+	bool IHookManager::UninstallHooks(HookPointers& HookList_in_out)
+	{
+		HookPointers::const_iterator EndIt = HookList_in_out.end();
+		HookPointers::iterator HookIt = HookList_in_out.begin();
+		bool Result = true;
+
+		for (; HookIt != EndIt; ++HookIt)
+		{
+			// uninstall the hook
+			Result &= UninstallHook(HookIt->first.c_str());
+			HookIt->second = NULL;
+		}
+
+		return Result;
+	}
+
+	/*! \brief Installs a set of hooks given their names
+		\param[in] HookList_in : a list of the hooks to install
+		\return true if all the hooks were installed; false otherwise
+	*/
+	void IHookManager::UnregisterHooks(HookPointers& HookList_in_out)
+	{
+		HookPointers::const_iterator EndIt = HookList_in_out.end();
+		HookPointers::iterator HookIt = HookList_in_out.begin();
+		const char *pHookName = NULL;
+
+		for (; HookIt != EndIt; ++HookIt)
+		{
+			pHookName = HookIt->first.c_str();
+			// uninstall the hook if it's pointer is not NULL
+			if (HookIt->second != NULL)
+				UninstallHook(pHookName);
+			// unregister the hook
+			UnregisterHook(pHookName);
+		}
+	}
+
+	/*! \brief Finds a function within the specified module
+		\param[in] pModuleName_in : the name of the module exporting the function
+		\param[in] pFuncName_in : the name of the function to find
+		\return the address of the function if found; NULL otherwise
+	*/
+	LPVOID IHookManager::FindModuleFunction(const char *pModuleName_in, const char *pFuncName_in)
+	{
+		if (pFuncName_in != NULL && pModuleName_in != NULL)
+		{
+			HMODULE hModule = ::LoadLibraryExA(pModuleName_in, NULL, 0);
+
+			if (hModule != NULL)
+				return ::GetProcAddress(hModule, pFuncName_in);
+		}
+
+		return NULL;
 	}
 }

@@ -8,6 +8,11 @@
 #ifndef __SYSTEM_CORE_H__
 #define __SYSTEM_CORE_H__
 
+namespace Windower
+{
+	class ModuleService;
+}
+
 namespace Bootstrap
 {
 	typedef HookEngineLib::IHookManager IHookManager;
@@ -19,7 +24,7 @@ namespace Bootstrap
 	class SystemCore : public Windower::WindowerCore
 	{
 	public:
-		SystemCore(Windower::PluginEngine &Engine_in_out);
+		SystemCore(Windower::PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);

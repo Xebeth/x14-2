@@ -52,7 +52,7 @@ namespace Bootstrap
 		//! the current settings profile
 		Windower::WindowerProfile *m_pSettings;
 		//! the hook engine
-		HookEngine *m_pHookManager;
+		HookEngine m_HookManager;
 		//! the system core module
 		SystemCore *m_pSystemCore;
 		//! the module handle of the hooked process

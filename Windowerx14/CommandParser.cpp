@@ -24,10 +24,11 @@ namespace Windower
 {
 	/*! \brief CommandParser constructor
 		\param[in] Engine_in_out : the windower engine
+		\param[in] HookManager_in_out : the hook manager
 		\param[in] Dispatcher_in : the command dispatcher
 	*/
-	CommandParser::CommandParser(WindowerEngine &Engine_in_out, CommandDispatcher &Dispatcher_in)
-		: WindowerCore(Engine_in_out), m_CommandDispatcher(Dispatcher_in)
+	CommandParser::CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in)
+		: WindowerCore(Engine_in_out, HookManager_in_out), m_CommandDispatcher(Dispatcher_in)
 	{
 		m_Engine.RegisterModule(_T("CommandParser"), this);
 	}

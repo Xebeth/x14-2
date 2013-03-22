@@ -57,6 +57,19 @@ namespace HookEngineLib
 		return (DetourDetach(&(LPVOID&)pHook_in->m_pOriginalFunc, 
 							 pHook_in->m_pHookFunc) == NO_ERROR);
 	}
+
+	/*! \brief Finds a function within the specified module
+		\param[in] pModuleName_in : the name of the module exporting the function
+		\param[in] pFuncName_in : the name of the function to find
+		\return the address of the function if found; NULL otherwise
+	*/
+	LPVOID DetoursManager::FindModuleFunction(const char *pModuleName_in, const char *pFuncName_in)
+	{
+		if (pFuncName_in != NULL && pModuleName_in != NULL)
+			return ::DetourFindFunction(pModuleName_in, pFuncName_in);
+		
+		return NULL;
+	}
 }
 
 #endif//__USE_DETOURS

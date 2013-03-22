@@ -20,10 +20,10 @@
 #include "WindowerEngine.h"
 #include "PluginsServices.h"
 
-#include "FormatChatMessageHook.h"
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
 #include "Direct3D9Hook.h"
+
 #ifdef _DEBUG
 	#include "TestHook.h"
 #endif // _DEBUG
@@ -55,45 +55,34 @@ namespace Windower
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in), m_bThreadInit(false),
-		  m_bShutdown(false), m_hGameWnd(NULL)
+		: PluginEngine(hModule_in, pConfigFile_in), m_bThreadInit(false), m_pGameChatCore(NULL),
+		  m_bShutdown(false), m_hGameWnd(NULL), m_pCommandDispatcher(NULL), m_pSystemCore(NULL)
 	{
-		// create the settings
+		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
+		// testing
+#if defined _DEBUG && defined _TESTING
+		// create the testing module
+		m_pTestCore = new TestCore(*this, m_HookManager);
+#endif // _DEBUG
 
+		// register the built-in commands
+		RegisterCommands();
+
+		// check the settings and load the default profile
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
-			// testing
-#if defined _DEBUG && defined _TESTING
-			m_pTestCore = new TestCore(*this);
-			RegisterModule(_T("Testing"), m_pTestCore);
-#endif // _DEBUG
-			// Win32 related hooks
-			m_pSystemCore = new SystemCore(*this);
-			// Commander dispatcher
-			m_pCommandDispatcher = new CommandDispatcher(*this);
-			// Commander parser
-			m_pCommandParser = new CommandParser(*this, *m_pCommandDispatcher);
-			// Game chat related hooks
-			m_pGameChatCore = new GameChatCore(*this, m_HookManager, *m_pCommandParser, *m_pCommandDispatcher);
-			// Direct3D related hooks
-			m_pGraphicsCore = NULL; // new GraphicsCore(*this, m_Settings.GetVSync());
-
+			// create the game chat module
+			// m_pGameChatCore = new GameChatCore(*this, m_HookManager);
+			// create the graphics module
+			m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
+			// list the available plugins compatible with windower
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_WINDOWER);
+			// set the plugin manager of the modules
 			ICoreModule::SetPluginManager(*m_pPluginManager);
-
 			// load active plugins
-			const ActivePlugins &Plugins = m_Settings.GetActivePlugins();
-			ActivePlugins::const_iterator PluginIt;
-
-			for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt)
-				PluginEngine::LoadPlugin(*PluginIt);
-
-			RegisterCommands();
-
-			// injects the windower version on the main menu
-			m_pInjectVersion = new InjectVersion(m_pPluginServices);
+			LoadPlugins(m_Settings.GetActivePlugins());
 		}
 	}
 
@@ -103,27 +92,14 @@ namespace Windower
 		UnregisterCommands();
 		Detach();
 
-		// destroy before GameChatCore or any subscribed services
-		delete m_pInjectVersion;
-		m_pInjectVersion = NULL;
-/*
-		delete m_pGraphicsCore;
-		m_pGraphicsCore = NULL;
-*/
+		delete m_pSettingsManager;
+		m_pSettingsManager = NULL;
+
 		delete m_pGameChatCore;
 		m_pGameChatCore = NULL;
 
-		delete m_pCommandParser;
-		m_pCommandParser = NULL;
-
-		delete m_pCommandDispatcher;
-		m_pCommandDispatcher = NULL;
-
-		delete m_pSystemCore;
-		m_pSystemCore = NULL;
-
-		delete m_pSettingsManager;
-		m_pSettingsManager = NULL;
+		delete m_pGraphicsCore;
+		m_pGraphicsCore = NULL;
 
 #if defined _DEBUG && defined _TESTING
 		delete m_pTestCore;
@@ -136,22 +112,19 @@ namespace Windower
 	*/
 	bool WindowerEngine::Attach()
 	{
-		if (m_pSystemCore != NULL)
-		{
-			CoreModules::const_iterator Iter;
+		CoreModules::const_iterator Iter;
 
+		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+			if (Iter->second != NULL)
+				Iter->second->RegisterHooks(m_HookManager);
+
+		if (m_HookManager.InstallRegisteredHooks())
+		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 				if (Iter->second != NULL)
-					Iter->second->RegisterHooks(m_HookManager);
+					Iter->second->OnHookInstall(m_HookManager);
 
-			if (m_HookManager.InstallRegisteredHooks())
-			{
-				for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-					if (Iter->second != NULL)
-						Iter->second->OnHookInstall(m_HookManager);
-
-				return true;
-			}
+			return true;
 		}
 
 		return false;
@@ -266,10 +239,10 @@ namespace Windower
 			pCommand = m_pCommandDispatcher->FindCommand("unload");
 			Result &= UnregisterCommand(pCommand);
 
-			pCommand = m_pCommandDispatcher->FindCommand("unload");
+			pCommand = m_pCommandDispatcher->FindCommand("load");
 			Result &= UnregisterCommand(pCommand);
 
-			pCommand = m_pCommandDispatcher->FindCommand("unload");
+			pCommand = m_pCommandDispatcher->FindCommand("list");
 			Result &= UnregisterCommand(pCommand);
 
 			return Result;
@@ -398,54 +371,17 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Lists all the available plugins and their state (loaded or not)
-		\param[out] Feedback_out : the string receiving the result
-		\return true if the list was retrieved successfully; false otherwise
+	/*! \brief Optional callback to inform the engine that a successful call to the hook was made
+		\param[in] pHookName_in : the name of the hook
 	*/
-	bool WindowerEngine::ListPlugins(std::string &Feedback_out) const
+	void WindowerEngine::OnHookCall(const char *pHookName_in)
 	{
-		if  (m_pPluginManager != NULL)
+		if (strcmp(pHookName_in, "RegisterClassExA") == 0
+		 || strcmp(pHookName_in, "CreateWindowExA") == 0)
 		{
-			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
-			PluginFramework::RegisteredPlugins::const_iterator PluginEnd = Plugins.end();
-			PluginFramework::RegisteredPlugins::const_iterator PluginIt = Plugins.begin();
-			std::string Info, LoadedList, AvailableList;
-			UINT LoadedCount = 0U, AvailableCount = 0U;
-
-			for (; PluginIt != PluginEnd; ++PluginIt)
-			{
-				convert_ansi(PluginIt->second.ToString(), Info);
-
-				if (m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()))
-				{
-					append_format(LoadedList, "- %s", Info.c_str());
-					++LoadedCount;
-				}
-				else
-				{
-					append_format(AvailableList, "- %s", Info.c_str());
-					++AvailableCount;
-				}
-			}
-
-			if (LoadedCount > 0U)
-			{
-				append_format(Feedback_out, "Loaded plugins (%u found):\n%s",
-							  LoadedCount, LoadedList.c_str());
-			}
-
-			if (AvailableCount > 0U)
-			{
-				if (LoadedCount > 0U)
-					Feedback_out += "\n";
-
-				append_format(Feedback_out, "Available plugins (%u found):\n%s",
-							  AvailableCount, AvailableList.c_str());
-			}
-
-			return true;
+			// uninstall and unregister one-time-use hooks
+			if (m_HookManager.UninstallHook(pHookName_in))
+				m_HookManager.UnregisterHook(pHookName_in);
 		}
-
-		return false;
 	}
 }

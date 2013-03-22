@@ -88,7 +88,10 @@ namespace Windower
 
 		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
-		bool ListPlugins(std::string &Feedback_out) const;
+		/*! \brief Optional callback to inform the engine that a successful call to the hook was made
+			\param[in] pHookName_in : the name of the hook
+		*/
+		void OnHookCall(const char *pHookName_in);
 
 	private:
 		bool UnregisterCommands();

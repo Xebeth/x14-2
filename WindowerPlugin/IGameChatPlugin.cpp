@@ -17,7 +17,7 @@ namespace Windower
 	*/
 	bool IGameChatPlugin::Subscribe()
 	{
-		return SubscribeService(_T("GameChat"), _T("OnChatMessage"));
+		return SubscribeService(_T("GameChat"), _T(FORMAT_CHAT_MESSAGE_HOOK));
 	}
 
 	/*! \brief Removes the plugin as a subscriber to the game chat service
@@ -25,6 +25,6 @@ namespace Windower
 	*/
 	bool IGameChatPlugin::Unsubscribe()
 	{
-		return UnsubscribeService(_T("GameChat"), _T("OnChatMessage"));
+		return UnsubscribeService(_T("GameChat"), _T(FORMAT_CHAT_MESSAGE_HOOK));
 	}
 }

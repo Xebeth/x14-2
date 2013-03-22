@@ -160,11 +160,12 @@ public:
 protected:
 	D3DPRESENT_PARAMETERS m_PresentParams;
 	LPDIRECT3DDEVICE9 m_pDirect3dDevice;
-/*
+
 	Timer					*m_pRenderTimer;
 	string_t				 m_FPS;
 	Font					*m_pFont;
-*/
+	ULONG					 m_RefCount;
+
 	DWORD					 m_FillMode;
 	bool					 m_bRender;
 	bool					 m_bShowFPS;

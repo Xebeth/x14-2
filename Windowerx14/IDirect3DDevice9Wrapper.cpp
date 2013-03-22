@@ -10,18 +10,15 @@
 #include "IDirect3DDevice9Wrapper.h"
 
 IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice, D3DPRESENT_PARAMETERS &PresentParams_in)
-	: m_pDirect3dDevice(*pDirect3dDevice), m_bSceneStarted(false), m_PresentParams(PresentParams_in),
-	  m_bRender(true), m_FillMode(0), m_bShowFPS(false)/*, m_pFont(new Font), m_pRenderTimer(new Timer)*/
+	: m_pDirect3dDevice(*pDirect3dDevice), m_bSceneStarted(false), m_PresentParams(PresentParams_in), m_RefCount(0UL),
+	  m_bRender(true), m_FillMode(0), m_bShowFPS(false), m_pFont(new Font), m_pRenderTimer(new Timer)
 {
-/*
 	m_pFont->Initialize(m_pDirect3dDevice, _T("Arial"), 12);
 	m_pRenderTimer->Start();
-*/
 }
 
 IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 {
-/*
 	if (m_pRenderTimer != NULL)
 	{
 		delete m_pRenderTimer;
@@ -33,13 +30,21 @@ IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 		delete m_pFont;
 		m_pFont = NULL;
 	}
-*/
+
 	m_pDirect3dDevice = NULL;
 }
 
 ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
 {
-	return m_pDirect3dDevice->Release();
+	ULONG Result = 0UL;
+	
+	if (m_pDirect3dDevice != NULL)
+		Result = m_pDirect3dDevice->Release();
+
+	if (m_RefCount-- == 0)
+		delete this;
+
+	return Result;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene() 
@@ -48,17 +53,15 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 
 	if (m_bRender && m_bSceneStarted == false)
 	{
-		m_bSceneStarted = true;
-
 		Result = m_pDirect3dDevice->BeginScene();
-/*
-		if (m_bShowFPS)
+		m_bSceneStarted = (Result == S_OK);
+
+		if (m_bShowFPS && m_pRenderTimer != NULL && m_pFont != NULL)
 		{
 			m_pRenderTimer->Update();
 			format(m_FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS() * 0.02f);
 			m_pFont->Print(m_FPS.c_str(), 5, 5, D3DCOLOR_XRGB(255, 0, 0));
 		}
-*/
 	}
 
 	return Result;
@@ -66,14 +69,15 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene() 
 {
+	HRESULT Result = S_OK;
+
 	if (m_bRender && m_bSceneStarted)
 	{
-		m_bSceneStarted = false;
-
-		return m_pDirect3dDevice->EndScene();
+		Result = m_pDirect3dDevice->EndScene();
+		m_bSceneStarted = !(Result == S_OK);
 	}
 	
-	return S_OK;
+	return Result;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::QueryInterface(REFIID iid, void ** ppvObject)
@@ -83,6 +87,8 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::QueryInterface(REFIID iid, void ** pp
 
 ULONG	__stdcall IDirect3DDevice9Wrapper::AddRef(void)
 {
+	++m_RefCount;
+
 	return m_pDirect3dDevice->AddRef();
 }
 
@@ -138,6 +144,11 @@ BOOL __stdcall IDirect3DDevice9Wrapper::ShowCursor(BOOL bShow)
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DSwapChain9** ppSwapChain) 
 {
+	// force vertical sync
+	pPresentationParameters->PresentationInterval = m_PresentParams.PresentationInterval;
+	pPresentationParameters->BackBufferCount = m_PresentParams.BackBufferCount;
+	pPresentationParameters->SwapEffect = m_PresentParams.SwapEffect;
+
 	return m_pDirect3dDevice->CreateAdditionalSwapChain(pPresentationParameters, ppSwapChain);
 }
 
@@ -161,9 +172,11 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONS
 	if (m_bRender)
 	{
 		HRESULT hRes = m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-
+/*
 		if (hRes == D3DERR_DEVICELOST)
 			m_pDirect3dDevice->Reset(&m_PresentParams);
+*/
+		return hRes;
 	}
 
 	return S_OK;

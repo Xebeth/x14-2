@@ -36,7 +36,8 @@ namespace SigScan
 		~SigScan();
 
 		DWORD_PTR Scan(const char* pPattern_in, int Offset_in = 0);
-		void Initialize(DWORD ProcessID_in, const TCHAR* pModule_in);
+		bool Initialize(DWORD ProcessID_in, const TCHAR* pModule_in);
+		bool IsInitialized() const { return m_bInitialized; }
 
 	private:
 		void TerminateSigScan();

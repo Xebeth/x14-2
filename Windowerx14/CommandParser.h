@@ -24,17 +24,7 @@ namespace Windower
 			PARSER_RESULT_INVALID_COMMAND
 		};
 
-		CommandParser(WindowerEngine &Engine_in_out, CommandDispatcher &Dispatcher_in);
-
-		// ICoreModule interface implementation
-		/*! \brief Register the hooks for this module
-			\param[in] HookManager_in : the hook manager
-		*/
-		void RegisterHooks(IHookManager &HookManager_in) {}
-		/*! \brief Callback invoked when the hooks of the module are installed
-			\param[in] HookManager_in : the hook manager
-		*/
-		void OnHookInstall(IHookManager &HookManager_in) {}
+		CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in);
 
 		int ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
 						 char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out);

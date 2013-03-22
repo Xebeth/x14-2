@@ -13,6 +13,9 @@
     <Filter Include="Common">
       <UniqueIdentifier>{a701a9ad-9887-4922-9556-e13519b1a4e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{73eb6a6a-3956-4540-bde4-c08198c44e53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -47,6 +50,12 @@
     <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
       <Filter>Settings</Filter>
     </ClInclude>
+    <ClInclude Include="..\WindowerPlugin\ICoreModule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WindowerPlugin\ModuleService.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\WindowerConfig.rc2">
@@ -73,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
       <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WindowerPlugin\ModuleService.cpp">
+      <Filter>Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

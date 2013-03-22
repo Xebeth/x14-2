@@ -15,7 +15,7 @@ namespace NonCopyable_
 	{
 	protected:
 		NonCopyable() {}
-		~NonCopyable() {}
+		virtual ~NonCopyable() {}
 	private:
 		NonCopyable(const NonCopyable&);
 		const NonCopyable& operator=(const NonCopyable&);

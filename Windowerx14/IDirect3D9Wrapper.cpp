@@ -8,17 +8,14 @@
 #include "IDirect3DDevice9Wrapper.h"
 
 IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, BOOL VSync_in)
-	: m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
+	: m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in), m_RefCount(0UL),
 	  m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
 
 /*! \brief IDirect3D9Wrapper destructor */
 IDirect3D9Wrapper::~IDirect3D9Wrapper()
 {
-	if (m_pWrappedDevice != NULL)
-	{
-		delete m_pWrappedDevice;
-		m_pWrappedDevice = NULL;
-	}
+	m_pWrappedDevice = NULL;
+	m_pDirect3D9 = NULL;
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags,
@@ -28,14 +25,13 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 	HRESULT Result;
 
 	m_hGameWnd = hFocusWindow;
-	// force the windowed mode
-	pPresentationParameters->BackBufferCount = 2;
-//	pPresentationParameters->Windowed = TRUE;
+
 	// force vertical sync
 	if (m_VSync)
 	{
 		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_FLIP;
+		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
+		pPresentationParameters->BackBufferCount = 2;
 	}
 
 	// create the Direct3D device
@@ -47,7 +43,7 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 
 		// wrap the device up
 		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters);
-		// give the subscribers a copy of the new device wrapper
+		// give the subscribers a pointer to the new device wrapper
 		for (Iter = m_Subscribers.begin(); Iter != m_Subscribers.end(); ++Iter)
 			*(*Iter) = m_pWrappedDevice;
 	}
@@ -67,12 +63,22 @@ HRESULT __stdcall IDirect3D9Wrapper::QueryInterface(REFIID iid, void ** ppvObjec
 
 ULONG	__stdcall IDirect3D9Wrapper::AddRef(void)
 {	
+	++m_RefCount;
+
 	return m_pDirect3D9->AddRef();
 }
 
 ULONG	__stdcall IDirect3D9Wrapper::Release(void)
 {
-	return m_pDirect3D9->Release();
+	ULONG Result = 0UL;
+
+	if (m_pDirect3D9 != NULL)
+		Result = m_pDirect3D9->Release();
+
+	if (m_RefCount-- == 0)
+		delete this;
+
+	return Result;
 }
 
 /*** IDirect3D9 methods ***/

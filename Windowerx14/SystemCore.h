@@ -19,7 +19,7 @@ namespace Windower
 	class SystemCore : public WindowerCore
 	{
 	public:
-		SystemCore(WindowerEngine &Engine_in_out);
+		SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
 		/*! \brief Retrieves the handle to the game window
 			\return the handle to the game window

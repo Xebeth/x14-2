@@ -9,8 +9,14 @@
 #define __HOOK_MANAGER_H__
 
 #include <string>
+#include <hash_set>
 #include <hash_map>
+
+#include <SigScan.h>
 #include <NonCopyable.h>
+
+//! the hooks of a service
+typedef stdext::hash_map<std::string, LPVOID> HookPointers;
 
 namespace HookEngineLib
 {
@@ -64,12 +70,18 @@ namespace HookEngineLib
 
 		void RegisterHook(const char* pFuncName_in, const char* pModuleName_in, LPVOID pOriginalFunc_in,
 						  LPVOID pHookFunc_in, DWORD dwOpCodeSize_in = 0);
+		void RegisterHook(const char* pFuncName_in, const char* pModuleName_in, const char* pPattern_in,
+						  int Offset_in, LPVOID pHookFunc_in, DWORD dwOpCodeSize_in = 0);
 		void UnregisterHook(const char* pFuncName_in);
 		LPVOID GetTrampolineFunc(const char* pFuncName_in) const;
 		LPVOID GetOriginalFunc(const char* pFuncName_in) const;
 		LPVOID GetHookFunc(const char* pFuncName_in) const;
 
-		bool InstallHook(const char* pFuncName_in);
+		bool InstallHooks(HookPointers& HookList_in_out);
+		bool UninstallHooks(HookPointers& HookList_in_out);
+		void UnregisterHooks(HookPointers& HookList_in_out);
+
+		LPVOID InstallHook(const char* pFuncName_in);
 		bool UninstallHook(const char* pFuncName_in);
 		bool IsHookInstalled(const char* pFuncName_in);
 		bool IsHookRegistered(const char* pFuncName_in);
@@ -81,6 +93,8 @@ namespace HookEngineLib
 		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);		
 
 	protected:
+		virtual LPVOID FindModuleFunction(const char *pModuleName_in, const char *pFuncName_in);
+
 		/*! \brief Destroys a hook by restoring the original function
 			\param[in] pHook_in : the hook to destroy
 			\return true if the hook was destroyed; false otherwise
@@ -111,10 +125,12 @@ namespace HookEngineLib
 
 		void UnregisterHook(const HookPtrMap::iterator &Iter_in);
 		bool UninstallHook(Hook *pHook_in_out);
-		bool InstallHook(Hook *pHook_in_out);
+		LPVOID InstallHook(Hook *pHook_in_out);
 
 		//! map of installed hooks
 		HookPtrMap m_HookMap;
+		//! memory signature scanner
+		SigScan::SigScan m_MemScan;
 		//! flag specifying if the hook engine has been initialized
 		bool m_bInit;
 

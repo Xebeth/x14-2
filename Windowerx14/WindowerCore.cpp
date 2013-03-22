@@ -14,6 +14,7 @@
 #include "WindowerEngine.h"
 
 #include "ICoreModule.h"
+#include "ModuleService.h"
 #include "WindowerCore.h"
 
 namespace Windower
@@ -30,27 +31,31 @@ namespace Windower
 	/*! \brief Registers a service in the module
 		\param[in] ServiceName_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return a pointer to the newly created service if successful; NULL otherwise
+		\return true if the service is registered; false otherwise
 	*/
-	ModuleService* WindowerCore::RegisterService(const string_t &ServiceName_in, bool InvokePermission_in)
+	bool WindowerCore::RegisterService(const string_t &ServiceName_in, bool InvokePermission_in)
 	{
 		ModuleServices::const_iterator Iter = m_Services.find(ServiceName_in);
-		ModuleService *pResult = NULL;
+		ModuleService *pService = NULL;
 
 		// the service doesn't exist
 		if (Iter == m_Services.end())
-			m_Services[ServiceName_in] = pResult = new ModuleService(InvokePermission_in);
+		{
+			HookPointers Hooks;
 
-		return pResult;
-	}
+			// register the hooks associated with the service
+			if (RegisterHooks(ServiceName_in, Hooks))
+			{
+				// create a new service
+				pService = CreateService(ServiceName_in, Hooks, InvokePermission_in);
+				// insert the service and its hooks
+				m_Services[ServiceName_in] = pService;
+			}
+		}
+		else
+			pService = Iter->second;
 
-	/*! \brief Checks if the specified plugin is compatible with the module
-		\param[in] pPlugin_in : the plugin to check for compatibility
-		\return true if the plugin is compatible; false otherwise
-	*/
-	bool WindowerCore::IsPluginCompatible(PluginFramework::IPlugin* pPlugin_in)
-	{
-		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.end());
+		return (pService != NULL);
 	}
 
 	/*! \brief Revokes all the subscriptions of the specified plugin
@@ -71,21 +76,29 @@ namespace Windower
 	*/
 	bool WindowerCore::Subscribe(const string_t &ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
 	{
-		if (IsPluginCompatible(pPlugin_in))
+		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+
+		if (Iter != m_Services.end())
 		{
-			ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+			ModuleService *pService = Iter->second;
 
-			if (Iter != m_Services.end())
+			if (pService != NULL && pService->IsPluginCompatible(pPlugin_in))
 			{
-				PluginSet::const_iterator SubsIter = Iter->second->Subscribers.find(pPlugin_in);
+				bool bInstall = pService->GetSubscribers().empty();
 
-				if (SubsIter == Iter->second->Subscribers.end())
+				if (pService != NULL && pService->AddSubscriber(pPlugin_in))
 				{
-					Iter->second->Subscribers.insert(pPlugin_in);
-					OnSubscribe(ServiceName_in, Iter->second->Subscribers);
-				}
+					// Hooks must be installed before creating the calling context!
+					if (bInstall && m_HookManager.InstallHooks(pService->GetHooks()))
+					{
+						// Create the calling context for the hooks
+						pService->CreateContext();
+					}
+					// callback
+					OnSubscribe(pService, pPlugin_in);
 
-				return true;
+					return true;
+				}
 			}
 		}
 
@@ -103,17 +116,33 @@ namespace Windower
 
 		if (Iter != m_Services.end())
 		{
-			PluginSet::const_iterator SubsIter = Iter->second->Subscribers.find(pPlugin_in);
+			ModuleService *pService = Iter->second;
 
-			if (SubsIter != Iter->second->Subscribers.end())
+			if (pService != NULL && pService->RemoveSubscriber(pPlugin_in))
 			{
-				Iter->second->Subscribers.erase(SubsIter);
-				OnUnsubscribe(ServiceName_in, Iter->second->Subscribers);
-			}
+				// uninstall the hooks on the last subscriber
+				if (pService->GetSubscribers().empty() && m_HookManager.UninstallHooks(pService->GetHooks()))
+				{
+					pService->DestroyContext();
+				}
+				// callback
+				OnUnsubscribe(pService, pPlugin_in);
 
-			return true;
+				return true;
+			}
 		}
 
 		return false;
+	}
+
+	/*! \brief Creates a service object given its name
+		\param[in] ServiceName_in : the name of the service
+		\param[in] Hooks_in : the hooks associated with the service
+		\param[in] InvokePermission_in : flag specifying if the service can be invoked
+		\return a pointer to the service object if successful; NULL otherwise
+	*/
+	ModuleService* WindowerCore::CreateService(const string_t &ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
+	{
+		return new ModuleService(ServiceName_in, Hooks_in, InvokePermission_in);
 	}
 }

@@ -28,9 +28,6 @@
     <Filter Include="Windower\Modules\Graphics">
       <UniqueIdentifier>{1262a8e1-f755-4168-9bb4-1341875a5901}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Modules\Graphics\Direct3D9">
-      <UniqueIdentifier>{8a97afa8-34ab-4fd5-8ee9-9dda8f96a00b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Chat">
       <UniqueIdentifier>{630b5882-6d86-41b2-9e18-c5927754c3f1}</UniqueIdentifier>
     </Filter>
@@ -43,12 +40,6 @@
     <Filter Include="Windower\Hooks\System">
       <UniqueIdentifier>{ddf7db51-13ba-4504-9397-7d86a024a01a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Hooks\Graphics">
-      <UniqueIdentifier>{2a1fd40b-ae82-45f7-ae8f-cf479ef9fc29}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Hooks\Chat">
-      <UniqueIdentifier>{f2e9f9ae-3632-426a-91fa-d65a4c76604b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Test">
       <UniqueIdentifier>{e91f83bc-7d20-4b25-9e65-e3100bed4572}</UniqueIdentifier>
     </Filter>
@@ -57,6 +48,15 @@
     </Filter>
     <Filter Include="Utilities">
       <UniqueIdentifier>{8972e526-d987-4b5b-8152-e48bc060e539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Chat\Services">
+      <UniqueIdentifier>{b1b96434-c50e-4467-ab92-7797683b625e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Hooks\Graphics">
+      <UniqueIdentifier>{d7f494cd-6b59-48d7-8c65-096c3c4a677f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Graphics\Wrappers">
+      <UniqueIdentifier>{28116168-7218-41f4-b071-200332f3c02c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,17 +76,8 @@
     <ClCompile Include="SystemCore.cpp">
       <Filter>Windower\Modules\System</Filter>
     </ClCompile>
-    <ClCompile Include="IDirect3D9Wrapper.cpp">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
-    </ClCompile>
-    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsCore.cpp">
       <Filter>Windower\Modules\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
     </ClCompile>
     <ClCompile Include="GameChatCore.cpp">
       <Filter>Windower\Modules\Chat</Filter>
@@ -96,12 +87,6 @@
     </ClCompile>
     <ClCompile Include="RegisterClassExHook.cpp">
       <Filter>Windower\Hooks\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D9Hook.cpp">
-      <Filter>Windower\Hooks\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="FormatChatMessageHook.cpp">
-      <Filter>Windower\Hooks\Chat</Filter>
     </ClCompile>
     <ClCompile Include="WndProcHook.cpp">
       <Filter>Windower\Hooks\System</Filter>
@@ -130,6 +115,21 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="FormatChatMsgService.cpp">
+      <Filter>Windower\Modules\Chat\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9Hook.cpp">
+      <Filter>Windower\Hooks\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3D9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -153,17 +153,8 @@
     <ClInclude Include="SystemCore.h">
       <Filter>Windower\Modules\System</Filter>
     </ClInclude>
-    <ClInclude Include="IDirect3D9Wrapper.h">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
-    </ClInclude>
-    <ClInclude Include="IDirect3DDevice9Wrapper.h">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
-    </ClInclude>
     <ClInclude Include="GraphicsCore.h">
       <Filter>Windower\Modules\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>Windower\Modules\Graphics\Direct3D9</Filter>
     </ClInclude>
     <ClInclude Include="GameChatCore.h">
       <Filter>Windower\Modules\Chat</Filter>
@@ -173,12 +164,6 @@
     </ClInclude>
     <ClInclude Include="RegisterClassExHook.h">
       <Filter>Windower\Hooks\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D9Hook.h">
-      <Filter>Windower\Hooks\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="FormatChatMessageHook.h">
-      <Filter>Windower\Hooks\Chat</Filter>
     </ClInclude>
     <ClInclude Include="WndProcHook.h">
       <Filter>Windower\Hooks\System</Filter>
@@ -206,6 +191,21 @@
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatChatMsgService.h">
+      <Filter>Windower\Modules\Chat\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9Hook.h">
+      <Filter>Windower\Hooks\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3D9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3DDevice9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

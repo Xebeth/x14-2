@@ -33,18 +33,16 @@ namespace Windower
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
-	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, BOOL VSync_in)
-		: WindowerCore(Engine_in_out), m_VSync(VSync_in)
+	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, BOOL VSync_in)
+		: WindowerCore(Engine_in_out, HookManager_in_out), m_VSync(VSync_in), m_pDirect3DWrapper(NULL),
+		  m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1)
 	{
-		m_pDirect3DCreate9Trampoline = Direct3DCreate9;
 		m_Engine.RegisterModule(_T("Graphics"), this);
 	}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
 	{
-		Direct3DWrappers::const_iterator EndD3DIt = m_Direct3DWrappers.end();
-		Direct3DWrappers::const_iterator D3DIt = m_Direct3DWrappers.begin();
 		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
 		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();		
 
@@ -52,29 +50,26 @@ namespace Windower
 			delete *DevIt;
 
 		m_DeviceWrappers.clear();
-
-		for (; D3DIt != EndD3DIt; ++D3DIt)
-			delete *D3DIt;
-
-		m_Direct3DWrappers.clear();
 	}
 
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
 		\param[in] SDKVersion_in : the DirectX SDK version
 		\return a pointer to the new device
 	*/
-	IDirect3D9Wrapper* GraphicsCore::Direct3DCreate9Hook(UINT SDKVersion_in)
+	IDirect3D9* GraphicsCore::Direct3DCreate9Hook(UINT SDKVersion_in)
 	{
+		IDirect3D9* pDirect3D = NULL;
+
 		if (m_pDirect3DCreate9Trampoline != NULL)
 		{
-			IDirect3D9* pDirect3D = m_pDirect3DCreate9Trampoline(SDKVersion_in);
+			pDirect3D = m_pDirect3DCreate9Trampoline(SDKVersion_in);
 
-			if (pDirect3D != NULL)
+			if (pDirect3D != NULL && m_SkipDeviceCount == 0)
 			{
 				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_VSync);
 				IDirect3DDevice9Wrapper *pDeviceWrapper = NULL;
 
-				m_Direct3DWrappers.push_back(pDirect3DWrapper);
+				m_pDirect3DWrapper = pDirect3DWrapper;
 				m_DeviceWrappers.push_back(pDeviceWrapper);				
 
 				// subscribe for a pointer to the Direct3DDevice wrapper
@@ -82,9 +77,11 @@ namespace Windower
 
 				return pDirect3DWrapper;
 			}
+			else
+				--m_SkipDeviceCount;
 		}
 
-		return NULL;
+		return pDirect3D;
 	}
 
 	//! \brief Switches on/off the rendering added by the windower
@@ -129,8 +126,11 @@ namespace Windower
 	*/
 	void GraphicsCore::RegisterHooks(IHookManager &HookManager_in)
 	{
-		// register the Direct3DCreate9 hook
-		HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, ::Direct3DCreate9Hook);
+		if (m_VSync)
+		{
+			// register the Direct3DCreate9 hook
+			HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, ::Direct3DCreate9Hook);			
+		}
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -138,6 +138,6 @@ namespace Windower
 	*/
 	void GraphicsCore::OnHookInstall(IHookManager &HookManager_in)
 	{
-		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");
+		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");		
 	}
 }

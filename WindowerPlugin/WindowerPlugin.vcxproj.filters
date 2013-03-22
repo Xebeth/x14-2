@@ -10,11 +10,14 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{d2bb4d69-c77d-48c9-8acd-c36d5094db04}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Interface">
-      <UniqueIdentifier>{6d085b98-9f6b-4640-a000-a921daf918fc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Commands">
       <UniqueIdentifier>{16511151-ca53-46af-8d74-b1792838247c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins">
+      <UniqueIdentifier>{6d085b98-9f6b-4640-a000-a921daf918fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Services">
+      <UniqueIdentifier>{36589a8a-8704-46d3-abf1-99d640bdea91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,10 +32,10 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="ICreateTextNodePlugin.cpp">
-      <Filter>Interface</Filter>
+      <Filter>Plugins</Filter>
     </ClCompile>
     <ClCompile Include="IGameChatPlugin.cpp">
-      <Filter>Interface</Filter>
+      <Filter>Plugins</Filter>
     </ClCompile>
     <ClCompile Include="CommandParameter.cpp">
       <Filter>Commands</Filter>
@@ -45,6 +48,9 @@
     </ClCompile>
     <ClCompile Include="ICommandHandler.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleService.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,13 +71,10 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="IGameChatPlugin.h">
-      <Filter>Interface</Filter>
+      <Filter>Plugins</Filter>
     </ClInclude>
     <ClInclude Include="ICreateTextNodePlugin.h">
-      <Filter>Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="ICoreModule.h">
-      <Filter>Engine</Filter>
+      <Filter>Plugins</Filter>
     </ClInclude>
     <ClInclude Include="CommandParameter.h">
       <Filter>Commands</Filter>
@@ -84,6 +87,12 @@
     </ClInclude>
     <ClInclude Include="ICommandHandler.h">
       <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatChatMsgTypes.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

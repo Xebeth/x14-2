@@ -10,33 +10,9 @@
 
 namespace Windower
 {
-	//! a set of UUID
-	typedef std::set<PluginFramework::PluginUUID> CompatiblePlugins;
-	//! a set of plugins
-	typedef std::set<PluginFramework::IPlugin*> PluginSet;
-
-	//! Module service
-	class ModuleService
-	{
-	public:
-		ModuleService(bool InvokePermission_in = false)
-			: InvokePermission(InvokePermission_in) {}
-
-		/*! \brief Checks if the service can be invoked
-			\return true if the service can be invoked; false otherwise
-		*/
-		bool CanInvoke() const { return InvokePermission; }
-
-		//! flag specifying if the service can be invoked
-		bool InvokePermission;
-		//! the service subscribers
-		PluginSet Subscribers;
-	};
-
-	//! a hash map of module services
-	typedef std::hash_map<string_t, ModuleService*> ModuleServices;
 	typedef PluginFramework::VersionInfo VersionInfo;
 	typedef HookEngineLib::IHookManager IHookManager;
+	class ModuleService;
 
 	//! \brief Base class for the windower modules
 	class ICoreModule
@@ -57,11 +33,6 @@ namespace Windower
 			\param[in] pPlugin_in : the plugin revoking its subscriptions
 		*/
 		virtual void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in) =0;
-		/*! \brief Checks if the specified plugin is compatible with the module
-			\param[in] pPlugin_in : the plugin to check for compatibility
-			\return true if the plugin is compatible; false otherwise
-		*/
-		virtual bool IsPluginCompatible(PluginFramework::IPlugin* pPlugin_in) =0;
 		/*! \brief Adds a plugin subscription to the specified service
 			\param[in] ServiceName_in : the name of the service
 			\param[in] pPlugin_in : the plugin subscribing to the service
@@ -88,23 +59,21 @@ namespace Windower
 
 	protected:
 		/*! \brief Callback function invoked when a plugin subscribes to a service
-			\param[in] ServiceName_in : the name of the service
-			\param[in] Subscribers_in : the service subscribers
+			\param[in] pService_in_out : the service to which to subscribe
+			\param[in] Subscribers_in : the subscribing plugin
 		*/
-		virtual void OnSubscribe(const string_t &ServiceName_in,
-								 const PluginSet &Subscribers_in) =0;
-		/*! \brief Callback function invoked when a plugin subscription to a service is revoked
-			\param[in] ServiceName_in : the name of the service
-			\param[in] Subscribers_in : the service subscribers
+		virtual void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) =0;
+		/*! \brief Callback function invoked when a plugin unsubscribes to a service
+			\param[in] pService_in_out : the service from which to unsubscribe
+			\param[in] Subscribers_in : the unsubscribing plugin
 		*/
-		virtual void OnUnsubscribe(const string_t &ServiceName_in,
-								   const PluginSet &Subscribers_in) =0;
+		virtual void OnUnsubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) =0;
 		/*! \brief Registers a service in the module
 			\param[in] ServiceName_in : the name of the service
 			\param[in] InvokePermission_in : flag specifying if the service can be invoked
-			\return a pointer to the newly created service if successful; NULL otherwise
+			\return true if the service is registered; false otherwise
 		*/
-		virtual ModuleService* RegisterService(const string_t &ServiceName_in, bool InvokePermission_in) =0;
+		virtual bool RegisterService(const string_t &ServiceName_in, bool InvokePermission_in) =0;
 		//! the plugin manager
 		static PluginFramework::PluginManager *m_pPluginManager;
 	};

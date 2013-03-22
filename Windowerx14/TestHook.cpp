@@ -20,47 +20,28 @@
 #include "TestCore.h"
 
 extern Windower::WindowerEngine *g_pEngine;
-// no initialized variable are allowed in the naked functions
-extern DWORD g_5AEB30JumpAddr;
 
-char WINAPI sub98B710Hook(LPVOID pThis, int a2, int a3, int a4, int a5)
+int WINAPI sub5E0DF0Hook(LPVOID pThis, char *pText, int TextLen)
 {
-	return g_pEngine->Test().sub98B710Hook(pThis, a2, a3, a4, a5);
+	return g_pEngine->Test().sub5E0DF0Hook(pThis, pText, TextLen);
 }
 
-// void __usercall sub_5AEB30(int a1<ecx>, int a2<ebp>)
-__declspec(naked) void WINAPI sub5AEB30NakedHook()
+int WINAPI sub490020Hook(LPVOID pThis, char *pText)
 {
-	__asm
-	{
-		pushad;
-		pushfd;
-	}
+	return g_pEngine->Test().sub490020Hook(pThis, pText);
+}
 
-	int a1, a2;
+int WINAPI sub5668C0Hook(LPVOID pThis, char *pText, int TextLen, signed int a4)
+{
+	return g_pEngine->Test().sub5668C0Hook(pThis, pText, TextLen, a4);
+}
 
-	__asm
-	{
-		// these register will be altered by calling sub5AEB30Hook
-		push eax;
-		push ecx;
+bool WINAPI subA73810Hook(LPVOID pThis, char *pText)
+{
+	return g_pEngine->Test().subA73810Hook(pThis, pText);
+}
 
-		mov a1, ecx;
-		mov a2, ebp;
-	}
-
-	g_pEngine->Test().sub5AEB30Hook(a1, a2);
-
-	__asm
-	{
-		// restore the registers
-		pop ecx;
-		pop eax;
-		popfd;
-		popad;
-
-		jmp g_5AEB30JumpAddr;
-
-		ret;
-	}
+int WINAPI sub8FDF60Hook(LPVOID pThis, int a2, const char *a3, int a4)
+{
+	return g_pEngine->Test().sub8FDF60Hook(pThis, a2, a3, a4);
 }

@@ -55,12 +55,10 @@ namespace Bootstrap
 
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(*m_pSettings))
 		{
-			// create the hook manager
-			m_pHookManager = new HookEngine;
 			// Win32 related hooks
-			m_pSystemCore = new SystemCore(*this);
+			m_pSystemCore = new SystemCore(*this, m_HookManager);
 			// Commander dispatcher
-			m_pCommandDispatcher = new Windower::CommandDispatcher(*this);
+			m_pCommandDispatcher = new Windower::CommandDispatcher(*this, m_HookManager);
 			// load plugins
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_BOOTSTRAP);
@@ -74,17 +72,11 @@ namespace Bootstrap
 	{
 		Detach();
 
-		delete m_pHookManager;
-		m_pHookManager = NULL;
-
 		delete m_pCommandDispatcher;
 		m_pCommandDispatcher = NULL;
 
 		delete m_pSystemCore;
 		m_pSystemCore = NULL;
-
-		delete m_pHookManager;
-		m_pHookManager = NULL;
 
 		delete m_pSettings;
 		m_pSettings = NULL;
@@ -101,22 +93,19 @@ namespace Bootstrap
 	*/
 	bool BootstrapEngine::Attach()
 	{
-		if (m_pHookManager != NULL)
-		{
-			CoreModules::const_iterator Iter;
+		CoreModules::const_iterator Iter;
 
+		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+			if (Iter->second != NULL)
+				Iter->second->RegisterHooks(m_HookManager);
+
+		if (m_HookManager.InstallRegisteredHooks())
+		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 				if (Iter->second != NULL)
-					Iter->second->RegisterHooks(*m_pHookManager);
+					Iter->second->OnHookInstall(m_HookManager);
 
-			if (m_pHookManager->InstallRegisteredHooks())
-			{
-				for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-					if (Iter->second != NULL)
-						Iter->second->OnHookInstall(*m_pHookManager);
-
-				return true;
-			}
+			return true;
 		}
 
 		return false;
@@ -129,10 +118,7 @@ namespace Bootstrap
 	{
 		PluginEngine::Detach();
 
-		if (m_pHookManager != NULL)
-			return m_pHookManager->UninstallRegisteredHooks();
-
-		return false;
+		return m_HookManager.UninstallRegisteredHooks();
 	}
 
 	/*! \brief Checks if the AutoLogin plugin is active

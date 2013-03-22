@@ -8,6 +8,8 @@
 #ifndef __UTF8_CONVERT_H__
 #define __UTF8_CONVERT_H__
 
+#include <string_t.h>
+
 std::string& convert_ansi(const string_t &String_in, std::string &String_out);
 string_t& convert_utf8(const std::string &String_in, string_t &String_out);
 

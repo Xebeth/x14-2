@@ -14,13 +14,12 @@ class IDirect3D9Wrapper;
 namespace Windower
 {
 	typedef std::vector<IDirect3DDevice9Wrapper*> DeviceWrappers;
-	typedef std::vector<IDirect3D9Wrapper*> Direct3DWrappers;
 	typedef HookEngineLib::IHookManager IHookManager;	
 
 	class GraphicsCore : public WindowerCore
 	{
 	public:
-		GraphicsCore(WindowerEngine &Engine_in_out, BOOL VSync_in);
+		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, BOOL VSync_in);
 		~GraphicsCore();
 
 		void SetRendering(bool bEnable_in);
@@ -33,14 +32,17 @@ namespace Windower
 		void OnHookInstall(IHookManager &HookManager_in);
 
 		// Direct3D
-		IDirect3D9Wrapper* Direct3DCreate9Hook(UINT SDKVersion_in);
+		IDirect3D9* Direct3DCreate9Hook(UINT SDKVersion_in);
+
 	protected:
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D9 device wrapper
 		DeviceWrappers m_DeviceWrappers;
 		//! Direct3D9 wrapper
-		Direct3DWrappers m_Direct3DWrappers;
+		IDirect3D9Wrapper* m_pDirect3DWrapper;
+		//! number of devices to skip
+		int m_SkipDeviceCount;
 		//! flag specifying if vertical synchronization is in use
 		BOOL m_VSync;
 	};

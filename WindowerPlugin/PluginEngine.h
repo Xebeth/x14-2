@@ -14,6 +14,7 @@ namespace PluginFramework
 	class VersionInfo;
 }
 
+#include <set>
 #include "BaseEngine.h"
 #include "PluginsServices.h"
 
@@ -34,6 +35,8 @@ namespace Windower
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
 	typedef stdext::hash_map<string_t, ICoreModule*> CoreModules;
 	typedef PluginFramework::PluginManager PluginManager;
+	//! a set of active plugin names
+	typedef std::set<string_t> ActivePlugins;
 
 	//! \brief Plugin engine
 	class PluginEngine : public BaseEngine
@@ -46,8 +49,16 @@ namespace Windower
 
 		virtual bool Detach();
 
+		/*! \brief Callback that can be invoked when invoked when a successful call to a hook was made
+			\param[in] pHookName_in : the name of the hook
+		*/
+		virtual void OnHookCall(const char *pHookName_in) {}
+
 		PluginFramework::IPlugin* LoadPlugin(const string_t &PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t &PluginName_in);
+
+		size_t LoadPlugins(const ActivePlugins& PluginSet_in);
+		bool ListPlugins(std::string &Feedback_out) const;
 
 		bool RegisterModule(const string_t ModuleName_in, ICoreModule *pModule_in);
 		bool UnregisterModule(const string_t ModuleName_in);

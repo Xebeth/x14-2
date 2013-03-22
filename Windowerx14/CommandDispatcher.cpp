@@ -18,8 +18,8 @@ namespace Windower
 	/*! \brief CommandDispatcher constructor
 		\param[in] Engine_in_out : the windower engine
 	*/
-	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out)
-		: WindowerCore(Engine_in_out)
+	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
+		: WindowerCore(Engine_in_out, HookManager_in_out)
 	{
 		CommandParams Params;
 

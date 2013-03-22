@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
-      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;../GraphicsPlugin/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
@@ -80,7 +80,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../GraphicsPlugin/;../WindowerPlugin;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -101,11 +101,11 @@
     <ClCompile Include="..\Common\utf8_convert.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
-    <ClCompile Include="FormatChatMessageHook.cpp" />
     <ClCompile Include="CreateWindowExHook.cpp" />
     <ClCompile Include="Direct3D9Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FormatChatMsgService.cpp" />
     <ClCompile Include="GameChatCore.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="IDirect3D9Wrapper.cpp" />
@@ -134,10 +134,10 @@
     <ClInclude Include="..\Common\utf8_convert.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
-    <ClInclude Include="FormatChatMessageHook.h" />
     <ClInclude Include="CreateWindowExHook.h" />
     <ClInclude Include="Direct3D9Hook.h" />
     <ClInclude Include="Font.h" />
+    <ClInclude Include="FormatChatMsgService.h" />
     <ClInclude Include="GameChatCore.h" />
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />

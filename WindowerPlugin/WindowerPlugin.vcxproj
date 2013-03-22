@@ -34,11 +34,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
+    <Import Project="..\HookEngine.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
+    <Import Project="..\HookEngine.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -55,7 +57,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CPP_SDK_PATH)/Detours/include/;../Windowerx14/;../PluginFramework;../HookManager;../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Windowerx14/;../PluginFramework;../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
@@ -71,7 +73,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CPP_SDK_PATH)/Detours/include/;../Windowerx14/;../PluginFramework;../HookManager;../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Windowerx14/;../PluginFramework;../Common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,10 +88,11 @@
     <ClInclude Include="BaseEngine.h" />
     <ClInclude Include="CommandHandler.h" />
     <ClInclude Include="CommandParameter.h" />
+    <ClInclude Include="FormatChatMsgTypes.h" />
     <ClInclude Include="ICommandHandler.h" />
-    <ClInclude Include="ICoreModule.h" />
     <ClInclude Include="ICreateTextNodePlugin.h" />
     <ClInclude Include="IGameChatPlugin.h" />
+    <ClInclude Include="ModuleService.h" />
     <ClInclude Include="PluginEngine.h" />
     <ClInclude Include="PluginsServices.h" />
     <ClInclude Include="stdafx.h" />
@@ -105,6 +108,7 @@
     <ClCompile Include="ICommandHandler.cpp" />
     <ClCompile Include="ICreateTextNodePlugin.cpp" />
     <ClCompile Include="IGameChatPlugin.cpp" />
+    <ClCompile Include="ModuleService.cpp" />
     <ClCompile Include="PluginEngine.cpp" />
     <ClCompile Include="PluginsServices.cpp" />
     <ClCompile Include="stdafx.cpp">
