@@ -73,16 +73,9 @@ namespace Windower
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
 			// create the game chat module
-			// m_pGameChatCore = new GameChatCore(*this, m_HookManager);
+			m_pGameChatCore = new GameChatCore(*this, m_HookManager);
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
-			// list the available plugins compatible with windower
-			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
-										  PLUGIN_COMPATIBILITY_WINDOWER);
-			// set the plugin manager of the modules
-			ICoreModule::SetPluginManager(*m_pPluginManager);
-			// load active plugins
-			LoadPlugins(m_Settings.GetActivePlugins());
 		}
 	}
 
@@ -107,24 +100,55 @@ namespace Windower
 #endif // _DEBUG
 	}
 
+	//! \brief Initializes the plugins
+	bool WindowerEngine::InitializePlugins()
+	{
+		if (m_pPluginManager != NULL)
+		{
+			// list the available plugins compatible with windower
+			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
+										  PLUGIN_COMPATIBILITY_WINDOWER);
+			// set the plugin manager of the modules
+			ICoreModule::SetPluginManager(*m_pPluginManager);
+			// load active plugins
+			LoadPlugins(m_Settings.GetActivePlugins());
+
+			return true;
+		}
+
+		return false;
+	}
+
 	/*! \brief Installs the internal hooks used by the windower
 		\return true if the hooks were installed successfully; false otherwise
 	*/
 	bool WindowerEngine::Attach()
 	{
 		CoreModules::const_iterator Iter;
+		ICoreModule *pModule = NULL;
 
 		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-			if (Iter->second != NULL)
-				Iter->second->RegisterHooks(m_HookManager);
+		{
+			pModule = Iter->second;
+
+			if (pModule != NULL)
+				pModule->RegisterHooks(m_HookManager);
+		}
 
 		if (m_HookManager.InstallRegisteredHooks())
 		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-				if (Iter->second != NULL)
-					Iter->second->OnHookInstall(m_HookManager);
+			{
+				pModule = Iter->second;
 
-			return true;
+				if (pModule != NULL)
+				{
+					pModule->OnHookInstall(m_HookManager);
+					pModule->RegisterServices();
+				}
+			}
+
+			return InitializePlugins();
 		}
 
 		return false;
@@ -319,7 +343,7 @@ namespace Windower
 		\param[out] Feedback_out : the result of the execution
 		\return true if the command was executed successfully; false otherwise
 	*/
-	bool WindowerEngine::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
+	bool WindowerEngine::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out)
 	{
 		switch(CmdID_in)
 		{

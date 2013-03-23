@@ -84,9 +84,9 @@ namespace Windower
 		/*! \brief Adds a message to the feedback queue
 			\param[in] Feedback_in : the message to add to the queue
 		*/
-		void AddFeedbackMessage(const std::string &Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
+		void AddFeedbackMessage(const std::string& Feedback_in) { m_FeedbackMessages.push_back(Feedback_in); }
 
-		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
 
 		/*! \brief Optional callback to inform the engine that a successful call to the hook was made
 			\param[in] pHookName_in : the name of the hook
@@ -96,6 +96,7 @@ namespace Windower
 	private:
 		bool UnregisterCommands();
 		bool RegisterCommands();
+		bool InitializePlugins();
 
 		// ICommandHandler interface implementation
 		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;

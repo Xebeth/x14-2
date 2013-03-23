@@ -28,10 +28,7 @@ namespace Windower
 		\param[in] Dispatcher_in : the command dispatcher
 	*/
 	CommandParser::CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in)
-		: WindowerCore(Engine_in_out, HookManager_in_out), m_CommandDispatcher(Dispatcher_in)
-	{
-		m_Engine.RegisterModule(_T("CommandParser"), this);
-	}
+		: WindowerCore(_T("CommandParser"), Engine_in_out, HookManager_in_out), m_CommandDispatcher(Dispatcher_in) {}
 
 	/*! \brief Parses a raw command (e.g. chat line) and returns the arguments and a feedback message
 		\param[in] pRawCommand_in : the raw command buffer
@@ -205,7 +202,7 @@ namespace Windower
 		\param[out] Params_out : the parameters of the command
 		\return the number of parameters
 	*/
-	int CommandParser::Tokenize(const std::string &RawCommand_in, std::string &Command_out, std::list<std::string> &Params_out)
+	int CommandParser::Tokenize(const std::string& RawCommand_in, std::string& Command_out, std::list<std::string> &Params_out)
 	{
 		unsigned int ParamsCount = tokenize<char>(RawCommand_in, Params_out, " ", "\"");
 

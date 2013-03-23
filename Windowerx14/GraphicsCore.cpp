@@ -33,12 +33,9 @@ namespace Windower
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
-	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, BOOL VSync_in)
-		: WindowerCore(Engine_in_out, HookManager_in_out), m_VSync(VSync_in), m_pDirect3DWrapper(NULL),
-		  m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1)
-	{
-		m_Engine.RegisterModule(_T("Graphics"), this);
-	}
+	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
+		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
+		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()

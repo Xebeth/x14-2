@@ -33,8 +33,8 @@ namespace Windower
 			\param[in] Description_in : the description of the parameter
 			\param[in] Name_in : the name of the parameter
 		*/
-		CommandParameter(COMMAND_PARAM_TYPE Type_in, bool bOptional_in, const std::string &Value_in,
-						 const std::string &Description_in, const std::string &Name_in)
+		CommandParameter(COMMAND_PARAM_TYPE Type_in, bool bOptional_in, const std::string& Value_in,
+						 const std::string& Description_in, const std::string& Name_in)
 			: m_Type(Type_in), m_bOptional(bOptional_in), m_Value(Value_in),
 			  m_Name(Name_in), m_Description(Description_in) {}
 
@@ -45,7 +45,7 @@ namespace Windower
 		/*! \brief Sets the string value of the parameter
 			\param[in] StringValue_in : the string value of the parameter
 		*/
-		void SetStringValue(const std::string &StringValue_in) { m_Value = StringValue_in; }
+		void SetStringValue(const std::string& StringValue_in) { m_Value = StringValue_in; }
 
 		/*! \brief Retrieves the pointer value of the parameter
 			\return the pointer value of the parameter
@@ -125,7 +125,7 @@ namespace Windower
 			\param[in] RegistrationKey_in : the key of the plugin revoking the command registration
 			\param[in] CommandName_in : the ID of the command to unregister
 		*/
-		UnregisterParam(DWORD RegistrationKey_in, const std::string &CommandName_in)
+		UnregisterParam(DWORD RegistrationKey_in, const std::string& CommandName_in)
 			: RegistrationKey(RegistrationKey_in), CommandName(CommandName_in) {}
 
 		//! the name of the command to unregister

@@ -58,14 +58,14 @@ namespace Windower
 		return true;
 	}
 
-	bool PluginEngine::RegisterModule(const string_t ModuleName_in, ICoreModule *pModule_in)
+	bool PluginEngine::RegisterModule(const string_t& ModuleName_in, ICoreModule *pModule_in)
 	{
 		m_Modules[ModuleName_in] = pModule_in;
 
 		return true;
 	}
 
-	bool PluginEngine::UnregisterModule(const string_t ModuleName_in)
+	bool PluginEngine::UnregisterModule(const string_t& ModuleName_in)
 	{
 		CoreModules::const_iterator Iter = m_Modules.find(ModuleName_in);
 
@@ -79,7 +79,7 @@ namespace Windower
 		return false;
 	}
 
-	IPlugin* PluginEngine::GetPluginInstance(const string_t &PluginName_in)
+	IPlugin* PluginEngine::GetPluginInstance(const string_t& PluginName_in)
 	{
 		WindowerPlugins::const_iterator Iter = m_Plugins.find(PluginName_in);
 
@@ -89,7 +89,7 @@ namespace Windower
 		return NULL;
 	}
 
-	IPlugin* PluginEngine::LoadPlugin(const string_t &PluginName_in, bool ForceReload_in)
+	IPlugin* PluginEngine::LoadPlugin(const string_t& PluginName_in, bool ForceReload_in)
 	{
 		IPlugin* pPlugin = NULL;
 
@@ -113,7 +113,7 @@ namespace Windower
 		return pPlugin;
 	}
 
-	bool PluginEngine::UnloadPlugin(const string_t &PluginName_in)
+	bool PluginEngine::UnloadPlugin(const string_t& PluginName_in)
 	{
 		IPlugin *pPlugin = GetPluginInstance(PluginName_in);
 
@@ -153,7 +153,7 @@ namespace Windower
 		\param[out] Feedback_out : the string receiving the result
 		\return true if the list was retrieved successfully; false otherwise
 	*/
-	bool PluginEngine::ListPlugins(std::string &Feedback_out) const
+	bool PluginEngine::ListPlugins(std::string& Feedback_out) const
 	{
 		if  (m_pPluginManager != NULL)
 		{

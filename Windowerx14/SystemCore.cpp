@@ -31,7 +31,7 @@ namespace Windower
 		\param[in,out] pEngine : the windower engine
 	*/
 	SystemCore::SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(Engine_in_out, HookManager_in_out)
+		: WindowerCore(_T("System"), Engine_in_out, HookManager_in_out)
 	{
 		m_pRegisterClassExATrampoline = RegisterClassExA;
 		m_pCreateWindowExATrampoline = CreateWindowExA;
@@ -40,9 +40,7 @@ namespace Windower
 		m_MinimizeVKey = VK_F11;
 		m_pGameWndProc = NULL;
 		m_MainThreadID = 0;
-		m_hGameWnd = NULL;		
-		// register the module
-		m_Engine.RegisterModule(_T("System"), this);
+		m_hGameWnd = NULL;
 	}
 
 	/*! \brief Starts the main thread of the windower engine

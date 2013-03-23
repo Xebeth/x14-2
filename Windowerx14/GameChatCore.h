@@ -29,9 +29,10 @@ namespace Windower
 
 		GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		ModuleService* CreateService(const string_t &ServiceName_in, const HookPointers &Hooks_in,
+		ModuleService* CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in,
 									 bool InvokePermission_in = false);
-		bool RegisterHooks(const string_t &ServiceName_in, HookPointers &Hooks_out);
+		bool RegisterHooks(const string_t& ServiceName_in, HookPointers &Hooks_out);
+		bool RegisterServices();
 
 	private:
 		//! flag specifying if the chat log is on hold

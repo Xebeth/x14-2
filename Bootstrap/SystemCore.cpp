@@ -28,15 +28,13 @@ namespace Bootstrap
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
 	SystemCore::SystemCore(Windower::PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: Windower::WindowerCore(Engine_in_out, HookManager_in_out)
+		: Windower::WindowerCore(_T("System"), Engine_in_out, HookManager_in_out)
 	{
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
 		m_pShellExecuteExTrampoline = ShellExecuteExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
-
-		m_Engine.RegisterModule(_T("System"), this);
 	}
 
 	/*! \brief CreateWindowExW hook used to start the AutoLogin thread
@@ -97,16 +95,13 @@ namespace Bootstrap
 		TCHAR *pCmdLine = NULL;
 		BOOL Result = FALSE;
 
-		if ((lpCommandLine_in_out != NULL && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
-		 || (lpApplicationName_in != NULL && _tcsstr(lpApplicationName_in, TARGET_PROCESS_GAME) != NULL))
+		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
+		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		{
-			if (lpCommandLine_in_out != NULL)
-			{
-				string_t CmdLine(lpCommandLine_in_out);
+			string_t CmdLine(lpCommandLine_in_out);
 
-				if (static_cast<BootstrapEngine&>(m_Engine).UpdateCmdLineFromSettings(CmdLine))
-					pCmdLine = _tcsdup(CmdLine.c_str());
-			}
+			if (static_cast<BootstrapEngine&>(m_Engine).UpdateCmdLineFromSettings(CmdLine))
+				pCmdLine = _tcsdup(CmdLine.c_str());
 
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%swindowerx14.dll"), WorkingDir.c_str());
 			Result = TRUE;

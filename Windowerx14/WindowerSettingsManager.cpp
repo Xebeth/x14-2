@@ -182,7 +182,7 @@ namespace Windower
 	{
 		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
-			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_VSYNC, INI_DEFAULT_VSYNC));
+			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_VSYNC, INI_DEFAULT_VSYNC) == 1L);
 			Settings_out.SetLanguage(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_LNG, INI_DEFAULT_LNG));
 			Settings_out.SetName(pProfileName_in);
 
@@ -351,7 +351,7 @@ namespace Windower
 		\param[in,out] Name_in_out : the name to check for duplicates		
 		\return true if the name was a duplicate; false otherwise
 	*/
-	bool SettingsManager::CheckDuplicates(const string_t &CurrentName_in, string_t &Name_in_out)
+	bool SettingsManager::CheckDuplicates(const string_t& CurrentName_in, string_t& Name_in_out)
 	{
 		const WindowerProfile *pOtherProfile = GetSettings(Name_in_out.c_str());
 		bool Result = (pOtherProfile != NULL);
@@ -388,7 +388,7 @@ namespace Windower
 		\param[in] pNewName_in_out : the new name of the profile
 		\return true if the profile was found and renamed; false otherwise
 	*/
-	bool SettingsManager::RenameProfile(const TCHAR *pProfileName_in, string_t &NewName_in_out)
+	bool SettingsManager::RenameProfile(const TCHAR *pProfileName_in, string_t& NewName_in_out)
 	{
 		WindowerProfile *pProfile = GetSettings(pProfileName_in);
 
@@ -403,7 +403,7 @@ namespace Windower
 		\param[in] pNewName_in_out : the new name of the profile
 		\return true if the profile was found and renamed; false otherwise
 	*/
-	bool SettingsManager::RenameProfile(WindowerProfile *pProfile_in_out, string_t &NewName_in_out)
+	bool SettingsManager::RenameProfile(WindowerProfile *pProfile_in_out, string_t& NewName_in_out)
 	{
 		if (pProfile_in_out != NULL)
 		{
@@ -444,7 +444,7 @@ namespace Windower
 		\param[out] SelectedDir_out : a string receiving the path to the selected folder
 		\return true if the path was selected; false otherwise
 	*/
-	bool SettingsManager::SelectDirectory(string_t &SelectedDir_out) const
+	bool SettingsManager::SelectDirectory(string_t& SelectedDir_out) const
 	{
 		LPCITEMIDLIST pSelectedPIDL = NULL;
 		LPITEMIDLIST PIDL = NULL;
@@ -489,7 +489,7 @@ namespace Windower
 	/*! \brief Checks that the specified game path contains a 'boot' and 'game' directory
 		\return true if the path is valid; false otherwise
 	*/
-	bool SettingsManager::CheckGamePath(const string_t &GamePath_in) const
+	bool SettingsManager::CheckGamePath(const string_t& GamePath_in) const
 	{
 		string_t BootPath = GamePath_in + BOOT_SUBFOLDER;
 		string_t GamePath = GamePath_in + GAME_SUBFOLDER;

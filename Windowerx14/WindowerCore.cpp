@@ -19,6 +19,17 @@
 
 namespace Windower
 {
+	/*! \brief WindowerCore constructor
+		\param[in] ModuleName_in : the name of the module
+		\param[in,out] Engine_in_out : the plugin engine
+		\param[in,out] HookManager_in_out : the hook manager
+	*/
+	WindowerCore::WindowerCore(const string_t& ModuleName_in, PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
+	  : m_Engine(Engine_in_out), m_HookManager(HookManager_in_out)
+	{
+		m_Engine.RegisterModule(ModuleName_in, this);
+	}
+
 	//! \brief WindowerCore destructor
 	WindowerCore::~WindowerCore()
 	{
@@ -31,9 +42,9 @@ namespace Windower
 	/*! \brief Registers a service in the module
 		\param[in] ServiceName_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return true if the service is registered; false otherwise
+		\return a pointer to the service if successful; NULL otherwise
 	*/
-	bool WindowerCore::RegisterService(const string_t &ServiceName_in, bool InvokePermission_in)
+	ModuleService* WindowerCore::RegisterService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
 		ModuleServices::const_iterator Iter = m_Services.find(ServiceName_in);
 		ModuleService *pService = NULL;
@@ -55,7 +66,7 @@ namespace Windower
 		else
 			pService = Iter->second;
 
-		return (pService != NULL);
+		return pService;
 	}
 
 	/*! \brief Revokes all the subscriptions of the specified plugin
@@ -74,7 +85,7 @@ namespace Windower
 		\param[in] pPlugin_in : the plugin subscribing to the service
 		\return true if successful; false otherwise
 	*/
-	bool WindowerCore::Subscribe(const string_t &ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
+	bool WindowerCore::Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
 	{
 		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
 
@@ -110,7 +121,7 @@ namespace Windower
 		\param[in] pPlugin_in : the plugin unsubscribing from the service
 		\return true if successful; false otherwise
 	*/
-	bool WindowerCore::Unsubscribe(const string_t &ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
+	bool WindowerCore::Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
 	{
 		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
 
@@ -141,7 +152,7 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/
-	ModuleService* WindowerCore::CreateService(const string_t &ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
+	ModuleService* WindowerCore::CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
 	{
 		return new ModuleService(ServiceName_in, Hooks_in, InvokePermission_in);
 	}

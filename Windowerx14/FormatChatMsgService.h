@@ -12,6 +12,7 @@
 														 //81ECAC0200008B8424B80200005355578BF9		2013-03-01
 														 //81ECAC0200008B8424B80200005355578BF9		2013-03-08
 														 //5356578BF98DB71402000050					2013-03-16
+														 //5356578BF98DB71402000050					2013-03-22
 #define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@5356578BF98D??????????50"
 #define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-27
 #define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 12
@@ -34,8 +35,8 @@ namespace Windower
 		FormatChatMsgService(const string_t& Name_in, const HookPointers &Hooks_in,
 							 bool InvokePermission_in = false);
 
-		static bool FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-										  StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
+		static bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
+												 StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
 		void DestroyContext();
 		void CreateContext();
 

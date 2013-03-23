@@ -19,7 +19,7 @@ namespace Windower
 	class GraphicsCore : public WindowerCore
 	{
 	public:
-		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, BOOL VSync_in);
+		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in);
 		~GraphicsCore();
 
 		void SetRendering(bool bEnable_in);
@@ -44,7 +44,7 @@ namespace Windower
 		//! number of devices to skip
 		int m_SkipDeviceCount;
 		//! flag specifying if vertical synchronization is in use
-		BOOL m_VSync;
+		bool m_VSync;
 	};
 }
 

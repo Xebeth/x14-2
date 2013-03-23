@@ -48,13 +48,13 @@ namespace Windower
 			\param[in] VSync_in : flag specifying if vertical synchronization is in use
 			\param[in] pName_in : the name of the profile
 		*/
-		WindowerProfile(const TCHAR *pName_in, long Lng_in, BOOL VSync_in)
+		WindowerProfile(const TCHAR *pName_in, long Lng_in, bool VSync_in)
 			: m_VSync(VSync_in), m_Name(pName_in), m_Language(Lng_in) {}
 
 		/*! \brief Sets the flag specifying if vertical synchronization is in use
 			\param[in] VSync_in : the new value of the flag
 		*/
-		void SetVSync(BOOL VSync_in) { m_VSync = VSync_in; }
+		void SetVSync(bool VSync_in) { m_VSync = VSync_in; }
 
 		/*! \brief Sets the language ID
 			\param[in] Lng_in : the new language ID
@@ -69,7 +69,7 @@ namespace Windower
 		/*! \brief Retrieves the flag specifying if vertical synchronization is in use
 			\return the flag specifying if vertical synchronization is in use
 		*/
-		BOOL GetVSync() const { return m_VSync; }
+		bool GetVSync() const { return m_VSync; }
 
 		/*! \brief Retrieves the language ID
 			\return the language ID
@@ -81,14 +81,14 @@ namespace Windower
 		*/
 		const TCHAR* GetName() const { return m_Name.c_str(); }
 
-		bool IsPluginActive(const string_t &PluginName_in) const
+		bool IsPluginActive(const string_t& PluginName_in) const
 		{
 			ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
 
 			return (PluginIt != m_ActivePlugins.end());
 		}
 
-		void ActivatePlugin(const string_t &PluginName_in, bool Activate_in = true)
+		void ActivatePlugin(const string_t& PluginName_in, bool Activate_in = true)
 		{
 			if (Activate_in == false)
 			{
@@ -105,7 +105,7 @@ namespace Windower
 
 	protected:
 		//! flag specifying if vertical synchronization is in use
-		BOOL m_VSync;
+		bool m_VSync;
 		//! language ID
 		long m_Language;
 		//! the name of the profile

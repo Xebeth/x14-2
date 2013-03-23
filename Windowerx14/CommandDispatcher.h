@@ -38,20 +38,23 @@ namespace Windower
 		explicit CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
 		virtual ~CommandDispatcher();
 
-		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in);
+		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in);
 
-		WindowerCommand* FindCommand(const std::string &Name_in) const;
+		WindowerCommand* FindCommand(const std::string& Name_in) const;
 
-		bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in);
+		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);
 
-		bool ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out);
+		bool ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out);
 		int ShowCommandHelp(WindowerCommand *pCommand_in);
 
 		// ICommandHandler interface implementation
-		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
 		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
 		virtual bool UnregisterCommand(WindowerCommand *pCommand_in);
 		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
+
+		// ICoreModule implementation
+		bool RegisterServices();
 
 	protected:
 		void InsertCommand(WindowerCommand *pCommand_in);

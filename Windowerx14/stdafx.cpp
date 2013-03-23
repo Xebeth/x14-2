@@ -39,22 +39,3 @@
 
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "d3d9.lib")
-
-// #pragma comment(lib, "dxguid.lib")
-// #pragma comment(lib, "dinput8.lib")
-
-#ifdef __USE_DETOURS
-	#include <detours.h>
-
-	#pragma comment(lib, "detours.lib")
-	// this function is exported on ordinal 1 so that the DLL can be loaded with DetourCreateProcessWithDll
-	extern "C" __declspec(dllexport) void DetourAndErrorCheck(PVOID* pFunctionToDetour, PVOID pReplacement, const char* functionName)
-	{
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		DetourAttach(pFunctionToDetour, pReplacement);
-
-		DetourTransactionCommit();
-	}
-#endif // _DEBUG

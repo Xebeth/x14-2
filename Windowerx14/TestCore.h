@@ -18,22 +18,24 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		int sub5668C0Hook(LPVOID pThis, char *pText, int TextLen, signed int a4);
-		int sub8FDF60Hook(LPVOID pThis, int a2, const char *a3, int a4);
-		int sub5E0DF0Hook(LPVOID pThis, char *pText, int TextLen);
-		bool subA73810Hook(LPVOID pThis, char *pText);
-		int sub490020Hook(LPVOID pThis, char *pText);		
+		int sub568B90Hook(LPVOID pThis, char *pText, int TextLen, signed int a4);
+		int sub8FFDA0Hook(LPVOID pThis, int a2, const char *a3, int a4);
+		int sub48F4B0Hook(LPVOID pThis, char *pText, int TextLen);
+		int sub5E3810Hook(LPVOID pThis, char *pText, int TextLen);
+		bool subA73BE0Hook(LPVOID pThis, char *pText);
+		int sub48F5B0Hook(LPVOID pThis, char *pText);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
 	protected:
-		fn5E0DF0 m_p5E0DF0Trampoline;
-		fn490020 m_p490020Trampoline;
-		fn5668C0 m_p5668C0Trampoline;
-		fnA73810 m_pA73810Trampoline;
-		fn8FDF60 m_p8FDF60Trampoline;
+		fn5E3810 m_p5E3810Trampoline;
+		fn48F5B0 m_p48F5B0Trampoline;
+		fn568B90 m_p568B90Trampoline;
+		fnA73BE0 m_pA73BE0Trampoline;
+		fn8FFDA0 m_p8FFDA0Trampoline;
+		fn48F4B0 m_p48F4B0Trampoline;
 
 		bool m_IsWindowerCmd;
 	};

@@ -25,6 +25,10 @@ namespace Windower
 			\param[in] HookManager_in : the hook manager
 		*/
 		virtual void RegisterHooks(IHookManager &HookManager_in) =0;
+		/*! \brief Registers the services of the module
+			\return true if the services were registered; false otherwise
+		*/
+		virtual bool RegisterServices() =0;
 		/*! \brief Callback invoked when the hooks of the module are installed
 			\param[in] HookManager_in : the hook manager
 		*/
@@ -38,19 +42,19 @@ namespace Windower
 			\param[in] pPlugin_in : the plugin subscribing to the service
 			\return true if successful; false otherwise
 		*/
-		virtual bool Subscribe(const string_t &ServiceName_in, PluginFramework::IPlugin* pPlugin_in) =0;
+		virtual bool Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) =0;
 		/*! \brief Removes a plugin subscription from the specified service
 			\param[in] ServiceName_in : the name of the service
 			\param[in] pPlugin_in : the plugin unsubscribing from the service
 			\return true if successful; false otherwise
 		*/
-		virtual bool Unsubscribe(const string_t &ServiceName_in, PluginFramework::IPlugin* pPlugin_in) =0;
+		virtual bool Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) =0;
 		/*! \brief Invokes a command registered with the specified module
 			\param[in] ServiceName_in : the name of the service
 			\param[in] Params_in : the input parameters
 			\return true if the command was invoked successfully; false otherwise
 		*/
-		virtual bool Invoke(const string_t &ServiceName_in, const PluginFramework::ServiceParam &Params_in) =0;
+		virtual bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in) =0;
 
 		/*! \brief Sets the pointer to the plugin manager
 			\param[in,out] Manager_in_out : the plugin manager
@@ -73,7 +77,7 @@ namespace Windower
 			\param[in] InvokePermission_in : flag specifying if the service can be invoked
 			\return true if the service is registered; false otherwise
 		*/
-		virtual bool RegisterService(const string_t &ServiceName_in, bool InvokePermission_in) =0;
+		virtual ModuleService* RegisterService(const string_t& ServiceName_in, bool InvokePermission_in) =0;
 		//! the plugin manager
 		static PluginFramework::PluginManager *m_pPluginManager;
 	};

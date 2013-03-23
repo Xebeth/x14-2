@@ -334,31 +334,15 @@ namespace HookEngineLib
 	{
 		LPBYTE pTrampoline = (LPBYTE)malloc(OpCodesSize_in + 8);
 
+		memset(pTrampoline, OPCODE_NOP, OpCodesSize_in + 8);
+
 		if (pTrampoline != NULL)
 		{
 			DWORD dwPageAccess;
 
 			VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
 			memcpy(pTrampoline + 3, pSrc_in, OpCodesSize_in);
-			LPBYTE pCallOp = NULL;
-			long JumpAddr;
-
-			for (DWORD i = 0; i < OpCodesSize_in; ++i)
-			{
-				pCallOp = pTrampoline + 3 + i;
-
-				// try to fix a relative call
-				if (*pCallOp == 0xE8)
-				{
-					++pCallOp;
-					JumpAddr = *(long*)(pCallOp);						// 1. jump offset
-					JumpAddr = *(long*)(&pSrc_in) + i + 4 + JumpAddr;	// 2. find the real destination
-					JumpAddr = *(long*)(&pTrampoline - JumpAddr);		// 3. ???
-					memcpy(pCallOp, &JumpAddr, sizeof(long));			// 4. profit
-					break;
-				}
-			}
-
+			
 			// write the hook code
 			pTrampoline[0] = OPCODE_POP_EAX;						// POP EAX
 			pTrampoline[1] = OPCODE_POP_ECX;						// POP ECX
@@ -375,7 +359,7 @@ namespace HookEngineLib
 			// jump offset
 			*(DWORD*)(pSrc_in+4) = (DWORD)(pDst_in - (pSrc_in+3)) - 5;
 
-			for(DWORD i = 8; i < OpCodesSize_in; i++)
+			for(DWORD i = 8; i < OpCodesSize_in; ++i)
 				pSrc_in[i] = OPCODE_NOP;							// NOP
 
 			VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);

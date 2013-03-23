@@ -32,12 +32,15 @@ namespace Windower
 {
 	/*! \brief GameChatCore constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(Engine_in_out, HookManager_in_out)/*, CommandHandler(ENGINE_KEY, "GameChatCore")*/
+		: WindowerCore(_T("GameChat"), Engine_in_out, HookManager_in_out) {}
+
+	/*! \brief Registers the services of the module
+		\return true if the services were registered; false otherwise
+	*/
+	bool GameChatCore::RegisterServices()
 	{
 		// register the services
-		RegisterService(_T(FORMAT_CHAT_MESSAGE_HOOK), false);
-		// register the module
-		m_Engine.RegisterModule(_T("GameChat"), this);
+		return (RegisterService(_T(FORMAT_CHAT_MESSAGE_HOOK), false) != NULL);
 	}
 
 	/*! \brief Register the hooks of the specified service with the hook manager
@@ -45,7 +48,7 @@ namespace Windower
 		\param[out] Hooks_out : the list of hooks to register
 		\return true if the hooks were registered; false otherwise
 	*/
-	bool GameChatCore::RegisterHooks(const string_t &ServiceName_in, HookPointers &Hooks_out)
+	bool GameChatCore::RegisterHooks(const string_t& ServiceName_in, HookPointers &Hooks_out)
 	{
 		if (ServiceName_in.compare(_T(FORMAT_CHAT_MESSAGE_HOOK)) == 0)
 		{
@@ -68,7 +71,7 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/
-	ModuleService* GameChatCore::CreateService(const string_t &ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
+	ModuleService* GameChatCore::CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
 	{
 		return new FormatChatMsgService(ServiceName_in, Hooks_in, InvokePermission_in);
 	}

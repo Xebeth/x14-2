@@ -19,14 +19,9 @@ namespace Windower
 		\param[in] Engine_in_out : the windower engine
 	*/
 	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(Engine_in_out, HookManager_in_out)
+		: WindowerCore(_T("CommandDispatcher"), Engine_in_out, HookManager_in_out)
 	{
 		CommandParams Params;
-
-		RegisterService(_T("UnregisterCommand"), true);
-		RegisterService(_T("RegisterCommand"), true);
-		// register the module
-		m_Engine.RegisterModule(_T("CommandDispatcher"), this);
 
 		m_ValidKeys.insert(ENGINE_KEY);	// Windower Engine
 		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
@@ -55,6 +50,19 @@ namespace Windower
 			delete Iter->second;
 
 		m_Commands.clear();
+	}
+
+	/*! \brief Registers the services of the module
+		\return true if the services were registered; false otherwise
+	*/
+	bool CommandDispatcher::RegisterServices()
+	{
+		bool Result = true;
+
+		Result &= (RegisterService(_T("UnregisterCommand"), true) != NULL);
+		Result &= (RegisterService(_T("RegisterCommand"), true) != NULL);
+
+		return Result;
 	}
 
 	/*! \brief Registers the specified command in the dispatcher
@@ -87,7 +95,7 @@ namespace Windower
 		\param[in] CommandName_in : the name of the command
 		\return true if the command registration was revoked; false otherwise
 	*/
-	bool CommandDispatcher::UnregisterCommand(DWORD RegistrationKey_in, const std::string &CommandName_in)
+	bool CommandDispatcher::UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in)
 	{
 		RegisteredCommands::const_iterator Iter = m_Commands.find(CommandName_in);
 
@@ -130,7 +138,7 @@ namespace Windower
 		\param[in] Params_in : the input parameters
 		\return true if the command was invoked successfully; false otherwise
 	*/
-	bool CommandDispatcher::Invoke(const string_t &ServiceName_in,
+	bool CommandDispatcher::Invoke(const string_t& ServiceName_in,
 								   const PluginFramework::ServiceParam &Params_in)
 	{
 		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
@@ -163,7 +171,7 @@ namespace Windower
 		\param[in] Name_in : the name of the command
 		\return a pointer to the command if found; NULL otherwise
 	*/
-	WindowerCommand* CommandDispatcher::FindCommand(const std::string &Name_in) const
+	WindowerCommand* CommandDispatcher::FindCommand(const std::string& Name_in) const
 	{
 		RegisteredCommands::const_iterator CmdIter = m_Commands.find(Name_in);
 
@@ -179,7 +187,7 @@ namespace Windower
 		\param[out] Feedback_out : the result of the execution
 		\return true if the command was executed successfully; false otherwise
 	*/
-	bool CommandDispatcher::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
+	bool CommandDispatcher::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out)
 	{
 		switch(CmdID_in)
 		{
@@ -190,14 +198,13 @@ namespace Windower
 		return false;
 	}
 
-
 	/*! \brief Displays the help message for the specified command
 			   or all the commands if no command is specified
 		\param[in] CommandName_in : the name of the command for which to obtain help
 		\param[out] HelpMsg_out : a string receiving the help message
 		\return true if successful; false otherwise
 	*/
-	bool CommandDispatcher::ShowCommandHelp(const std::string &CommandName_in, std::string &HelpMsg_out)
+	bool CommandDispatcher::ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out)
 	{
 		if (CommandName_in.empty() == false)
 		{

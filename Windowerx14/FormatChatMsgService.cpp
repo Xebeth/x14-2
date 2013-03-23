@@ -43,8 +43,8 @@ namespace Windower
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
-	bool FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-													 StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
+	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
+															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
 	{
 		if (m_pContext != NULL)
 		{

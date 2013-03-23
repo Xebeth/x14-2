@@ -54,16 +54,16 @@ namespace Windower
 		*/
 		virtual void OnHookCall(const char *pHookName_in) {}
 
-		PluginFramework::IPlugin* LoadPlugin(const string_t &PluginName_in, bool ForceReload_in = false);
-		bool UnloadPlugin(const string_t &PluginName_in);
+		PluginFramework::IPlugin* LoadPlugin(const string_t& PluginName_in, bool ForceReload_in = false);
+		bool UnloadPlugin(const string_t& PluginName_in);
 
 		size_t LoadPlugins(const ActivePlugins& PluginSet_in);
-		bool ListPlugins(std::string &Feedback_out) const;
+		bool ListPlugins(std::string& Feedback_out) const;
 
-		bool RegisterModule(const string_t ModuleName_in, ICoreModule *pModule_in);
-		bool UnregisterModule(const string_t ModuleName_in);
+		bool RegisterModule(const string_t& ModuleName_in, ICoreModule *pModule_in);
+		bool UnregisterModule(const string_t& ModuleName_in);
 
-		PluginFramework::IPlugin* GetPluginInstance(const string_t &PluginName_in);
+		PluginFramework::IPlugin* GetPluginInstance(const string_t& PluginName_in);
 
 		/*! \brief Retrieves the working directory of windower
 			\return the working directory of windower
