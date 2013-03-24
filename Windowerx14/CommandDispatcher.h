@@ -18,6 +18,7 @@
 namespace Windower
 {
 	class WindowerCommand;
+	class WindowerEngine;
 
 	//! hash map of registered commands
 	typedef stdext::hash_map<std::string, WindowerCommand*> RegisteredCommands;
@@ -25,33 +26,22 @@ namespace Windower
 	typedef std::set<DWORD> AuthorizedKeys;
 
 	//! \brief Command dispatcher
-	class CommandDispatcher : public WindowerCore, public ICommandHandler
+	class CommandDispatcher : public WindowerCore
 	{
-		//! IDs of the commands registered with the plugin
-		enum CommandMap
-		{
-			CMD_HELP = 0,	//!< displays help for commands
-			CMD_COUNT		//!< number of registered commands
-		};
-
 	public:
-		explicit CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
 		virtual ~CommandDispatcher();
 
 		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in);
+		bool IsCommandValid(const WindowerCommand *pCommand_in) const;
+		bool UnregisterCommand(WindowerCommand *pCommand_in);
+		bool RegisterCommand(WindowerCommand *pCommand_in);		
 
 		WindowerCommand* FindCommand(const std::string& Name_in) const;
 
 		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);
 
-		bool ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out);
-		int ShowCommandHelp(WindowerCommand *pCommand_in);
-
-		// ICommandHandler interface implementation
-		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
-		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
-		virtual bool UnregisterCommand(WindowerCommand *pCommand_in);
-		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
+		const RegisteredCommands& GetCommands() const { return m_Commands; }
 
 		// ICoreModule implementation
 		bool RegisterServices();

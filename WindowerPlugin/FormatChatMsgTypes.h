@@ -10,15 +10,25 @@
 
 namespace Windower
 {
+	#pragma pack(push, 1)
+
 	typedef struct _StringNode
 	{
 		char		*pResBuf;		// +4
-		DWORD		 dwUnknown;		// +8
+		DWORD		 dwCapacity;	// +8
 		DWORD		 dwSize;		// +12
-		bool		 bUnknown;		// +16
-		bool		 bUnknown2;		// +17
-		const char  *pUnknown;		// +18
+		DWORD		 dwUnknown2;	// +16
+		bool		 bUnknown;		// +17
+		bool		 bUnknown2;		// +18
+		char		 cBuf0;
+		char		 cBuf1;
+		char		 cBuf2;
+		char		 cBuf3;
 	} StringNode;
+
+	#pragma pack(pop)
+
+	StringNode UpdateNode(char *pText_in, size_t TextLen_in, StringNode &Node_in_out);
 
 	enum CHAT_MESSAGE_TYPE
 	{

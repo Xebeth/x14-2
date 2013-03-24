@@ -169,12 +169,12 @@ namespace Windower
 
 				if (m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()))
 				{
-					append_format(LoadedList, "- %s", Info.c_str());
+					append_format(LoadedList, "\xe2\x87\x92 %s", Info.c_str());
 					++LoadedCount;
 				}
 				else
 				{
-					append_format(AvailableList, "- %s", Info.c_str());
+					append_format(AvailableList, "\xe2\x87\x92 %s", Info.c_str());
 					++AvailableCount;
 				}
 			}
@@ -184,11 +184,15 @@ namespace Windower
 				append_format(Feedback_out, "Loaded plugins (%u found):\n%s",
 							  LoadedCount, LoadedList.c_str());
 			}
+			else
+			{
+				Feedback_out += "No plugin loaded.\n";
+			}
 
 			if (AvailableCount > 0U)
 			{
 				if (LoadedCount > 0U)
-					Feedback_out += "\n";
+					Feedback_out += '\n';
 
 				append_format(Feedback_out, "Available plugins (%u found):\n%s",
 							  AvailableCount, AvailableList.c_str());

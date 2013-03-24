@@ -8,13 +8,12 @@
 #ifndef __TEST_HOOK_H__
 #define __TEST_HOOK_H__
 
+#include <FormatChatMsgTypes.h>
+using Windower::StringNode;
+
 // int __thiscall sub_5E3810(int this, const char *pText, unsigned int TextLen)
 typedef int(WINAPI *fn5E3810)(LPVOID pThis, char *pText, int TextLen);
 int WINAPI sub5E3810Hook(LPVOID pThis, char *pText, int TextLen);
-
-// int __thiscall sub_48F5B0(void *this, char *pText)
-typedef int (WINAPI *fn48F5B0)(LPVOID pThis, char *pText);
-int WINAPI sub48F5B0Hook(LPVOID pThis, char *pText);
 
 // int __thiscall sub_568B90(void *this, char *pText, int TextLen, signed int a4)
 typedef int (WINAPI *fn568B90)(LPVOID pThis, char *pText, int TextLen, signed int a4);

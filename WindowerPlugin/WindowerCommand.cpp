@@ -62,12 +62,12 @@ namespace Windower
 			std::string ParamDesc, ValueDesc;
 			char *pParamFormat = NULL;
 
-			Help_out.append(m_Name);
+			append_format(Help_out, "\xe2\x87\x92 %s", m_Name.c_str());
 
 			if (m_Description.empty() == false)
 				Help_out.append(" : " + m_Description);
 
-			Help_out.append("\n");
+			Help_out += '\n';
 
 			// if the descriptions aren't empty, their keys must match the parameter type ones
 			for(Iter = m_Parameters.begin(); Iter != m_Parameters.end(); ++Iter)
@@ -100,16 +100,16 @@ namespace Windower
 							   Iter->second->GetName().c_str());
 					}
 
-					Help_out.append(ParamDesc.c_str());
+					Help_out.append(ParamDesc);
 
 					if (++ParamCount < ParamSize)
-						Help_out.append("\n");
+						Help_out += '\n';
 				}
 			}
 		}
 		else if (m_Description.empty() == false)
 		{
-			append_format(Help_out, "%s : %s", m_Name.c_str(), m_Description.c_str());
+			append_format(Help_out, "\xe2\x87\x92 %s : %s", m_Name.c_str(), m_Description.c_str());
 		}
 		else
 		{

@@ -32,14 +32,14 @@ namespace Windower
 		bool Start(std::string *pFeedback_in_out = NULL);		
 		bool Stop(std::string *pFeedback_in_out = NULL);		
 
-		DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-							const StringNode* pMessage_in, const char *pOriginalMsg_in,
-							DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-							bool &Unsubscribe_out);
+		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+						   DWORD *pNewSize_out);
 
 		// const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
 
-		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
+		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 
 	protected:
 		bool UnregisterCommands();

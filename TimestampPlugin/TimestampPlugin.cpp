@@ -138,24 +138,23 @@ namespace Windower
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return the size of the message
 	*/
-	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-										 const StringNode* pMessage_in, const char *pOriginalMsg_in,
-										 DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-										 bool &Unsubscribe_out)
+	bool TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+										const StringNode* pMessage_in, const char *pOriginalMsg_in,
+										DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+										DWORD *pNewSize_out)
 	{
 		if (pMessage_in != NULL && pMessage_in->pResBuf != NULL && strlen(pMessage_in->pResBuf) > 0U)
 		{
-			DWORD dwNewSize;
 			// add 11 characters for the timestamp
-			dwNewSize = pMessage_in->dwSize + m_TimestampLength;
+			*pNewSize_out = pMessage_in->dwSize + m_TimestampLength;
 			// allocate a new buffer
-			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize * sizeof(char));
+			char *pRealloc = (char*)realloc(*pBuffer_in_out, *pNewSize_out * sizeof(char));
 
 			if  (pRealloc != NULL)
 			{
 				*pBuffer_in_out = pRealloc;
 				// clear the buffer
-				memset(*pBuffer_in_out, 0, dwNewSize);
+				memset(*pBuffer_in_out, 0, *pNewSize_out);
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
 							   m_TimestampFormat.c_str(),
@@ -165,11 +164,11 @@ namespace Windower
 						 pMessage_in->dwSize * sizeof(char),
 						 pMessage_in->pResBuf, pMessage_in->dwSize);
 
-				return dwNewSize;
+				return true;
 			}
 		}
 
-		return dwOriginalMsgSize_in;
+		return false;
 	}
 
 	

@@ -99,6 +99,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\Common\utf8_convert.cpp" />
+    <ClCompile Include="CmdLineCore.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="CreateWindowExHook.cpp" />
@@ -132,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="..\Common\string_t.h" />
     <ClInclude Include="..\Common\utf8_convert.h" />
+    <ClInclude Include="CmdLineCore.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
     <ClInclude Include="CreateWindowExHook.h" />

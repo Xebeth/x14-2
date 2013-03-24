@@ -93,9 +93,9 @@ namespace PluginFramework
 	{
 		return format(_T("Plugin '%s v%s':\n")
 					  _T("  Author:      %s\n")
-					  _T("  Descritpion: %s\n"),
+					  _T("  Description: %s\n"),
 					  m_Name.c_str(), m_Version.ToString().c_str(),
-					  m_Author.c_str(), m_Descritpion.c_str());
+					  m_Author.c_str(), m_Description.c_str());
 	}
 
 	/*! \brief Converts the plugin information to a string

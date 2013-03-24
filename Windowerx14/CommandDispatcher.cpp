@@ -21,24 +21,10 @@ namespace Windower
 	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
 		: WindowerCore(_T("CommandDispatcher"), Engine_in_out, HookManager_in_out)
 	{
-		CommandParams Params;
-
 		m_ValidKeys.insert(ENGINE_KEY);	// Windower Engine
 		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
 		m_ValidKeys.insert(0x18E5F530);	// AutoLogin
 		m_ValidKeys.insert(0xEB71A021);	// ExpWatch
-
-		WindowerCommand *pCommand = new WindowerCommand(ENGINE_KEY, CMD_HELP, "help",
-														"Provides help with the specified command (all by default)", this);
-
-		if (pCommand != NULL)
-		{
-			// register the parameter
-			pCommand->AddStringParam("command", true, "", "the name of the command for which to obtain help");
-
-			if (RegisterCommand(pCommand) == false)
-				delete pCommand;
-		}
 	}
 
 	//! \brief CommandDispatcher destructor
@@ -181,59 +167,7 @@ namespace Windower
 		return NULL;
 	}
 
-	/*! \brief Executes the command specified by its ID
-		\param[in] CmdID_in : the ID of the command to execute
-		\param[in] Command_in : the command to execute
-		\param[out] Feedback_out : the result of the execution
-		\return true if the command was executed successfully; false otherwise
-	*/
-	bool CommandDispatcher::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out)
-	{
-		switch(CmdID_in)
-		{
-			case CMD_HELP:
-				return ShowCommandHelp(Command_in.GetStringValue("command"), Feedback_out);
-		}
-
-		return false;
-	}
-
-	/*! \brief Displays the help message for the specified command
-			   or all the commands if no command is specified
-		\param[in] CommandName_in : the name of the command for which to obtain help
-		\param[out] HelpMsg_out : a string receiving the help message
-		\return true if successful; false otherwise
-	*/
-	bool CommandDispatcher::ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out)
-	{
-		if (CommandName_in.empty() == false)
-		{
-			WindowerCommand *pCommand;
-
-			if ((pCommand = FindCommand(CommandName_in)) != NULL)
-			{
-				pCommand->Output(HelpMsg_out);
-
-				return true;
-			}
-		}
-
-		RegisteredCommands::const_iterator Iter;
-
-		for (Iter = m_Commands.begin(); Iter != m_Commands.end(); ++Iter)
-		{
-			if (Iter->second != NULL && Iter->second->IsPublic() && Iter->second->IsRestricted() == false)
-			{
-				if (HelpMsg_out.empty() == false)
-					HelpMsg_out += '\n';
-
-				Iter->second->Output(HelpMsg_out);
-			}
-		}
 	
-		return true;
-	}
-
 	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
 		\param[in] pCommand_in : the command to validate
 		\return true if the command is valid; false otherwise

@@ -21,9 +21,8 @@ namespace Windower
 		int sub568B90Hook(LPVOID pThis, char *pText, int TextLen, signed int a4);
 		int sub8FFDA0Hook(LPVOID pThis, int a2, const char *a3, int a4);
 		int sub48F4B0Hook(LPVOID pThis, char *pText, int TextLen);
-		int sub5E3810Hook(LPVOID pThis, char *pText, int TextLen);
-		bool subA73BE0Hook(LPVOID pThis, char *pText);
-		int sub48F5B0Hook(LPVOID pThis, char *pText);
+		int InitStringNode2(LPVOID pThis, char *pText, int TextLen);
+		bool IsCmd(LPVOID pThis, char *pText);
 
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
@@ -31,7 +30,6 @@ namespace Windower
 
 	protected:
 		fn5E3810 m_p5E3810Trampoline;
-		fn48F5B0 m_p48F5B0Trampoline;
 		fn568B90 m_p568B90Trampoline;
 		fnA73BE0 m_pA73BE0Trampoline;
 		fn8FFDA0 m_p8FFDA0Trampoline;

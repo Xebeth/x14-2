@@ -79,9 +79,9 @@ namespace Windower
 				DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;
 				const char *pOriginalMsg = pMessage_in_out->pResBuf;
 				PluginSet::const_iterator PluginIt;			
-				bool bResult = false, bUnsubscribe;
 				char *pModifiedMsg = NULL;
 				IGameChatPlugin *pPlugin;
+				bool bResult = false;
 
 				for (PluginIt = m_pContext->m_Subscribers.begin(); PluginIt != m_pContext->m_Subscribers.end(); ++PluginIt)
 				{
@@ -89,8 +89,8 @@ namespace Windower
 
 					if (pPlugin != NULL)
 					{
-						dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out, pMessage_in_out, pOriginalMsg,
-														  dwOriginalSize, &pModifiedMsg, bUnsubscribe);
+						pPlugin->OnChatMessage(MessageType_in, pSender_in_out, pMessage_in_out, pOriginalMsg,
+											   dwOriginalSize, &pModifiedMsg, &dwResult);
 
 						if (pModifiedMsg != NULL && dwResult > dwNewSize)
 							dwNewSize = dwResult;
@@ -116,23 +116,20 @@ namespace Windower
 		//if (AlwaysShow_in)
 		{
 			DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
-			DWORD dwOriginalMgsSize = pMessage_in_out->dwSize;
 			char *pOriginalSender = pSender_in_out->pResBuf;
-			char *pOriginalMsg = pMessage_in_out->pResBuf;			
+			StringNode OriginalMsg;
 
 			if (pModifiedMsg_in != NULL)
-			{
-				pMessage_in_out->dwSize = NewSize_in;
-				pMessage_in_out->pResBuf = pModifiedMsg_in;
-			}
+				OriginalMsg = UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
 			// display the error message instead of the typed command
 			Result = ((fnFormatChatMessage)m_pContext->m_pTrampoline)(pThis_in_out, MessageType_in,
 																	  pSender_in_out, pMessage_in_out, NULL);
 			// restore the original message and sender
 			pSender_in_out->dwSize = dwOriginalSenderSize;
-			pMessage_in_out->dwSize = dwOriginalMgsSize;
 			pSender_in_out->pResBuf = pOriginalSender;
-			pMessage_in_out->pResBuf = pOriginalMsg;			
+
+			if (pModifiedMsg_in != NULL)
+				*pMessage_in_out = OriginalMsg;
 		}
 
 		// cleanup

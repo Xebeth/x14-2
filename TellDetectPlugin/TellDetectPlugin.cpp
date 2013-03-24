@@ -94,15 +94,17 @@ namespace Windower
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return true if the message was logged; false otherwise
 	*/
-	DWORD TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-										  const StringNode* pMessage_in, const char *pOriginalMsg_in,
-										  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-										  bool &Unsubscribe_out)
+	bool TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+										 const StringNode* pMessage_in, const char *pOriginalMsg_in,
+										 DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+										 DWORD *pNewSize_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
 			PlaySound(m_SoundFile.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+		// the message wasn't modified
+		*pNewSize_out = dwOriginalMsgSize_in;
 
-		return dwOriginalMsgSize_in;
+		return true;
 	}
 }
 

@@ -29,10 +29,11 @@ namespace Windower
 			\param[in] Unsubscribe_out : 
 			\return the size of the message
 		*/
-		DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-							const StringNode* pMessage_in, const char *pOriginalMsg_in,
-							DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-							bool &Unsubscribe_out) { return dwOriginalMsgSize_in; }
+		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+						   DWORD *pNewSize_out)
+		{ *pNewSize_out = dwOriginalMsgSize_in; return true; }
 	protected:
 		bool Subscribe();
 		bool Unsubscribe();

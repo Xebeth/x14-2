@@ -23,19 +23,11 @@ namespace Windower
 		bool StartLog();
 		void StopLog();
 
-		virtual DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-									const StringNode* pMessage_in, const char *pOriginalMsg_in,
-									DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									bool &Unsubscribe_out);
+		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
+						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+						   DWORD *pNewSize_out);
 	protected:
-		/*! \brief Unregisters the commands of the plugin with the command dispatcher
-			\return true if all the commands were unregistered successfully; false otherwise
-		*/
-		virtual bool UnregisterCommands() { return true; }
-		/*! \brief Registers the commands of the plugin with the command dispatcher
-			\return true if all the commands were registered successfully; false otherwise
-		*/
-		virtual bool RegisterCommands() { return true; }
 		bool WriteLine(const string_t &Line_in);
 
 		void UpdateTimestamp();

@@ -94,9 +94,6 @@
     <ClCompile Include="CommandParser.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="WindowerCore.cpp">
-      <Filter>Windower\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="TestCore.cpp">
       <Filter>Windower\Modules\Test</Filter>
     </ClCompile>
@@ -129,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdLineCore.cpp">
+      <Filter>Windower\Modules\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerCore.cpp">
+      <Filter>Windower\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +209,9 @@
     </ClInclude>
     <ClInclude Include="IDirect3DDevice9Wrapper.h">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="CmdLineCore.h">
+      <Filter>Windower\Modules\Commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

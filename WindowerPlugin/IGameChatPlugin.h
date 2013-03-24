@@ -32,10 +32,10 @@ namespace Windower
 			\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 			\return the size of the message
 		*/
-		virtual DWORD OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in_out,
-									const StringNode* pMessage_in, const char *pOriginalMsg_in,
-									DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									bool &Unsubscribe_out) =0;
+		virtual bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
+								   const StringNode* pMessage_in, const char *pOriginalMsg_in,
+								   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
+								   DWORD *pNewSize_out) =0;
 
 	protected:
 		virtual bool Unsubscribe();

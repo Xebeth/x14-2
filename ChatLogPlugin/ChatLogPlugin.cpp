@@ -89,10 +89,10 @@ namespace Windower
 		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
 		\return true if the message was logged; false otherwise
 	*/
-	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const StringNode *pSender_in,
+	bool ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const StringNode *pSender_in,
 									  const StringNode *pMessage_in_out, const char *pOriginalMsg_in,
 									  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									  bool &Unsubscribe_out)
+									  DWORD *pNewSize_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && strlen(pOriginalMsg_in) > 0U)
 		{
@@ -116,7 +116,10 @@ namespace Windower
 			WriteLine(m_Buffer);
 		}
 
-		return dwOriginalMsgSize_in;
+		// the message wasn't modified
+		*pNewSize_out = dwOriginalMsgSize_in;
+
+		return true;
 	}
 
 	/*! \brief Writes a line in the log file

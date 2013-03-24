@@ -54,13 +54,13 @@ namespace PluginFramework
 		*/
 		const string_t& GetUpdateURL() const { return m_UpdateURL; }
 		/*! \brief Sets the description of the plugin
-			\param[in] Descritpion_in : the description of the plugin
+			\param[in] Description_in : the description of the plugin
 		*/
-		void SetDesc(const string_t &Descritpion_in) { m_Descritpion = Descritpion_in; }
+		void SetDesc(const string_t &Description_in) { m_Description = Description_in; }
 		/*! \brief Retrieves the description of the plugin
 			\return the description of the plugin
 		*/
-		const string_t& GetDesc() const { return m_Descritpion; }
+		const string_t& GetDesc() const { return m_Description; }
 		/*! \brief Sets the author of the plugin
 			\param[in] Author_in : the author of the plugin
 		*/
@@ -122,7 +122,7 @@ namespace PluginFramework
 		//! the author of the plugin
 		string_t m_Author;
 		//! the description of the plugin
-		string_t m_Descritpion;
+		string_t m_Description;
 		//! the URL of the update information
 		string_t m_UpdateURL;
 		//! the compatibility flags of the plugin
@@ -216,7 +216,7 @@ namespace PluginFramework
 		/*! \brief Retrieves the description of the plugin
 			\return the description of the plugin
 		*/
-		const string_t& GetDesc() const { return m_PluginInfo.m_Descritpion; }
+		const string_t& GetDesc() const { return m_PluginInfo.m_Description; }
 
 		/*! \brief Retrieves the compatibility flags of the plugin
 			\return the compatibility flags of the plugin
@@ -249,9 +249,9 @@ namespace PluginFramework
 		void SetUpdateURL(const string_t &UpdateURL_in) { m_PluginInfo.m_UpdateURL = UpdateURL_in; }
 
 		/*! \brief Sets the description of the plugin
-			\param[in] Descritpion_in : the description of the plugin
+			\param[in] Description_in : the description of the plugin
 		*/
-		void SetDesc(const string_t &Descritpion_in) { m_PluginInfo.m_Descritpion = Descritpion_in; }
+		void SetDesc(const string_t &Description_in) { m_PluginInfo.m_Description = Description_in; }
 
 		/*! \brief Sets the author of the plugin
 			\param[in] Author_in : the author of the plugin
