@@ -90,7 +90,7 @@ namespace Windower
 					if (pPlugin != NULL)
 					{
 						pPlugin->OnChatMessage(MessageType_in, pSender_in_out, pMessage_in_out, pOriginalMsg,
-											   dwOriginalSize, &pModifiedMsg, &dwResult);
+											   dwOriginalSize, &pModifiedMsg, dwResult);
 
 						if (pModifiedMsg != NULL && dwResult > dwNewSize)
 							dwNewSize = dwResult;

@@ -105,17 +105,33 @@ namespace Windower
 					char *pFeedbackMsg = NULL;
 					WindowerCommand Command;
 					DWORD dwNewSize = 0UL;
-					int ParseResult;
 
-					if ((ParseResult = m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
+					if (m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
+					{
 						Command.Execute(Feedback_out);
-					else
+						Result = true;
+					}
+					else if (pFeedbackMsg != NULL)
+					{
 						Feedback_out.assign(pFeedbackMsg);
+						Result = true;
+					}
+
+					if (Result)
+					{
+						std::string Cmd(pCmd_in->pResBuf);
+
+						// add the command to the feedback
+						replace<char>(Cmd, "//", ">> ");
+						Cmd += '\n';
+						// insert it at the beginning
+						Feedback_out.insert(0, Cmd);
+					}
 
 					if (pFeedbackMsg != NULL)
 						free(pFeedbackMsg);
 
-					return true;
+					return Result;
 				}
 				// default feedback message in case of an unknown error
 				Feedback_out = "Failed to process the command.";

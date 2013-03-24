@@ -109,7 +109,7 @@ namespace Windower
 	bool ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
 									   const StringNode* pMessage_in, const char *pOriginalMsg_in,
 									   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									   DWORD *pNewSize_out)
+									   DWORD &dwNewSize_out)
 	{
 		if (m_bStarted)
 		{
@@ -125,7 +125,7 @@ namespace Windower
 			}
 		}
 		// the message hasn't changed
-		*pNewSize_out = dwOriginalMsgSize_in;
+		dwNewSize_out = dwOriginalMsgSize_in;
 
 		return true;
 	}

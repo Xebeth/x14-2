@@ -92,7 +92,7 @@ namespace Windower
 	bool ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const StringNode *pSender_in,
 									  const StringNode *pMessage_in_out, const char *pOriginalMsg_in,
 									  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									  DWORD *pNewSize_out)
+									  DWORD &dwNewSize_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && strlen(pOriginalMsg_in) > 0U)
 		{
@@ -117,7 +117,7 @@ namespace Windower
 		}
 
 		// the message wasn't modified
-		*pNewSize_out = dwOriginalMsgSize_in;
+		dwNewSize_out = dwOriginalMsgSize_in;
 
 		return true;
 	}

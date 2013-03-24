@@ -35,7 +35,7 @@ namespace Windower
 		virtual bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
 								   const StringNode* pMessage_in, const char *pOriginalMsg_in,
 								   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-								   DWORD *pNewSize_out) =0;
+								   DWORD &dwNewSize_out) =0;
 
 	protected:
 		virtual bool Unsubscribe();

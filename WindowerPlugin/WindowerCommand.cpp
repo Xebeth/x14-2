@@ -82,25 +82,26 @@ namespace Windower
 					if (ValueDesc.empty() == false || ShowValues_in)
 					{
 						if (ParamCount < m_MinParamsCount - 1)
-							pParamFormat = "\t[%s <%s>]\t: %s";
+							pParamFormat = "\t  - [%s <%s>] : %s";
 						else
-							pParamFormat = "\t%s <%s>\t: %s";
+							pParamFormat = "\t  - %s <%s> : %s";
 
-						format(ParamDesc, pParamFormat, CommandParamTypes[Iter->second->GetType()],
-							   Iter->second->GetName().c_str(), ValueDesc.c_str());
+						format(ParamDesc, pParamFormat, Iter->second->GetName().c_str(),
+							   CommandParamTypes[Iter->second->GetType()], ValueDesc.c_str());
 					}
 					else
 					{
 						if (ParamCount < m_MinParamsCount - 1)
-							pParamFormat = "\t[%s <%s>]";
+							pParamFormat = "\t  - [%s <%s>]";
 						else
-							pParamFormat = "\t%s <%s>";
+							pParamFormat = "\t  - %s <%s>";
 
-						format(ParamDesc, pParamFormat, CommandParamTypes[Iter->second->GetType()],
-							   Iter->second->GetName().c_str());
+						format(ParamDesc, pParamFormat, Iter->second->GetName().c_str(),
+							   CommandParamTypes[Iter->second->GetType()]);
 					}
 
-					Help_out.append(ParamDesc);
+					if (ParamDesc.empty() == false)
+						Help_out.append("\tParameters:\n" + ParamDesc);
 
 					if (++ParamCount < ParamSize)
 						Help_out += '\n';

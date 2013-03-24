@@ -36,7 +36,7 @@ namespace Windower
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
 						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   DWORD *pNewSize_out);
+						   DWORD &dwdwNewSize_out);
 
 	protected:
 		bool UnregisterCommands();

@@ -141,20 +141,20 @@ namespace Windower
 	bool TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
 										const StringNode* pMessage_in, const char *pOriginalMsg_in,
 										DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-										DWORD *pNewSize_out)
+										DWORD &dwdwNewSize_out)
 	{
 		if (pMessage_in != NULL && pMessage_in->pResBuf != NULL && strlen(pMessage_in->pResBuf) > 0U)
 		{
 			// add 11 characters for the timestamp
-			*pNewSize_out = pMessage_in->dwSize + m_TimestampLength;
+			dwdwNewSize_out = pMessage_in->dwSize + m_TimestampLength;
 			// allocate a new buffer
-			char *pRealloc = (char*)realloc(*pBuffer_in_out, *pNewSize_out * sizeof(char));
+			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwdwNewSize_out * sizeof(char));
 
 			if  (pRealloc != NULL)
 			{
 				*pBuffer_in_out = pRealloc;
 				// clear the buffer
-				memset(*pBuffer_in_out, 0, *pNewSize_out);
+				memset(*pBuffer_in_out, 0, dwdwNewSize_out);
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
 							   m_TimestampFormat.c_str(),

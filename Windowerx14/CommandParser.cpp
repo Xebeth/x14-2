@@ -41,9 +41,9 @@ namespace Windower
 									char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out)
 	{
 		std::string RawCommand, FeedbackMsg, CommandName;
+		int Result = PARSER_RESULT_INVALID_COMMAND;
 		std::list<std::string> Params;
-		WindowerCommand *pCommand;
-		int Result;
+		WindowerCommand *pCommand;		
 
 		// shouldn't happen but skip the // if they're still present
 		if (strstr(pRawCommand_in, "//") == pRawCommand_in)
@@ -51,7 +51,7 @@ namespace Windower
 		else
 			RawCommand = pRawCommand_in;
 
-		Result = Tokenize(RawCommand, CommandName, Params);
+		Tokenize(RawCommand, CommandName, Params);
 		// set the name of the command
 		Command_out.SetName(CommandName);
 
@@ -60,7 +60,10 @@ namespace Windower
 			size_t ParamsCount = Params.size();
 
 			if (pCommand != NULL)
+			{
+				Result = PARSER_RESULT_SUCCESS;
 				Command_out.Copy(*pCommand);
+			}
 			else
 				return PARSER_RESULT_INVALID_COMMAND;
 
@@ -70,7 +73,7 @@ namespace Windower
 			else if (ParamsCount > Command_out.GetMaxParams())
 				Result = PARSER_RESULT_TOO_MANY_PARAMETERS;
 
-			if (Result < 0)
+			if (Result != PARSER_RESULT_SUCCESS)
 			{
 				return SetFeedback(Result, Command_out, ParamsCount, NULL, NULL,
 								   pFeedbackMsg_out, FeedbackMsgSize_out);
@@ -79,59 +82,63 @@ namespace Windower
 			{
 				const CommandParams &Parameters = Command_out.GetParameters();
 				CommandParams::const_iterator ParamIter = Parameters.begin();
-				char *pConvertTrail = NULL;
-				std::string CurrentParam;
-				int Error = 0;
 
-				// validate each value and set it to the corresponding parameter
-				do
+				if (ParamIter != Parameters.end())
 				{
-					CurrentParam = Params.front();
-					Params.pop_front();
+					char *pConvertTrail = NULL;
+					std::string CurrentParam;
+					int Error = 0;
 
-					switch(ParamIter->second->GetType())
+					// validate each value and set it to the corresponding parameter
+					do
 					{
+						CurrentParam = Params.front();
+						Params.pop_front();
+
+						switch(ParamIter->second->GetType())
+						{
 						case COMMAND_PARAM_TYPE_STRING:
 						default:
 							ParamIter->second->SetStringValue(CurrentParam);
-						break;
+							break;
 						case COMMAND_PARAM_TYPE_INTEGER:
-						{
-							_set_errno(0);
-							long Value = strtol(CurrentParam.c_str(), &pConvertTrail, 0);
-							_get_errno(&Error);
-
-							if (*pConvertTrail != NULL || Error != 0)
 							{
-								return SetFeedback(PARSER_RESULT_INVALID_INT_PARAMETER, Command_out, ParamsCount,
-												   ParamIter->second->GetName().c_str(), CurrentParam.c_str(), 
-												   pFeedbackMsg_out, FeedbackMsgSize_out);
-							}
+								_set_errno(0);
+								long Value = strtol(CurrentParam.c_str(), &pConvertTrail, 0);
+								_get_errno(&Error);
 
-							ParamIter->second->SetIntegerValue(Value);
-						}
-						break;
+								if (*pConvertTrail != NULL || Error != 0)
+								{
+									return SetFeedback(PARSER_RESULT_INVALID_INT_PARAMETER, Command_out, ParamsCount,
+										ParamIter->second->GetName().c_str(), CurrentParam.c_str(), 
+										pFeedbackMsg_out, FeedbackMsgSize_out);
+								}
+
+								ParamIter->second->SetIntegerValue(Value);
+							}
+							break;
 						case COMMAND_PARAM_TYPE_FLOAT:
-						{
-							_set_errno(0);
-							double Value = strtod(CurrentParam.c_str(), &pConvertTrail);
-							_get_errno(&Error);
-
-							if (*pConvertTrail != NULL || Error != 0)
 							{
-								return SetFeedback(PARSER_RESULT_INVALID_FLOAT_PARAMETER, Command_out, ParamsCount,
-												   ParamIter->second->GetName().c_str(), CurrentParam.c_str(),
-												   pFeedbackMsg_out, FeedbackMsgSize_out);
+								_set_errno(0);
+								double Value = strtod(CurrentParam.c_str(), &pConvertTrail);
+								_get_errno(&Error);
+
+								if (*pConvertTrail != NULL || Error != 0)
+								{
+									return SetFeedback(PARSER_RESULT_INVALID_FLOAT_PARAMETER, Command_out, ParamsCount,
+										ParamIter->second->GetName().c_str(), CurrentParam.c_str(),
+										pFeedbackMsg_out, FeedbackMsgSize_out);
+								}
+
+								ParamIter->second->SetFloatValue(Value);
 							}
-
-							ParamIter->second->SetFloatValue(Value);
+							break;
 						}
-						break;
-					}
 
-					++ParamIter;
+						++ParamIter;
+					}
+					while (Params.empty() == false && ParamIter != Parameters.end());
 				}
-				while (Params.empty() == false && ParamIter != Parameters.end());
 			}
 		}
 
@@ -159,27 +166,27 @@ namespace Windower
 			case PARSER_RESULT_INVALID_FLOAT_PARAMETER:
 				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
-					format(Feedback, "Parameter '%s' : invalid float value \u00AB%s\u00BB",
+					format(Feedback, "\xe2\x87\x92 Parameter '%s' : invalid float value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);
 				}
 				else
-					Feedback = "Invalid float parameter";
+					Feedback = "\xe2\x87\x92 Invalid float parameter.";
 			break;
 			case PARSER_RESULT_INVALID_INT_PARAMETER:
 				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
-					format(Feedback, "Parameter '%s' : invalid integer value \u00AB%s\u00BB",
+					format(Feedback, "\xe2\x87\x92 Parameter '%s' : invalid integer value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);
 				}
 				else
-					Feedback = "Invalid float parameter";
+					Feedback = "\xe2\x87\x92 Invalid float parameter";
 			break;
 			case PARSER_RESULT_TOO_MANY_PARAMETERS:
-				format(Feedback, "Too many parameters (%u) : expecting at most %u",
+				format(Feedback, "\xe2\x87\x92 Too many parameter(s) (%u) : expecting at most %u.",
 					   ParamCount_in, Command_in_out.GetMaxParams());
 			break;
 			case PARSER_RESULT_TOO_FEW_PARAMETERS:
-				format(Feedback, "Too few parameters (%u) : expecting at least %u",
+				format(Feedback, "\xe2\x87\x92 Too few parameter(s) (%u) : expecting at least %u.",
 					   ParamCount_in, Command_in_out.GetMinParams());
 			break;
 		}

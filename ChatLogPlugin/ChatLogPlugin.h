@@ -26,7 +26,7 @@ namespace Windower
 		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
 						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   DWORD *pNewSize_out);
+						   DWORD &dwNewSize_out);
 	protected:
 		bool WriteLine(const string_t &Line_in);
 
