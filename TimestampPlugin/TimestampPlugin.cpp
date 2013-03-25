@@ -84,6 +84,7 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will add a timestamp to the chat log"));
 		PluginInfo_out.SetIdentifier(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B"));
+		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_WINDOWER);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("Timestamp"));

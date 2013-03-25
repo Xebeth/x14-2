@@ -67,6 +67,7 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will play a sound whenever the player receives a tell"));
 		PluginInfo_out.SetIdentifier(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));
+		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_WINDOWER);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetName(_T("TellDetect"));
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));

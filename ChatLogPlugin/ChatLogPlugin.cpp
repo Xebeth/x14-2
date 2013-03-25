@@ -74,6 +74,7 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will log the content of the game chat"));
 		PluginInfo_out.SetIdentifier(_T("745E1230-0C81-4220-B099-3A3392EFA03A"));
+		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_WINDOWER);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("ChatLog"));

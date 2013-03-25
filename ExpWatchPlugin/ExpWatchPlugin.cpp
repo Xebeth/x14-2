@@ -12,6 +12,7 @@
 #include <IGameChatPlugin.h>
 #include <WindowerCommand.h>
 #include <CommandHandler.h>
+#include <PluginEngine.h>
 
 #include "ExpWatchPlugin.h"
 #include "version.h"
@@ -61,6 +62,7 @@ namespace Windower
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will gather statistics on experience points earned"));
 		PluginInfo_out.SetIdentifier(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF"));
+		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_WINDOWER);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 		PluginInfo_out.SetName(_T("ExpWatch"));
