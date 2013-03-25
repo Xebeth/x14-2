@@ -5,8 +5,8 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release + debug info|Win32">
-      <Configuration>Release + debug info</Configuration>
+    <ProjectConfiguration Include="Release + Debug Info|Win32">
+      <Configuration>Release + Debug Info</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -34,7 +34,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -54,7 +54,7 @@
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
@@ -71,7 +71,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(TargetName)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -137,7 +137,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -154,6 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -173,7 +174,7 @@
     <ClCompile Include="..\Common\CryptUtils.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AutoLogin.cpp" />
     <ClCompile Include="AutoLoginConfigDlg.cpp" />
@@ -183,7 +184,7 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + debug info|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AutoLoginPlugin.cpp" />
   </ItemGroup>

@@ -73,11 +73,6 @@ namespace Windower
 		*/
 		const WindowerProfile& Settings() const { return m_Settings; }
 
-		/*! \brief Optional callback to inform the engine that a successful call to the hook was made
-			\param[in] pHookName_in : the name of the hook
-		*/
-		void OnHookCall(const char *pHookName_in);
-
 	private:
 		bool InitializePlugins();
 

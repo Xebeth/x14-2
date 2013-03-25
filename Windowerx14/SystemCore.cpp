@@ -96,10 +96,11 @@ namespace Windower
 			 && (ATOM)lpClassName_in != NULL						// lpClassName can be an ATOM (16-bit)
 			 && strcmp(lpClassName_in, FFXIV_WINDOW_CLASSA) == 0)	// check for the game class name
 			{
-				// CreateEngineThread();
+				CreateEngineThread();
 				m_hGameWnd = hWnd_in;
 				// remove the hook since it is no longer needed
-				m_Engine.OnHookCall("CreateWindowExA");
+				m_HookManager.UninstallHook("CreateWindowExA");
+				m_HookManager.UnregisterHook("CreateWindowExA");
 			}
 		}
 
@@ -127,7 +128,8 @@ namespace Windower
 				m_pGameWndProc = pWndClass->lpfnWndProc;
 				pWndClass->lpfnWndProc = ::WndProcHook;
 				// remove the hook since it is no longer needed
-				m_Engine.OnHookCall("RegisterClassExA");
+				m_HookManager.UninstallHook("RegisterClassExA");
+				m_HookManager.UnregisterHook("RegisterClassExA");
 			}
 
 			Result = m_pRegisterClassExATrampoline(pWndClass);

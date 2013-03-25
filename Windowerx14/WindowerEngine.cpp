@@ -49,6 +49,8 @@ namespace Windower
 	{
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
+		// create the system core module
+		m_pSystemCore = new SystemCore(*this, m_HookManager);
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
@@ -76,21 +78,42 @@ namespace Windower
 	{
 		Detach();
 
-		delete m_pSettingsManager;
-		m_pSettingsManager = NULL;
+		if (m_pSettingsManager != NULL)
+		{
+			delete m_pSettingsManager;
+			m_pSettingsManager = NULL;
+		}
 
-		delete m_pGameChatCore;
-		m_pGameChatCore = NULL;
+		if (m_pGameChatCore != NULL)
+		{
+			delete m_pGameChatCore;
+			m_pGameChatCore = NULL;
+		}
 
-		delete m_pGraphicsCore;
-		m_pGraphicsCore = NULL;
+		if (m_pGraphicsCore != NULL)
+		{
+			delete m_pGraphicsCore;
+			m_pGraphicsCore = NULL;
+		}
 
-		delete m_pCmdLineCore;
-		m_pCmdLineCore = NULL;
+		if (m_pCmdLineCore != NULL)
+		{
+			delete m_pCmdLineCore;
+			m_pCmdLineCore = NULL;
+		}
+
+		if (m_pSystemCore != NULL)
+		{
+			delete m_pSystemCore;
+			m_pSystemCore = NULL;
+		}
 
 #if defined _DEBUG && defined _TESTING
-		delete m_pTestCore;
-		m_pTestCore = NULL;
+		if (m_pTestCore != NULL)
+		{
+			delete m_pTestCore;
+			m_pTestCore = NULL;
+		}
 #endif // _DEBUG
 	}
 
@@ -150,7 +173,7 @@ namespace Windower
 				pModule->RegisterServices();
 		}
 
-		return InitializePlugins();
+		return true;
 	}
 
 	/*! \brief Uninstalls the internal hooks used by the windower
@@ -194,6 +217,8 @@ namespace Windower
 			m_hGameWnd = m_pSystemCore->GameHWND();
 			m_dwPID = m_pSystemCore->GamePID();
 		}
+
+		InitializePlugins();
 	}
 
 	//! \brief Shuts the engine down
@@ -206,19 +231,5 @@ namespace Windower
 	void WindowerEngine::OnShutdown()
 	{
 		m_bShutdown = true;
-	}
-
-	/*! \brief Optional callback to inform the engine that a successful call to the hook was made
-		\param[in] pHookName_in : the name of the hook
-	*/
-	void WindowerEngine::OnHookCall(const char *pHookName_in)
-	{
-		if (strcmp(pHookName_in, "RegisterClassExA") == 0
-		 || strcmp(pHookName_in, "CreateWindowExA") == 0)
-		{
-			// uninstall and unregister one-time-use hooks
-			if (m_HookManager.UninstallHook(pHookName_in))
-				m_HookManager.UnregisterHook(pHookName_in);
-		}
 	}
 }
