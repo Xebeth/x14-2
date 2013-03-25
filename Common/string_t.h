@@ -144,12 +144,33 @@ template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_
 	return String_in_out;
 }
 
+template <typename T> class purgeable_chars : public std::unary_function<T, bool> 
+{
+public:
+	explicit purgeable_chars(const T* pExclusions_in = NULL)
+		: m_pExclusions(pExclusions_in) {}
+
+	template<typename T> bool in_seq(T &val);
+
+	template<> bool in_seq(char &val) { return (strchr(m_pExclusions, val) != NULL); }
+	template<> bool in_seq(wchar_t &val) { return (wcschr(m_pExclusions, val) != NULL); }
+
+	bool operator() (T& val) 
+	{
+		return ((m_pExclusions == NULL || in_seq(val) == false) && iscntrl(val));
+	}
+
+	const T* m_pExclusions;
+};
+
 /*! \brief Removes all control characters
 	\param[in,out] String_in_out : the string to clean up
 */
-template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in_out)
+template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in_out, T* pExcludedChars = NULL)
 {
-	String_in_out.erase(remove_if(String_in_out.begin(),String_in_out.end(), iscntrl), String_in_out.end());  
+	purgeable_chars<T> PurgeablePredicate(pExcludedChars);
+
+	String_in_out.erase(remove_if(String_in_out.begin(),String_in_out.end(), PurgeablePredicate), String_in_out.end());  
 
 	return String_in_out;
 }

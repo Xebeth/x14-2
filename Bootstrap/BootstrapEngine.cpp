@@ -20,7 +20,6 @@
 #include "WindowerSettingsManager.h"
 
 #include "CreateProcessHook.h"
-#include "ShellExecuteExHook.h"
 #include "CreateWindowExHook.h"
 
 #include <CommandHandler.h>
@@ -94,16 +93,28 @@ namespace Bootstrap
 	bool BootstrapEngine::Attach()
 	{
 		CoreModules::const_iterator Iter;
+		Windower::ICoreModule *pModule;
 
 		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-			if (Iter->second != NULL)
-				Iter->second->RegisterHooks(m_HookManager);
+		{
+			pModule = Iter->second;
+
+			if (pModule != NULL)
+				pModule->RegisterHooks(m_HookManager);
+		}
 
 		if (m_HookManager.InstallRegisteredHooks())
 		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
-				if (Iter->second != NULL)
-					Iter->second->OnHookInstall(m_HookManager);
+			{
+				pModule = Iter->second;
+
+				if (pModule != NULL)
+				{
+					pModule->OnHookInstall(m_HookManager);
+					pModule->RegisterServices();
+				}
+			}
 
 			return true;
 		}

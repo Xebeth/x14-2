@@ -43,15 +43,20 @@ namespace Windower
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in), m_bThreadInit(false), m_pGameChatCore(NULL),
-		  m_bShutdown(false), m_hGameWnd(NULL), m_pSystemCore(NULL)
+		: PluginEngine(hModule_in, pConfigFile_in), m_bShutdown(false), m_bThreadInit(false), 
+		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL),
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
 	{
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// testing
-#if defined _DEBUG && defined _TESTING
+#ifdef _DEBUG
+	#ifdef _TESTING
 		// create the testing module
 		m_pTestCore = new TestCore(*this, m_HookManager);
+	#else
+		m_pTestCore = NULL;
+	#endif
 #endif // _DEBUG
 
 		// check the settings and load the default profile
@@ -62,7 +67,7 @@ namespace Windower
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore(*this, m_HookManager);
 			// create the graphics module
-			m_pGraphicsCore = NULL; //new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
+			// m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
 		}
 	}
 
@@ -99,6 +104,7 @@ namespace Windower
 										  PLUGIN_COMPATIBILITY_WINDOWER);
 			// set the plugin manager of the modules
 			ICoreModule::SetPluginManager(*m_pPluginManager);
+
 			// load active plugins
 			LoadPlugins(m_Settings.GetActivePlugins());
 
@@ -116,6 +122,7 @@ namespace Windower
 		CoreModules::const_iterator Iter;
 		ICoreModule *pModule = NULL;
 
+		// register the hooks
 		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 		{
 			pModule = Iter->second;
@@ -123,7 +130,7 @@ namespace Windower
 			if (pModule != NULL)
 				pModule->RegisterHooks(m_HookManager);
 		}
-
+		// install the hooks
 		if (m_HookManager.InstallRegisteredHooks())
 		{
 			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
@@ -131,16 +138,19 @@ namespace Windower
 				pModule = Iter->second;
 
 				if (pModule != NULL)
-				{
 					pModule->OnHookInstall(m_HookManager);
-					pModule->RegisterServices();
-				}
 			}
+		}
+		// register services in a separate loop since OnHookInstall could have added more modules
+		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+		{
+			pModule = Iter->second;
 
-			return InitializePlugins();
+			if (pModule != NULL)
+				pModule->RegisterServices();
 		}
 
-		return false;
+		return InitializePlugins();
 	}
 
 	/*! \brief Uninstalls the internal hooks used by the windower

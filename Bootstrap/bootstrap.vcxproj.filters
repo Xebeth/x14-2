@@ -37,9 +37,6 @@
     <ClCompile Include="BootstrapEngine.cpp">
       <Filter>Bootstrap</Filter>
     </ClCompile>
-    <ClCompile Include="ShellExecuteExHook.cpp">
-      <Filter>Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="CreateProcessHook.cpp">
       <Filter>Hooks</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
     </ClInclude>
     <ClInclude Include="BootstrapEngine.h">
       <Filter>Bootstrap</Filter>
-    </ClInclude>
-    <ClInclude Include="ShellExecuteExHook.h">
-      <Filter>Hooks</Filter>
     </ClInclude>
     <ClInclude Include="CreateProcessHook.h">
       <Filter>Hooks</Filter>

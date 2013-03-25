@@ -5,22 +5,19 @@
 	copyright	:	North Edge (2013)
 	purpose		:	Command line module
 **************************************************************************/
-#include <stdafx.h>
-#include <FormatChatMsgTypes.h>
+#include "stdafx.h"
 #include <PluginFramework.h>
 #include <HookEngine.h>
-
-#include "WindowerEngine.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 
-#include "WindowerCommand.h"
+#include "WindowerEngine.h"
 #include "CommandDispatcher.h"
 #include "CommandParser.h"
 
-#include "TestHook.h"
+#include <FormatChatMsgTypes.h>
 
 namespace Windower
 {

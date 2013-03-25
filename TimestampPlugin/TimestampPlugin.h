@@ -39,8 +39,8 @@ namespace Windower
 						   DWORD &dwdwNewSize_out);
 
 	protected:
-		bool UnregisterCommands();
-		bool RegisterCommands();
+		virtual bool UnregisterCommands();
+		virtual bool RegisterCommands();
 
 		//! Timestamp plugin settings
 		TimestampSettings *m_pSettings;

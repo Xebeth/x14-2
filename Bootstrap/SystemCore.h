@@ -37,7 +37,6 @@ namespace Bootstrap
 							   LPSECURITY_ATTRIBUTES lpThreadAttributes_in, BOOL bInheritHandles_in, DWORD dwCreationFlags_in,
 							   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
 							   LPPROCESS_INFORMATION lpProcessInformation_out);
-		BOOL ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in);
 
 	protected:
 		//! flag specifying if the AutoLogin is active
@@ -46,8 +45,6 @@ namespace Bootstrap
 		fnCreateWindowExW		m_pCreateWindowExWTrampoline;
 		//! function pointer to the original CreateProcess function
 		fnCreateProcess			m_pCreateProcessTrampoline;
-		//! function pointer to the original ShellExecuteEx function
-		fnShellExecuteEx		m_pShellExecuteExTrampoline;
 	};
 }
 

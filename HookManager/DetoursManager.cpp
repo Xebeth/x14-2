@@ -33,7 +33,7 @@ namespace HookEngineLib
 	*/
 	bool DetoursManager::CommitTransaction()
 	{
-		return (DetourTransactionCommit() == NO_ERROR);
+		return (::DetourTransactionCommit() == NO_ERROR);
 	}
 
 	/*! \brief Creates a hook by patching the original function
@@ -43,8 +43,8 @@ namespace HookEngineLib
 	bool DetoursManager::CreateHook(Hook *pHook_in_out)
 	{
 		// use Detours to install the hook
-		return (DetourAttachEx(&(LPVOID&)pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc,
-							   &(DETOUR_TRAMPOLINE*&)pHook_in_out->m_pTrampolineFunc, NULL, NULL) == NO_ERROR);
+		return (::DetourAttachEx(&(LPVOID&)pHook_in_out->m_pOriginalFunc, pHook_in_out->m_pHookFunc,
+								 &(DETOUR_TRAMPOLINE*&)pHook_in_out->m_pTrampolineFunc, NULL, NULL) == NO_ERROR);
 	}
 
 	/*! \brief Destroys a hook by restoring the original function
@@ -54,8 +54,8 @@ namespace HookEngineLib
 	bool DetoursManager::DestroyHook(const Hook *pHook_in)
 	{
 		// use Detours to remove the hook
-		return (DetourDetach(&(LPVOID&)pHook_in->m_pOriginalFunc, 
-							 pHook_in->m_pHookFunc) == NO_ERROR);
+		return (::DetourDetach(&(LPVOID&)pHook_in->m_pOriginalFunc, 
+							   pHook_in->m_pHookFunc) == NO_ERROR);
 	}
 
 	/*! \brief Finds a function within the specified module

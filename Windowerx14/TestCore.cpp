@@ -9,22 +9,13 @@
 #include <PluginFramework.h>
 #include <HookEngine.h>
 
-#include <CommandHandler.h>
-#include "WindowerSettings.h"
-#include "WindowerEngine.h"
-
-#include "RegisterClassExHook.h"
-#include "CreateWindowExHook.h"
-#include "WndProcHook.h"
 #include "TestHook.h"
-
-#include "WindowerSettings.h"
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "TestCore.h"
 
-#include <SigScan.h>
+#include "WindowerEngine.h"
 
 namespace Windower
 {

@@ -17,12 +17,11 @@
 #include <map>
 #include <set>
 
+#define SIGSCAN_GAME_PROCESSA "ffxiv.exe"
+
 #define __USE_DETOURS
 // #define __USE_MINHOOK
 // #define __USE_EASYHOOK
 // #define __USE_IATHOOK
-
-#define SIGSCAN_GAME_PROCESSW	_T("ffxiv.exe")
-#define SIGSCAN_GAME_PROCESSA	"ffxiv.exe"
 
 #endif//__X14_AFX_H__

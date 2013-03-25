@@ -15,7 +15,6 @@
 #include "BootstrapEngine.h"
 
 #include "CreateProcessHook.h"
-#include "ShellExecuteExHook.h"
 #include "CreateWindowExHook.h"
 
 #include "ICoreModule.h"

@@ -187,26 +187,13 @@ namespace Windower
 			Settings_out.SetName(pProfileName_in);
 
 			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, INI_KEY_PLUGINS, INI_DEFAULT_PLUGINS);
-			string_t::size_type Pos, Offset = 0;
-			string_t Current;
+			std::list<string_t>::const_iterator PluginIt, EndIt;
+			std::list<string_t> PluginList;
 
-			Pos = Plugins.find_first_of('|', Offset);
+			tokenize<wchar_t>(Plugins, PluginList, _T("|"), _T("\0"));
 
-			while (Pos != string_t::npos)
-			{
-				Current = Plugins.substr(Offset, Pos - Offset);
-
-				if (Current.empty() == false)
-					Settings_out.ActivatePlugin(Current);
-
-				Offset = Pos + 1;
-				Pos = Plugins.find_first_of('|', Offset);
-			}
-
-			Current = Plugins.substr(Offset, Pos);
-			// add the last item in the list
-			if (Current.empty() == false)
-				Settings_out.ActivatePlugin(Current);
+			for (PluginIt = PluginList.cbegin(), EndIt = PluginList.cend(); PluginIt != EndIt; ++PluginIt)
+				Settings_out.ActivatePlugin(*PluginIt);
 
 			return true;
 		}

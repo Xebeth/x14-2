@@ -24,12 +24,13 @@ Bootstrap::BootstrapEngine *g_pEngine = NULL;
 */
 BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_in)
 {
-	BOOL bResult = TRUE;
+	if (::DetourIsHelperProcess())
+		return TRUE;
 
 	if (dwReason_in == DLL_PROCESS_ATTACH) 
 	{
 		// Restore the IAT table
-		DetourRestoreAfterWith();
+		::DetourRestoreAfterWith();
 
 		if (g_pEngine == NULL)
 		{
@@ -37,19 +38,19 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 			// Sleep(5000);
 #endif // _DEBUG
 			g_pEngine = new Bootstrap::BootstrapEngine(hModule_in, _T("config.ini"));
-			bResult = g_pEngine->Attach();
+			g_pEngine->Attach();
 		}
 	}
 	else if (dwReason_in == DLL_PROCESS_DETACH)
 	{
 		if (g_pEngine != NULL)
 		{
-			bResult = g_pEngine->Detach();
+			g_pEngine->Detach();
 			// cleanup
 			delete g_pEngine;
 			g_pEngine = NULL;
 		}
 	}
 
-	return bResult;
+	return TRUE;
 }

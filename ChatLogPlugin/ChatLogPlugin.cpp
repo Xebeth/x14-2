@@ -30,8 +30,8 @@ namespace Windower
 		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(NULL), m_pTimestamp(NULL)
 	{
 		m_LogPath = m_pSettings->GetSettingsPath() + _T("logs");
-		m_TimestampFormatW = m_pSettings->GetFormat();		
 		CreateDirectory(m_LogPath.c_str(), NULL);
+		convert_utf8(m_TimestampFormat, m_TimestampFormatW);
 	}
 
 	//! \brief ChatLogPlugin destructor
@@ -109,7 +109,7 @@ namespace Windower
 			else
 				format(m_Buffer, _T("%s %s: %s"), m_pTimestamp, Sender.c_str(), Message.c_str());
 			// remove any non-printable character
-			purge(m_Buffer);
+			purge<wchar_t>(m_Buffer, _T("\r\n\t"));
 			// add CRLF after purging or they'll be removed
 			m_Buffer += _T("\r\n");
 			// write the line in the log

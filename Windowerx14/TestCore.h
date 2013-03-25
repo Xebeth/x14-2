@@ -11,6 +11,7 @@
 namespace Windower
 {
 	typedef HookEngineLib::IHookManager IHookManager;
+	class WindowerEngine;
 
 	//! \brief Test core module
 	class TestCore : public WindowerCore

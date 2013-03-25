@@ -19,6 +19,7 @@
 namespace Windower
 {
 	typedef struct _StringNode StringNode;
+	class WindowerEngine;
 
 	// char __thiscall sub_900110(void *this, int a2, int a3) => search Component\Shell\ShellCommandModule.cpp, 
 	// the function makes reference to the offset below that (contains ' '	aka SpaceStrA)

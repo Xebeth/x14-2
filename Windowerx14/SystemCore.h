@@ -11,6 +11,7 @@
 namespace Windower
 {
 	typedef HookEngineLib::IHookManager IHookManager;
+	class WindowerEngine;
 
 	//! the class name of the target window
 	#define FFXIV_WINDOW_CLASSA		"FFXIVGAME"

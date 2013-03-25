@@ -27,6 +27,10 @@ namespace Windower
 						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
 						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
 						   DWORD &dwNewSize_out);
+
+		bool UnregisterCommands() { return true; }
+		bool RegisterCommands() { return true; }
+
 	protected:
 		bool WriteLine(const string_t &Line_in);
 

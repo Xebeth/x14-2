@@ -15,7 +15,6 @@
 #include "BootstrapEngine.h"
 
 #include "CreateProcessHook.h"
-#include "ShellExecuteExHook.h"
 #include "CreateWindowExHook.h"
 
 #include "ICoreModule.h"
@@ -33,7 +32,6 @@ namespace Bootstrap
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
-		m_pShellExecuteExTrampoline = ShellExecuteExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
 	}
 
@@ -86,7 +84,7 @@ namespace Bootstrap
 									   LPPROCESS_INFORMATION lpProcessInformation_out)
 	{
 		// at least one of the strings should be valid
-		if (lpCommandLine_in_out == NULL && lpApplicationName_in == NULL)
+		if (m_pCreateProcessTrampoline == NULL || (lpCommandLine_in_out == NULL && lpApplicationName_in == NULL))
 			return FALSE;
 
 		string_t WorkingDir = m_Engine.GetWorkingDir();
@@ -94,6 +92,8 @@ namespace Bootstrap
 		char DLLPath[_MAX_PATH];
 		TCHAR *pCmdLine = NULL;
 		BOOL Result = FALSE;
+
+		m_HookManager.UninstallRegisteredHooks();
 
 		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
 		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
@@ -121,52 +121,23 @@ namespace Bootstrap
 			WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
 
 			// attach the DLL to the next process in the chain
-			Result = DetourCreateProcessWithDllW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
-												 lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
-												 lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-												 lpProcessInformation_out, DLLPath, m_pCreateProcessTrampoline);
+			Result = DetourCreateProcessWithDllExW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
+												   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
+												   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
+												   lpProcessInformation_out, DLLPath, CreateProcessW);
 		}
 		else
 		{
-			Result = m_pCreateProcessTrampoline(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
-												lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in, 
-												lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in, 
-												lpProcessInformation_out);
+			Result = CreateProcessW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
+									lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in, 
+									lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in, 
+									lpProcessInformation_out);
 		}
 		// cleanup
 		if (pCmdLine != NULL)
 			free(pCmdLine);
 
 		return Result;
-	}
-
-	/*! \brief ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (redirected to CreateProcessHook)
-		\param[in] lpExecInfo_in : a SHELLEXECUTEINFO structure that contains and receives information about the application being executed
-		\return TRUE if successful; FALSE otherwise
-	*/
-	BOOL SystemCore::ShellExecuteExHook(LPSHELLEXECUTEINFO lpExecInfo_in)
-	{
-		if (lpExecInfo_in->lpVerb == NULL || _tcsicmp(lpExecInfo_in->lpVerb, _T("open")) != 0)
-		{
-			PROCESS_INFORMATION ProcessInfo;
-			STARTUPINFO StartupInfo;
-			string_t CommandLine;
-
-			format(CommandLine, _T("\"%s\" %s"), lpExecInfo_in->lpFile, lpExecInfo_in->lpParameters);
-			SecureZeroMemory(&StartupInfo, sizeof(StartupInfo));
-
-			StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
-			StartupInfo.wShowWindow = SW_SHOWNORMAL;
-			StartupInfo.cb = sizeof(StartupInfo);
-
-			return CreateProcessHook(lpExecInfo_in->lpFile, const_cast<LPTSTR>(CommandLine.c_str()), NULL, NULL, FALSE,
-									 CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-									 NULL, lpExecInfo_in->lpDirectory, &StartupInfo, &ProcessInfo);
-		}
-		else
-		{
-			return m_pShellExecuteExTrampoline(lpExecInfo_in);
-		}
 	}
 
 	/*! \brief Register the hooks for this module
@@ -177,8 +148,6 @@ namespace Bootstrap
 		// CreateWindowEx hook used to start the AutoLogin thread
 		if (m_AutoLogin)
 			HookManager_in.RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
-		// ShellExecuteEx hook used to inject the bootstrap/windower DLL into the game process (Windows XP)
-		HookManager_in.RegisterHook("ShellExecuteEx", "Shell32.dll", ShellExecuteExW, ::ShellExecuteExHook);
 		// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
 		IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
 	}
@@ -190,7 +159,5 @@ namespace Bootstrap
 	{
 		if (m_AutoLogin)
 			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowEx");
-
-		m_pShellExecuteExTrampoline = (fnShellExecuteEx)HookManager_in.GetTrampolineFunc("ShellExecuteEx");
 	}
 }

@@ -94,5 +94,8 @@
     <ClInclude Include="ModuleService.h">
       <Filter>Services</Filter>
     </ClInclude>
+    <ClInclude Include="ICoreModule.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

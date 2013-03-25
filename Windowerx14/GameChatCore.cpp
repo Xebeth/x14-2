@@ -8,25 +8,14 @@
 #include "stdafx.h"
 #include <PluginFramework.h>
 #include <HookEngine.h>
-#include "version.h"
-
-#include <CommandHandler.h>
-#include "WindowerSettings.h"
-#include "WindowerEngine.h"
-
-#include "IGameChatPlugin.h"
-#include "ICreateTextNodePlugin.h"
+#include <ModuleService.h>
 
 #include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "GameChatCore.h"
 
-#include "ModuleService.h"
+#include "WindowerEngine.h"
 #include "FormatChatMsgService.h"
-
-#include "WindowerCommand.h"
-#include "CommandDispatcher.h"
-#include "CommandParser.h"
 
 namespace Windower
 {

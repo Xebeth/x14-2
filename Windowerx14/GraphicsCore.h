@@ -15,6 +15,7 @@ namespace Windower
 {
 	typedef std::vector<IDirect3DDevice9Wrapper*> DeviceWrappers;
 	typedef HookEngineLib::IHookManager IHookManager;	
+	class WindowerEngine;
 
 	class GraphicsCore : public WindowerCore
 	{

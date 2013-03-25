@@ -111,7 +111,7 @@ namespace Windower
 
 		if (pCommand != NULL && pCommand->AddStringParam("format", false, m_TimestampFormat.c_str(),
 														 "format of the timestamp\n"
-														 "\t\t-- see the remarks at http://tinyurl.com/gettimeformatex ") == false)
+														 "\t\t\xe2\x87\x92 see the remarks at http://tinyurl.com/gettimeformatex ") == false)
 		{
 			delete pCommand;
 			pCommand = NULL;
@@ -200,10 +200,11 @@ namespace Windower
 	*/
 	bool TimestampPlugin::SetFormat(const std::string& Format_in)
 	{
+		bool Result = false;
+
 		if (Format_in.empty() == false)
 		{
 			m_TimestampFormat = Format_in;
-			m_TimestampLength = Format_in.length();
 
 			if (m_pSettings != NULL)
 			{
@@ -212,13 +213,15 @@ namespace Windower
 				convert_utf8(m_TimestampFormat, Format);
 				m_pSettings->SetFormat(Format);
 
-				return m_pSettings->Save();
+				Result = m_pSettings->Save();
 			}
-
-			return true;
+			// add a space if there is none after the timestamp
+			if (m_TimestampFormat.back() != ' ')
+				m_TimestampFormat += ' ';
+			m_TimestampLength = m_TimestampFormat.length();
 		}
 
-		return false;
+		return Result;
 	}
 }
 

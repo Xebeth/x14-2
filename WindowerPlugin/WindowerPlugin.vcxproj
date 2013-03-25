@@ -90,6 +90,7 @@
     <ClInclude Include="CommandParameter.h" />
     <ClInclude Include="FormatChatMsgTypes.h" />
     <ClInclude Include="ICommandHandler.h" />
+    <ClInclude Include="ICoreModule.h" />
     <ClInclude Include="ICreateTextNodePlugin.h" />
     <ClInclude Include="IGameChatPlugin.h" />
     <ClInclude Include="ModuleService.h" />

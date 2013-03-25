@@ -11,6 +11,7 @@
 namespace Windower
 {
 	class IGameChatPlugin;
+	class WindowerEngine;
 
 	typedef HookEngineLib::IHookManager IHookManager;
 
