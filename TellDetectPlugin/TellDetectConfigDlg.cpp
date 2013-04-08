@@ -7,13 +7,9 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
+#include <afxdlgs.h>
 
-#include <vector>
-
-#include <CryptUtils.h>
-#include <SettingsManager.h>
 #include "TellDetectSettings.h"
-
 #include "TellDetectConfigDlg.h"
 
 BEGIN_MESSAGE_MAP(TellDetectConfigDlg, CDialog)

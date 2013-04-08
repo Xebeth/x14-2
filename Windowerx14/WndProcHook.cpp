@@ -6,10 +6,7 @@
 	purpose		:	WndProc hook definitions
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
@@ -17,7 +14,6 @@
 #include "CreateWindowExHook.h"
 #include "WndProcHook.h"
 
-#include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "SystemCore.h"
 

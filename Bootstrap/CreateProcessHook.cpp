@@ -7,18 +7,12 @@
 					Enables the injection of the windower DLLs
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "BootstrapEngine.h"
 
 #include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
 
-#include "ICoreModule.h"
-#include "WindowerCore.h"
 #include "SystemCore.h"
 
 extern Bootstrap::BootstrapEngine *g_pEngine;

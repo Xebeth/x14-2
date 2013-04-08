@@ -7,14 +7,13 @@
 **************************************************************************/
 #ifndef __MESSAGE_FORMAT_SERVICE_H__
 #define __MESSAGE_FORMAT_SERVICE_H__
-
-#include <FormatChatMsgTypes.h>
 														 //81ECAC0200008B8424B80200005355578BF9		2013-03-01
 														 //81ECAC0200008B8424B80200005355578BF9		2013-03-08
 														 //5356578BF98DB71402000050					2013-03-16
 														 //5356578BF98DB71402000050					2013-03-22
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@5356578BF98D??????????50"
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-27
+														 //538B5D0856578BF953897C242CE8F235FCFF		2013-04-05
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@53??????56578B????89??????E8"
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-26
 #define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 12
 
 namespace Windower
@@ -28,7 +27,7 @@ namespace Windower
 		class CallingContext : public BaseContext
 		{
 		public:
-			CallingContext(fnFormatChatMessage pTrampoline_in, PluginSet &Subscribers_in)
+			CallingContext(fnFormatChatMessage pTrampoline_in, PluginFramework::PluginSet &Subscribers_in)
 				: BaseContext(pTrampoline_in, Subscribers_in) {}
 		};
 	public:

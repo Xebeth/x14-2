@@ -8,7 +8,9 @@
 #ifndef __SETTINGS_INI_FILE_H__
 #define __SETTINGS_INI_FILE_H__
 
-#include "SimpleIni.h"
+#ifndef _SETTINGS_MANAGER_SDK_INCLUDE_
+	#error Please include the global header file 'SettingsManager.h'
+#endif
 
 namespace Settings
 {

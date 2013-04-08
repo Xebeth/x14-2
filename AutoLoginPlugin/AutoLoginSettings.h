@@ -8,7 +8,7 @@
 #ifndef __AUTO_LOGIN_SETTINGS_H__
 #define __AUTO_LOGIN_SETTINGS_H__
 
-namespace Windower
+namespace Bootstrap
 {
 	typedef Settings::SettingsIniFile SettingsIniFile;
 	

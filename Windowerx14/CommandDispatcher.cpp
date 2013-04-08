@@ -6,11 +6,11 @@
 	purpose		:	Command dispatcher
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
+#include "WindowerSettings.h"
 #include "WindowerEngine.h"
+
+#include "WindowerCore.h"
 #include "CommandDispatcher.h"
 
 namespace Windower
@@ -18,7 +18,7 @@ namespace Windower
 	/*! \brief CommandDispatcher constructor
 		\param[in] Engine_in_out : the windower engine
 	*/
-	CommandDispatcher::CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
+	CommandDispatcher::CommandDispatcher(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
 		: WindowerCore(_T("CommandDispatcher"), Engine_in_out, HookManager_in_out)
 	{
 		m_ValidKeys.insert(ENGINE_KEY);	// Windower Engine

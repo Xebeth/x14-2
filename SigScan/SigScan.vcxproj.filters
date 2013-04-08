@@ -1,10 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SigScan.h" />
+    <ClInclude Include="SigScan.h">
+      <Filter>SigScan</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryScanner.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SigScan.cpp" />
+    <Filter Include="SigScan">
+      <UniqueIdentifier>{274e76a5-57a3-4ded-9f56-ee3bd4b10178}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{a6622c72-eede-4fdc-aa81-56176f828002}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SigScan.cpp">
+      <Filter>SigScan</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

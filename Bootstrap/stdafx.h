@@ -10,12 +10,14 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <string_t.h>
-#include <set>
 
 #define __USE_DETOURS
 // #define __USE_MINHOOK
 // #define __USE_EASYHOOK
 // #define __USE_IATHOOK
+
+#include <SettingsManager.h>
+#include <HookEngine.h>
+#include <PluginSDK.h>
 
 #endif//__BOOTSTRAP_AFX_H__

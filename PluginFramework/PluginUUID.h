@@ -8,6 +8,10 @@
 #ifndef __PLUGIN_UUID_H__
 #define __PLUGIN_UUID_H__
 
+#ifndef _PLUGIN_FRAMEWORK_SDK_INCLUDE_
+	#error Please include the global header file 'PluginFramework.h'
+#endif
+
 namespace PluginFramework
 {
 	//! \brief Plugin unique identifier

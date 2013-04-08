@@ -19,24 +19,14 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		int sub568B90Hook(LPVOID pThis, char *pText, int TextLen, signed int a4);
-		int sub8FFDA0Hook(LPVOID pThis, int a2, const char *a3, int a4);
-		int sub48F4B0Hook(LPVOID pThis, char *pText, int TextLen);
-		int InitStringNode2(LPVOID pThis, char *pText, int TextLen);
-		bool IsCmd(LPVOID pThis, char *pText);
-
+		int Sub69C130Hook(LPVOID pThis);
+		
 		// ICoreModule interface implementation
 		void RegisterHooks(IHookManager &HookManager_in);
 		void OnHookInstall(IHookManager &HookManager_in);
 
 	protected:
-		fn5E3810 m_p5E3810Trampoline;
-		fn568B90 m_p568B90Trampoline;
-		fnA73BE0 m_pA73BE0Trampoline;
-		fn8FFDA0 m_p8FFDA0Trampoline;
-		fn48F4B0 m_p48F4B0Trampoline;
-
-		bool m_IsWindowerCmd;
+		fnSub69C130 m_pSub69C130Trampoline;
 	};
 }
 

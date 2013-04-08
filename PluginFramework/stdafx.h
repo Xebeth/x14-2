@@ -10,8 +10,9 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <string_t.h>
+
+#include <StringUtils.h>
 #include <hash_map>
-#include <vector>
+#include <set>
 
 #endif//__PLUGIN_FRAMEWORK_AFX_H__

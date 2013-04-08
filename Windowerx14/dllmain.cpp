@@ -6,10 +6,8 @@
 	purpose		:	DLL entry point
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
+#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 Windower::WindowerEngine *g_pEngine = NULL;
@@ -33,7 +31,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 		if (g_pEngine == NULL)
 		{
 #ifdef _DEBUG
-			// Sleep(5000);
+			Sleep(5000);
 #endif // _DEBUG
 			g_pEngine = new Windower::WindowerEngine(hModule_in, _T("config.ini"));
 			g_pEngine->Attach();

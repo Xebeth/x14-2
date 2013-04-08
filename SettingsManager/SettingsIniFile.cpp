@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 
+#include "SimpleIni.h"
 #include "SettingsInterface.h"
 #include "SettingsIniFile.h"
 

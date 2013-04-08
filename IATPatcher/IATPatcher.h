@@ -8,6 +8,10 @@
 #ifndef __IAT_PATCHER_H__
 #define __IAT_PATCHER_H__
 
+#ifndef _IAT_PATCHER_SDK_INCLUDE_
+	#error Please include the global header file 'ImportTablePatcher.h'
+#endif
+
 // Relative Virtual Address to Virtual Address conversion
 #define RVA2PTR(base, rva) (((PBYTE) base) + rva)
 #define MAX_STRING 256

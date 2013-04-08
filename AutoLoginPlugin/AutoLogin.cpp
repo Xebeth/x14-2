@@ -25,7 +25,7 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 {
 	if (pUserData_in != NULL)
 	{
-		AutoLogin Login(*((Windower::AutoLoginSettings*)pUserData_in));
+		AutoLogin Login(*((Bootstrap::AutoLoginSettings*)pUserData_in));
 
 		Login.MonitorForms();
 
@@ -38,7 +38,7 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 /*! \brief AutoLogin constructor
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
-AutoLogin::AutoLogin(Windower::AutoLoginSettings &Settings_in)
+AutoLogin::AutoLogin(Bootstrap::AutoLoginSettings &Settings_in)
 	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_PasswordSet(false), m_AutoSubmitted(false),
 	  m_bLoop(true), m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL), m_UserSet(false)
 {

@@ -25,7 +25,7 @@ namespace Windower
 			PARSER_RESULT_INVALID_COMMAND
 		};
 
-		CommandParser(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in);
+		CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in);
 
 		int ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
 						 char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out);

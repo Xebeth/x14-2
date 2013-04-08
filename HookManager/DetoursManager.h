@@ -10,6 +10,10 @@
 
 #ifdef __USE_DETOURS
 
+#ifndef _HOOK_MANAGER_SDK_INCLUDE_
+	#error Please include the global header file 'HookEngine.h'
+#endif
+
 namespace HookEngineLib
 {
 	class DetoursManager : public IHookManager

@@ -9,13 +9,7 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-
-#include <PluginFramework.h>
 #include <SettingsManager.h>
-
-#include <PluginEngine.h>
-#include <WindowerCommand.h>
-#include <CommandHandler.h>
 
 #include "AutoLoginConfigDlg.h"
 #include "AutoLoginPlugin.h"
@@ -23,12 +17,12 @@
 #include "AutoLogin.h"
 #include "version.h"
 
-namespace Windower
+namespace Bootstrap
 {
 	//! \brief AutoLoginPlugin default constructor
 	AutoLoginPlugin::AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in)
-		: CommandHandler(0x18E5F530, "AutoLogin"), PluginFramework::IPlugin(pServices_in),
-		  m_hThread(NULL), m_pSettings(new AutoLoginSettings(IPlugin::GetConfigFile(), NULL)) {}
+		: IAutoLoginPlugin(pServices_in), m_hThread(NULL), 
+		  m_pSettings(new AutoLoginSettings(PluginFramework::IPlugin::GetConfigFile(), NULL)) {}
 
 	//! \brief AutoLoginPlugin destructor
 	AutoLoginPlugin::~AutoLoginPlugin()
@@ -43,7 +37,7 @@ namespace Windower
 	/*! \brief Creates an instance of AutoLoginPlugin
 		\return a pointer to the new AutoLoginPlugin instance
 	*/
-	IPlugin* AutoLoginPlugin::Create(PluginFramework::IPluginServices *pServices_in)
+	PluginFramework::IPlugin* AutoLoginPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
 		return new AutoLoginPlugin(pServices_in);
 	}
@@ -78,58 +72,16 @@ namespace Windower
 	*/
 	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		AutoLoginConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
+		AutoLoginConfigDlg ConfigDlg(PluginFramework::IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
-	}
-
-	/*! \brief Registers the commands of the plugin with the command dispatcher
-		\return true if all the commands were registered successfully; false otherwise
-	*/
-	bool AutoLoginPlugin::RegisterCommands()
-	{
-		// register the command
-		WindowerCommand *pCommand = RegisterCommand(CMD_CREATE_THREAD, "autologin::create_thread", "");
-
-		if (pCommand != NULL && pCommand->AddPointerParam("hwnd") == false)
-		{
-			delete pCommand;
-			pCommand = NULL;
-		}
-
-		return (pCommand != NULL);
-	}
-
-	/*! \brief Unregisters the commands of the plugin with the command dispatcher
-		\return true if all the commands were unregistered successfully; false otherwise
-	*/
-	bool AutoLoginPlugin::UnregisterCommands()
-	{
-		return RevokeCommand(CMD_CREATE_THREAD);
-	}
-
-	/*! \brief Executes the command specified by its ID
-		\param[in] CmdID_in : the ID of the command to execute
-		\param[in] Command_in : the command to execute
-		\param[out] Feedback_out : the result of the execution
-		\return true if the command was executed successfully; false otherwise
-	*/
-	bool AutoLoginPlugin::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
-	{
-		switch(CmdID_in)
-		{
-			case CMD_CREATE_THREAD:
-				return CreateThread((HWND)Command_in.GetPointerValue("hwnd"));
-		}
-
-		return false;
 	}
 
 	/*! \brief Creates the thread used to monitor the forms during the login process
 		\param[in] ParentHwnd_in : the handle of the IE server window
 		\return true if the thread was created successfully; false otherwise
 	*/
-	bool AutoLoginPlugin::CreateThread(HWND ParentHwnd_in)
+	bool AutoLoginPlugin::CreateAutoLoginThread(HWND ParentHwnd_in)
 	{
 		if (ParentHwnd_in != NULL)
 		{
@@ -142,7 +94,7 @@ namespace Windower
 	}
 }
 
-using Windower::AutoLoginPlugin;
+using Bootstrap::AutoLoginPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
 	\param[out] RegisterParams_out : Registration structure to be able to use the plugin

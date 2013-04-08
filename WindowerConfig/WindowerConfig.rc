@@ -96,67 +96,6 @@ IDR_MAINFRAME           ICON                    "../Common/config.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Version
-//
-
-#include "version.h"
-
-#if defined MODULE_MAJOR_VERSION   && defined MODULE_MINOR_VERSION && \
-	defined MODULE_RELEASE_VERSION && defined MODULE_TEST_VERSION
-	#include <verrsrc.h>
-
-	VS_VERSION_INFO VERSIONINFO
-		FILEVERSION MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION, MODULE_RELEASE_VERSION, MODULE_TEST_VERSION
-		PRODUCTVERSION MODULE_MAJOR_VERSION, MODULE_MINOR_VERSION, 0, 0
-		FILEFLAGSMASK 0x3fL
-	#ifdef _DEBUG
-		FILEFLAGS 0x1L
-	#else
-		FILEFLAGS 0x0L
-	#endif
-	FILEOS 0x40004L
-	FILETYPE 0x2L
-	FILESUBTYPE 0x0L
-	BEGIN
-		BLOCK "StringFileInfo"
-		BEGIN
-			BLOCK "040c04b0"
-			BEGIN
-	#ifdef MODULE_COMPANY_NAME
-				VALUE "CompanyName", MODULE_COMPANY_NAME
-	#endif
-	#ifdef MODULE_FILE_DESC
-				VALUE "FileDescription", MODULE_FILE_DESC
-	#endif
-	#ifdef MODULE_PRODUCT_VERSION
-				VALUE "FileVersion", MODULE_PRODUCT_VERSION
-	#endif
-	#ifdef MODULE_FILENAME
-				VALUE "InternalName", MODULE_FILENAME
-	#endif
-	#ifdef MODULE_COPYRIGHT
-				VALUE "LegalCopyright", MODULE_COPYRIGHT
-	#endif
-	#ifdef MODULE_FILENAME
-				VALUE "OriginalFilename", MODULE_FILENAME
-	#endif
-	#ifdef MODULE_PRODUCT_NAME
-				VALUE "ProductName", MODULE_PRODUCT_NAME
-	#endif
-	#ifdef MODULE_PRODUCT_VERSION
-				VALUE "ProductVersion", MODULE_PRODUCT_VERSION
-	#endif
-			END
-		END
-		BLOCK "VarFileInfo"
-		BEGIN
-			VALUE "Translation", 0x40c, 1200
-		END
-	END
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // DESIGNINFO
 //
 
@@ -187,8 +126,6 @@ END
 
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
-
-
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

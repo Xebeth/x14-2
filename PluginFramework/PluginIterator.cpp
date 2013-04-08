@@ -6,9 +6,6 @@
 	purpose		:	Plugin iterator
 **************************************************************************/
 #include "stdafx.h"
-#include <FileIterator.h>
-#include <hash_map>
-#include <vector>
 
 #include "PluginUUID.h"
 #include "VersionInfo.h"
@@ -16,6 +13,7 @@
 
 #include "IPluginServices.h"
 #include "PluginManager.h"
+#include "FileIterator.h"
 #include "PluginIterator.h"
 
 namespace PluginFramework

@@ -6,9 +6,8 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
-#include "HookManager.h"
 
-#include <utf8_convert.h>
+#include "HookManager.h"
 
 namespace HookEngineLib
 {

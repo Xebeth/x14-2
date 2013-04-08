@@ -10,8 +10,6 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-
-// Library DECL specification for exports
-#define INJECT_MODULE_API __declspec(dllexport)
+#include <StringUtils.h>
 
 #endif//__INJECT_MODULE_AFX_H__

@@ -6,14 +6,8 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
-#include <FormatChatMsgTypes.h>
-#include <PluginFramework.h>
-#include <NonCopyable.h>
 
-#include "ModuleService.h"
 #include "FormatChatMsgService.h"
-
-#include "IGameChatPlugin.h"
 
 namespace Windower
 {
@@ -78,7 +72,7 @@ namespace Windower
 			{
 				DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;
 				const char *pOriginalMsg = pMessage_in_out->pResBuf;
-				PluginSet::const_iterator PluginIt;			
+				PluginFramework::PluginSet::const_iterator PluginIt;			
 				char *pModifiedMsg = NULL;
 				IGameChatPlugin *pPlugin;
 				bool bResult = false;
@@ -161,134 +155,3 @@ namespace Windower
 		}
 	}
 }
-
-#if 0
-	/*! \brief Filters commands received by the chat log and processes them
-		\param[in] pThis_in_out : a pointer to the class containing the hooked method
-		\param[in] MessageType_in : the type of the message
-		\param[in,out] pSender_in_out : the sender of the message
-		\param[in,out] pMessage_in_out : the message
-		\return true if the message was formatted successfully; false otherwise
-	*/
-	bool GameChatCore::FilterCommands(LPVOID pThis_in_out, USHORT MessageType_in,
-									  StringNode* pSender_in_out, StringNode* pMessage_in_out)
-	{
-		if (pMessage_in_out != NULL && pMessage_in_out->pResBuf != NULL && MessageType_in == CHAT_MESSAGE_TYPE_ECHO_MESSAGE)
-		{
-			// the message starts with 2 forward slashes => expect a command
-			if (strstr(pMessage_in_out->pResBuf, "//") == pMessage_in_out->pResBuf)
-			{
-				bool Result = false;
-
-				if (pMessage_in_out->dwSize > 2)
-				{
-					char *pFeedbackMsg = NULL;
-					WindowerCommand Command;
-					DWORD dwNewSize = 0UL;
-					int ParseResult;
-
-					if ((ParseResult = m_CommandParser.ParseCommand(pMessage_in_out->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize)) >= 0)
-					{
-						std::string Feedback;
-
-						Result = (Command.Execute(Feedback) == DISPATCHER_RESULT_SUCCESS);
-
-						if (Feedback.empty() == false)
-						{
-							pFeedbackMsg = _strdup(Feedback.c_str());
-							dwNewSize = Feedback.length() + 1;
-						}
-					}
-					
-					Result = FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
-										   pMessage_in_out, pFeedbackMsg, dwNewSize, true);
-				}
-
-				return Result;
-			}
-		}
-
-		return false;
-	}
-	
-	/*! \brief Executes the command specified by its ID
-		\param[in] CmdID_in : the ID of the command to execute
-		\param[in] Command_in : the command to execute
-		\param[out] Feedback_out : the result of the execution
-		\return true if the command was executed successfully; false otherwise
-	*/
-	bool GameChatCore::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out)
-	{
-		switch(CmdID_in)
-		{
-			case CMD_TOGGLE:
-				m_Active = !m_Active;
-			break;
-			case CMD_START:
-				m_Active = true;
-			break;
-			case CMD_STOP:
-				m_Active = false;
-			break;
-			default:
-				return false;
-		}
-
-		if (m_Active)
-			Feedback_out = "The chat is now on.";
-		else
-			Feedback_out = "The chat is now off.";
-
-		return true;
-	}
-
-	/*! \brief Registers the commands of the plugin with the command dispatcher
-		\return true if all the commands were registered successfully; false otherwise
-	*/
-	bool GameChatCore::RegisterCommands()
-	{
-		WindowerCommand *pCmd;
-
-		pCmd = new WindowerCommand(ENGINE_KEY, CMD_TOGGLE, "chat::toggle", "Toggles the chat on/off", this, false);
-
-		if (m_CommandDispatcher.RegisterCommand(pCmd))
-			m_Commands[CMD_TOGGLE] = pCmd;
-		else
-			delete pCmd;
-
-		pCmd = new WindowerCommand(ENGINE_KEY, CMD_STOP, "chat::off", "Prevents the chat from displaying messages", this, false);
-		
-		if (m_CommandDispatcher.RegisterCommand(pCmd))
-			m_Commands[CMD_STOP] = pCmd;
-		else
-			delete pCmd;
-
-		pCmd = new WindowerCommand(ENGINE_KEY, CMD_START, "chat::on", "Resumes the chat displaying messages", this, false);
-		
-		if (m_CommandDispatcher.RegisterCommand(pCmd))
-			m_Commands[CMD_START] = pCmd;
-		else
-			delete pCmd;
-
-		return true;
-	}
-
-	/*! \brief Unregisters the commands of the plugin with the command dispatcher
-		\return true if all the commands were unregistered successfully; false otherwise
-	*/
-	bool GameChatCore::UnregisterCommands()
-	{
-		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::toggle");
-		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::off");
-		m_CommandDispatcher.UnregisterCommand(ENGINE_KEY, "chat::on");
-
-		HandlerCommands::const_iterator CmdIt, EndIt(m_Commands.end());
-
-		for (CmdIt = m_Commands.begin(); CmdIt != EndIt; ++CmdIt)
-			delete CmdIt->second;
-
-		m_Commands.clear();
-
-		return true;
-	}
-#endif

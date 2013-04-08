@@ -6,25 +6,8 @@
 	purpose		:	Windower x14-2 DLL injector
 **************************************************************************/
 #include "stdafx.h"
-
-#include <InjectModule.h>
-#include <SettingsManager.h>
-#include "WindowerSettings.h"
-#include "WindowerSettingsManager.h"
-
-#ifdef _DEBUG
-	#ifdef _M_X64
-		#pragma comment(lib, "InjectModule.x64d.lib")
-	#else
-		#pragma comment(lib, "InjectModule.x86d.lib")
-	#endif
-#else
-	#ifdef _M_X64
-		#pragma comment(lib, "InjectModule.x64.lib")
-	#else
-		#pragma comment(lib, "InjectModule.x86.lib")
-	#endif
-#endif
+#include <ModuleInjection.h>
+#include <PluginSDK.h>
 
 // application entry point
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

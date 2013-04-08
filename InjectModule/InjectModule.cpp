@@ -6,7 +6,6 @@
 	purpose		:	DLL Injection
 **************************************************************************/
 #include "stdafx.h"
-#include <string_t.h>
 #include "InjectModule.h"
 
 namespace InjectModule

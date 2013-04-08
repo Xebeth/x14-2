@@ -7,12 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <SettingsManager.h>
-#include <PluginFramework.h>
-#include <utf8_convert.h>
-
-#include <IGameChatPlugin.h>
-#include <CommandHandler.h>
-#include <PluginEngine.h>
 
 #include "TimestampSettings.h"
 #include "TimestampPlugin.h"

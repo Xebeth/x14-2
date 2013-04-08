@@ -6,7 +6,6 @@
 **************************************************************************/
 #ifndef __SYS_TIMER_H__
 #define __SYS_TIMER_H__
-#include "stdafx.h"
 
 class Timer
 {
@@ -38,4 +37,5 @@ private:
 	bool  m_timerStopped;
 	bool  m_bTicked;
 };
+
 #endif//__SYS_TIMER_H__

@@ -15,20 +15,21 @@ namespace Windower
 
 namespace Bootstrap
 {
-	typedef HookEngineLib::IHookManager IHookManager;
+	class BootstrapEngine;
+	class ModuleService;
 
 	//! the class name of the target window
 	#define TARGET_CLASSNAME _T("Shell DocObject View")
 
 	//! \brief Core module used for Win32 API hooking
-	class SystemCore : public Windower::WindowerCore
+	class SystemCore : public Windower::ICoreModule
 	{
 	public:
-		SystemCore(Windower::PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		SystemCore(BootstrapEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager &HookManager_in);
-		void OnHookInstall(IHookManager &HookManager_in);
+		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
+		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 		// hooks
 		HWND CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,
@@ -38,6 +39,15 @@ namespace Bootstrap
 							   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
 							   LPPROCESS_INFORMATION lpProcessInformation_out);
 
+		bool RegisterServices() { return false; }
+		void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in) {}
+		bool Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) { return false; }
+		bool Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) { return false; }
+		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in) { return true; }
+		void OnSubscribe(Windower::ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
+		void OnUnsubscribe(Windower::ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
+		Windower::ModuleService* RegisterService(const string_t& ServiceName_in, bool InvokePermission_in) { return NULL; }
+
 	protected:
 		//! flag specifying if the AutoLogin is active
 		bool m_AutoLogin;
@@ -45,6 +55,10 @@ namespace Bootstrap
 		fnCreateWindowExW		m_pCreateWindowExWTrampoline;
 		//! function pointer to the original CreateProcess function
 		fnCreateProcess			m_pCreateProcessTrampoline;
+		//! a reference to the windower engine
+		BootstrapEngine		   &m_Engine;
+		//! a reference to the hook manager
+		HookEngine			   &m_HookManager;
 	};
 }
 

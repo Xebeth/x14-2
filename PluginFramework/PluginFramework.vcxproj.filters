@@ -10,9 +10,6 @@
     <Filter Include="Iterators">
       <UniqueIdentifier>{d96dced0-8504-46a9-98ab-4e91a05b5a4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{76647749-c438-42c3-9763-64136d5cb017}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Plugin Services">
       <UniqueIdentifier>{ee7bde24-7c65-4a99-adff-c003f082c3bd}</UniqueIdentifier>
     </Filter>
@@ -33,12 +30,6 @@
     <ClInclude Include="PluginIterator.h">
       <Filter>Iterators</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\string_t.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\FileIterator.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="PluginManager.h">
       <Filter>Plugin Manager</Filter>
     </ClInclude>
@@ -49,10 +40,10 @@
     <ClInclude Include="VersionInfo.h">
       <Filter>Plugins</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\utf8_convert.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="FrameworkVersion.h" />
+    <ClInclude Include="FileIterator.h">
+      <Filter>Iterators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -61,20 +52,14 @@
     <ClCompile Include="PluginIterator.cpp">
       <Filter>Iterators</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\string_t.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\FileIterator.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="PluginManager.cpp">
       <Filter>Plugin Manager</Filter>
     </ClCompile>
     <ClCompile Include="IPlugin.cpp">
       <Filter>Plugins</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\utf8_convert.cpp">
-      <Filter>Common</Filter>
+    <ClCompile Include="FileIterator.cpp">
+      <Filter>Iterators</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

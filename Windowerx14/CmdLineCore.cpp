@@ -6,18 +6,14 @@
 	purpose		:	Command line module
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 
+#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 #include "CommandDispatcher.h"
 #include "CommandParser.h"
-
-#include <FormatChatMsgTypes.h>
 
 namespace Windower
 {
@@ -141,7 +137,7 @@ namespace Windower
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
-	void CmdLineCore::RegisterHooks(IHookManager &HookManager_in)
+	void CmdLineCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
  		HookManager_in.RegisterHook(PROCESS_CMD_HOOK, SIGSCAN_GAME_PROCESSA, PROCESS_CMD_OPCODES_SIGNATURE,
 									PROCESS_CMD_OPCODES_SIGNATURE_OFFSET, &CmdLineCore::ProcessCmdHook,
@@ -151,7 +147,7 @@ namespace Windower
 	/*! \brief Callback invoked when the hooks of the module are installed
 		\param[in] HookManager_in : the hook manager
 	*/
-	void CmdLineCore::OnHookInstall(IHookManager &HookManager_in)
+	void CmdLineCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		m_pProcessCmdTrampoline = (fnProcessCmd)HookManager_in.GetTrampolineFunc(PROCESS_CMD_HOOK);
 

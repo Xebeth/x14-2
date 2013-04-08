@@ -6,10 +6,6 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
-#include <SettingsManager.h>
-#include <PluginFramework.h>
-#include <PluginManager.h>
-#include <HookEngine.h>
 
 #include "WindowerSettings.h"
 #include "WindowerSettingsManager.h"
@@ -18,33 +14,35 @@
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "PlayerDataHook.h"
 #include "Direct3D9Hook.h"
 #ifdef _DEBUG
 	#include "TestHook.h"
 #endif // _DEBUG
 
-#include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 #include "GameChatCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
-#ifdef _DEBUG
-	#include "TestCore.h"
-#endif // _DEBUG
+#include "PlayerCore.h"
 
 #define _TESTING
 
+#if defined _DEBUG && defined _TESTING
+	#include "TestCore.h"
+#endif // _DEBUG
+
 namespace Windower
 {
-	PluginManager* ICoreModule::m_pPluginManager = NULL;
+	PluginFramework::PluginManager* ICoreModule::m_pPluginManager = NULL;
 
 	/*! \brief WindowerEngine constructor
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
 		: PluginEngine(hModule_in, pConfigFile_in), m_bShutdown(false), m_bThreadInit(false), 
-		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL),
+		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
 		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
 	{
 		// create the settings manager
@@ -68,6 +66,8 @@ namespace Windower
 			m_pGameChatCore = new GameChatCore(*this, m_HookManager);
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore(*this, m_HookManager);
+			// create the player data module
+			m_pPlayerCore = new PlayerCore(*this, m_HookManager);
 			// create the graphics module
 			// m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
 		}
@@ -206,7 +206,10 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-
+		if (m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn())
+		{
+			
+		}
 	}
 
 	//! \brief Initializes the engine

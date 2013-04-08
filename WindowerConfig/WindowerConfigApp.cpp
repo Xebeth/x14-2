@@ -7,14 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-#include <vector>
-
-#include <SettingsManager.h>
-#include <WindowerSettings.h>
-#include <WindowerSettingsManager.h>
-
-#include <PluginFramework.h>
-#include <IPluginServices.h>
 
 #include "WindowerConfigDlg.h"
 #include "WindowerConfigApp.h"

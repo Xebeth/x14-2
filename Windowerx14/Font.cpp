@@ -6,9 +6,8 @@
 	purpose		:	Font class
 **************************************************************************/
 #include "stdafx.h"
-
 #include <d3d9.h>
-#include <vector>
+#include <d3dx9.h>
 
 #include "Font.h"
 

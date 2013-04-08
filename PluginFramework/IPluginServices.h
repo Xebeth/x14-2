@@ -8,6 +8,10 @@
 #ifndef __I_PLUGIN_SERVICES_H__
 #define __I_PLUGIN_SERVICES_H__
 
+#ifndef _PLUGIN_FRAMEWORK_SDK_INCLUDE_
+	#error Please include the global header file 'PluginFramework.h'
+#endif
+
 namespace PluginFramework
 {
 	class IPlugin;

@@ -6,9 +6,6 @@
 	purpose		:	Plugin Manager
 **************************************************************************/
 #include "stdafx.h"
-#include <FileIterator.h>
-#include <hash_map>
-#include <vector>
 
 #include "FrameworkVersion.h"
 #include "VersionInfo.h"
@@ -18,6 +15,7 @@
 #include "IPlugin.h"
 
 #include "PluginManager.h"
+#include "FileIterator.h"
 #include "PluginIterator.h"
 
 namespace PluginFramework

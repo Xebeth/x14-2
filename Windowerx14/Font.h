@@ -8,8 +8,6 @@
 #ifndef __GFX_FONT_H__
 #define __GFX_FONT_H__
 
-#include <d3dx9.h>
-
 //! Font alignment
 enum FONTALIGNMENT
 {

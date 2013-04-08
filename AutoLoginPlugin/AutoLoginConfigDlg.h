@@ -8,7 +8,7 @@
 #ifndef __AUTOLOGIN_CONFIG_DLG_H__
 #define __AUTOLOGIN_CONFIG_DLG_H__
 
-namespace Windower
+namespace Bootstrap
 {
 	class AutoLoginSettings;
 }
@@ -23,7 +23,7 @@ public:
 
 protected:
 	HICON m_hIcon;
-	Windower::AutoLoginSettings *m_pSettings;
+	Bootstrap::AutoLoginSettings *m_pSettings;
 	string_t m_EncryptionKey;
 	string_t m_PasswordHash;
 	string_t m_Username;

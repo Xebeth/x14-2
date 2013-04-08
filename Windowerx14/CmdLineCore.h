@@ -7,9 +7,6 @@
 **************************************************************************/
 #ifndef __CMD_LINE_CORE_H__
 #define __CMD_LINE_CORE_H__
-
-#include "ICommandHandler.h"
-
 												 //53558BAC2488010000568BF133DB57					2013-03-22
 #define PROCESS_CMD_OPCODES_SIGNATURE			"@@53558B????????????568BF133DB57"
 #define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	-42
@@ -26,7 +23,7 @@ namespace Windower
 	typedef bool (WINAPI *fnProcessCmd)(LPVOID pThis_in_out, StringNode* pCmd_in_out, char **pRawCmd_in);
 
 	class CommandDispatcher;
-	class CommandParser;
+	class CommandParser;	
 
 	class CmdLineCore : public WindowerCore, public ICommandHandler
 	{
@@ -52,8 +49,8 @@ namespace Windower
 		bool UnregisterCommand(WindowerCommand *pCommand_in);
 		bool RegisterCommand(WindowerCommand *pCommand_in);
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager &HookManager_in);
-		void OnHookInstall(IHookManager &HookManager_in);
+		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
+		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
 		static bool FilterCommands(const StringNode *pCmd_in, std::string &Feedback_out);

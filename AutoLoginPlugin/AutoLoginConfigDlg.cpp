@@ -29,7 +29,7 @@ END_MESSAGE_MAP()
  */
 AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
 	: CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Windower::AutoLoginSettings(pConfigFile_in, pProfileName_in)), m_AutoSubmit(false)
+	  m_pSettings(new Bootstrap::AutoLoginSettings(pConfigFile_in, pProfileName_in)), m_AutoSubmit(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_CONFIG);
 

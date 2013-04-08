@@ -8,17 +8,10 @@
 #include "stdafx.h"
 #include "resource.h"
 
-#include <PluginFramework.h>
-#include <SettingsManager.h>
-#include <IGameChatPlugin.h>
-#include <PluginEngine.h>
-
 #include "TellDetectConfigDlg.h"
 #include "TellDetectSettings.h"
 #include "TellDetectPlugin.h"
 #include "version.h"
-
-using namespace PluginFramework;
 
 namespace Windower
 {
@@ -43,7 +36,7 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TellDetectPlugin instance
 	*/
-	IPlugin* TellDetectPlugin::Create(PluginFramework::IPluginServices *pServices_in)
+	PluginFramework::IPlugin* TellDetectPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
 		return new TellDetectPlugin(pServices_in);
 	}
@@ -63,7 +56,7 @@ namespace Windower
 	/*! \brief Fills a VersionInfo structure with the plugin information
 		\param[out] PluginInfo_out : a VersionInfo structure
 	*/
-	void TellDetectPlugin::Query(PluginInfo& PluginInfo_out)
+	void TellDetectPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will play a sound whenever the player receives a tell"));
 		PluginInfo_out.SetIdentifier(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9"));

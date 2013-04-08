@@ -6,12 +6,7 @@
 	purpose		:	DLL entry point
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <PluginsServices.h>
-#include <HookEngine.h>
 
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "BootstrapEngine.h"
 
 Bootstrap::BootstrapEngine *g_pEngine = NULL;

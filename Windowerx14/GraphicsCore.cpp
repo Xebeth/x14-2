@@ -6,26 +6,21 @@
 	purpose		:	Interface with Direct3D 9
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 #include <d3dx9.h>
 #include <d3d9.h>
 
-#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "Direct3D9Hook.h"
 
-#include "ICoreModule.h"
 #include "WindowerCore.h"
+#include "GraphicsCore.h"
 
 #include "Font.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 #include "Direct3D9Hook.h"
-
-#include "GraphicsCore.h"
 
 namespace Windower
 {

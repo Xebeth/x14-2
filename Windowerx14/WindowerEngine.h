@@ -8,9 +8,6 @@
 #ifndef __WINDOWER_ENGINE_H__
 #define __WINDOWER_ENGINE_H__
 
-#include "WindowerSettings.h"
-#include "PluginEngine.h"
-
 #define ENGINE_KEY 0xDEADBEEF
 
 namespace Windower
@@ -26,6 +23,7 @@ namespace Windower
 	class CmdLineCore;
 	class ICoreModule;
 	class SystemCore;
+	class PlayerCore;
 #ifdef _DEBUG
 	class TestCore;
 #endif // _DEBUG
@@ -68,6 +66,10 @@ namespace Windower
 			\return the game chat core module
 		*/
 		GameChatCore& GameChat() const { return *m_pGameChatCore; }
+		/*! \brief Retrieves the player data core module
+			\return the player data module
+		*/
+		PlayerCore& Player() const { return *m_pPlayerCore; }
 		/*! \brief Retrieves the current settings
 			\return the settings
 		*/
@@ -94,6 +96,8 @@ namespace Windower
 		GameChatCore *m_pGameChatCore;
 		//! the command line core module
 		CmdLineCore *m_pCmdLineCore;
+		//! the player data core module
+		PlayerCore *m_pPlayerCore;
 		//! flag specifying if the engine thread has been initialized
 		bool m_bThreadInit;
 		//! flag specifying if the game is shutting down

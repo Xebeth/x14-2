@@ -8,6 +8,10 @@
 #ifndef __SETTINGS_INTERFACE_H__
 #define __SETTINGS_INTERFACE_H__
 
+#ifndef _SETTINGS_MANAGER_SDK_INCLUDE_
+	#error Please include the global header file 'SettingsManager.h'
+#endif
+
 namespace Settings
 {
 	class SettingsInterface

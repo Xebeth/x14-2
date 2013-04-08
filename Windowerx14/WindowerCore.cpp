@@ -6,16 +6,10 @@
 	purpose		:	Windower core module base class
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
+#include "WindowerCore.h"
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
-
-#include "ICoreModule.h"
-#include "ModuleService.h"
-#include "WindowerCore.h"
 
 namespace Windower
 {
@@ -24,7 +18,7 @@ namespace Windower
 		\param[in,out] Engine_in_out : the plugin engine
 		\param[in,out] HookManager_in_out : the hook manager
 	*/
-	WindowerCore::WindowerCore(const string_t& ModuleName_in, PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
+	WindowerCore::WindowerCore(const string_t& ModuleName_in, WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
 	  : m_Engine(Engine_in_out), m_HookManager(HookManager_in_out)
 	{
 		m_Engine.RegisterModule(ModuleName_in, this);

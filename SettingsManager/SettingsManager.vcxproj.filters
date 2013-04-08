@@ -4,6 +4,9 @@
     <Filter Include="Settings">
       <UniqueIdentifier>{8eb26063-5676-49be-bb32-f0880ad1e4a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{83accd5a-1372-4013-8367-2f3c225a6bf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SimpleIni.h">
@@ -15,12 +18,17 @@
     <ClInclude Include="SettingsInterface.h">
       <Filter>Settings</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="SettingsManager.h" />
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SettingsIniFile.cpp">
       <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,22 +7,15 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-
 #include <PluginFramework.h>
 #include <SettingsManager.h>
-
-#include <WindowerCommand.h>
-#include <CommandHandler.h>
-#include <IGameChatPlugin.h>
-#include <PluginEngine.h>
+#include <PluginSDK.h>
 
 #include "TimestampPlugin.h"
 #include "version.h"
 
 #include "TimestampSettings.h"
 #include "TimestampConfigDlg.h"
-
-using namespace PluginFramework;
 
 namespace Windower
 {
@@ -60,7 +53,7 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TimestampPlugin instance
 	*/
-	IPlugin* TimestampPlugin::Create(PluginFramework::IPluginServices *pServices_in)
+	PluginFramework::IPlugin* TimestampPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
 		return new TimestampPlugin(pServices_in);
 	}
@@ -80,7 +73,7 @@ namespace Windower
 	/*! \brief Fills a VersionInfo structure with the plugin information
 		\param[out] Info_out : a VersionInfo structure
 	*/
-	void TimestampPlugin::Query(PluginInfo& PluginInfo_out)
+	void TimestampPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will add a timestamp to the chat log"));
 		PluginInfo_out.SetIdentifier(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B"));

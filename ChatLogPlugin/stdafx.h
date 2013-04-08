@@ -10,7 +10,7 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <string_t.h>
+#include <PluginSDK.h>
 
 // tell Timestamp it's not exporting the InitPlugin C function
 #ifndef NO_EXPORT

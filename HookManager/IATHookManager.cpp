@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #ifdef __USE_IATHOOK
 
-#include <IATPatcher.h>
+#include <ImportTablePatcher.h>
 
 #include "HookManager.h"
 #include "IATHookManager.h"

@@ -6,18 +6,9 @@
 	purpose		:	ExpWatch plugin
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-
-#include <ICreateTextNodePlugin.h>
-#include <IGameChatPlugin.h>
-#include <WindowerCommand.h>
-#include <CommandHandler.h>
-#include <PluginEngine.h>
 
 #include "ExpWatchPlugin.h"
 #include "version.h"
-
-using namespace PluginFramework;
 
 namespace Windower
 {
@@ -38,7 +29,7 @@ namespace Windower
 	/*! \brief Creates an instance of ExpWatchPlugin
 		\return a pointer to the new ExpWatchPlugin instance
 	*/
-	IPlugin* ExpWatchPlugin::Create(PluginFramework::IPluginServices *pServices_in)
+	PluginFramework::IPlugin* ExpWatchPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
 		return new ExpWatchPlugin(pServices_in);
 	}
@@ -58,7 +49,7 @@ namespace Windower
 	/*! \brief Fills a VersionInfo structure with the plugin information
 		\param[out] Info_out : a VersionInfo structure
 	*/
-	void ExpWatchPlugin::Query(PluginInfo& PluginInfo_out)
+	void ExpWatchPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{
 		PluginInfo_out.SetDesc(_T("This plugin will gather statistics on experience points earned"));
 		PluginInfo_out.SetIdentifier(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF"));

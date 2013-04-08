@@ -8,7 +8,9 @@
 #ifndef __INJECT_MODULE_H__
 #define __INJECT_MODULE_H__
 
-#include <string_t.h>
+#ifndef _MODULE_INJECTION_SDK_INCLUDE_
+	#error Please include the global header file 'ModuleInjection.h'
+#endif
 
 namespace InjectModule
 {

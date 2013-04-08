@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include <d3dx9.h>
 #include <d3d9.h>
-#include <vector>
 
 #include "Font.h"
 #include "IDirect3D9Wrapper.h"

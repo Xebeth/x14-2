@@ -10,7 +10,7 @@
 #include <SettingsManager.h>
 #include "AutoLoginSettings.h"
 
-namespace Windower
+namespace Bootstrap
 {
 	/*! \brief AutoLoginSettings constructor
 		\param[in] pSettingsFile_in : the path of the settings file

@@ -10,6 +10,7 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <string_t.h>
+
+#include <StringUtils.h>
 
 #endif//__SETTINGS_MANAGER_AFX_H__

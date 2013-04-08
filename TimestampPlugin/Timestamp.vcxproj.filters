@@ -54,11 +54,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Common\x14.ico" />
     <None Include="res\Timestamp.rc2">
       <Filter>Resources</Filter>
     </None>
     <None Include="res\Timestamp.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Common\x14.ico">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

@@ -8,15 +8,23 @@
 #ifndef __PLUGIN_MANAGER_H__
 #define __PLUGIN_MANAGER_H__
 
-#include <FileIterator.h>
-#include <set>
+#ifndef _PLUGIN_FRAMEWORK_SDK_INCLUDE_
+	#error Please include the global header file 'PluginFramework.h'
+#endif
 
 namespace PluginFramework
 {
+	class IPluginServices;
+	class RegisterParams;
+	class PluginInfo;
+	class PluginUUID;
+	class IPlugin;
+
 	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 	typedef stdext::hash_map<string_t, RegisterParams*> LoadedPlugins;
 	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;
-	typedef std::set<PluginUUID> Blacklist;
+	typedef std::set<PluginUUID> CompatiblePlugins, Blacklist;
+	typedef std::set<IPlugin*> PluginSet;
 
 	class PluginManager
 	{

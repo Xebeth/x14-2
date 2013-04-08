@@ -11,7 +11,9 @@
 #include <sdkddkver.h>
 #include <afxwin.h>
 #include <afxcmn.h>
+#include <set>
 
-#include <string_t.h>
+#include <SettingsManager.h>
+#include <PluginSDK.h>
 
 #endif//__LAUNCHER_AFX_H__

@@ -8,13 +8,6 @@
 #ifndef __COMMAND_DISPATCHER_H__
 #define __COMMAND_DISPATCHER_H__
 
-#include "ICoreModule.h"
-#include "ModuleService.h"
-#include "WindowerCore.h"
-
-#include "WindowerCommand.h"
-#include "ICommandHandler.h"
-
 namespace Windower
 {
 	class WindowerCommand;
@@ -29,7 +22,7 @@ namespace Windower
 	class CommandDispatcher : public WindowerCore
 	{
 	public:
-		CommandDispatcher(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		CommandDispatcher(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 		virtual ~CommandDispatcher();
 
 		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in);

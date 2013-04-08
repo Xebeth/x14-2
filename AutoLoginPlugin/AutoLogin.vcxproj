@@ -83,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_AFXEXT;PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Windowerx14;../WindowerPlugin/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../PluginSDK/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../WindowerPlugin/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../PluginSDK/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../WindowerPlugin/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../PluginSDK/;../PluginFramework/;../SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -171,11 +171,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Common\CryptUtils.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="AutoLogin.cpp" />
     <ClCompile Include="AutoLoginConfigDlg.cpp" />
     <ClCompile Include="AutoLoginSettings.cpp" />
@@ -189,7 +184,6 @@
     <ClCompile Include="AutoLoginPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\CryptUtils.h" />
     <ClInclude Include="AutoLogin.h" />
     <ClInclude Include="AutoLoginConfigDlg.h" />
     <ClInclude Include="AutoLoginSettings.h" />

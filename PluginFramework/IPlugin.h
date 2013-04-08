@@ -8,6 +8,10 @@
 #ifndef __IPLUGIN_H__
 #define __IPLUGIN_H__
 
+#ifndef _PLUGIN_FRAMEWORK_SDK_INCLUDE_
+	#error Please include the global header file 'PluginFramework.h'
+#endif
+
 #ifndef PLUGIN_EXPORTS
 	#define PLUGIN_API __declspec(dllimport)
 #else

@@ -13,8 +13,6 @@
 #include "IPlugin.h"
 
 #include "IPluginServices.h"
-#include "PluginManager.h"
-#include "PluginIterator.h"
 
 namespace PluginFramework
 {

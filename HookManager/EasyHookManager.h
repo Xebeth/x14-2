@@ -8,6 +8,12 @@
 #ifndef __EASYHOOK_MANAGER_H__
 #define __EASYHOOK_MANAGER_H__
 
+#ifdef __USE_EASYHOOK
+
+#ifndef _HOOK_MANAGER_SDK_INCLUDE_
+	#error Please include the global header file 'HookEngine.h'
+#endif
+
 namespace HookEngineLib
 {
 	//! \brief Hook manager using EasyHook
@@ -25,5 +31,7 @@ namespace HookEngineLib
 		HOOK_TRACE_INFO m_hHook;
 	};
 }
+
+#endif//__USE_EASYHOOK
 
 #endif//__EASYHOOK_MANAGER_H__

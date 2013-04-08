@@ -8,6 +8,10 @@
 #ifndef __SIGSCAN_H__
 #define __SIGSCAN_H__
 
+#ifndef _MEMORY_SCANNER_SDK_INCLUDE_
+	#error Please include the global header file 'MemoryScanner.h'
+#endif
+
 namespace SigScan
 {
 	//! \brief internal structure used in the memory scan

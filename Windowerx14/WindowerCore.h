@@ -15,14 +15,14 @@ namespace Windower
 	//! the hooks of a service
 	typedef stdext::hash_map<std::string, LPVOID> HookPointers;
 
-	class PluginEngine;
+	class WindowerEngine;
 		
 	//! \brief Windower core module base class
 	class WindowerCore : public ICoreModule
 	{
 	public:
 		//! \brief WindowerCore constructor
-		WindowerCore(const string_t& ModuleName_in, PluginEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		WindowerCore(const string_t& ModuleName_in, WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 		virtual ~WindowerCore();
 
 		virtual void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in);
@@ -34,11 +34,11 @@ namespace Windower
 		/*! \brief Register the hooks for this module
 			\param[in] HookManager_in : the hook manager
 		*/
-		virtual void RegisterHooks(IHookManager &HookManager_in) {};
+		virtual void RegisterHooks(HookEngineLib::IHookManager &HookManager_in) {};
 		/*! \brief Callback invoked when the hooks of the module are installed
 			\param[in] HookManager_in : the hook manager
 		*/
-		virtual void OnHookInstall(IHookManager &HookManager_in) {};
+		virtual void OnHookInstall(HookEngineLib::IHookManager &HookManager_in) {};
 		
 		/*! \brief Registers the services of the module
 			\return true if the services were registered; false otherwise
@@ -71,7 +71,7 @@ namespace Windower
 		virtual void OnUnsubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
 
 		//! a reference to the windower engine
-		PluginEngine		&m_Engine;
+		WindowerEngine		&m_Engine;
 		//! the module services
 		ModuleServices		 m_Services;
 		//! a reference to the hook manager

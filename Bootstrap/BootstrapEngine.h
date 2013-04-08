@@ -45,8 +45,6 @@ namespace Bootstrap
 		bool UpdateCmdLineFromSettings(string_t &CmdLine_in_out);
 
 	protected:
-		//! the plugin dispatcher of the engine
-		Windower::CommandDispatcher *m_pCommandDispatcher;
 		//! the settings manager of the engine
 		Windower::SettingsManager *m_pSettingsManager;
 		//! the current settings profile

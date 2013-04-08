@@ -13,14 +13,8 @@
     <Filter Include="Hooks">
       <UniqueIdentifier>{3ae4acc9-5b34-466a-a24d-f8be034193a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{22d51dcf-4867-47e2-9f72-b4e330216c66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bootstrap\Modules">
       <UniqueIdentifier>{8432e5be-18f9-4cfa-b536-9f113d379356}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Settings">
-      <UniqueIdentifier>{43bf7089-c459-4910-9945-04d29b8ede8a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Bootstrap\Modules\System">
       <UniqueIdentifier>{f7763c1c-bfea-478a-ae4b-597425ab36fe}</UniqueIdentifier>
@@ -43,14 +37,8 @@
     <ClCompile Include="CreateWindowExHook.cpp">
       <Filter>Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\string_t.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\Windowerx14\WindowerCore.cpp">
       <Filter>Bootstrap\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
-      <Filter>Settings</Filter>
     </ClCompile>
     <ClCompile Include="SystemCore.cpp">
       <Filter>Bootstrap\Modules\System</Filter>
@@ -75,17 +63,8 @@
     <ClInclude Include="CreateWindowExHook.h">
       <Filter>Hooks</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\string_t.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\Windowerx14\WindowerCore.h">
       <Filter>Bootstrap\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
-      <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="SystemCore.h">
       <Filter>Bootstrap\Modules\System</Filter>

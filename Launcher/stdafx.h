@@ -11,7 +11,4 @@
 // #define __USE_VLD
 #include <stdhdr.h>
 
-// Icon resource ID -- used for the executable
-#define IDR_MAINFRAME 1
-
 #endif//__LAUNCHER_AFX_H__

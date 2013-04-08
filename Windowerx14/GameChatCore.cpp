@@ -6,14 +6,11 @@
 	purpose		:	Interaction with the game chat memory
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
-#include <ModuleService.h>
 
-#include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "GameChatCore.h"
 
+#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 #include "FormatChatMsgService.h"
 
@@ -21,7 +18,7 @@ namespace Windower
 {
 	/*! \brief GameChatCore constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(_T("GameChat"), Engine_in_out, HookManager_in_out) {}
+		: WindowerCore(_T(GAME_CHAT_SERVICE), Engine_in_out, HookManager_in_out) {}
 
 	/*! \brief Registers the services of the module
 		\return true if the services were registered; false otherwise

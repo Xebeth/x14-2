@@ -6,10 +6,7 @@
 	purpose		:	Interface with the Win32 API
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
@@ -18,9 +15,6 @@
 #include "Direct3D9Hook.h"
 #include "WndProcHook.h"
 
-#include "WindowerSettings.h"
-
-#include "ICoreModule.h"
 #include "WindowerCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
@@ -158,7 +152,7 @@ namespace Windower
 		{
 			case WM_QUIT:
 				// start shutting down the engine
-				static_cast<WindowerEngine&>(m_Engine).OnShutdown();
+				m_Engine.OnShutdown();
 				// remove the WndProc hook before the game window is destroyed
 				RestoreWndProc();
 			break;
@@ -191,11 +185,11 @@ namespace Windower
 			{
 				if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000)
 				{
-//					static_cast<WindowerEngine&>(m_Engine).Graphics().ToggleRendering();
+//					m_Engine.Graphics().ToggleRendering();
 				}
 				else
 				{
-//					static_cast<WindowerEngine&>(m_Engine).Graphics().SetRendering(false);
+//					WindowerEngine.Graphics().SetRendering(false);
 					ShowWindow(m_hGameWnd, SW_MINIMIZE);
 				}
 

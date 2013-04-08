@@ -36,12 +36,10 @@
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled Header</Filter>
     </ClInclude>
-    <ClInclude Include="HookEngine.h">
-      <Filter>Hook</Filter>
-    </ClInclude>
     <ClInclude Include="IATHookManager.h">
       <Filter>Hook</Filter>
     </ClInclude>
+    <ClInclude Include="HookEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Hook">

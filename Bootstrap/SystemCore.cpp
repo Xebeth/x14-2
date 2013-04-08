@@ -6,19 +6,13 @@
 	purpose		:	Core module used for Win32 API hooking
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
-#include <IATPatcher.h>
+#include <ImportTablePatcher.h>
 
-#include "BaseEngine.h"
-#include "PluginEngine.h"
 #include "BootstrapEngine.h"
 
 #include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
 
-#include "ICoreModule.h"
-#include "WindowerCore.h"
 #include "SystemCore.h"
 
 namespace Bootstrap
@@ -26,8 +20,8 @@ namespace Bootstrap
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
-	SystemCore::SystemCore(Windower::PluginEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: Windower::WindowerCore(_T("System"), Engine_in_out, HookManager_in_out)
+	SystemCore::SystemCore(BootstrapEngine &Engine_in_out, HookEngine &HookManager_in_out)
+		: m_Engine(Engine_in_out), m_HookManager(HookManager_in_out)
 	{
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 
@@ -143,7 +137,7 @@ namespace Bootstrap
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
-	void SystemCore::RegisterHooks(IHookManager &HookManager_in)
+	void SystemCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 		// CreateWindowEx hook used to start the AutoLogin thread
 		if (m_AutoLogin)
@@ -155,7 +149,7 @@ namespace Bootstrap
 	/*! \brief Callback invoked when the hooks of the module are installed
 		\param[in] HookManager_in : the hook manager
 	*/
-	void SystemCore::OnHookInstall(IHookManager &HookManager_in)
+	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		if (m_AutoLogin)
 			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowEx");

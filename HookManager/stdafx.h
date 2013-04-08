@@ -10,7 +10,10 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <vector>
+
+#include <hash_map>
+#include <StringUtils.h>
+#include <MemoryScanner.h>
 
 #ifdef _DEBUG
 	#define __USE_DETOURS

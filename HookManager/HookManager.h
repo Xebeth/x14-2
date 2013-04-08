@@ -8,15 +8,17 @@
 #ifndef __HOOK_MANAGER_H__
 #define __HOOK_MANAGER_H__
 
-#include <string>
-#include <hash_set>
-#include <hash_map>
-
-#include <SigScan.h>
-#include <NonCopyable.h>
+#ifndef _HOOK_MANAGER_SDK_INCLUDE_
+	#error Please include the global header file 'HookEngine.h'
+#endif
 
 //! the hooks of a service
 typedef stdext::hash_map<std::string, LPVOID> HookPointers;
+
+namespace SigScan
+{
+	class SigScan;
+}
 
 namespace HookEngineLib
 {

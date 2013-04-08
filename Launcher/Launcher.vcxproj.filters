@@ -8,44 +8,22 @@
     <Filter Include="Resources\images">
       <UniqueIdentifier>{6bd85a61-c106-43f7-939b-9b3d96594d74}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Settings">
-      <UniqueIdentifier>{ba47284f-421b-44ba-9908-799c3c4ef793}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{d6c69072-4a97-4dca-93b2-077b55052f5c}</UniqueIdentifier>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{378c0806-17f0-419e-93cd-e16e9155eea7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerSettingsManager.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SettingsManager\SettingsIniFile.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SettingsManager\SimpleIni.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\string_t.h">
-      <Filter>Common</Filter>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="launcher.cpp" />
-    <ClCompile Include="..\Windowerx14\WindowerSettingsManager.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SettingsManager\SettingsIniFile.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\string_t.cpp">
-      <Filter>Common</Filter>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

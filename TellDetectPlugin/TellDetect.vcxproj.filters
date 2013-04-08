@@ -60,5 +60,8 @@
     <None Include="res\TellDetect.rc2">
       <Filter>Resources</Filter>
     </None>
+    <None Include="..\Common\x14.ico">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

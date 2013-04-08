@@ -10,12 +10,12 @@
 #ifndef __AUTO_LOGIN_PLUGIN_H__
 #define __AUTO_LOGIN_PLUGIN_H__
 
-namespace Windower
+namespace Bootstrap
 {
 	class AutoLoginSettings;
 
 	//! \brief Auto login plugin
-	class AutoLoginPlugin : public PluginFramework::IPlugin, public CommandHandler
+	class AutoLoginPlugin : public IAutoLoginPlugin
 	{
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
@@ -28,8 +28,7 @@ namespace Windower
 		explicit AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in);
 		virtual ~AutoLoginPlugin();
 
-		virtual bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
-		bool CreateThread(HWND ParentHwnd_in);
+		bool CreateAutoLoginThread(HWND ParentHwnd_in);
 
 		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
@@ -37,9 +36,6 @@ namespace Windower
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		
 	protected:
-		bool UnregisterCommands();
-		bool RegisterCommands();
-
 		//! AutoLogin plugin settings
 		AutoLoginSettings *m_pSettings;
 		//! the handle of the thread used to monitor the forms during the login process

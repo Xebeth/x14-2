@@ -10,15 +10,6 @@
     <Filter Include="Windower">
       <UniqueIdentifier>{6c653b87-32a6-4c14-b819-860ba7ed35d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{587ab62c-8ac6-446c-a77b-d68dde8f3ecc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Settings">
-      <UniqueIdentifier>{548c9e75-fa02-4171-9aa4-2457d0e06ba3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Plugins">
-      <UniqueIdentifier>{33449ff6-2913-4791-9a0f-fcb7abd2ae6e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules">
       <UniqueIdentifier>{046cf216-cbd4-4f86-a043-72b21abb3007}</UniqueIdentifier>
     </Filter>
@@ -34,17 +25,8 @@
     <Filter Include="Windower\Modules\Commands">
       <UniqueIdentifier>{adb733e0-d2b6-405b-8a40-cbf0586778ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Hooks">
-      <UniqueIdentifier>{2b3dd565-28d9-43a8-8536-17a10db1bc15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Hooks\System">
-      <UniqueIdentifier>{ddf7db51-13ba-4504-9397-7d86a024a01a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Test">
       <UniqueIdentifier>{e91f83bc-7d20-4b25-9e65-e3100bed4572}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Hooks\Test">
-      <UniqueIdentifier>{a36cfda0-c52c-4a11-a42f-3f0a11991591}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utilities">
       <UniqueIdentifier>{8972e526-d987-4b5b-8152-e48bc060e539}</UniqueIdentifier>
@@ -52,11 +34,26 @@
     <Filter Include="Windower\Modules\Chat\Services">
       <UniqueIdentifier>{b1b96434-c50e-4467-ab92-7797683b625e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Hooks\Graphics">
-      <UniqueIdentifier>{d7f494cd-6b59-48d7-8c65-096c3c4a677f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Graphics\Wrappers">
       <UniqueIdentifier>{28116168-7218-41f4-b071-200332f3c02c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\PlayerData">
+      <UniqueIdentifier>{4544e8bc-6e50-4460-ac2b-db58717bbbba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\PlayerData\Services">
+      <UniqueIdentifier>{5901f733-d38a-410a-84ba-9a80da84b39e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\System\Hooks">
+      <UniqueIdentifier>{13966882-dde3-4c7a-9336-63c78285badd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Test\Hooks">
+      <UniqueIdentifier>{82c85d27-384a-423a-88ba-1289f916dae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\PlayerData\Hooks">
+      <UniqueIdentifier>{57b88b52-7371-417a-a3fa-1f8711bc45d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Modules\Graphics\Hooks">
+      <UniqueIdentifier>{28edd536-40a6-4e87-b327-3edfc532f153}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,12 +64,6 @@
     <ClCompile Include="WindowerEngine.cpp">
       <Filter>Windower</Filter>
     </ClCompile>
-    <ClCompile Include="WindowerSettingsManager.cpp">
-      <Filter>Windower\Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\string_t.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="SystemCore.cpp">
       <Filter>Windower\Modules\System</Filter>
     </ClCompile>
@@ -82,29 +73,11 @@
     <ClCompile Include="GameChatCore.cpp">
       <Filter>Windower\Modules\Chat</Filter>
     </ClCompile>
-    <ClCompile Include="CreateWindowExHook.cpp">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClCompile>
-    <ClCompile Include="RegisterClassExHook.cpp">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClCompile>
-    <ClCompile Include="WndProcHook.cpp">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClCompile>
     <ClCompile Include="CommandParser.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
     <ClCompile Include="TestCore.cpp">
       <Filter>Windower\Modules\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="TestHook.cpp">
-      <Filter>Windower\Hooks\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\utf8_convert.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="InjectVersion.cpp">
-      <Filter>Windower\Plugins</Filter>
     </ClCompile>
     <ClCompile Include="CommandDispatcher.cpp">
       <Filter>Windower\Modules\Commands</Filter>
@@ -114,9 +87,6 @@
     </ClCompile>
     <ClCompile Include="FormatChatMsgService.cpp">
       <Filter>Windower\Modules\Chat\Services</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D9Hook.cpp">
-      <Filter>Windower\Hooks\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
@@ -133,6 +103,30 @@
     <ClCompile Include="WindowerCore.cpp">
       <Filter>Windower\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerCore.cpp">
+      <Filter>Windower\Modules\PlayerData</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerDataService.cpp">
+      <Filter>Windower\Modules\PlayerData\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateWindowExHook.cpp">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterClassExHook.cpp">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="WndProcHook.cpp">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="TestHook.cpp">
+      <Filter>Windower\Modules\Test\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerDataHook.cpp">
+      <Filter>Windower\Modules\PlayerData\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9Hook.cpp">
+      <Filter>Windower\Modules\Graphics\Hooks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -144,15 +138,6 @@
     <ClInclude Include="WindowerEngine.h">
       <Filter>Windower</Filter>
     </ClInclude>
-    <ClInclude Include="WindowerSettings.h">
-      <Filter>Windower\Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowerSettingsManager.h">
-      <Filter>Windower\Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\string_t.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="SystemCore.h">
       <Filter>Windower\Modules\System</Filter>
     </ClInclude>
@@ -161,15 +146,6 @@
     </ClInclude>
     <ClInclude Include="GameChatCore.h">
       <Filter>Windower\Modules\Chat</Filter>
-    </ClInclude>
-    <ClInclude Include="CreateWindowExHook.h">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClInclude>
-    <ClInclude Include="RegisterClassExHook.h">
-      <Filter>Windower\Hooks\System</Filter>
-    </ClInclude>
-    <ClInclude Include="WndProcHook.h">
-      <Filter>Windower\Hooks\System</Filter>
     </ClInclude>
     <ClInclude Include="CommandParser.h">
       <Filter>Windower\Modules\Commands</Filter>
@@ -180,15 +156,6 @@
     <ClInclude Include="TestCore.h">
       <Filter>Windower\Modules\Test</Filter>
     </ClInclude>
-    <ClInclude Include="TestHook.h">
-      <Filter>Windower\Hooks\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\utf8_convert.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="InjectVersion.h">
-      <Filter>Windower\Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="CommandDispatcher.h">
       <Filter>Windower\Modules\Commands</Filter>
     </ClInclude>
@@ -197,9 +164,6 @@
     </ClInclude>
     <ClInclude Include="FormatChatMsgService.h">
       <Filter>Windower\Modules\Chat\Services</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D9Hook.h">
-      <Filter>Windower\Hooks\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
@@ -212,6 +176,30 @@
     </ClInclude>
     <ClInclude Include="CmdLineCore.h">
       <Filter>Windower\Modules\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCore.h">
+      <Filter>Windower\Modules\PlayerData</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerDataService.h">
+      <Filter>Windower\Modules\PlayerData\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="WndProcHook.h">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateWindowExHook.h">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterClassExHook.h">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="TestHook.h">
+      <Filter>Windower\Modules\Test\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerDataHook.h">
+      <Filter>Windower\Modules\PlayerData\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9Hook.h">
+      <Filter>Windower\Modules\Graphics\Hooks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

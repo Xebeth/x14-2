@@ -28,4 +28,9 @@
     </ClCompile>
     <ClCompile Include="ExpWatchPlugin.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Common\x14.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
 </Project>

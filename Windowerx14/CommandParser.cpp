@@ -6,17 +6,12 @@
 	purpose		:	Command Parser
 **************************************************************************/
 #include "stdafx.h"
-#include <PluginFramework.h>
-#include <HookEngine.h>
 
-#include <CommandHandler.h>
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
-#include "WindowerCommand.h"
-#include "ICoreModule.h"
 #include "WindowerCore.h"
-#include "WindowerCommand.h"
+#include "WindowerSettings.h"
 #include "CommandDispatcher.h"
 #include "CommandParser.h"
 
@@ -27,7 +22,7 @@ namespace Windower
 		\param[in] HookManager_in_out : the hook manager
 		\param[in] Dispatcher_in : the command dispatcher
 	*/
-	CommandParser::CommandParser(PluginEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in)
+	CommandParser::CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in)
 		: WindowerCore(_T("CommandParser"), Engine_in_out, HookManager_in_out), m_CommandDispatcher(Dispatcher_in) {}
 
 	/*! \brief Parses a raw command (e.g. chat line) and returns the arguments and a feedback message

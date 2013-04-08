@@ -7,33 +7,17 @@
 					Handles the AutoLogin plugin during the login process
 **************************************************************************/
 #include "stdafx.h"
-#include <SettingsManager.h>
-#include <PluginFramework.h>
-#include <PluginManager.h>
-#include <HookEngine.h>
 
-#include <BaseEngine.h>
-#include <PluginEngine.h>
 #include "BootstrapEngine.h"
-
-#include "WindowerSettings.h"
-#include "WindowerSettingsManager.h"
 
 #include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
-
-#include <CommandHandler.h>
-
-#include <ICoreModule.h>
-#include <WindowerCore.h>
-#include <WindowerCommand.h>
-#include <CommandDispatcher.h>
 #include "SystemCore.h"
 
 namespace Windower
 {
 	//! pointer to the plugin manager
-	PluginManager* ICoreModule::m_pPluginManager = NULL;
+	PluginFramework::PluginManager* ICoreModule::m_pPluginManager = NULL;
 }
 
 namespace Bootstrap
@@ -56,8 +40,6 @@ namespace Bootstrap
 		{
 			// Win32 related hooks
 			m_pSystemCore = new SystemCore(*this, m_HookManager);
-			// Commander dispatcher
-			m_pCommandDispatcher = new Windower::CommandDispatcher(*this, m_HookManager);
 			// load plugins
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_BOOTSTRAP);
@@ -70,9 +52,6 @@ namespace Bootstrap
 	BootstrapEngine::~BootstrapEngine()
 	{
 		Detach();
-
-		delete m_pCommandDispatcher;
-		m_pCommandDispatcher = NULL;
 
 		delete m_pSystemCore;
 		m_pSystemCore = NULL;
@@ -149,24 +128,11 @@ namespace Bootstrap
 	*/
 	int BootstrapEngine::InvokeAutoLogin(HWND hParentWnd_in)
 	{
-		if (m_pCommandDispatcher != NULL)
-		{
-			// check if the AutoLogin plugin is loaded
-			if (LoadPlugin(_T("AutoLogin")) != NULL)
-			{
-				Windower::WindowerCommand *pAutoLoginCmd;
+		IAutoLoginPlugin *pPlugin = reinterpret_cast<IAutoLoginPlugin*>(LoadPlugin(_T("AutoLogin")));
 
-				if ((pAutoLoginCmd = m_pCommandDispatcher->FindCommand("autologin::create_thread")) != NULL)
-				{
-					if (pAutoLoginCmd->SetPointerValue("hwnd", (long)hParentWnd_in))
-					{
-						std::string Feedback;
-						// execute the command
-						return pAutoLoginCmd->Execute(Feedback);
-					}
-				}
-			}
-		}
+		// check if the AutoLogin plugin is loaded
+		if (pPlugin != NULL)
+			pPlugin->CreateAutoLoginThread(hParentWnd_in);
 
 		return Windower::DISPATCHER_RESULT_INVALID_CALL;
 	}
