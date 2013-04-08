@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{666427f3-3653-415f-afc1-0f43303c4fba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{d2bb4d69-c77d-48c9-8acd-c36d5094db04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Commands">
+      <UniqueIdentifier>{16511151-ca53-46af-8d74-b1792838247c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins">
+      <UniqueIdentifier>{6d085b98-9f6b-4640-a000-a921daf918fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Services">
+      <UniqueIdentifier>{36589a8a-8704-46d3-abf1-99d640bdea91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugins\Types">
+      <UniqueIdentifier>{627d43fd-4ecb-4ce1-aaf1-32ea0091bec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{dce84a34-b469-48c8-a8d6-c00cd3b61feb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginEngine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="IGameChatPlugin.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandParameter.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandHandler.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ICommandHandler.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="IPlayerDataPlugin.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginsServices.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerSettingsManager.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEngine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginEngine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameChatPlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandParameter.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandHandler.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommandHandler.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ICoreModule.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatChatMsgTypes.h">
+      <Filter>Plugins\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerDataTypes.h">
+      <Filter>Plugins\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="IPlayerDataPlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerPlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginSDK.h" />
+    <ClInclude Include="PluginsServices.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="IAutoLoginPlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerSettingsManager.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
