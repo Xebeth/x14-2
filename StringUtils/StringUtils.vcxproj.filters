@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="string_t.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="utf8_convert.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="CryptUtils.h">
+      <Filter>crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="string">
+      <UniqueIdentifier>{3b0cd27a-a3d9-4053-9b6d-890899ffb4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypt">
+      <UniqueIdentifier>{e138014b-eb65-4043-8c33-0049a0034ace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{a62dabbd-9358-4713-86a7-cdfe87749703}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="string_t.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="utf8_convert.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="CryptUtils.cpp">
+      <Filter>crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

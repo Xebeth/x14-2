@@ -1,0 +1,54 @@
+/**************************************************************************
+	created		:	2013-04-06
+	filename	: 	PlayerCore.h
+	author		:	Xebeth`
+	copyright	:	North Edge (2013)
+	purpose		:	Player data related module
+**************************************************************************/
+#ifndef __PLAYER_CORE_H__
+#define __PLAYER_CORE_H__
+														 //53565733DB536A21				2013-04-05
+#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE			"@@53565733DB536A21"
+#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET		-8
+#define INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE			 8
+
+														 //8B41288B492C3D000000E0		2013-04-05
+#define GET_SELECTED_TARGET_OPCODES_SIGNATURE			"@@8B41??8B49??3D000000E0"
+#define GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET	-11
+#define GET_SELECTED_TARGET_OPCODES_HOOK_SIZE			 11
+
+namespace Windower
+{
+	class PlayerDataService;
+	class WindowerEngine;
+	
+	class PlayerCore : public WindowerCore
+	{
+	public:
+		PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+
+		ModuleService* CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in,
+									 bool InvokePermission_in = false);
+		bool RegisterServices();
+
+		// ICoreModule interface implementation
+		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
+		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
+
+		TargetData* GetSelectedTargetHook(LPVOID pThis);
+		int CharacterMgrInitHook(LPVOID pThis_in_out);
+
+		bool IsLoggedIn() const;
+
+	private:
+		PlayerDataService *m_pPlayerDataService;
+
+		fnCharacterMgrInit m_pCharMgrInitTrampoline;
+		fnGetSelectedTarget m_pGetTargetTrampoline;
+
+		TargetData *m_pPlayerTarget;
+		TargetData *m_pPlayerData;
+	};
+}
+
+#endif//__PLAYER_CORE_H__
