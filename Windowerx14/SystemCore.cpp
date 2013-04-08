@@ -151,6 +151,9 @@ namespace Windower
 		switch (uMsg_in)
 		{
 			case WM_QUIT:
+			case WM_CLOSE:
+			case WM_DESTROY:
+			case WM_NCDESTROY:
 				// start shutting down the engine
 				m_Engine.OnShutdown();
 				// remove the WndProc hook before the game window is destroyed

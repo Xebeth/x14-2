@@ -83,8 +83,6 @@ namespace Windower
 		string_t m_WorkingDir;
 		//! the modules containing the services
 		CoreModules m_Modules;
-		//! loaded plugins
-		PluginFramework::PluginSet m_LoadedPlugins;
 	};
 }
 

@@ -144,7 +144,7 @@ namespace Windower
 	{
 		CoreModules::const_iterator Iter;
 		ICoreModule *pModule = NULL;
-
+		
 		// register the hooks
 		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
 		{
@@ -206,9 +206,19 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn())
+		if (m_bShutdown == false)
 		{
-			
+			WindowerPlugins::const_iterator PluginIt = m_Plugins.cbegin();
+			WindowerPlugins::const_iterator EndIt = m_Plugins.cend();
+			WindowerPlugin *pPlugin = NULL;
+
+			for (; PluginIt != EndIt; ++PluginIt)
+			{
+				pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
+
+				if (pPlugin != NULL)
+					pPlugin->Update();
+			}
 		}
 	}
 
