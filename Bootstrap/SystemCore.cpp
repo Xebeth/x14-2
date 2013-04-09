@@ -27,6 +27,8 @@ namespace Bootstrap
 
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
+
+		m_Engine.RegisterModule(_T("SystemCore"), this);
 	}
 
 	/*! \brief CreateWindowExW hook used to start the AutoLogin thread
@@ -53,7 +55,7 @@ namespace Bootstrap
 
 		if (lpClassName_in != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName_in) == 0)
 		{
-			static_cast<BootstrapEngine&>(m_Engine).InvokeAutoLogin(hWndResult);
+			m_Engine.InvokeAutoLogin(hWndResult);
 		}
 
 		return hWndResult;
