@@ -162,22 +162,17 @@ UINT __stdcall IDirect3DDevice9Wrapper::GetNumberOfSwapChains()
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresentationParameters) 
 {
+	// force vertical sync
+	pPresentationParameters->PresentationInterval = m_PresentParams.PresentationInterval;
+	pPresentationParameters->BackBufferCount = m_PresentParams.BackBufferCount;
+	pPresentationParameters->SwapEffect = m_PresentParams.SwapEffect;
+
 	return m_pDirect3dDevice->Reset(pPresentationParameters); 
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) 
 {
-	if (m_bRender)
-	{
-		HRESULT hRes = m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-/*
-		if (hRes == D3DERR_DEVICELOST)
-			m_pDirect3dDevice->Reset(&m_PresentParams);
-*/
-		return hRes;
-	}
-
-	return S_OK;
+	return m_bRender ? m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion) : S_OK;
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9** ppBackBuffer) 

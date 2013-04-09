@@ -21,7 +21,6 @@ namespace Windower
 	{
 	public:
 		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in);
-		~GraphicsCore();
 
 		void SetRendering(bool bEnable_in);
 		void ToggleRendering();
@@ -39,7 +38,7 @@ namespace Windower
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D9 device wrapper
-		DeviceWrappers m_DeviceWrappers;
+		IDirect3DDevice9Wrapper *m_pDeviceWrapper;
 		//! Direct3D9 wrapper
 		IDirect3D9Wrapper* m_pDirect3DWrapper;
 		//! number of devices to skip

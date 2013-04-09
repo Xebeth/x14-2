@@ -32,18 +32,6 @@ namespace Windower
 		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
 		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1) {}
 
-	//! \brief GraphicsCore destructor
-	GraphicsCore::~GraphicsCore()
-	{
-		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
-		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();		
-
-		for (; DevIt != EndDevIt; ++DevIt)
-			delete *DevIt;
-
-		m_DeviceWrappers.clear();
-	}
-
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
 		\param[in] SDKVersion_in : the DirectX SDK version
 		\return a pointer to the new device
@@ -59,13 +47,10 @@ namespace Windower
 			if (pDirect3D != NULL && m_SkipDeviceCount == 0)
 			{
 				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_VSync);
-				IDirect3DDevice9Wrapper *pDeviceWrapper = NULL;
 
 				m_pDirect3DWrapper = pDirect3DWrapper;
-				m_DeviceWrappers.push_back(pDeviceWrapper);				
-
 				// subscribe for a pointer to the Direct3DDevice wrapper
-				pDirect3DWrapper->Subscribe(&pDeviceWrapper);
+				pDirect3DWrapper->Subscribe(&m_pDeviceWrapper);
 
 				return pDirect3DWrapper;
 			}
@@ -79,38 +64,26 @@ namespace Windower
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
 	{
-		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
-		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
-
-		for (; DevIt != EndDevIt; ++DevIt)
-			(*DevIt)->ToggleRendering();
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->ToggleRendering();
 	}
 
 	void GraphicsCore::SetRendering(bool bEnable_in)
 	{
-		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
-		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
-
-		for (; DevIt != EndDevIt; ++DevIt)
-			(*DevIt)->SetRendering(bEnable_in);
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->SetRendering(bEnable_in);
 	}
 
 	void GraphicsCore::ToggleWireframe()
 	{
-		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
-		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
-
-		for (; DevIt != EndDevIt; ++DevIt)
-			(*DevIt)->ToggleWireframe();
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->ToggleWireframe();
 	}
 
 	void GraphicsCore::ToggleFPS()
 	{
-		DeviceWrappers::const_iterator EndDevIt = m_DeviceWrappers.end();
-		DeviceWrappers::const_iterator DevIt = m_DeviceWrappers.begin();
-
-		for (; DevIt != EndDevIt; ++DevIt)
-			(*DevIt)->ToggleFPS();
+		if (m_pDeviceWrapper != NULL)
+			m_pDeviceWrapper->ToggleFPS();
 	}
 
 	/*! \brief Register the hooks for this module

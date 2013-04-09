@@ -68,8 +68,10 @@ namespace Windower
 			m_pCmdLineCore = new CmdLineCore(*this, m_HookManager);
 			// create the player data module
 			m_pPlayerCore = new PlayerCore(*this, m_HookManager);
+#ifdef _DEBUG
 			// create the graphics module
-			// m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
+			m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
+#endif // _DEBUG
 		}
 	}
 

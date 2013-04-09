@@ -49,7 +49,7 @@ namespace Windower
 	/*! \brief Creates the main thread of the windower engine
 		\return a handle to the thread
 	*/
-	HANDLE SystemCore::CreateEngineThread()
+	HANDLE SystemCore::CreateEngineThread()			
 	{
 		if (m_hMainThreadHandle == NULL)
 		{
@@ -184,19 +184,29 @@ namespace Windower
 
 		if (hWnd_in == m_hGameWnd && uMsg_in == WM_KEYUP)
 		{
+			bool bCtrl = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000);
+
 			if (wParam_in == m_MinimizeVKey)
 			{
-				if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000)
+				if (bCtrl)
 				{
-//					m_Engine.Graphics().ToggleRendering();
+					m_Engine.Graphics().ToggleRendering();
 				}
 				else
 				{
-//					WindowerEngine.Graphics().SetRendering(false);
+					m_Engine.Graphics().SetRendering(false);
 					ShowWindow(m_hGameWnd, SW_MINIMIZE);
 				}
 
 				Result = FALSE;
+			}
+			else if (wParam_in == VK_F12 && bCtrl)
+			{
+				m_Engine.Graphics().ToggleFPS();
+			}
+			else if (wParam_in == VK_F10 && bCtrl)
+			{
+				m_Engine.Graphics().ToggleWireframe();
 			}
 		}
 
