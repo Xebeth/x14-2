@@ -128,6 +128,7 @@
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="string_t.h" />
     <ClInclude Include="utf8_convert.h" />
+    <ClInclude Include="UUID.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CryptUtils.cpp" />

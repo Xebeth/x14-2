@@ -33,10 +33,8 @@ namespace Windower
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
 
-		bool OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
-						   const StringNode* pMessage_in, const char *pOriginalMsg_in,
-						   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-						   DWORD &dwdwNewSize_out);
+		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+							const char *pOriginalMsg_in, char **pModifiedMsg_in_out);
 
 	protected:
 		virtual bool UnregisterCommands();

@@ -124,14 +124,11 @@
     <ClInclude Include="BaseEngine.h" />
     <ClInclude Include="CommandHandler.h" />
     <ClInclude Include="CommandParameter.h" />
-    <ClInclude Include="FormatChatMsgTypes.h" />
-    <ClInclude Include="IAutoLoginPlugin.h" />
     <ClInclude Include="ICommandHandler.h" />
     <ClInclude Include="ICoreModule.h" />
     <ClInclude Include="IGameChatPlugin.h" />
     <ClInclude Include="IPlayerDataPlugin.h" />
-    <ClInclude Include="ModuleService.h" />
-    <ClInclude Include="PlayerDataTypes.h" />
+    <ClInclude Include="IUiElement.h" />
     <ClInclude Include="PluginEngine.h" />
     <ClInclude Include="PluginSDK.h" />
     <ClInclude Include="PluginsServices.h" />
@@ -147,7 +144,6 @@
     <ClCompile Include="ICommandHandler.cpp" />
     <ClCompile Include="IGameChatPlugin.cpp" />
     <ClCompile Include="IPlayerDataPlugin.cpp" />
-    <ClCompile Include="ModuleService.cpp" />
     <ClCompile Include="PluginEngine.cpp" />
     <ClCompile Include="PluginsServices.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -156,6 +152,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WindowerCommand.cpp" />
+    <ClCompile Include="WindowerPlugin.cpp" />
     <ClCompile Include="WindowerSettingsManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

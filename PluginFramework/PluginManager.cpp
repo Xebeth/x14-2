@@ -9,7 +9,6 @@
 
 #include "FrameworkVersion.h"
 #include "VersionInfo.h"
-#include "PluginUUID.h"
 
 #include "IPluginServices.h"
 #include "IPlugin.h"
@@ -141,10 +140,10 @@ namespace PluginFramework
 	*/
 	bool PluginManager::CheckPluginInfo(const PluginInfo &Info_in) const
 	{
-		PluginUUID UUID(Info_in.GetIndentifier().c_str());
+		StringUtils::UUID PluginUUID(Info_in.GetIndentifier().c_str());
 
 		return (m_pServices != NULL && Info_in.m_FrameworkVersion == m_pServices->GetVersion()
-			 && m_Blacklist.find(UUID) == m_Blacklist.end());
+			 && m_Blacklist.find(PluginUUID) == m_Blacklist.end());
 	}
 
 	/*! \brief Registers a plugin
@@ -346,12 +345,12 @@ namespace PluginFramework
 
 	bool PluginManager::BlacklistPlugin(const string_t &UUID_in)
 	{
-		PluginUUID UUID(UUID_in.c_str());
-		Blacklist::const_iterator Iter = m_Blacklist.find(UUID);
+		StringUtils::UUID PluginUUID(UUID_in.c_str());
+		Blacklist::const_iterator Iter = m_Blacklist.find(PluginUUID);
 
 		if (Iter == m_Blacklist.end())
 		{
-			m_Blacklist.insert(UUID);
+			m_Blacklist.insert(PluginUUID);
 
 			return true;
 		}
@@ -361,8 +360,8 @@ namespace PluginFramework
 
 	bool PluginManager::WhitelistPlugin(const string_t &UUID_in)
 	{
-		PluginUUID UUID(UUID_in.c_str());
-		Blacklist::const_iterator Iter = m_Blacklist.find(UUID);
+		StringUtils::UUID PluginUUID(UUID_in.c_str());
+		Blacklist::const_iterator Iter = m_Blacklist.find(PluginUUID);
 
 		if (Iter != m_Blacklist.end())
 		{

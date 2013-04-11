@@ -92,17 +92,13 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
-		\param[in,out] pMessage_in : the message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
-		\param[in] dwOriginalMsgSize_in : the size of the original message
-		\param[in] pBuffer_in_out : the resulting text modified by the plugin
-		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
-		\return true if the message was logged; false otherwise
+		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
+		\param[in] dwNewSize_out : the new size of the message
+		\return the new size of the message if modified; 0 otherwise
 	*/
-	bool ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
-									   const StringNode* pMessage_in, const char *pOriginalMsg_in,
-									   DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									   DWORD &dwNewSize_out)
+	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+										const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
 		if (m_bStarted)
 		{
@@ -117,10 +113,8 @@ namespace Windower
 				++m_KillCounter;
 			}
 		}
-		// the message hasn't changed
-		dwNewSize_out = dwOriginalMsgSize_in;
 
-		return true;
+		return 0UL;
 	}
 
 	/*! \brief Executes the command specified by its ID

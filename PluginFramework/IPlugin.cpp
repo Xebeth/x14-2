@@ -9,7 +9,6 @@
 
 #include "FrameworkVersion.h"
 #include "VersionInfo.h"
-#include "PluginUUID.h"
 #include "IPlugin.h"
 
 #include "IPluginServices.h"

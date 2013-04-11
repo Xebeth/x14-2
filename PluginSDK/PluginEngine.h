@@ -47,11 +47,6 @@ namespace Windower
 
 		virtual bool Detach();
 
-		/*! \brief Callback that can be invoked when invoked when a successful call to a hook was made
-			\param[in] pHookName_in : the name of the hook
-		*/
-		virtual void OnHookCall(const char *pHookName_in) {}
-
 		PluginFramework::IPlugin* LoadPlugin(const string_t& PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t& PluginName_in);
 

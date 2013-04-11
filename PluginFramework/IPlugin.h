@@ -137,8 +137,8 @@ namespace PluginFramework
 	private:
 		//! flag specifying if the plugin information has been initialized
 		bool m_Initialized;
-		//! the plugin UUID
-		PluginUUID m_PluginIdentifier;
+		//! the plugin StringUtils::UUID
+		StringUtils::UUID m_PluginIdentifier;
 		//! the compatible framework version
 		VersionInfo m_FrameworkVersion;
 		//! the handle to the DLL
@@ -207,10 +207,10 @@ namespace PluginFramework
 		*/
 		const string_t& GetAuthor() const { return m_PluginInfo.m_Author; }
 
-		/*! \brief Retrieves the UUID of the plugin
-			\return the UUID of the plugin
+		/*! \brief Retrieves the StringUtils::UUID of the plugin
+			\return the StringUtils::UUID of the plugin
 		*/
-		const PluginUUID& GetUUID() const { return m_PluginInfo.m_PluginIdentifier; }
+		const StringUtils::UUID& GetUUID() const { return m_PluginInfo.m_PluginIdentifier; }
 
 		/*! \brief Retrieves the name of the plugin
 			\return the name of the plugin

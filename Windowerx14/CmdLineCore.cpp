@@ -15,6 +15,8 @@
 #include "CommandDispatcher.h"
 #include "CommandParser.h"
 
+#include "StringNode.h"
+
 namespace Windower
 {
 	CommandDispatcher* CmdLineCore::m_pCommandDispatcher = NULL;
@@ -54,8 +56,12 @@ namespace Windower
 	*/
 	bool WINAPI CmdLineCore::ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, char **pRawCmd_in)
 	{
+		bool Result = false;
+
 		if (m_pProcessCmdTrampoline != NULL)
 		{
+			StringNode OriginalCmd = *pCmd_in_out;
+			char *pFeedback = NULL;
 			std::string Feedback;
 
 			if (FilterCommands(pCmd_in_out, Feedback))
@@ -63,20 +69,20 @@ namespace Windower
 				// insert the echo command
 				Feedback.insert(0U, "/echo ");
 				// duplicate the buffer
-				char *pFeedback = _strdup(Feedback.c_str());
-				StringNode OriginalCmd = UpdateNode(pFeedback, Feedback.size() + 1, *pCmd_in_out);
-				bool Result = m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pRawCmd_in);
-
-				*pCmd_in_out = OriginalCmd;
-				free(pFeedback);
-
-				return Result;
+				pFeedback = _strdup(Feedback.c_str());
+				// update the node capacity to match the new size of the buffer
+				UpdateNode(pFeedback, Feedback.size() + 1, *pCmd_in_out);
 			}
-
-			return m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pRawCmd_in);
+			// call the trampoline to process the echo command
+			Result = m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pRawCmd_in);
+			// restore the command
+			*pCmd_in_out = OriginalCmd;
+			// cleanup
+			if (pFeedback != NULL)
+				free(pFeedback);
 		}
 
-		return false;
+		return Result;
 	}
 
 	/*! \brief Filters the commands aimed at Windower

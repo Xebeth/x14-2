@@ -17,13 +17,13 @@ namespace PluginFramework
 	class IPluginServices;
 	class RegisterParams;
 	class PluginInfo;
-	class PluginUUID;
+	class StringUtils::UUID;
 	class IPlugin;
 
-	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
 	typedef stdext::hash_map<string_t, RegisterParams*> LoadedPlugins;
-	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;
-	typedef std::set<PluginUUID> CompatiblePlugins, Blacklist;
+	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
+	typedef std::set<const TCHAR*> CompatiblePlugins, Blacklist;
+	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;	
 	typedef std::set<IPlugin*> PluginSet;
 
 	class PluginManager

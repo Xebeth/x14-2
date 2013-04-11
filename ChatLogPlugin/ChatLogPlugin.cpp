@@ -77,17 +77,13 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
-		\param[in,out] pMessage_in_out : the message (might have been modified by other plugins)
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
-		\param[in] dwOriginalMsgSize_in : the size of the original message
-		\param[in] pBuffer_in_out : the resulting text modified by the plugin
-		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
-		\return true if the message was logged; false otherwise
+		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
+		\param[in] dwNewSize_out : the new size of the message
+		\return the new size of the message if modified; 0 otherwise
 	*/
-	bool ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const StringNode *pSender_in,
-									  const StringNode *pMessage_in_out, const char *pOriginalMsg_in,
-									  DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-									  DWORD &dwNewSize_out)
+	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+									   const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && strlen(pOriginalMsg_in) > 0U)
 		{
@@ -96,7 +92,7 @@ namespace Windower
 			// update the timestamp
 			UpdateTimestamp();
 			// convert to Unicode
-			convert_utf8(pSender_in->pResBuf, Sender);
+			convert_utf8(pSender_in, Sender);
 			convert_utf8(pOriginalMsg_in, Message);
 			// format the line
 			if (Sender.empty())
@@ -111,10 +107,7 @@ namespace Windower
 			WriteLine(m_Buffer);
 		}
 
-		// the message wasn't modified
-		dwNewSize_out = dwOriginalMsgSize_in;
-
-		return true;
+		return 0UL;
 	}
 
 	/*! \brief Writes a line in the log file

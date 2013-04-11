@@ -7,6 +7,7 @@
 					Handles the AutoLogin plugin during the login process
 **************************************************************************/
 #include "stdafx.h"
+#include <IAutoLoginPlugin.h>
 
 #include "BootstrapEngine.h"
 

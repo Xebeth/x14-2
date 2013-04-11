@@ -7,9 +7,13 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "PlayerDataTypes.h"
 #include "WindowerPlugin.h"
 #include "IPlayerDataPlugin.h"
+
+#define PLAYER_DATA_MODULE			_T("PlayerData")
+// available services for the module
+#define GET_SELECTED_TARGET_HOOK	_T("GetSelectedTarget")
+#define INIT_CHARACTER_MGR_HOOK		_T("CharacterMgrInit")
 
 namespace Windower
 {
@@ -18,7 +22,7 @@ namespace Windower
 	*/
 	bool IPlayerDataPlugin::Subscribe()
 	{
-		return SubscribeService(_T(PLAYER_DATA_SERVICE), _T(INIT_CHARACTER_MGR_HOOK));
+		return SubscribeService(PLAYER_DATA_MODULE, INIT_CHARACTER_MGR_HOOK);
 	}
 
 	/*! \brief Removes the plugin as a subscriber to the game chat service
@@ -26,6 +30,6 @@ namespace Windower
 	*/
 	bool IPlayerDataPlugin::Unsubscribe()
 	{
-		return UnsubscribeService(_T(PLAYER_DATA_SERVICE), _T(INIT_CHARACTER_MGR_HOOK));
+		return UnsubscribeService(PLAYER_DATA_MODULE, INIT_CHARACTER_MGR_HOOK);
 	}
 }

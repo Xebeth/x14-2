@@ -14,17 +14,11 @@
 #define _WINDOWER_PLUGIN_SDK_INCLUDE_
 
 #include <ICoreModule.h>
-#include <ModuleService.h>
 
 #include <CommandParameter.h>
 #include <ICommandHandler.h>
 #include <CommandHandler.h>
 #include <WindowerCommand.h>
-
-#include <FormatChatMsgTypes.h>
-#include <PlayerDataTypes.h>
-
-#include <IAutoLoginPlugin.h>
 
 #include <WindowerPlugin.h>
 #include <IGameChatPlugin.h>

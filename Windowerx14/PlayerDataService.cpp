@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 
+#include "ModuleService.h"
 #include "PlayerDataService.h"
 
 namespace Windower
@@ -20,9 +21,9 @@ namespace Windower
 		: ModuleService(Name_in, Hooks_in, InvokePermission_in), m_pPlayerData(NULL), m_pPlayerTarget(NULL)
 	{
 		// add compatible plugins
-		PluginFramework::PluginUUID UUID;
+		StringUtils::UUID PluginUUID;
 
-		m_CompatiblePlugins.insert(UUID.FromString(_T("F4F02060-9ED0-11E2-9E96-0800200C9A66")));	// Distance
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("F4F02060-9ED0-11E2-9E96-0800200C9A66")));	// Distance
 	}
 
 	//! Creates the calling context for the service
@@ -31,12 +32,14 @@ namespace Windower
 		OnPlayerPtrChange(m_pPlayerData);
 	}
 
-	void PlayerDataService::OnPlayerPtrChange(const TargetData *pPlayerData_in)
+	void PlayerDataService::OnPlayerPtrChange(TargetData *pPlayerData_in)
 	{
 		m_pPlayerData = pPlayerData_in;
 
 		if (pPlayerData_in != NULL)
 		{
+			TargetPos Target = { &pPlayerData_in->PosX, &pPlayerData_in->PosX,
+								 &pPlayerData_in->PosX, pPlayerData_in->Name };
 			PluginFramework::PluginSet::const_iterator PluginIt;			
 			IPlayerDataPlugin *pPlugin;
 
@@ -45,26 +48,29 @@ namespace Windower
 				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
 				if (pPlugin != NULL)
-					pPlugin->OnPlayerPtrChange(m_pPlayerData);
+					pPlugin->OnPlayerPtrChange(Target);
 			}
 		}
 	}
 
-	void PlayerDataService::OnTargetPtrChange(const TargetData *pTargetData_in)
+	void PlayerDataService::OnTargetPtrChange(TargetData *pTargetData_in)
 	{
 		m_pPlayerTarget = pTargetData_in;
 
 		if (pTargetData_in != NULL)
 		{
-			PluginFramework::PluginSet::const_iterator PluginIt;			
+			TargetPos Target = { &pTargetData_in->PosX, &pTargetData_in->PosX,
+								 &pTargetData_in->PosX, pTargetData_in->Name };
+			PluginFramework::PluginSet::const_iterator PluginIt;
 			IPlayerDataPlugin *pPlugin;
+			
 
 			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
 			{
 				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
 				if (pPlugin != NULL)
-					pPlugin->OnTargetPtrChange(m_pPlayerTarget);
+					pPlugin->OnTargetPtrChange(Target);
 			}
 		}
 	}

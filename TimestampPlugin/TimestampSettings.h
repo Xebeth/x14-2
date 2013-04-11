@@ -10,10 +10,8 @@
 
 namespace Windower
 {
-	typedef Settings::SettingsIniFile SettingsIniFile;
-	
 	//! \brief Timestamp plugin settings
-	class TimestampSettings : public SettingsIniFile
+	class TimestampSettings : public Settings::SettingsIniFile
 	{
 	public:
 		TimestampSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in);

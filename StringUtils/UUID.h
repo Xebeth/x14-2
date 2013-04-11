@@ -1,36 +1,41 @@
 /**************************************************************************
 	created		:	2011-05-29
-	filename	: 	PluginUUID.h
+	filename	: 	UUID.h
 	author		:	xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	Plugin unique identifier
+	purpose		:	Unique identifier
 **************************************************************************/
-#ifndef __PLUGIN_UUID_H__
-#define __PLUGIN_UUID_H__
+#ifndef __UUID_H__
+#define __UUID_H__
 
-#ifndef _PLUGIN_FRAMEWORK_SDK_INCLUDE_
-	#error Please include the global header file 'PluginFramework.h'
+#ifndef _STRING_UTILS_SDK_INCLUDE_
+	#error Please include the global header file 'StringUtils.h'
 #endif
 
-namespace PluginFramework
+namespace StringUtils
 {
-	//! \brief Plugin unique identifier
-	class PluginUUID
+	//! \brief unique identifier
+	class UUID
 	{
 	public:
-		//! \brief PluginUUID default constructor
-		PluginUUID() : m_Data1(0), m_Data2(0), m_Data3(0),
-			m_Data4(0), m_Data5_1(0), m_Data5_2(0) {}
-		/*! \brief PluginUUID constructor
+		//! \brief UUID default constructor
+		UUID() : m_Data1(0), m_Data2(0), m_Data3(0),
+				 m_Data4(0), m_Data5_1(0), m_Data5_2(0) {}
+		/*! \brief UUID constructor
 			\param[in] pUID_in : the string version of the UUID
 		*/
-		explicit PluginUUID(const TCHAR* pUID_in) { FromString(pUID_in); }
+		explicit UUID(const TCHAR* pUID_in) { FromString(pUID_in); }
+
+		/*! \brief Implicit conversion to a string buffer
+			\return the string representation of the UUID
+		*/
+		operator const TCHAR*() const { return ToString().c_str(); }
 
 		/*! \brief Initializes the UUID from a string
 			\param[in] pUID_in : the string representation of the UUID
 			\return a reference to the UUID
 		*/
-		PluginUUID& FromString(const TCHAR* pUID_in)
+		UUID& FromString(const TCHAR* pUID_in)
 		{
 			// ex : BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9
 			_stscanf_s(pUID_in, _T("%08X-%04X-%04X-%04X-%08X%04X"),
@@ -53,7 +58,7 @@ namespace PluginFramework
 			\param[in] OtherUUID : the UUID to compare to
 			\return true if the UUIDs are equal; false otherwise
 		*/
-		bool operator == (const PluginUUID &OtherUUID) const
+		bool operator == (const UUID &OtherUUID) const
 		{
 			return (m_Data1 == OtherUUID.m_Data1
 				 && m_Data2 == OtherUUID.m_Data2
@@ -66,7 +71,7 @@ namespace PluginFramework
 			\param[in] OtherUUID : the UUID to compare to
 			\return bool
 		*/
-		bool operator < (const PluginUUID &OtherUUID) const
+		bool operator < (const UUID &OtherUUID) const
 		{
 			return (OtherUUID.m_Data1 < m_Data1);
 		}
@@ -87,4 +92,4 @@ namespace PluginFramework
 	};
 }
 
-#endif//__PLUGIN_UUID_H__
+#endif//__UUID_H__

@@ -2,33 +2,15 @@
 #include <d3dx9.h>
 #include <d3d9.h>
 
-#include "Font.h"
-#include "Timer.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
 IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice, D3DPRESENT_PARAMETERS &PresentParams_in)
-	: m_pDirect3dDevice(*pDirect3dDevice), m_bSceneStarted(false), m_PresentParams(PresentParams_in), m_RefCount(0UL),
-	  m_bRender(true), m_FillMode(0), m_bShowFPS(false), m_pFont(new Font), m_pRenderTimer(new Timer)
-{
-	m_pFont->Initialize(m_pDirect3dDevice, _T("Arial"), 12);
-	m_pRenderTimer->Start();
-}
+	: m_pDirect3dDevice(*pDirect3dDevice), m_PresentParams(PresentParams_in), 
+	  m_RefCount(0UL), m_bSceneStarted(false), m_bRender(true) {}
 
 IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 {
-	if (m_pRenderTimer != NULL)
-	{
-		delete m_pRenderTimer;
-		m_pRenderTimer = NULL;
-	}
-
-	if (m_pFont != NULL)
-	{
-		delete m_pFont;
-		m_pFont = NULL;
-	}
-
 	m_pDirect3dDevice = NULL;
 }
 
@@ -52,14 +34,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 	if (m_bRender && m_bSceneStarted == false)
 	{
 		Result = m_pDirect3dDevice->BeginScene();
-		m_bSceneStarted = (Result == S_OK);
-
-		if (m_bShowFPS && m_pRenderTimer != NULL && m_pFont != NULL)
-		{
-			m_pRenderTimer->Update();
-			format(m_FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS() * 0.02f);
-			m_pFont->Print(m_FPS.c_str(), 5, 5, D3DCOLOR_XRGB(255, 0, 0));
-		}
+		m_bSceneStarted = true;
 	}
 
 	return Result;
@@ -72,7 +47,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene()
 	if (m_bRender && m_bSceneStarted)
 	{
 		Result = m_pDirect3dDevice->EndScene();
-		m_bSceneStarted = !(Result == S_OK);
+		m_bSceneStarted = false;
 	}
 	
 	return Result;

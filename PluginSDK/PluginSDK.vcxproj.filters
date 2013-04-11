@@ -16,11 +16,11 @@
     <Filter Include="Services">
       <UniqueIdentifier>{36589a8a-8704-46d3-abf1-99d640bdea91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Plugins\Types">
-      <UniqueIdentifier>{627d43fd-4ecb-4ce1-aaf1-32ea0091bec2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Settings">
       <UniqueIdentifier>{dce84a34-b469-48c8-a8d6-c00cd3b61feb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{6e524299-0ae7-479a-beb7-aeb08c09b6c4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,9 +45,6 @@
     <ClCompile Include="ICommandHandler.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClCompile Include="ModuleService.cpp">
-      <Filter>Services</Filter>
-    </ClCompile>
     <ClCompile Include="IPlayerDataPlugin.cpp">
       <Filter>Plugins</Filter>
     </ClCompile>
@@ -56,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="WindowerSettingsManager.cpp">
       <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerPlugin.cpp">
+      <Filter>Plugins</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,17 +83,8 @@
     <ClInclude Include="ICommandHandler.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="ModuleService.h">
-      <Filter>Services</Filter>
-    </ClInclude>
     <ClInclude Include="ICoreModule.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="FormatChatMsgTypes.h">
-      <Filter>Plugins\Types</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerDataTypes.h">
-      <Filter>Plugins\Types</Filter>
     </ClInclude>
     <ClInclude Include="IPlayerDataPlugin.h">
       <Filter>Plugins</Filter>
@@ -105,14 +96,14 @@
     <ClInclude Include="PluginsServices.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="IAutoLoginPlugin.h">
-      <Filter>Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="WindowerSettings.h">
       <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="WindowerSettingsManager.h">
       <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="IUiElement.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

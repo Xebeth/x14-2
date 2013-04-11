@@ -13,8 +13,6 @@ namespace Windower
 	class IGameChatPlugin;
 	class WindowerEngine;
 
-	typedef HookEngineLib::IHookManager IHookManager;
-
 	//! \brief Game chat module
 	class GameChatCore : public WindowerCore
 	{
@@ -32,7 +30,7 @@ namespace Windower
 
 		ModuleService* CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in,
 									 bool InvokePermission_in = false);
-		bool RegisterHooks(const string_t& ServiceName_in, HookPointers &Hooks_out);
+		bool RegisterHooks(ModuleService *pService_in_out);
 		bool RegisterServices();
 
 	private:

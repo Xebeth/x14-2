@@ -27,7 +27,7 @@ namespace Windower
 				m_WorkingDir += '\\';
 
 			m_ConfigPath = m_WorkingDir + pIniFile_in;
-			m_pSettingsFile = new SettingsIniFile(m_ConfigPath);
+			m_pSettingsFile = new Settings::SettingsIniFile(m_ConfigPath);
 
 			if (m_pSettingsFile->Load())
 				bEmpty = !Load();

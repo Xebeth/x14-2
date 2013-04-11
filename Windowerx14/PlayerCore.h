@@ -17,8 +17,11 @@
 #define GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET	-11
 #define GET_SELECTED_TARGET_OPCODES_HOOK_SIZE			 11
 
+#define PLAYER_DATA_OFFSET								0x1B8
+
 namespace Windower
 {
+	typedef struct _TargetData TargetData;
 	class PlayerDataService;
 	class WindowerEngine;
 	

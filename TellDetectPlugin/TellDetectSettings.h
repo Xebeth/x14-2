@@ -10,10 +10,8 @@
 
 namespace Windower
 {
-	typedef Settings::SettingsIniFile SettingsIniFile;
-	
 	//! \brief TellDetect plugin settings
-	class TellDetectSettings : public SettingsIniFile
+	class TellDetectSettings : public Settings::SettingsIniFile
 	{
 	public:
 		TellDetectSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in);

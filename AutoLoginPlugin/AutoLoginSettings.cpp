@@ -16,7 +16,7 @@ namespace Bootstrap
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	AutoLoginSettings::AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in)
-		: SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_Language(1L), 
+		: Settings::SettingsIniFile(pSettingsFile_in), m_KeyHash(0L), m_Language(1L), 
 		  m_hParentWnd(NULL), m_ConfigFile(pSettingsFile_in), m_AutoSubmit(false)
 	{
 		if (pProfileName_in != NULL)
@@ -37,7 +37,7 @@ namespace Bootstrap
 		SetLong(m_SectionName.c_str(), _T("Language"), m_Language);		
 		SetHex(m_SectionName.c_str(), _T("KeyHash"), m_KeyHash);
 
-		return SettingsIniFile::Save();
+		return Settings::SettingsIniFile::Save();
 	}
 
 	/*! \brief Loads the settings from the INI file
@@ -45,7 +45,7 @@ namespace Bootstrap
 	*/
 	bool AutoLoginSettings::Load()
 	{
-		if (SettingsIniFile::Load())
+		if (Settings::SettingsIniFile::Load())
 		{
 			if (m_SectionName.empty())
 				m_SectionName = GetString(_T("General"), _T("CurrentProfile"), _T("Profile:Default"));

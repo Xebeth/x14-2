@@ -3,7 +3,7 @@
 	filename	: 	WindowerPlugin.h
 	author		:	Xebeth`
 	copyright	:	North-Edge (2012)
-	purpose		:	
+	purpose		:	Windower plugin base class
 **************************************************************************/
 #ifndef __WINDOWER_PLUGIN_H__
 #define __WINDOWER_PLUGIN_H__
@@ -14,20 +14,13 @@
 
 namespace Windower
 {
+	//! \brief Windower plugin base class
 	class WindowerPlugin : public PluginFramework::IPlugin
 	{
 	public:
-		/*! \brief WindowerPlugin constructor
-			\param[in] pServices_in : a pointer to the plugin services
-		*/
-		explicit WindowerPlugin(PluginFramework::IPluginServices *pServices_in)
-			: PluginFramework::IPlugin(pServices_in) {}
+		explicit WindowerPlugin(PluginFramework::IPluginServices *pServices_in);
 
-		/*! \brief Update method to be overloaded by plugins
-				   This method will be called in the main loop of the windower engine
-			\return true if any computation was performed; false otherwise
-		*/
-		virtual bool Update() { return false; }
+		virtual bool Update();
 	};
 }
 

@@ -19,6 +19,7 @@ namespace HookEngineLib
 
 namespace Windower
 {
+	class BaseModuleService;
 	class ModuleService;
 
 	//! \brief Base class for the windower modules
@@ -69,22 +70,6 @@ namespace Windower
 		static void SetPluginManager(PluginFramework::PluginManager &Manager_in_out) { m_pPluginManager = &Manager_in_out; }
 
 	protected:
-		/*! \brief Callback function invoked when a plugin subscribes to a service
-			\param[in] pService_in_out : the service to which to subscribe
-			\param[in] Subscribers_in : the subscribing plugin
-		*/
-		virtual void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) =0;
-		/*! \brief Callback function invoked when a plugin unsubscribes to a service
-			\param[in] pService_in_out : the service from which to unsubscribe
-			\param[in] Subscribers_in : the unsubscribing plugin
-		*/
-		virtual void OnUnsubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) =0;
-		/*! \brief Registers a service in the module
-			\param[in] ServiceName_in : the name of the service
-			\param[in] InvokePermission_in : flag specifying if the service can be invoked
-			\return true if the service is registered; false otherwise
-		*/
-		virtual ModuleService* RegisterService(const string_t& ServiceName_in, bool InvokePermission_in) =0;
 		//! the plugin manager
 		static PluginFramework::PluginManager *m_pPluginManager;
 	};

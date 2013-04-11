@@ -13,6 +13,8 @@
 #include "WindowerCore.h"
 #include "CommandDispatcher.h"
 
+#include "ModuleService.h"
+
 namespace Windower
 {
 	/*! \brief CommandDispatcher constructor

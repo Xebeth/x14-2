@@ -8,10 +8,6 @@
 #ifndef __MODULE_SERVICE_H__
 #define __MODULE_SERVICE_H__
 
-#ifndef _WINDOWER_PLUGIN_SDK_INCLUDE_
-	#error Please include the global header file 'PluginSDK.h'
-#endif
-
 //! the hooks of a service
 typedef stdext::hash_map<std::string, LPVOID> HookPointers;
 
@@ -30,15 +26,11 @@ namespace Windower
 		PluginFramework::PluginSet &m_Subscribers;
 	};
 
-	//! Module service
-	class ModuleService : public NonCopyable
+	class BaseModuleService : public NonCopyable
 	{
 	public:
-		ModuleService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in = false);
-
-		bool IsPluginCompatible(PluginFramework::IPlugin* pPlugin_in);
-		bool RemoveSubscriber(PluginFramework::IPlugin *pPlugin_in);
-		bool AddSubscriber(PluginFramework::IPlugin *pPlugin_in);
+		BaseModuleService(const string_t& Name_in, bool InvokePermission_in = false)
+			: m_ServiceName(Name_in), m_InvokePermission(InvokePermission_in) {}
 
 		/*! \brief Checks if the service can be invoked
 			\return true if the service can be invoked; false otherwise
@@ -48,14 +40,44 @@ namespace Windower
 			\return the name of the service
 		*/
 		const string_t& GetName() const { return m_ServiceName; }
+
+		/*! \brief Checks if plugins can subscribe to this service
+			\return true if plugins can subscribe; false otherwise
+		*/
+		virtual bool CanSubscribe() const { return false; }
+
+	protected:
+		//! the name of the service
+		string_t m_ServiceName;
+		//! flag specifying if the service can be invoked
+		bool m_InvokePermission;
+	};
+
+	//! Module service
+	class ModuleService : public BaseModuleService
+	{
+	public:
+		ModuleService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in = false);
+
+		bool SetPointer(const std::string &HookName_in, LPVOID pPointer_in, bool Create_in = false);
+		bool IsSubscriberKeyValid(PluginFramework::IPlugin* pPlugin_in);
+		bool RemoveSubscriber(PluginFramework::IPlugin *pPlugin_in);
+		bool AddSubscriber(PluginFramework::IPlugin *pPlugin_in);
+
+		/*! \brief Checks if plugins can subscribe to this service
+			\return true if plugins can subscribe; false otherwise
+		*/
+		bool CanSubscribe() const { return true; }
+
 		/*! \brief Retrieves the subscribers to the service
 			\return the set of plugins subscribing to the service
 		*/
 		const PluginFramework::PluginSet& GetSubscribers() const { return m_Subscribers; }
+
 		/*! \brief Retrieves the hooks associated with the service
 			\return the hooks associated with the service
 		*/
-		HookPointers& GetHooks() { return m_ServiceHooks; }
+		const HookPointers& GetHooks() { return m_ServiceHooks; }
 
 		//! Creates the calling context for the service
 		virtual void CreateContext() {}
@@ -63,10 +85,6 @@ namespace Windower
 		virtual void DestroyContext() {}
 
 	protected:
-		//! the name of the service
-		string_t m_ServiceName;
-		//! flag specifying if the service can be invoked
-		bool m_InvokePermission;
 		//! the service subscribers
 		PluginFramework::PluginSet m_Subscribers;
 		//! a set of compatible plugins

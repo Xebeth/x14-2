@@ -22,6 +22,8 @@
 #include "IDirect3DDevice9Wrapper.h"
 #include "Direct3D9Hook.h"
 
+using namespace UIAL;
+
 namespace Windower
 {
 	/*! \brief GraphicsCore constructor
@@ -30,7 +32,7 @@ namespace Windower
 	*/
 	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
 		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
-		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1) {}
+		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U) {}
 
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
 		\param[in] SDKVersion_in : the DirectX SDK version
@@ -74,34 +76,24 @@ namespace Windower
 			m_pDeviceWrapper->SetRendering(bEnable_in);
 	}
 
-	void GraphicsCore::ToggleWireframe()
-	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleWireframe();
-	}
-
 	void GraphicsCore::ToggleFPS()
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleFPS();
+		
 	}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
-	void GraphicsCore::RegisterHooks(IHookManager &HookManager_in)
+	void GraphicsCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-		if (m_VSync)
-		{
-			// register the Direct3DCreate9 hook
-			HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, ::Direct3DCreate9Hook);			
-		}
+		// register the Direct3DCreate9 hook
+		HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, ::Direct3DCreate9Hook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
 		\param[in] HookManager_in : the hook manager
 	*/
-	void GraphicsCore::OnHookInstall(IHookManager &HookManager_in)
+	void GraphicsCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");		
 	}

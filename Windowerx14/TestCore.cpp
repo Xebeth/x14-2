@@ -27,7 +27,7 @@ namespace Windower
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
-	void TestCore::RegisterHooks(IHookManager &HookManager_in)
+	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 	  	//HookManager_in.RegisterHook("On69C130", SIGSCAN_GAME_PROCESSA, (LPVOID)0x0069C130, ::Sub69C130Hook, 11);
 	}
@@ -35,7 +35,7 @@ namespace Windower
 	/*! \brief Callback invoked when the hooks of the module are installed
 		\param[in] HookManager_in : the hook manager
 	*/
-	void TestCore::OnHookInstall(IHookManager &HookManager_in)
+	void TestCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		//m_pSub69C130Trampoline = (fnSub69C130)HookManager_in.GetTrampolineFunc("On69C130");
 	}

@@ -14,6 +14,12 @@
 
 namespace Windower
 {
+	typedef struct _TargetPos
+	{
+		float *pPosX, *pPosY, *pPosZ;
+		const char *pTargetName;
+	} TargetPos;
+
 	//! \brief Base class for plugins subscribing to the FormatChatMessage service
 	class IPlayerDataPlugin : public WindowerPlugin
 	{
@@ -27,11 +33,11 @@ namespace Windower
 		/*! \brief Callback invoked when the game updates the player data pointer
 			\param[in] pPlayerData_in : pointer to the player data
 		*/
-		virtual void OnPlayerPtrChange(const TargetData *pPlayerData_in) =0;
+		virtual void OnPlayerPtrChange(const TargetPos &PlayerData_in) =0;
 		/*! \brief Callback invoked when the game updates the player data pointer
 			\param[in] pPlayerData_in : pointer to the player data
 		*/
-		virtual void OnTargetPtrChange(const TargetData *pTargetData_in) =0;
+		virtual void OnTargetPtrChange(const TargetPos &TargetData_in) =0;
 
 	protected:
 		virtual bool Unsubscribe();

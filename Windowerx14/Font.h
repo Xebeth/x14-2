@@ -30,8 +30,8 @@ public:
 
 	bool Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in,
 					bool Antialising_in = true, bool Bold_in = false, bool Italic_in = false);
-	void Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWORD Color_in, 
-			   int BoxWidth_in = 0, int BoxHeight_in = 0, FONTALIGNMENT Alignment_in = FA_LEFT);
+	void Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
+			   ULONG BoxWidth_in = 0UL, ULONG BoxHeight_in = 0UL, FONTALIGNMENT Alignment_in = FA_LEFT);
 	void Release();
 private:
 	//! the sprite used to draw text

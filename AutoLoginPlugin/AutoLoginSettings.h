@@ -10,10 +10,8 @@
 
 namespace Bootstrap
 {
-	typedef Settings::SettingsIniFile SettingsIniFile;
-	
 	//! \brief AutoLogin plugin settings
-	class AutoLoginSettings : public SettingsIniFile
+	class AutoLoginSettings : public Settings::SettingsIniFile
 	{
 	public:
 		AutoLoginSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in);

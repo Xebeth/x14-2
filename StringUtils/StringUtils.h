@@ -19,6 +19,7 @@
 #include <utf8_convert.h>
 
 #include <CryptUtils.h>
+#include <UUID.h>
 
 #ifdef _DEBUG
 	#pragma comment(lib, "StringUtils.x86d.lib")

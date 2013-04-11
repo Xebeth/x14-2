@@ -390,69 +390,6 @@ namespace HookEngineLib
 		VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
 	}
 
-	/*! \brief Installs a set of hooks given their names
-		\param[in] HookList_in : a list of the hooks to install
-		\return true if all the hooks were installed; false otherwise
-	*/
-	bool IHookManager::InstallHooks(HookPointers& HookList_in_out)
-	{
-		HookPointers::const_iterator EndIt = HookList_in_out.end();
-		HookPointers::iterator HookIt = HookList_in_out.begin();
-		LPVOID pTrampoline = NULL;
-		bool Result = true;
-
-		for (; HookIt != EndIt; ++HookIt)
-		{
-			// install the hook
-			pTrampoline = InstallHook(HookIt->first.c_str());
-			Result &= (pTrampoline != NULL);
-			HookIt->second = pTrampoline;			
-		}
-
-		return Result;
-	}
-
-	/*! \brief Installs a set of hooks given their names
-		\param[in] HookList_in : a list of the hooks to install
-		\return true if all the hooks were installed; false otherwise
-	*/
-	bool IHookManager::UninstallHooks(HookPointers& HookList_in_out)
-	{
-		HookPointers::const_iterator EndIt = HookList_in_out.end();
-		HookPointers::iterator HookIt = HookList_in_out.begin();
-		bool Result = true;
-
-		for (; HookIt != EndIt; ++HookIt)
-		{
-			// uninstall the hook
-			Result &= UninstallHook(HookIt->first.c_str());
-			HookIt->second = NULL;
-		}
-
-		return Result;
-	}
-
-	/*! \brief Installs a set of hooks given their names
-		\param[in] HookList_in : a list of the hooks to install
-		\return true if all the hooks were installed; false otherwise
-	*/
-	void IHookManager::UnregisterHooks(HookPointers& HookList_in_out)
-	{
-		HookPointers::const_iterator EndIt = HookList_in_out.end();
-		HookPointers::iterator HookIt = HookList_in_out.begin();
-		const char *pHookName = NULL;
-
-		for (; HookIt != EndIt; ++HookIt)
-		{
-			pHookName = HookIt->first.c_str();
-			// uninstall the hook if it's pointer is not NULL
-			if (HookIt->second != NULL)
-				UninstallHook(pHookName);
-			// unregister the hook
-			UnregisterHook(pHookName);
-		}
-	}
-
 	/*! \brief Finds a function within the specified module
 		\param[in] pModuleName_in : the name of the module exporting the function
 		\param[in] pFuncName_in : the name of the function to find

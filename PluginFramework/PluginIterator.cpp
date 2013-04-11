@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "PluginUUID.h"
 #include "VersionInfo.h"
 #include "IPlugin.h"
 

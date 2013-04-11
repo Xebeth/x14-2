@@ -13,14 +13,8 @@
     <Filter Include="Hooks">
       <UniqueIdentifier>{3ae4acc9-5b34-466a-a24d-f8be034193a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Bootstrap\Modules">
-      <UniqueIdentifier>{8432e5be-18f9-4cfa-b536-9f113d379356}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Bootstrap\Modules\System">
+    <Filter Include="Bootstrap\System">
       <UniqueIdentifier>{f7763c1c-bfea-478a-ae4b-597425ab36fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Bootstrap\Modules\Commands">
-      <UniqueIdentifier>{91a218cd-0d1c-4907-8838-de3013dd8d5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -37,14 +31,8 @@
     <ClCompile Include="CreateWindowExHook.cpp">
       <Filter>Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windowerx14\WindowerCore.cpp">
-      <Filter>Bootstrap\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="SystemCore.cpp">
-      <Filter>Bootstrap\Modules\System</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windowerx14\CommandDispatcher.cpp">
-      <Filter>Bootstrap\Modules\Commands</Filter>
+      <Filter>Bootstrap\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -63,14 +51,8 @@
     <ClInclude Include="CreateWindowExHook.h">
       <Filter>Hooks</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windowerx14\WindowerCore.h">
-      <Filter>Bootstrap\Modules</Filter>
-    </ClInclude>
     <ClInclude Include="SystemCore.h">
-      <Filter>Bootstrap\Modules\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windowerx14\CommandDispatcher.h">
-      <Filter>Bootstrap\Modules\Commands</Filter>
+      <Filter>Bootstrap\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

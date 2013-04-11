@@ -12,6 +12,7 @@
 #include "WindowerCore.h"
 #include "PlayerCore.h"
 
+#include "ModuleService.h"
 #include "PlayerDataService.h"
 
 #include "WindowerSettings.h"
@@ -24,7 +25,7 @@ namespace Windower
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
 	PlayerCore::PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(_T(PLAYER_DATA_SERVICE), Engine_in_out, HookManager_in_out),
+		: WindowerCore(_T(PLAYER_DATA_MODULE), Engine_in_out, HookManager_in_out),
 		  m_pPlayerData(NULL), m_pPlayerDataService(NULL),
 		  m_pCharMgrInitTrampoline(NULL), m_pGetTargetTrampoline(NULL) {}
 

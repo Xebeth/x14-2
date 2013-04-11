@@ -19,19 +19,16 @@ namespace Windower
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		void OnPlayerPtrChange(const TargetData *pPlayerData_in);
-		void OnTargetPtrChange(const TargetData *pTargetData_in);
+		void OnPlayerPtrChange(const TargetPos &PlayerData_in);
+		void OnTargetPtrChange(const TargetPos &TargetData_in);
 
 		bool Update();
 
 	private:
-		const float *m_pPlayerX, *m_pTargetX;
-		const float *m_pPlayerY, *m_pTargetY;
-		const float *m_pPlayerZ, *m_pTargetZ;
+		TargetPos m_PlayerPos;
+		TargetPos m_TargetPos;
 
 		float m_Distance;
-
-		char *m_pTargetName;
 	};
 }
 

@@ -16,8 +16,14 @@
 #define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-26
 #define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 12
 
+#define GAME_CHAT_MODULE			"GameChat"
+// available services for the module
+#define FORMAT_CHAT_MESSAGE_HOOK	"FormatChatMessage"
+
 namespace Windower
 {
+	typedef struct _StringNode StringNode;
+
 	// int __thiscall sub_570EC0(void *this, unsigned __int16 a2, int a3, int a4, __time64_t *ArgList) => search for %08X%04X in disassembly
 	typedef bool (WINAPI *fnFormatChatMessage)(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 											   StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);

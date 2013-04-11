@@ -133,7 +133,6 @@
     <ClInclude Include="PluginFramework.h" />
     <ClInclude Include="PluginIterator.h" />
     <ClInclude Include="PluginManager.h" />
-    <ClInclude Include="PluginUUID.h" />
     <ClInclude Include="VersionInfo.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

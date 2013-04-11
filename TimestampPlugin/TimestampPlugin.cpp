@@ -125,44 +125,41 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
-		\param[in,out] pMessage_in : the message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
-		\param[in] dwOriginalMsgSize_in : the size of the original message
-		\param[in] pBuffer_in_out : the resulting text modified by the plugin
-		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
-		\return the size of the message
+		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
+		\param[in] dwNewSize_out : the new size of the message
+		\return the new size of the message if modified; 0 otherwise
 	*/
-	bool TimestampPlugin::OnChatMessage(USHORT MessageType_in, const StringNode* pSender_in,
-										const StringNode* pMessage_in, const char *pOriginalMsg_in,
-										DWORD dwOriginalMsgSize_in, char **pBuffer_in_out,
-										DWORD &dwdwNewSize_out)
+	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+										 const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
-		if (pMessage_in != NULL && pMessage_in->pResBuf != NULL && strlen(pMessage_in->pResBuf) > 0U)
+		size_t OriginalSize = strlen(pOriginalMsg_in);
+		DWORD dwNewSize = 0UL;
+
+		if (pOriginalMsg_in != NULL && OriginalSize > 0U)
 		{
 			// add 11 characters for the timestamp
-			dwdwNewSize_out = pMessage_in->dwSize + m_TimestampLength;
+			dwNewSize = OriginalSize + m_TimestampLength;
 			// allocate a new buffer
-			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwdwNewSize_out * sizeof(char));
+			char *pRealloc = (char*)realloc(*pModifiedMsg_in_out, dwNewSize * sizeof(char));
 
 			if  (pRealloc != NULL)
 			{
-				*pBuffer_in_out = pRealloc;
+				*pModifiedMsg_in_out = pRealloc;
 				// clear the buffer
-				memset(*pBuffer_in_out, 0, dwdwNewSize_out);
+				memset(*pModifiedMsg_in_out, 0, dwNewSize);
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
 							   m_TimestampFormat.c_str(),
-							   *pBuffer_in_out, m_TimestampLength);
+							   *pModifiedMsg_in_out, m_TimestampLength);
 				// copy the original text
-				memcpy_s(*pBuffer_in_out + m_TimestampLength,
-						 pMessage_in->dwSize * sizeof(char),
-						 pMessage_in->pResBuf, pMessage_in->dwSize);
-
-				return true;
+				memcpy_s(*pModifiedMsg_in_out + m_TimestampLength, 
+						 OriginalSize * sizeof(char),
+						 pOriginalMsg_in, OriginalSize);
 			}
 		}
 
-		return false;
+		return dwNewSize;
 	}
 
 	

@@ -21,9 +21,6 @@
     <ClInclude Include="IPlugin.h">
       <Filter>Plugins</Filter>
     </ClInclude>
-    <ClInclude Include="PluginUUID.h">
-      <Filter>Plugins</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled headers</Filter>
     </ClInclude>

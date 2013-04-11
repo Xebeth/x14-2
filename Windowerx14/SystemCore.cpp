@@ -204,10 +204,6 @@ namespace Windower
 			{
 				m_Engine.Graphics().ToggleFPS();
 			}
-			else if (wParam_in == VK_F10 && bCtrl)
-			{
-				m_Engine.Graphics().ToggleWireframe();
-			}
 		}
 
 		return Result;
@@ -216,7 +212,7 @@ namespace Windower
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
-	void SystemCore::RegisterHooks(IHookManager &HookManager_in)
+	void SystemCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 		// register the RegisterClassExA hook
 		HookManager_in.RegisterHook("RegisterClassExA", "user32.dll", RegisterClassExA, ::RegisterClassExAHook);
@@ -227,7 +223,7 @@ namespace Windower
 	/*! \brief Callback invoked when the hooks of the module are installed
 		\param[in] HookManager_in : the hook manager
 	*/
-	void SystemCore::OnHookInstall(IHookManager &HookManager_in)
+	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		m_pRegisterClassExATrampoline = (fnRegisterClassExA)HookManager_in.GetTrampolineFunc("RegisterClassExA");
 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");

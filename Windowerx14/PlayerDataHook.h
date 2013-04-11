@@ -8,6 +8,11 @@
 #ifndef __PLAYER_DATA_HOOK_H__
 #define __PLAYER_DATA_HOOK_H__
 
+namespace Windower
+{
+	typedef struct _TargetData TargetData;
+}
+
 // int __thiscall sub_86B2D0(int this) ; CharacterMgrInit
 typedef int (WINAPI *fnCharacterMgrInit)(LPVOID pThis);
 int WINAPI CharacterMgrInitHook(LPVOID pThis);

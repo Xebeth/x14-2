@@ -17,7 +17,7 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	ModuleService::ModuleService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in)
-		: m_InvokePermission(InvokePermission_in), m_ServiceName(Name_in), m_ServiceHooks(Hooks_in) {}
+		: BaseModuleService(Name_in, InvokePermission_in), m_ServiceHooks(Hooks_in) {}
 
 	/*! \brief Adds a plugin to the subscribers of the service
 		\param[in] pPlugin_in : the plugin to add to the set
@@ -59,8 +59,26 @@ namespace Windower
 		\param[in] pPlugin_in : the plugin to check for compatibility
 		\return true if the plugin is compatible; false otherwise
 	*/
-	bool ModuleService::IsPluginCompatible(PluginFramework::IPlugin* pPlugin_in)
+	bool ModuleService::IsSubscriberKeyValid(PluginFramework::IPlugin* pPlugin_in)
 	{
 		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.end());
+	}
+
+	/*! \brief Adds a hook pointer to the service
+		\param[in] HookName_in : the name of the hook
+		\param[in] pPointer_in : the pointer for the hook
+		\param[in] Create_in : flag specifying if the pointer is to be created if it doesn't exist
+		\return true if the pointer was set; false otherwise
+	*/
+	bool ModuleService::SetPointer(const std::string &HookName_in, LPVOID pPointer_in, bool Create_in)
+	{
+		if (Create_in || m_ServiceHooks.find(HookName_in) != m_ServiceHooks.end())
+		{
+			m_ServiceHooks[HookName_in] = pPointer_in;
+
+			return true;
+		}
+
+		return false;
 	}
 }

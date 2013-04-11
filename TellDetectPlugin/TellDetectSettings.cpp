@@ -16,7 +16,7 @@ namespace Windower
 		\param[in] pSettingsFile_in : the path of the settings file
 	*/
 	TellDetectSettings::TellDetectSettings(const TCHAR *pSettingsFile_in, const TCHAR *pProfileName_in)
-		: SettingsIniFile(pSettingsFile_in)
+		: Settings::SettingsIniFile(pSettingsFile_in)
 	{
 		if (pProfileName_in != NULL)
 			m_SectionName = pProfileName_in;
@@ -32,7 +32,7 @@ namespace Windower
 	{
 		SetString(m_SectionName.c_str(), _T("TellSound"), m_SoundFilename);
 
-		return SettingsIniFile::Save();
+		return Settings::SettingsIniFile::Save();
 	}
 
 	/*! \brief Loads the settings from the INI file
@@ -40,7 +40,7 @@ namespace Windower
 	*/
 	bool TellDetectSettings::Load()
 	{
-		if (SettingsIniFile::Load())
+		if (Settings::SettingsIniFile::Load())
 		{
 			if (m_SectionName.empty())
 				m_SectionName = GetString(_T("General"), _T("CurrentProfile"), _T("Profile:Default"));

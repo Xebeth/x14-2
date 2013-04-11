@@ -14,9 +14,11 @@ namespace Windower
 {
 	//! \brief DistancePlugin constructor
 	DistancePlugin::DistancePlugin(PluginFramework::IPluginServices *pServices_in)
-		: IPlayerDataPlugin(pServices_in), m_Distance(0.f),
-		  m_pPlayerX(NULL), m_pPlayerY(NULL), m_pPlayerZ(NULL),
-		  m_pTargetX(NULL), m_pTargetY(NULL), m_pTargetZ(NULL){}
+		: IPlayerDataPlugin(pServices_in), m_Distance(0.f)
+	{
+		memset(&m_TargetPos, 0, sizeof(m_TargetPos));
+		memset(&m_PlayerPos, 0, sizeof(m_PlayerPos));
+	}
 
 	/*! \brief Creates an instance of DistancePlugin
 		\param[in] pServices_in : a pointer to the plugin services
@@ -52,44 +54,24 @@ namespace Windower
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 	}
 
-	void DistancePlugin::OnPlayerPtrChange(const TargetData *pPlayerData_in)
+	void DistancePlugin::OnPlayerPtrChange(const TargetPos &PlayerData_in)
 	{
-		if (pPlayerData_in != NULL)
-		{
-			m_pPlayerX = &pPlayerData_in->PosX;
-			m_pPlayerY = &pPlayerData_in->PosY;
-			m_pPlayerZ = &pPlayerData_in->PosZ;
-		}
-		else
-		{
-			m_pPlayerX = m_pPlayerY = m_pPlayerZ;
-		}
+		m_PlayerPos = PlayerData_in;
 	}
 
-	void DistancePlugin::OnTargetPtrChange(const TargetData *pTargetData_in)
+	void DistancePlugin::OnTargetPtrChange(const TargetPos &TargetData_in)
 	{
-		if (pTargetData_in != NULL)
-		{
-			m_pTargetName = const_cast<char*>(pTargetData_in->Name);
-			m_pTargetX = &pTargetData_in->PosX;
-			m_pTargetY = &pTargetData_in->PosY;
-			m_pTargetZ = &pTargetData_in->PosZ;			
-		}
-		else
-		{
-			m_pTargetX = m_pTargetY = m_pTargetZ;
-			m_pTargetName = NULL;
-		}
+		m_TargetPos = TargetData_in;
 	}
 
 	bool DistancePlugin::Update()
 	{
-		if (m_pPlayerX != NULL && m_pPlayerY != NULL && m_pPlayerZ != NULL
-		 && m_pTargetX != NULL && m_pTargetY != NULL && m_pTargetZ != NULL)
+		if (m_TargetPos.pPosX != NULL && m_TargetPos.pPosY != NULL && m_TargetPos.pPosZ != NULL
+		 && m_TargetPos.pPosX != NULL && m_TargetPos.pPosY != NULL && m_TargetPos.pPosZ != NULL)
 		{
-			float dX = *m_pPlayerX - *m_pTargetX;
-			float dY = *m_pPlayerY - *m_pTargetY;
-			float dZ = *m_pPlayerZ - *m_pTargetZ;
+			float dX = *m_PlayerPos.pPosX - *m_TargetPos.pPosX;
+			float dY = *m_PlayerPos.pPosY - *m_TargetPos.pPosY;
+			float dZ = *m_PlayerPos.pPosZ - *m_TargetPos.pPosZ;
 
 			m_Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
 

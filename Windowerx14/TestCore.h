@@ -10,7 +10,6 @@
 
 namespace Windower
 {
-	typedef HookEngineLib::IHookManager IHookManager;
 	class WindowerEngine;
 
 	//! \brief Test core module
@@ -22,8 +21,8 @@ namespace Windower
 		int Sub69C130Hook(LPVOID pThis);
 		
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager &HookManager_in);
-		void OnHookInstall(IHookManager &HookManager_in);
+		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
+		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
 		fnSub69C130 m_pSub69C130Trampoline;

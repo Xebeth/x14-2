@@ -12,9 +12,6 @@
 	#error Please include the global header file 'HookEngine.h'
 #endif
 
-//! the hooks of a service
-typedef stdext::hash_map<std::string, LPVOID> HookPointers;
-
 namespace SigScan
 {
 	class SigScan;
@@ -78,10 +75,6 @@ namespace HookEngineLib
 		LPVOID GetTrampolineFunc(const char* pFuncName_in) const;
 		LPVOID GetOriginalFunc(const char* pFuncName_in) const;
 		LPVOID GetHookFunc(const char* pFuncName_in) const;
-
-		bool InstallHooks(HookPointers& HookList_in_out);
-		bool UninstallHooks(HookPointers& HookList_in_out);
-		void UnregisterHooks(HookPointers& HookList_in_out);
 
 		LPVOID InstallHook(const char* pFuncName_in);
 		bool UninstallHook(const char* pFuncName_in);

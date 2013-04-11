@@ -10,7 +10,6 @@
 
 namespace Windower
 {
-	typedef HookEngineLib::IHookManager IHookManager;
 	class WindowerEngine;
 
 	//! the class name of the target window
@@ -34,8 +33,8 @@ namespace Windower
 		HANDLE CreateEngineThread();
 
 		// ICoreModule interface implementation
-		void RegisterHooks(IHookManager &HookManager_in);
-		void OnHookInstall(IHookManager &HookManager_in);
+		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
+		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 		// hooks
 		ATOM RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);

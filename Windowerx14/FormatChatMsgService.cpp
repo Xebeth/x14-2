@@ -7,6 +7,8 @@
 **************************************************************************/
 #include "stdafx.h"
 
+#include "StringNode.h"
+#include "ModuleService.h"
 #include "FormatChatMsgService.h"
 
 namespace Windower
@@ -22,12 +24,12 @@ namespace Windower
 		: ModuleService(Name_in, Hooks_in, InvokePermission_in)
 	{
 		// add compatible plugins
-		PluginFramework::PluginUUID UUID;
+		StringUtils::UUID PluginUUID;
 
-		m_CompatiblePlugins.insert(UUID.FromString(_T("745E1230-0C81-4220-B099-3A3392EFA03A")));	// ChatLog
-		m_CompatiblePlugins.insert(UUID.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B")));	// Timestamp
-		m_CompatiblePlugins.insert(UUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// TellDetect
-		m_CompatiblePlugins.insert(UUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// ExpWatch
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("745E1230-0C81-4220-B099-3A3392EFA03A")));	// ChatLog
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B")));	// Timestamp
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// TellDetect
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// ExpWatch
 	}
 
 	/*! \brief Formats a message received by the game chat log
@@ -83,8 +85,8 @@ namespace Windower
 
 					if (pPlugin != NULL)
 					{
-						pPlugin->OnChatMessage(MessageType_in, pSender_in_out, pMessage_in_out, pOriginalMsg,
-											   dwOriginalSize, &pModifiedMsg, dwResult);
+						dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf,
+														  pMessage_in_out->pResBuf, &pModifiedMsg);
 
 						if (pModifiedMsg != NULL && dwResult > dwNewSize)
 							dwNewSize = dwResult;
@@ -111,10 +113,10 @@ namespace Windower
 		{
 			DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
 			char *pOriginalSender = pSender_in_out->pResBuf;
-			StringNode OriginalMsg;
+			StringNode OriginalMsg = *pMessage_in_out;
 
 			if (pModifiedMsg_in != NULL)
-				OriginalMsg = UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
+				UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
 			// display the error message instead of the typed command
 			Result = ((fnFormatChatMessage)m_pContext->m_pTrampoline)(pThis_in_out, MessageType_in,
 																	  pSender_in_out, pMessage_in_out, NULL);

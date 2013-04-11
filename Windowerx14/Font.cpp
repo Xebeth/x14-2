@@ -49,13 +49,14 @@ bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, i
 	\param[in] BoxHeight_in : the height of the box used for alignment 
 	\param[in] Alignment_in : the alignment of the text
 */
-void Font::Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWORD Color_in,
-				 int BoxWidth_in, int BoxHeight_in, FONTALIGNMENT Alignment_in)
+void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
+				 ULONG BoxWidth_in, ULONG BoxHeight_in, FONTALIGNMENT Alignment_in)
 {
 	if (m_pFont == NULL || m_pTextSprite == NULL || pText_in == NULL)
 		return;
 
 	DWORD format = DT_EXPANDTABS;
+
 	if (BoxWidth_in == 0)
 	{
 		format |= DT_NOCLIP;
@@ -94,10 +95,11 @@ void Font::Print(const TCHAR* pText_in, int xPosition_in, int yPosition_in, DWOR
 			BoxHeight_in = 2000;
 		}
 	}
-	RECT rect = { xPosition_in, yPosition_in, xPosition_in + BoxWidth_in, yPosition_in + BoxHeight_in };
+
+	RECT SpriteRect = { xPosition_in, yPosition_in, xPosition_in + BoxWidth_in, yPosition_in + BoxHeight_in };
 
 	m_pTextSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
-	m_pFont->DrawText(m_pTextSprite, pText_in, -1, &rect, format, Color_in);
+	m_pFont->DrawText(m_pTextSprite, pText_in, -1, &SpriteRect, format, Color_in);
 	m_pTextSprite->End();
 }
 

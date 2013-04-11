@@ -55,6 +55,12 @@
     <Filter Include="Windower\Modules\Graphics\Hooks">
       <UniqueIdentifier>{28edd536-40a6-4e87-b327-3edfc532f153}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Windower\Modules\Graphics\Services">
+      <UniqueIdentifier>{c64ba57a-5659-4661-885f-39d2f06d34bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windower\Services">
+      <UniqueIdentifier>{2769741b-1c60-4dfe-b3fd-7cc812e9e97b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -126,6 +132,12 @@
     </ClCompile>
     <ClCompile Include="Direct3D9Hook.cpp">
       <Filter>Windower\Modules\Graphics\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="StringNode.cpp">
+      <Filter>Windower\Modules\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleService.cpp">
+      <Filter>Windower\Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +212,15 @@
     </ClInclude>
     <ClInclude Include="Direct3D9Hook.h">
       <Filter>Windower\Modules\Graphics\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="TextLabelService.h">
+      <Filter>Windower\Modules\Graphics\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="StringNode.h">
+      <Filter>Windower\Modules\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleService.h">
+      <Filter>Windower\Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

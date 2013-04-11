@@ -17,7 +17,7 @@ namespace Windower
 		\param[in] Modules_in : hash map of modules available to the plugins
 		\param[in] ConfigFile_in : the absolute path of the configuration file
 	*/
-	PluginServices::PluginServices(const PluginFramework::VersionInfo &Version_in, CoreModules &Modules_in, const string_t &ConfigFile_in)
+	PluginServices::PluginServices(const PluginFramework::VersionInfo &Version_in, const CoreModules &Modules_in, const string_t &ConfigFile_in)
 		: IPluginServices(Version_in), m_Modules(Modules_in), m_ConfigFile(ConfigFile_in) {}
 
 	/*! \brief Adds a plugin subscription to the service in the specified module

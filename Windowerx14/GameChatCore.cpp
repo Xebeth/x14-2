@@ -12,13 +12,15 @@
 
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
+
+#include "ModuleService.h"
 #include "FormatChatMsgService.h"
 
 namespace Windower
 {
 	/*! \brief GameChatCore constructor */
 	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(_T(GAME_CHAT_SERVICE), Engine_in_out, HookManager_in_out) {}
+		: WindowerCore(_T(GAME_CHAT_MODULE), Engine_in_out, HookManager_in_out) {}
 
 	/*! \brief Registers the services of the module
 		\return true if the services were registered; false otherwise
@@ -34,16 +36,16 @@ namespace Windower
 		\param[out] Hooks_out : the list of hooks to register
 		\return true if the hooks were registered; false otherwise
 	*/
-	bool GameChatCore::RegisterHooks(const string_t& ServiceName_in, HookPointers &Hooks_out)
+	bool GameChatCore::RegisterHooks(ModuleService *pService_in_out)
 	{
-		if (ServiceName_in.compare(_T(FORMAT_CHAT_MESSAGE_HOOK)) == 0)
+		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(FORMAT_CHAT_MESSAGE_HOOK)) == 0)
 		{
 			// register the format chat message hook
 			m_HookManager.RegisterHook(FORMAT_CHAT_MESSAGE_HOOK, SIGSCAN_GAME_PROCESSA, FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
 									   FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET, &FormatChatMsgService::FormatChatMessageHook, 
 									   FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 			// add it to the hook set
-			Hooks_out[FORMAT_CHAT_MESSAGE_HOOK] = NULL;
+			pService_in_out->SetPointer(FORMAT_CHAT_MESSAGE_HOOK, NULL);
 
 			return true;
 		}

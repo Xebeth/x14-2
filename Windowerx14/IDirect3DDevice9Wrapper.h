@@ -10,11 +10,8 @@ public:
 	virtual ~IDirect3DDevice9Wrapper();
 
 	bool IsRendering() const { return m_bRender; }
-	void ToggleFPS() { m_bShowFPS = !m_bShowFPS; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
 	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }
-	void ToggleWireframe()  { m_FillMode = (m_FillMode == D3DFILL_SOLID) ? D3DFILL_WIREFRAME : D3DFILL_SOLID;
-							  m_pDirect3dDevice->SetRenderState(D3DRS_FILLMODE, m_FillMode); }
 
 	/*** IUnknown methods ***/
 	HRESULT __stdcall QueryInterface(REFIID iid, void ** ppvObject);
@@ -161,14 +158,9 @@ protected:
 	D3DPRESENT_PARAMETERS m_PresentParams;
 	LPDIRECT3DDEVICE9 m_pDirect3dDevice;
 
-	Timer					*m_pRenderTimer;
-	string_t				 m_FPS;
-	Font					*m_pFont;
 	ULONG					 m_RefCount;
 
-	DWORD					 m_FillMode;
 	bool					 m_bRender;
-	bool					 m_bShowFPS;
 	bool					 m_bSceneStarted;
 };
 
