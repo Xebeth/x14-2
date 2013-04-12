@@ -59,8 +59,8 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/
-	ModuleService* GameChatCore::CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
+	BaseModuleService* GameChatCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
-		return new FormatChatMsgService(ServiceName_in, Hooks_in, InvokePermission_in);
+		return new FormatChatMsgService(ServiceName_in, InvokePermission_in);
 	}
 }

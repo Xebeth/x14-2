@@ -82,10 +82,10 @@ namespace Windower
 		\param[in] dwNewSize_out : the new size of the message
 		\return the new size of the message if modified; 0 otherwise
 	*/
-	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
 									   const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
-		if (StartLog() && pOriginalMsg_in != NULL && strlen(pOriginalMsg_in) > 0U)
+		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
 		{
 			string_t Sender, Message, Line;
 
@@ -107,7 +107,7 @@ namespace Windower
 			WriteLine(m_Buffer);
 		}
 
-		return 0UL;
+		return MsgSize_in;
 	}
 
 	/*! \brief Writes a line in the log file

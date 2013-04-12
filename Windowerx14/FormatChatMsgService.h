@@ -37,8 +37,7 @@ namespace Windower
 				: BaseContext(pTrampoline_in, Subscribers_in) {}
 		};
 	public:
-		FormatChatMsgService(const string_t& Name_in, const HookPointers &Hooks_in,
-							 bool InvokePermission_in = false);
+		FormatChatMsgService(const string_t& Name_in, bool InvokePermission_in = false);
 
 		static bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 												 StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);

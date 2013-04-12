@@ -33,11 +33,12 @@ namespace Windower
 	class WindowerCommand
 	{
 	public:
+		//! \brief WindowerCommand default constructor
 		WindowerCommand();
 		/*! \brief WindowerCommand copy constructor
 			\param[in] Command_in : the command to copy
 		*/
-		WindowerCommand(const WindowerCommand &Command_in) { Copy(Command_in); }
+		WindowerCommand(const WindowerCommand &Command_in);
 		/*! \brief WindowerCommand constructor
 			\param[in] RegistrationKey_in : the key of the plugin registering the command
 			\param[in] CmdID_in : the ID of the command
@@ -49,108 +50,117 @@ namespace Windower
 		*/
 		WindowerCommand(DWORD RegistrationKey_in, INT_PTR CmdID_in, const std::string &Name_in,
 						const std::string &Description_in, ICommandHandler *pHandler_in,
-						bool Public_in = true, bool Restricted_in = false)
-			: m_Description(Description_in), m_ID(CmdID_in), m_Name(Name_in), m_Restricted(Restricted_in), 
-			  m_MinParamsCount(0U), m_MaxParamsCount(0U), m_Public(Public_in), m_pHandler(pHandler_in),
-			  m_RegistrationKey(RegistrationKey_in), m_RefCount(0U) {}
+						bool Public_in = true, bool Restricted_in = false);
 		//! \brief WindowerCommand destructor
-		~WindowerCommand() { Clear(); }
+		~WindowerCommand();
 
+		/*! \brief Formats the help message for the command
+			\param[out] Help_out : a string receiving the formatted help message
+			\param[in] ShowValues_in : flag specifying if the description or value is displayed
+			\return the formatted help message
+		*/
 		std::string& Output(std::string &Output_out, bool ShowValues_in = false);
-
+		/*! \brief Copies the specified command
+			\param[in] Command_in : the command to copy
+		*/
 		void Copy(const WindowerCommand &Command_in);
+		//! \brief Removes all the parameters
 		void Clear();
 
 		//! \brief Method called when the command is registered
-		void OnRegister() { ++m_RefCount; }
+		void OnRegister();
 		/*! \brief Method called when the command is unregistered
 			\return true if the reference count reaches 0; false otherwise
 		*/
-		bool OnUnregister() { --m_RefCount; return (m_RefCount == 0); }
+		bool OnUnregister();
 
 		/*! \brief Retrieves the number of parameters
 			\return the number of parameters
 		*/
-		size_t Count() const { return m_Parameters.size(); }
+		size_t Count() const;
 		/*! \brief Checks if there is no parameter
 			\return true if there is no parameter; false otherwise
 		*/
-		bool IsEmpty() const { return m_Parameters.empty(); }
+		bool IsEmpty() const;
 
 		/*! \brief Retrieves the iterator for the beginning of the parameters map
 			\return the iterator for the beginning of the parameters map
 		*/
-		CommandParams::const_iterator Begin() const { return m_Parameters.begin(); }
+		CommandParams::const_iterator Begin() const;
 		/*! \brief Retrieves the iterator for the end of the parameters map
 			\return the iterator for the end of the parameters map
 		*/
-		CommandParams::const_iterator End() const { return m_Parameters.end(); }
+		CommandParams::const_iterator End() const;
 
+		/*! \brief Executes the command by invoking its callback
+			\param[out] Feedback_out : the result message of the execution
+			\return DISPATCHER_RESULT_SUCCESS if successful; an error code otherwise
+		*/
 		int Execute(std::string &Feedback_out);
+		//! \brief Sets a command to its default state
 		void Invalidate();
 
 		/*! \brief Checks if the command is public
 			\return true if the command is public; false otherwise
 		*/
-		bool IsPublic() const { return m_Public; }
+		bool IsPublic() const;
 		/*! \brief Sets the flag specifying if the command is public
 			\param[in] Public_in : the flag specifying if the command is public
 		*/
-		void SetPublic(bool Public_in) { m_Public = Public_in; }
+		void SetPublic(bool Public_in);
 
 		/*! \brief Checks if the command is restricted
 			\return true if the command is restricted; false otherwise
 		*/
-		bool IsRestricted() const { return m_Restricted; }
+		bool IsRestricted() const;
 		/*! \brief Sets the flag specifying if the command is restricted
 			\param[in] Public_in : the flag specifying if the command is restricted
 		*/
-		void SetRestricted(bool Public_in) { m_Public = Public_in; }
+		void SetRestricted(bool Public_in);
 
 		/*! \brief Retrieves the name of the command
 			\return the name of the command
 		*/
-		const std::string& GetName() const { return m_Name; }
+		const std::string& GetName() const;
 		/*! \brief Sets the name of the command
 			\param[in] Name_in : the name of the command
 		*/
-		void SetName(const std::string &Name_in) { m_Name = Name_in; }
+		void SetName(const std::string &Name_in);
 		/*! \brief Retrieves the key used to register the command
 			\return the key used to register the command
 		*/
-		DWORD GetKey() const { return m_RegistrationKey; }
+		DWORD GetKey() const;
 		/*! \brief Retrieves the ID of the command
 			\return the ID of the command
 		*/
-		INT_PTR GetID() const { return m_ID; }
+		INT_PTR GetID() const;
 
 		/*! \brief Checks if the specified key matches the command one
 			\return true if the keys match; false otherwise
 		*/
-		bool IsKeyMatching(DWORD Key_in) const { return (m_RegistrationKey == Key_in); }
+		bool IsKeyMatching(DWORD Key_in) const;
 		
 		/*! \brief Checks if the parameters of the command are consistent
 			return true if the parameters are correct; false otherwise
 		*/
-		bool ValidateParameters() const { return (m_MinParamsCount <= m_MaxParamsCount	\
-											   && m_Parameters.size() >= m_MaxParamsCount); }
+		bool ValidateParameters() const;
 		
 		/*! \brief Retrieves the parameters of the command
 			\return the parameters of the command
 		*/
-		const CommandParams& GetParameters() const { return m_Parameters; }
+		const CommandParams& GetParameters() const;
 		/*! \brief Retrieves the minimum number of parameters of the command
 			\return the minimum number of parameters of the command
 		*/
-		size_t GetMinParams() const { return m_MinParamsCount; }
+		size_t GetMinParams() const;
 		/*! \brief Retrieves the maximum number of parameters of the command
 			\return the maximum number of parameters of the command
 		*/
-		size_t GetMaxParams() const { return m_MaxParamsCount; }
+		size_t GetMaxParams() const;
 		/*! \brief Retrieves the number of parameters of the command
 			\return the number of parameters of the command
 		*/
-		size_t GetParametersCount() const { return m_Parameters.size(); }
+		size_t GetParametersCount() const;
 
 		bool AddStringParam(const std::string &Name_in, bool bOptional = false,
 							const char *pDefaultValue_in = "",
@@ -165,29 +175,75 @@ namespace Windower
 						   double DefaultValue_in = 0.,
 						   const char *pDesc_in = "a float value");
 
+		/*! \brief Sets the string value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\param[in] pDefaultValue_in : the string value of a parameter
+			\return true if the parameter value was set; false otherwise
+		*/
 		bool SetStringValue(const std::string &Name_in, const char *pDefaultValue_in = "");
+		/*! \brief Sets the pointer value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\param[in] DefaultValue_in : the pointer value of a parameter
+			\return true if the parameter value was set; false otherwise
+		*/
 		bool SetPointerValue(const std::string &Name_in, long DefaultValue_in = 0L);
+		/*! \brief Sets the integer value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\param[in] DefaultValue_in : the integer value of a parameter
+			\return true if the parameter value was set; false otherwise
+		*/
 		bool SetIntegerValue(const std::string &Name_in, long DefaultValue_in = 0L);
+		/*! \brief Sets the float value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\param[in] DefaultValue_in : the float value of a parameter
+			\return true if the parameter value was set; false otherwise
+		*/
 		bool SetFloatValue(const std::string &Name_in, double DefaultValue_in = 0.);
 
-		bool SetStringValue(CommandParameter *pParam_in, const std::string &DefaultValue_in);
-		bool SetPointerValue(CommandParameter *pParam_in, long DefaultValue_in = 0L);
-		bool SetIntegerValue(CommandParameter *pParam_in, long DefaultValue_in = 0L);
-		bool SetFloatValue(CommandParameter *pParam_in, double DefaultValue_in = 0.);
-
+		/*! \brief Retrieves the string value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\return the string value of a parameter
+		*/
 		const std::string GetStringValue(const std::string &Name_in) const;
+		/*! \brief Retrieves the string value of a parameter as unicode
+			\param[in] Name_in : the name of the parameter
+			\return the string value of a parameter as unicode
+		*/
 		const string_t GetWideStringValue(const std::string &Name_in) const;
+		/*! \brief Retrieves the integer value of a parameter formatted as hexadecimal
+			\param[in] Name_in : the name of the parameter
+			\return the pointer value of a parameter
+		*/
 		long GetPointerValue(const std::string &Name_in) const;
+		/*! \brief Retrieves the integer value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\return the integer value of a parameter
+		*/
 		long GetIntegerValue(const std::string &Name_in) const;
+		/*! \brief Retrieves the float value of a parameter
+			\param[in] Name_in : the name of the parameter
+			\return the float value of a parameter
+		*/
 		double GetFloatValue(const std::string &Name_in) const;
 
 	protected:
+		/*! \brief Retrieves a parameter given its name
+			\param[in] Name_in : the name of the parameter
+			\return a pointer to the parameter if it exists; NULL otherwise
+		*/
 		CommandParameter* GetParameter(const std::string &Name_in) const;
-
+		/*! \brief Creates a parameter of the specified type
+			\param[in] Name_in : the name of the parameter
+			\param[in] bOptional_in : flag specifying if the parameter is optional
+			\param[in] Desc_in : the description of the parameter
+			\param[in] Type_in : the type of the parameter
+			\return true a pointer to the parameter
+		*/
 		CommandParameter* CreateParameter(const std::string &Name_in,
 										  bool bOptional_in,
 										  const std::string &Desc_in,
 										  COMMAND_PARAM_TYPE Type_in);
+
 		//! flag specifying if the command is listed with //help
 		bool m_Public;
 		//! flag specifying if the command can be called by the user

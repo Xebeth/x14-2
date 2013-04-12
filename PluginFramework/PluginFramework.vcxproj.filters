@@ -41,6 +41,9 @@
     <ClInclude Include="FileIterator.h">
       <Filter>Iterators</Filter>
     </ClInclude>
+    <ClInclude Include="PluginInfo.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +60,15 @@
     </ClCompile>
     <ClCompile Include="FileIterator.cpp">
       <Filter>Iterators</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginInfo.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="VersionInfo.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="IPluginServices.cpp">
+      <Filter>Plugin Services</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

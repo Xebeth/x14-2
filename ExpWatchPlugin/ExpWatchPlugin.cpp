@@ -92,12 +92,13 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
+		\param[in] MsgSize_in : the size of the unmodified message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 		\param[in] dwNewSize_out : the new size of the message
 		\return the new size of the message if modified; 0 otherwise
 	*/
-	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
 										const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
 		if (m_bStarted)
@@ -114,7 +115,7 @@ namespace Windower
 			}
 		}
 
-		return 0UL;
+		return MsgSize_in;
 	}
 
 	/*! \brief Executes the command specified by its ID

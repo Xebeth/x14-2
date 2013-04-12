@@ -290,10 +290,6 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Retrieves the position of the profile specified by its name
-		\param[in] pProfileName_in : the name of the profile
-		\return the position of the profile
-	*/
 	WindowerSettings::const_iterator SettingsManager::GetSettingsPos(const TCHAR *pProfileName_in)
 	{
 		return m_Profiles.find(pProfileName_in);
@@ -494,9 +490,6 @@ namespace Windower
 		return true;
 	}
 
-	/*! \brief Checks the configuration file and attempts to fix errors
-		\return true if the configuration file is valid; false otherwise
-	*/
 	bool SettingsManager::VerifyConfig()
 	{
 		if (m_pSettingsFile != NULL)
@@ -558,4 +551,7 @@ namespace Windower
 
 		return false;
 	}
+
+	void SettingsManager::SetDefaultProfile(const TCHAR *pProfileName_in)
+	{ m_DefaultProfile = pProfileName_in; }
 }

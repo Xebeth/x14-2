@@ -13,7 +13,6 @@
 
 namespace Windower
 {
-	//! strings representing the parameter types
 	char* WindowerCommand::CommandParamTypes[COMMAND_PARAM_TYPE_COUNT] =
 	{
 		"string",	// string
@@ -22,15 +21,21 @@ namespace Windower
 		"float"		// float
 	};
 
-	//! \brief WindowerCommand default constructor
-	WindowerCommand::WindowerCommand() : m_RefCount(0U)
-	{
-		Invalidate();
-	}
+	WindowerCommand::WindowerCommand()
+		: m_RefCount(0U) { Invalidate(); }
 
-	/*! \brief Copies the specified command
-		\param[in] Command_in : the command to copy
-	*/
+	WindowerCommand::WindowerCommand(const WindowerCommand &Command_in)
+	{ Copy(Command_in); }
+
+	WindowerCommand::WindowerCommand(DWORD RegistrationKey_in, INT_PTR CmdID_in, const std::string &Name_in,
+									 const std::string &Description_in, ICommandHandler *pHandler_in,
+									 bool Public_in, bool Restricted_in)
+		: m_Description(Description_in), m_ID(CmdID_in), m_Name(Name_in), m_Restricted(Restricted_in), 
+		  m_MinParamsCount(0U), m_MaxParamsCount(0U), m_Public(Public_in), m_pHandler(pHandler_in),
+		  m_RegistrationKey(RegistrationKey_in), m_RefCount(0U) {}
+
+	WindowerCommand::~WindowerCommand() { Clear(); }
+
 	void WindowerCommand::Copy(const WindowerCommand &Command_in)
 	{
 		m_MinParamsCount = Command_in.m_MinParamsCount;
@@ -48,11 +53,6 @@ namespace Windower
 			m_Parameters[ParamIt->first] = new CommandParameter(*ParamIt->second);
 	}
 
-	/*! \brief Formats the help message for the command
-		\param[out] Help_out : a string receiving the formatted help message
-		\param[in] ShowValues_in : flag specifying if the description or value is displayed
-		\return the formatted help message
-	*/
 	std::string& WindowerCommand::Output(std::string &Help_out, bool ShowValues_in)
 	{
 		if (m_Public && m_Parameters.empty() == false)
@@ -120,7 +120,6 @@ namespace Windower
 		return Help_out;
 	}
 
-	//! \brief Sets a command to its default state
 	void WindowerCommand::Invalidate()
 	{
 		m_MinParamsCount = m_MaxParamsCount = 0U;
@@ -134,10 +133,6 @@ namespace Windower
 		m_ID = -1;
 	}
 
-	/*! \brief Executes the command by invoking its callback
-		\param[out] Feedback_out : the result message of the execution
-		\return DISPATCHER_RESULT_SUCCESS if successful; an error code otherwise
-	*/
 	int WindowerCommand::Execute(std::string &Feedback_out)
 	{
 		if (m_pHandler != NULL)
@@ -148,10 +143,6 @@ namespace Windower
 		return DISPATCHER_RESULT_INVALID_CALL;
 	}
 
-	/*! \brief Retrieves the string value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\return the string value of a parameter
-	*/
 	const std::string WindowerCommand::GetStringValue(const std::string &Name_in) const
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -162,10 +153,6 @@ namespace Windower
 		return "";
 	}
 
-	/*! \brief Retrieves the string value of a parameter as unicode
-		\param[in] Name_in : the name of the parameter
-		\return the string value of a parameter as unicode
-	*/
 	const string_t WindowerCommand::GetWideStringValue(const std::string &Name_in) const
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -177,11 +164,6 @@ namespace Windower
 		return Result;
 	}
 
-	/*! \brief Sets the string value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\param[in] pDefaultValue_in : the string value of a parameter
-		\return true if the parameter value was set; false otherwise
-	*/
 	bool WindowerCommand::SetStringValue(const std::string &Name_in, const char *pDefaultValue_in)
 	{
 		std::string Value = (pDefaultValue_in != NULL) ? pDefaultValue_in : "";
@@ -197,10 +179,6 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Retrieves the integer value of a parameter formatted as hexadecimal
-		\param[in] Name_in : the name of the parameter
-		\return the pointer value of a parameter
-	*/
 	long WindowerCommand::GetPointerValue(const std::string &Name_in) const
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -211,11 +189,6 @@ namespace Windower
 		return 0L;
 	}
 
-	/*! \brief Sets the pointer value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\param[in] DefaultValue_in : the pointer value of a parameter
-		\return true if the parameter value was set; false otherwise
-	*/
 	bool WindowerCommand::SetPointerValue(const std::string &Name_in, long DefaultValue_in)
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -229,11 +202,7 @@ namespace Windower
 
 		return false;
 	}
-	
-	/*! \brief Retrieves the integer value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\return the integer value of a parameter
-	*/
+
 	long WindowerCommand::GetIntegerValue(const std::string &Name_in) const
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -244,11 +213,6 @@ namespace Windower
 		return 0L;
 	}
 
-	/*! \brief Sets the integer value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\param[in] DefaultValue_in : the integer value of a parameter
-		\return true if the parameter value was set; false otherwise
-	*/
 	bool WindowerCommand::SetIntegerValue(const std::string &Name_in, long DefaultValue_in)
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -263,10 +227,6 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Retrieves the float value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\return the float value of a parameter
-	*/
 	double WindowerCommand::GetFloatValue(const std::string &Name_in) const
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -277,11 +237,6 @@ namespace Windower
 		return 0.;
 	}
 
-	/*! \brief Sets the float value of a parameter
-		\param[in] Name_in : the name of the parameter
-		\param[in] DefaultValue_in : the float value of a parameter
-		\return true if the parameter value was set; false otherwise
-	*/
 	bool WindowerCommand::SetFloatValue(const std::string &Name_in, double DefaultValue_in)
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
@@ -296,7 +251,6 @@ namespace Windower
 		return false;
 	}
 
-	//! \brief Removes all the parameters
 	void WindowerCommand::Clear()	
 	{
 		CommandParams::iterator ParamIt;
@@ -306,11 +260,7 @@ namespace Windower
 
 		Invalidate();
 	}
-	
-	/*! \brief Retrieves a parameter given its name
-		\param[in] Name_in : the name of the parameter
-		\return a pointer to the parameter if it exists; NULL otherwise
-	*/
+
 	CommandParameter* WindowerCommand::GetParameter(const std::string &Name_in) const
 	{
 		CommandParams::const_iterator ParamIt = m_Parameters.find(Name_in);
@@ -321,13 +271,6 @@ namespace Windower
 		return NULL;
 	}
 
-	/*! \brief Creates a parameter of the specified type
-		\param[in] Name_in : the name of the parameter
-		\param[in] bOptional_in : flag specifying if the parameter is optional
-		\param[in] Desc_in : the description of the parameter
-		\param[in] Type_in : the type of the parameter
-		\return true a pointer to the parameter
-	*/
 	CommandParameter* WindowerCommand::CreateParameter(const std::string &Name_in,
 													   bool bOptional_in,
 													   const std::string &Desc_in,
@@ -454,5 +397,141 @@ namespace Windower
 		}
 
 		return false;
+	}
+
+	bool WindowerCommand::OnUnregister()
+	{ --m_RefCount; return (m_RefCount == 0); }
+	void WindowerCommand::OnRegister()
+	{ ++m_RefCount; }
+
+	/*! \brief 
+	*/
+	size_t WindowerCommand::Count() const
+	{
+		return m_Parameters.size();
+	}
+
+	/*! \brief 
+	*/
+	bool WindowerCommand::IsEmpty() const
+	{
+		return m_Parameters.empty();
+	}
+
+	/*! \brief 
+	*/
+	CommandParams::const_iterator WindowerCommand::Begin() const
+	{
+		return m_Parameters.begin();
+	}
+
+	/*! \brief 
+	*/
+	CommandParams::const_iterator WindowerCommand::End() const
+	{
+		return m_Parameters.end();
+	}
+
+	/*! \brief 
+	*/
+	bool WindowerCommand::IsPublic() const
+	{
+		return m_Public;
+	}
+
+	/*! \brief 
+	\param[] Public_in : 
+	*/
+	void WindowerCommand::SetPublic(bool Public_in)
+	{
+		m_Public = Public_in;
+	}
+
+	/*! \brief 
+	*/
+	bool WindowerCommand::IsRestricted() const
+	{
+		return m_Restricted;
+	}
+
+	/*! \brief 
+	\param[] Public_in : 
+	*/
+	void WindowerCommand::SetRestricted(bool Public_in)
+	{
+		m_Public = Public_in;
+	}
+
+	/*! \brief 
+	*/
+	const std::string& WindowerCommand::GetName() const
+	{
+		return m_Name;
+	}
+
+	/*! \brief 
+	\param[] Name_in : 
+	*/
+	void WindowerCommand::SetName(const std::string &Name_in)
+	{
+		m_Name = Name_in;
+	}
+
+	/*! \brief 
+	*/
+	DWORD WindowerCommand::GetKey() const
+	{
+		return m_RegistrationKey;
+	}
+
+	/*! \brief 
+	*/
+	INT_PTR WindowerCommand::GetID() const
+	{
+		return m_ID;
+	}
+
+	/*! \brief 
+	\param[] Key_in : 
+	*/
+	bool WindowerCommand::IsKeyMatching(DWORD Key_in) const
+	{
+		return (m_RegistrationKey == Key_in);
+	}
+
+	/*! \brief 
+	*/
+	bool WindowerCommand::ValidateParameters() const
+	{
+		return (m_MinParamsCount <= m_MaxParamsCount	\
+			&& m_Parameters.size() >= m_MaxParamsCount);
+	}
+
+	/*! \brief 
+	*/
+	const CommandParams& WindowerCommand::GetParameters() const
+	{
+		return m_Parameters;
+	}
+
+	/*! \brief 
+	*/
+	size_t WindowerCommand::GetMinParams() const
+	{
+		return m_MinParamsCount;
+	}
+
+	/*! \brief 
+	*/
+	size_t WindowerCommand::GetMaxParams() const
+	{
+		return m_MaxParamsCount;
+	}
+
+	/*! \brief 
+	*/
+	size_t WindowerCommand::GetParametersCount() const
+	{
+		return m_Parameters.size();
 	}
 }

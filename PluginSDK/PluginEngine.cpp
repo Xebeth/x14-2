@@ -125,10 +125,6 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Loads a set of plugins
-		\param[in] PluginSet_in : a list of plugins name to load
-		\return the number of loaded plugins
-	*/
 	size_t PluginEngine::LoadPlugins(const ActivePlugins& PluginSet_in)
 	{
 		size_t Count = 0U;
@@ -142,12 +138,6 @@ namespace Windower
 		return Count;
 	}
 
-   
-
-	/*! \brief Lists all the available plugins and their state (loaded or not)
-		\param[out] Feedback_out : the string receiving the result
-		\return true if the list was retrieved successfully; false otherwise
-	*/
 	bool PluginEngine::ListPlugins(std::string& Feedback_out) const
 	{
 		if  (m_pPluginManager != NULL)
@@ -199,9 +189,6 @@ namespace Windower
 		return false;
 	}
 
-	/*! \brief Retrieves the compatibility flags of the plugin
-		\return the compatibility flags text
-	*/
 	const wchar_t* PluginEngine::GetCompatibilityFlagsText(DWORD Flags_in)
 	{
 		switch(Flags_in)
@@ -217,9 +204,6 @@ namespace Windower
 		return L"None";
 	}
 
-	/*! \brief Sets the working directory of windower
-		\param[in] hModule_in : the handle of the DLL
-	*/
 	void PluginEngine::SetWorkingDir(HMODULE hModule_in)
 	{
 		wchar_t DirPath[_MAX_PATH] = { '\0' };
@@ -236,5 +220,10 @@ namespace Windower
 			// set the working directory
 			m_WorkingDir.assign(DirPath);
 		}
+	}
+
+	const string_t& PluginEngine::GetWorkingDir() const
+	{
+		return m_WorkingDir;
 	}
 }

@@ -20,8 +20,8 @@ namespace Windower
 		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
-	FormatChatMsgService::FormatChatMsgService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in)
-		: ModuleService(Name_in, Hooks_in, InvokePermission_in)
+	FormatChatMsgService::FormatChatMsgService(const string_t& Name_in, bool InvokePermission_in)
+		: ModuleService(Name_in, InvokePermission_in)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -86,7 +86,7 @@ namespace Windower
 					if (pPlugin != NULL)
 					{
 						dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf,
-														  pMessage_in_out->pResBuf, &pModifiedMsg);
+														  dwOriginalSize, pOriginalMsg, &pModifiedMsg);
 
 						if (pModifiedMsg != NULL && dwResult > dwNewSize)
 							dwNewSize = dwResult;

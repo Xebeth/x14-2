@@ -17,8 +17,8 @@ namespace Windower
 		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
-	PlayerDataService::PlayerDataService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in)
-		: ModuleService(Name_in, Hooks_in, InvokePermission_in), m_pPlayerData(NULL), m_pPlayerTarget(NULL)
+	PlayerDataService::PlayerDataService(const string_t& Name_in, bool InvokePermission_in)
+		: ModuleService(Name_in, InvokePermission_in), m_pPlayerData(NULL), m_pPlayerTarget(NULL)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -34,22 +34,26 @@ namespace Windower
 
 	void PlayerDataService::OnPlayerPtrChange(TargetData *pPlayerData_in)
 	{
+		PluginFramework::PluginSet::const_iterator PluginIt;			
+		IPlayerDataPlugin *pPlugin;
+		TargetPos PlayerData;
+
 		m_pPlayerData = pPlayerData_in;
 
-		if (pPlayerData_in != NULL)
+		if (m_pPlayerData != NULL)
 		{
-			TargetPos Target = { &pPlayerData_in->PosX, &pPlayerData_in->PosX,
-								 &pPlayerData_in->PosX, pPlayerData_in->Name };
-			PluginFramework::PluginSet::const_iterator PluginIt;			
-			IPlayerDataPlugin *pPlugin;
+			PlayerData.pPosX = &pPlayerData_in->PosX;
+			PlayerData.pPosY = &pPlayerData_in->PosY;
+			PlayerData.pPosZ = &pPlayerData_in->PosZ;
+			PlayerData.pTargetName = pPlayerData_in->Name;
+		}
 
-			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
-			{
-				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
+		for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
+		{
+			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
-				if (pPlugin != NULL)
-					pPlugin->OnPlayerPtrChange(Target);
-			}
+			if (pPlugin != NULL)
+				pPlugin->OnPlayerPtrChange(PlayerData);
 		}
 	}
 
@@ -57,21 +61,24 @@ namespace Windower
 	{
 		m_pPlayerTarget = pTargetData_in;
 
+		PluginFramework::PluginSet::const_iterator PluginIt;
+		IPlayerDataPlugin *pPlugin;
+		TargetPos PlayerTarget;
+
 		if (pTargetData_in != NULL)
 		{
-			TargetPos Target = { &pTargetData_in->PosX, &pTargetData_in->PosX,
-								 &pTargetData_in->PosX, pTargetData_in->Name };
-			PluginFramework::PluginSet::const_iterator PluginIt;
-			IPlayerDataPlugin *pPlugin;
-			
+			PlayerTarget.pPosX = &pTargetData_in->PosX;
+			PlayerTarget.pPosY = &pTargetData_in->PosY;
+			PlayerTarget.pPosZ = &pTargetData_in->PosZ;
+			PlayerTarget.pTargetName = pTargetData_in->Name;
+		}
 
-			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
-			{
-				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
+		for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
+		{
+			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
-				if (pPlugin != NULL)
-					pPlugin->OnTargetPtrChange(Target);
-			}
+			if (pPlugin != NULL)
+				pPlugin->OnTargetPtrChange(PlayerTarget);
 		}
 	}
 }

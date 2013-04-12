@@ -16,6 +16,9 @@ namespace Windower
 {
 	typedef struct _TargetPos
 	{
+	public:
+		_TargetPos() : pPosX(NULL), pPosY(NULL), pPosZ(NULL), pTargetName(NULL) {}
+
 		float *pPosX, *pPosY, *pPosZ;
 		const char *pTargetName;
 	} TargetPos;

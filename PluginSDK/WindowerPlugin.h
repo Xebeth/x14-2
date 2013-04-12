@@ -21,6 +21,14 @@ namespace Windower
 		explicit WindowerPlugin(PluginFramework::IPluginServices *pServices_in);
 
 		virtual bool Update();
+
+	protected:
+		virtual bool UnregisterCommands();
+		virtual bool RegisterCommands();
+
+	private:
+		void OnDestroy();
+		void OnCreate();
 	};
 }
 

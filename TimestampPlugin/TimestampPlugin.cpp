@@ -125,21 +125,21 @@ namespace Windower
 	/*! \brief Callback invoked when the game chat receives a new line
 		\param[in] MessageType_in : the type of the message
 		\param[in] pSender_in : the sender of the message
+		\param[in] MsgSize_in : the size of the unmodified message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 		\param[in] dwNewSize_out : the new size of the message
 		\return the new size of the message if modified; 0 otherwise
 	*/
-	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
 										 const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
 	{
-		size_t OriginalSize = strlen(pOriginalMsg_in);
-		DWORD dwNewSize = 0UL;
+		DWORD dwNewSize = MsgSize_in;
 
-		if (pOriginalMsg_in != NULL && OriginalSize > 0U)
+		if (pOriginalMsg_in != NULL && MsgSize_in > 1U)
 		{
 			// add 11 characters for the timestamp
-			dwNewSize = OriginalSize + m_TimestampLength;
+			dwNewSize = MsgSize_in + m_TimestampLength;
 			// allocate a new buffer
 			char *pRealloc = (char*)realloc(*pModifiedMsg_in_out, dwNewSize * sizeof(char));
 
@@ -154,8 +154,8 @@ namespace Windower
 							   *pModifiedMsg_in_out, m_TimestampLength);
 				// copy the original text
 				memcpy_s(*pModifiedMsg_in_out + m_TimestampLength, 
-						 OriginalSize * sizeof(char),
-						 pOriginalMsg_in, OriginalSize);
+						 MsgSize_in * sizeof(char),
+						 pOriginalMsg_in, MsgSize_in);
 			}
 		}
 

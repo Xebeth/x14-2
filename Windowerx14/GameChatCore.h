@@ -28,8 +28,7 @@ namespace Windower
 
 		GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		ModuleService* CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in,
-									 bool InvokePermission_in = false);
+		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterHooks(ModuleService *pService_in_out);
 		bool RegisterServices();
 

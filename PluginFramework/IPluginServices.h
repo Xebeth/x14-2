@@ -21,14 +21,13 @@ namespace PluginFramework
 	{
 	public:
 		//! \brief ServiceParam default constructor
-		ServiceParam() : DataType(_T("NULL")), pData(NULL) {}
+		ServiceParam();
 
 		/*! \brief ServiceParam constructor
 			\param[in] DataType_in : the type of the data
 			\param[in] pData_in : a pointer to the data
 		*/
-		ServiceParam(string_t DataType_in, LPVOID pData_in)
-			: DataType(DataType_in), pData(pData_in) {}
+		ServiceParam(string_t DataType_in, LPVOID pData_in);
 
 		//! the type of the data
 		string_t	DataType;
@@ -44,9 +43,9 @@ namespace PluginFramework
 		/*! \brief IPluginServices constructor
 			\param[in] Version_in : the version of the services
 		*/
-		explicit IPluginServices(const VersionInfo &Version_in) : m_Version(Version_in) {}
+		explicit IPluginServices(const VersionInfo &Version_in);
 		//! \brief IPluginServices destructor
-		virtual ~IPluginServices() {}
+		virtual ~IPluginServices();
 
 		/*! \brief Invokes a service by name in the specified module
 			\param[in] ModuleName_in : the name of the module
@@ -83,8 +82,9 @@ namespace PluginFramework
 		/*! \brief Retrieves the framework version of the plugin services
 			\return the framework version of the plugin services
 		*/
-		const VersionInfo& GetVersion() const { return m_Version; }
+		const VersionInfo& GetVersion() const;
 
+	protected:
 		//! the version of the services
 		const VersionInfo m_Version;
 	};

@@ -7,9 +7,10 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "FrameworkVersion.h"
 #include "VersionInfo.h"
+#include "PluginInfo.h"
 
+#include "FrameworkVersion.h"
 #include "IPluginServices.h"
 #include "IPlugin.h"
 

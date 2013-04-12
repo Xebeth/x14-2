@@ -27,7 +27,7 @@ namespace Windower
 	{
 	public:
 		//! ICoreModule destructor
-		virtual ~ICoreModule() {}
+		virtual ~ICoreModule();
 
 		/*! \brief Register the hooks for this module
 			\param[in] HookManager_in : the hook manager
@@ -67,7 +67,7 @@ namespace Windower
 		/*! \brief Sets the pointer to the plugin manager
 			\param[in,out] Manager_in_out : the plugin manager
 		*/
-		static void SetPluginManager(PluginFramework::PluginManager &Manager_in_out) { m_pPluginManager = &Manager_in_out; }
+		static void SetPluginManager(PluginFramework::PluginManager &Manager_in_out);
 
 	protected:
 		//! the plugin manager

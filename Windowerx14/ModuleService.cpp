@@ -16,8 +16,8 @@ namespace Windower
 		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
-	ModuleService::ModuleService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in)
-		: BaseModuleService(Name_in, InvokePermission_in), m_ServiceHooks(Hooks_in) {}
+	ModuleService::ModuleService(const string_t& Name_in, bool InvokePermission_in)
+		: BaseModuleService(Name_in, InvokePermission_in) {}
 
 	/*! \brief Adds a plugin to the subscribers of the service
 		\param[in] pPlugin_in : the plugin to add to the set

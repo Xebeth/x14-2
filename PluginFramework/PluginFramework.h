@@ -16,6 +16,7 @@
 #define _PLUGIN_FRAMEWORK_SDK_INCLUDE_
 
 #include <VersionInfo.h>
+#include <PluginInfo.h>
 #include <IPlugin.h>
 
 #include <IPluginServices.h>

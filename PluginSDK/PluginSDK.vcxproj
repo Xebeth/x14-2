@@ -139,9 +139,11 @@
     <ClInclude Include="WindowerSettingsManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseEngine.cpp" />
     <ClCompile Include="CommandHandler.cpp" />
     <ClCompile Include="CommandParameter.cpp" />
     <ClCompile Include="ICommandHandler.cpp" />
+    <ClCompile Include="ICoreModule.cpp" />
     <ClCompile Include="IGameChatPlugin.cpp" />
     <ClCompile Include="IPlayerDataPlugin.cpp" />
     <ClCompile Include="PluginEngine.cpp" />

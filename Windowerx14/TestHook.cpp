@@ -17,7 +17,12 @@
 
 extern Windower::WindowerEngine *g_pEngine;
 
-int WINAPI Sub69C130Hook(LPVOID pThis)
+int WINAPI Sub868970Hook(LPVOID pThis)
 {
-	return g_pEngine->Test().Sub69C130Hook(pThis);
+	return g_pEngine->Test().Sub868970Hook(pThis);
+}
+
+int WINAPI Sub83FD00Hook(LPVOID pThis)
+{
+	return g_pEngine->Test().Sub83FD00Hook(pThis);
 }

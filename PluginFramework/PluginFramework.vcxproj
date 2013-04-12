@@ -131,6 +131,7 @@
     <ClInclude Include="IPlugin.h" />
     <ClInclude Include="IPluginServices.h" />
     <ClInclude Include="PluginFramework.h" />
+    <ClInclude Include="PluginInfo.h" />
     <ClInclude Include="PluginIterator.h" />
     <ClInclude Include="PluginManager.h" />
     <ClInclude Include="VersionInfo.h" />
@@ -139,6 +140,8 @@
   <ItemGroup>
     <ClCompile Include="FileIterator.cpp" />
     <ClCompile Include="IPlugin.cpp" />
+    <ClCompile Include="IPluginServices.cpp" />
+    <ClCompile Include="PluginInfo.cpp" />
     <ClCompile Include="PluginIterator.cpp" />
     <ClCompile Include="PluginManager.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -146,6 +149,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VersionInfo.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

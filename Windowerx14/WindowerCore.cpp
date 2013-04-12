@@ -113,7 +113,7 @@ namespace Windower
 					pPointer = NULL;
 				}
 				// update the pointers (only create them when installing)
-				pService_in_out->SetPointer(HookIt->first, pPointer, Install_in);
+				pService_in_out->SetPointer(HookIt->first, pPointer, false);
 			}
 		}
 
@@ -143,8 +143,6 @@ namespace Windower
 
 					if (pService != NULL && pService->AddSubscriber(pPlugin_in))
 					{
-						HookPointers Hooks = pService->GetHooks();
-
 						// Hooks must be installed before creating the calling context!
 						if (bInstall && UpdateServiceHooks(pService, true))
 						{
@@ -182,8 +180,6 @@ namespace Windower
 
 				if (pService->RemoveSubscriber(pPlugin_in))
 				{
-					HookPointers Hooks = pService->GetHooks();
-
 					// uninstall the hooks on the last subscriber
 					if (pService->GetSubscribers().empty() && UpdateServiceHooks(pService, false))
 					{

@@ -23,7 +23,7 @@ namespace Windower
 		bool StartLog();
 		void StopLog();
 
-		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in,
+		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
 							const char *pOriginalMsg_in, char **pModifiedMsg_in_out);
 
 		bool UnregisterCommands() { return true; }

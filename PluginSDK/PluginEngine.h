@@ -43,6 +43,9 @@ namespace Windower
 		PluginEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		virtual ~PluginEngine();
 
+		/*! \brief Retrieves the compatibility flags of the plugin
+			\return the compatibility flags text
+		*/
 		static const TCHAR* GetCompatibilityFlagsText(DWORD Flags_in);
 
 		virtual bool Detach();
@@ -50,7 +53,15 @@ namespace Windower
 		PluginFramework::IPlugin* LoadPlugin(const string_t& PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t& PluginName_in);
 
+		/*! \brief Loads a set of plugins
+			\param[in] PluginSet_in : a list of plugins name to load
+			\return the number of loaded plugins
+		*/
 		size_t LoadPlugins(const ActivePlugins& PluginSet_in);
+		/*! \brief Lists all the available plugins and their state (loaded or not)
+			\param[out] Feedback_out : the string receiving the result
+			\return true if the list was retrieved successfully; false otherwise
+		*/
 		bool ListPlugins(std::string& Feedback_out) const;
 
 		bool RegisterModule(const string_t& ModuleName_in, ICoreModule *pModule_in);
@@ -61,9 +72,12 @@ namespace Windower
 		/*! \brief Retrieves the working directory of windower
 			\return the working directory of windower
 		*/
-		const string_t& GetWorkingDir() const { return m_WorkingDir; }
+		const string_t& GetWorkingDir() const;
 
 	protected:
+		/*! \brief Sets the working directory of windower
+			\param[in] hModule_in : the handle of the DLL
+		*/
 		void SetWorkingDir(HMODULE hModule_in);
 
 		//! plugin engine version

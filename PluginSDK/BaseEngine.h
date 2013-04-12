@@ -12,21 +12,24 @@
 	#error Please include the global header file 'PluginSDK.h'
 #endif
 
-//! \brief Interface for the engine
-class BaseEngine : public NonCopyable
+namespace Windower
 {
-public:
-	//! BaseEngine destructor
-	virtual ~BaseEngine() {}
+	//! \brief Interface for the engine
+	class BaseEngine : public NonCopyable
+	{
+	public:
+		//! BaseEngine destructor
+		virtual ~BaseEngine();
 
-	/*! \brief Installs the internal hooks used by the windower
+		/*! \brief Installs the internal hooks used by the windower
 		\return true if the hooks were installed successfully; false otherwise
-	*/
-	virtual bool Attach() =0;
-	/*! \brief Uninstalls the internal hooks used by the windower
+		*/
+		virtual bool Attach() =0;
+		/*! \brief Uninstalls the internal hooks used by the windower
 		\return true if the hooks were uninstalled successfully; false otherwise
-	*/
-	virtual bool Detach() =0;
-};
+		*/
+		virtual bool Detach() =0;
+	};
+}
 
 #endif//__BASE_ENGINE_H__

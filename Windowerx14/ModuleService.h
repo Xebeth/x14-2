@@ -57,9 +57,9 @@ namespace Windower
 	class ModuleService : public BaseModuleService
 	{
 	public:
-		ModuleService(const string_t& Name_in, const HookPointers &Hooks_in, bool InvokePermission_in = false);
+		ModuleService(const string_t& Name_in, bool InvokePermission_in = false);
 
-		bool SetPointer(const std::string &HookName_in, LPVOID pPointer_in, bool Create_in = false);
+		bool SetPointer(const std::string &HookName_in, LPVOID pPointer_in, bool Create_in = true);
 		bool IsSubscriberKeyValid(PluginFramework::IPlugin* pPlugin_in);
 		bool RemoveSubscriber(PluginFramework::IPlugin *pPlugin_in);
 		bool AddSubscriber(PluginFramework::IPlugin *pPlugin_in);

@@ -18,14 +18,16 @@ namespace Windower
 	public:
 		TestCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		int Sub69C130Hook(LPVOID pThis);
+		int Sub868970Hook(LPVOID pThis);
+		int Sub83FD00Hook(LPVOID pThis);
 		
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
-		fnSub69C130 m_pSub69C130Trampoline;
+		fnSub868970 m_pSub868970Trampoline;
+		fnSub83FD00 m_pSub83FD00Trampoline;
 	};
 }
 

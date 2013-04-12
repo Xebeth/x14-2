@@ -8,6 +8,7 @@
 #include "stdafx.h"
 
 #include "VersionInfo.h"
+#include "PluginInfo.h"
 #include "IPlugin.h"
 
 #include "IPluginServices.h"

@@ -9,6 +9,7 @@
 
 #include "FrameworkVersion.h"
 #include "VersionInfo.h"
+#include "PluginInfo.h"
 #include "IPlugin.h"
 
 #include "IPluginServices.h"
@@ -17,30 +18,17 @@ namespace PluginFramework
 {
 	IPluginServices * IPlugin::m_pServices = NULL;
 
-	/*! \brief IPlugin constructor
-		\param[in] pServices_in : a pointer to the plugin services
-	*/
 	IPlugin::IPlugin(IPluginServices *pServices_in)
 		: m_pRegisterParams(NULL)
 	{
 		m_pServices = pServices_in;
 	}
-	//! \brief IPlugin destructor
+
 	IPlugin::~IPlugin() {}
 
-	//! \brief RegisterParams default constructor
 	RegisterParams::RegisterParams()
-		: CreateFunc(NULL), DestroyFunc(NULL), 
-		  QueryFunc(NULL), ConfigureFunc(NULL) {}
+		: CreateFunc(NULL), DestroyFunc(NULL), QueryFunc(NULL), ConfigureFunc(NULL) {}
 
-	/*! \brief Initializes the plugin
-		\param[out] RegisterParams_out : Registration structure to be able to use the plugin
-		\param[in] pfnCreateFunc_in : a pointer to the 'Create' function of the plugin
-		\param[in] pfnDestroyFunc_in : a pointer to the 'Destroy' function of the plugin
-		\param[in] pfnQueryFunc_in : a pointer to the 'Query' function of the plugin
-		\param[in] pfnConfigureFunc_in : a pointer to the 'Configure' function of the plugin
-		\return true if the initialization succeeded; false otherwise
-	*/
 	bool IPlugin::Initialize(RegisterParams &RegisterParams_out, fnCreate pfnCreateFunc_in, 
 							 fnDestroy pfnDestroyFunc_in, fnQuery pfnQueryFunc_in,
 							 fnConfigure pfnConfigureFunc_in)
@@ -60,11 +48,7 @@ namespace PluginFramework
 
 		return false;
 	}
-	
-	/*! \brief Displays the configuration screen of the plugin
-		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
-		\return true if the user validated the screen; false otherwise
-	*/
+
 	bool IPlugin::Configure(const LPVOID pUserData_in)
 	{
 		if (IsConfigurable() == false)
@@ -79,65 +63,23 @@ namespace PluginFramework
 			return m_pRegisterParams->ConfigureFunc(this, pUserData_in);
 	}
 
-	//! \brief PluginInfo constructor
-	PluginInfo::PluginInfo() : m_Initialized(false), m_hHandle(NULL),
-		m_CompatibilityFlags(0U) {}
+	string_t IPlugin::ToString() const { return m_PluginInfo.ToString(); }
 
-	/*! \brief Retrieves the string representation of the plugin info
-		\return the string representation of the plugin info
-	*/
-	string_t PluginInfo::ToString() const
-	{
-		return format(_T("Plugin '%s v%s':\n")
-					  _T("  Author:      %s\n")
-					  _T("  Description: %s\n"),
-					  m_Name.c_str(), m_Version.ToString().c_str(),
-					  m_Author.c_str(), m_Description.c_str());
-	}
-
-	/*! \brief Converts the plugin information to a string
-		\return a string representation of the plugin information
-	*/
-	string_t IPlugin::ToString() const
-	{
-		return m_PluginInfo.ToString();
-	}
-
-	/*! \brief Adds a plugin subscription to the service in the specified module
-		\param[in] ModuleName_in : the name of the module
-		\param[in] ServiceName_in : the name of the service
-		\return true if successful; false otherwise
-	*/
 	bool IPlugin::SubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in)
 	{
 		return (m_pServices != NULL && m_pServices->SubscribeService(ModuleName_in, ServiceName_in, this));
 	}
 
-	/*! \brief Removes a plugin subscription from the service in the specified module
-		\param[in] ModuleName_in : the name of the module
-		\param[in] ServiceName_in : the name of the service
-		\return true if successful; false otherwise
-	*/
 	bool IPlugin::UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in)
 	{
 		return (m_pServices != NULL && m_pServices->UnsubscribeService(ModuleName_in, ServiceName_in, this));
 	}
 
-	//! Callback function invoked when a new instance of the plugin has been created
 	void IPlugin::OnCreate()
-	{
-		Subscribe();
-		RegisterCommands();
-	}
-
-	//! Callback function invoked when a new instance of the plugin is about to be destroyed
+	{ Subscribe(); }
 	void IPlugin::OnDestroy()
-	{
-		UnregisterCommands();
-		Unsubscribe();
-	}
+	{ Unsubscribe(); }
 
-	//! \brief Fills a PluginInfo structure with the plugin information
 	void IPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{
 		PluginInfo_out.m_FrameworkVersion.FromString(__PLUGIN_FRAMEWORK_VERSION__);
@@ -146,9 +88,6 @@ namespace PluginFramework
 		CleanupName(PluginInfo_out.m_Name);
 	}
 
-	/*! \brief Cleans up the specified string to make it a valid plugin name
-		\param[in,out] Name_in_out : the string to clean up
-	*/
 	void IPlugin::CleanupName( string_t Name_in_out )
 	{
 		string_t::size_type Pos, Offset = 0;
@@ -164,12 +103,6 @@ namespace PluginFramework
 		}
 	}
 
-	/*! \brief Invokes a command registered with the service in the specified module
-		\param[in] ModuleName_in : the name of the module
-		\param[in] ServiceName_in : the name of the service
-		\param[in] Params_in : the input parameters
-		\return true if the command was invoked successfully; false otherwise
-	*/
 	bool IPlugin::InvokeService(const string_t &ModuleName_in,
 								const string_t &ServiceName_in,
 								const ServiceParam &Params_in)
@@ -177,11 +110,62 @@ namespace PluginFramework
 		return (m_pServices != NULL && m_pServices->InvokeService(ModuleName_in, ServiceName_in, Params_in));
 	}
 
-	/*! \brief Retrieves the configuration file path
-		\return the configuration file path
-	*/
 	const TCHAR* IPlugin::GetConfigFile()
-	{
-		return m_pServices->GetConfigFile();
-	}
+	{ return m_pServices->GetConfigFile(); }
+
+	const VersionInfo& IPlugin::GetFrameworkVersion() const
+	{ return m_PluginInfo.m_FrameworkVersion; }
+
+	const VersionInfo& IPlugin::GetVersion() const
+	{ return m_PluginInfo.m_Version; }
+
+	const string_t& IPlugin::GetUpdateURL() const
+	{ return m_PluginInfo.m_UpdateURL; }
+
+	const string_t& IPlugin::GetDLLPath() const
+	{ return m_PluginInfo.m_DLLPath; }
+
+	const string_t& IPlugin::GetAuthor() const
+	{ return m_PluginInfo.m_Author; }
+
+	const StringUtils::UUID& IPlugin::GetUUID() const
+	{ return m_PluginInfo.m_PluginIdentifier; }
+
+	const string_t& IPlugin::GetName() const
+	{ return m_PluginInfo.m_Name; }
+
+	const string_t& IPlugin::GetDesc() const
+	{ return m_PluginInfo.m_Description; }
+
+	DWORD IPlugin::GetCompatibilityFlags() const
+	{ return m_PluginInfo.m_CompatibilityFlags; }
+
+	bool IPlugin::IsInitialized() const
+	{ return m_PluginInfo.m_Initialized; }
+
+	bool IPlugin::IsConfigurable() const
+	{ return (m_pRegisterParams != NULL && m_pRegisterParams->ConfigureFunc != NULL); }
+
+	HMODULE IPlugin::GetHandle() const
+	{ return m_PluginInfo.m_hHandle; }
+
+	void IPlugin::SetUpdateURL(const string_t &UpdateURL_in)
+	{ m_PluginInfo.m_UpdateURL = UpdateURL_in; }
+
+	void IPlugin::SetDesc(const string_t &Description_in)
+	{ m_PluginInfo.m_Description = Description_in; }
+
+	void IPlugin::SetAuthor(const string_t &Author_in)
+	{ m_PluginInfo.m_Author = Author_in; }
+
+	void IPlugin::SetVersion(const string_t &Version_in)
+	{ m_PluginInfo.m_Version.FromString(Version_in.c_str()); }
+
+	void IPlugin::SetName(const string_t &Name_in)
+	{ m_PluginInfo.m_Name = Name_in; }
+
+	bool IPlugin::Unsubscribe()
+	{ return true; }
+	bool IPlugin::Subscribe()
+	{ return true; }
 }

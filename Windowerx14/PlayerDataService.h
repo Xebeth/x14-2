@@ -42,8 +42,7 @@ namespace Windower
 	class PlayerDataService : public ModuleService
 	{
 	public:
-		PlayerDataService(const string_t& Name_in, const HookPointers &Hooks_in,
-						  bool InvokePermission_in = false);
+		PlayerDataService(const string_t& Name_in, bool InvokePermission_in = false);
 
 		void OnTargetPtrChange(TargetData *pTargetData_in);
 		void OnPlayerPtrChange(TargetData *pPlayerData_in);

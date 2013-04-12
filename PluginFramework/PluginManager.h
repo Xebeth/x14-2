@@ -21,8 +21,8 @@ namespace PluginFramework
 	class IPlugin;
 
 	typedef stdext::hash_map<string_t, RegisterParams*> LoadedPlugins;
-	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;
-	typedef std::set<const TCHAR*> CompatiblePlugins, Blacklist;
+	typedef std::set<StringUtils::UUID> CompatiblePlugins, Blacklist;
+	typedef stdext::hash_map<string_t, PluginInfo> RegisteredPlugins;	
 	typedef stdext::hash_map<string_t, IPlugin*> PluginObjects;	
 	typedef std::set<IPlugin*> PluginSet;
 

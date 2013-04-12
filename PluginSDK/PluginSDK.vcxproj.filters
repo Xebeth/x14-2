@@ -57,6 +57,12 @@
     <ClCompile Include="WindowerPlugin.cpp">
       <Filter>Plugins</Filter>
     </ClCompile>
+    <ClCompile Include="ICoreModule.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseEngine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

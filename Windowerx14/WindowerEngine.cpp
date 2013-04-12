@@ -208,7 +208,7 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_bShutdown == false)
+		if (m_bShutdown == false && m_pPlayerCore->IsLoggedIn())
 		{
 			WindowerPlugins::const_iterator PluginIt = m_Plugins.cbegin();
 			WindowerPlugins::const_iterator EndIt = m_Plugins.cend();

@@ -30,8 +30,7 @@ namespace Windower
 	public:
 		PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
 
-		ModuleService* CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in,
-									 bool InvokePermission_in = false);
+		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterServices();
 
 		// ICoreModule interface implementation
@@ -50,7 +49,7 @@ namespace Windower
 		fnGetSelectedTarget m_pGetTargetTrampoline;
 
 		TargetData *m_pPlayerTarget;
-		TargetData *m_pPlayerData;
+		DWORD *m_pPlayerAddr;
 	};
 }
 

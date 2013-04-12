@@ -26,7 +26,7 @@ namespace Windower
 	*/
 	PlayerCore::PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
 		: WindowerCore(_T(PLAYER_DATA_MODULE), Engine_in_out, HookManager_in_out),
-		  m_pPlayerData(NULL), m_pPlayerDataService(NULL),
+		  m_pPlayerAddr(NULL), m_pPlayerDataService(NULL),
 		  m_pCharMgrInitTrampoline(NULL), m_pGetTargetTrampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
@@ -60,10 +60,14 @@ namespace Windower
 		if (m_pCharMgrInitTrampoline != NULL)
 		{
 			Result = m_pCharMgrInitTrampoline(pThis_in_out);
-			m_pPlayerData = *((TargetData**)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET));
+			m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
 
-			if (m_pPlayerDataService != NULL)
-				m_pPlayerDataService->OnPlayerPtrChange(m_pPlayerData);
+			if (m_pPlayerDataService != NULL && m_pPlayerAddr != NULL)
+			{
+				TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
+
+				m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
+			}
 		}
 
 		return Result;
@@ -84,9 +88,9 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/
-	ModuleService* PlayerCore::CreateService(const string_t& ServiceName_in, const HookPointers &Hooks_in, bool InvokePermission_in)
+	BaseModuleService* PlayerCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
- 		m_pPlayerDataService = new PlayerDataService(ServiceName_in, Hooks_in, InvokePermission_in);
+ 		m_pPlayerDataService = new PlayerDataService(ServiceName_in, InvokePermission_in);
 
 		return m_pPlayerDataService;
 	}
@@ -105,6 +109,6 @@ namespace Windower
 
 	bool PlayerCore::IsLoggedIn() const
 	{
-		return (m_pPlayerData && m_pPlayerData->Name[0] != '\0');
+		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL);
 	}
 }

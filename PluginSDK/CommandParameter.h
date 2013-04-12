@@ -36,73 +36,65 @@ namespace Windower
 			\param[in] Name_in : the name of the parameter
 		*/
 		CommandParameter(COMMAND_PARAM_TYPE Type_in, bool bOptional_in, const std::string& Value_in,
-						 const std::string& Description_in, const std::string& Name_in)
-			: m_Type(Type_in), m_bOptional(bOptional_in), m_Value(Value_in),
-			  m_Name(Name_in), m_Description(Description_in) {}
+						 const std::string& Description_in, const std::string& Name_in);
 
 		/*! \brief Retrieves the string value of the parameter
 			\return the string value of the parameter
 		*/
-		const std::string& GetStringValue() const { return m_Value; }
+		const std::string& GetStringValue() const;
 		/*! \brief Sets the string value of the parameter
 			\param[in] StringValue_in : the string value of the parameter
 		*/
-		void SetStringValue(const std::string& StringValue_in) { m_Value = StringValue_in; }
+		void SetStringValue(const std::string& StringValue_in);
 
 		/*! \brief Retrieves the pointer value of the parameter
 			\return the pointer value of the parameter
 		*/
-		long GetPointerValue() const \
-		{ return strtol(m_Value.c_str(), NULL, 16); }
+		long GetPointerValue() const;
 		/*! \brief Sets the pointer value of the parameter
 			\param[in] PointerValue_in : the pointer value of the parameter
 		*/
-		void SetPointerValue(long PointerValue_in) \
-		{ format(m_Value, "%08x", PointerValue_in); }
+		void SetPointerValue(long PointerValue_in);
 
 		/*! \brief Retrieves the integer value of the parameter
 			\return the integer value of the parameter
 		*/
-		long GetIntegerValue() const \
-		{ return strtol(m_Value.c_str(), NULL, 10); }
+		long GetIntegerValue() const;
 		/*! \brief Sets the integer value of the parameter
 			\param[in] IntegerValue_in : the integer value of the parameter
 		*/
-		void SetIntegerValue(long IntegerValue_in) \
-		{ format(m_Value, "%ld", IntegerValue_in); }
+		void SetIntegerValue(long IntegerValue_in);
 
 		/*! \brief Retrieves the float value of the parameter
 			\return the float value of the parameter
 		*/
-		double GetFloatValue() const \
-		{ return strtod(m_Value.c_str(), NULL); }
+		double GetFloatValue() const;
 		/*! \brief Sets the float value of the parameter
 			\param[in] FloatValue_in : the float value of the parameter
 		*/
-		void SetFloatValue(double FloatValue_in) \
-		{ format(m_Value, "%g", FloatValue_in); }
+		void SetFloatValue(double FloatValue_in);
 
 		/*! \brief Retrieves the type of the parameter
 			\return the type of the parameter
 			\sa COMMAND_PARAM_TYPE
 		*/
-		COMMAND_PARAM_TYPE GetType() const { return m_Type; }
+		COMMAND_PARAM_TYPE GetType() const;
 		/*! \brief Retrieves the name of the parameter
 			\return the name of the parameter
 		*/
-		const std::string& GetName() const { return m_Name; }
+		const std::string& GetName() const;
 		/*! \brief Retrieves the description of the parameter
 			\return the description of the parameter
 		*/
-		const std::string& GetDescription() const { return m_Description; }
+		const std::string& GetDescription() const;
 		/*! \brief Checks if the parameter is optional
 			\return true if the parameter is optional; false otherwise
 		*/
-		bool IsOptional() const { return m_bOptional; }
+		bool IsOptional() const;
 		/*! \brief Sets the flag specifying if the parameter is optional
 			\param[in] bOptional_in : the new value of the flag
 		*/
-		void SetOptional(bool bOptional_in = false) { m_bOptional = bOptional_in; }
+		void SetOptional(bool bOptional_in = false);
 
 	protected:
 		//! flag specifying if the parameter is optional
@@ -122,13 +114,12 @@ namespace Windower
 	{
 	public:
 		//! \brief UnregisterParam default constructor
-		UnregisterParam() : RegistrationKey(0) {}
+		UnregisterParam();
 		/*! \brief UnregisterParam constructor
 			\param[in] RegistrationKey_in : the key of the plugin revoking the command registration
 			\param[in] CommandName_in : the ID of the command to unregister
 		*/
-		UnregisterParam(DWORD RegistrationKey_in, const std::string& CommandName_in)
-			: RegistrationKey(RegistrationKey_in), CommandName(CommandName_in) {}
+		UnregisterParam(DWORD RegistrationKey_in, const std::string& CommandName_in);
 
 		//! the name of the command to unregister
 		std::string CommandName;
