@@ -44,6 +44,9 @@
     <ClInclude Include="PluginInfo.h">
       <Filter>Plugins</Filter>
     </ClInclude>
+    <ClInclude Include="IServiceSubscriber.h">
+      <Filter>Plugin Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

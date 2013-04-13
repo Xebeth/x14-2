@@ -12,7 +12,9 @@
 // #define __USE_VLD
 
 #include <stdhdr.h>
+
 #include <SettingsManager.h>
 #include <PluginFramework.h>
+#include <UIAL.h>
 
 #endif//__STDAFX_H__

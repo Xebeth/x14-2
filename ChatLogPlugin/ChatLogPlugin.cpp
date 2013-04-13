@@ -99,8 +99,10 @@ namespace Windower
 				format(m_Buffer, _T("%s %s"), m_pTimestamp, Message.c_str());
 			else
 				format(m_Buffer, _T("%s %s: %s"), m_pTimestamp, Sender.c_str(), Message.c_str());
+#ifndef _DEBUG
 			// remove any non-printable character
 			purge<wchar_t>(m_Buffer, _T("\r\n\t"));
+#endif // _DEBUG
 			// add CRLF after purging or they'll be removed
 			m_Buffer += _T("\r\n");
 			// write the line in the log

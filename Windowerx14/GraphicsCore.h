@@ -30,7 +30,11 @@ namespace Windower
 		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in);
 		~GraphicsCore();
 
+		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
+		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);		
+
 		void SetRendering(bool bEnable_in);
+		bool RegisterServices();
 		void ToggleRendering();
 		void ToggleFPS();
 

@@ -84,7 +84,6 @@ namespace Windower
 
 	/*! \brief Creates a service object given its name
 		\param[in] ServiceName_in : the name of the service
-		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/
@@ -110,5 +109,41 @@ namespace Windower
 	bool PlayerCore::IsLoggedIn() const
 	{
 		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL);
+	}
+
+	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)
+	{
+		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(INIT_CHARACTER_MGR_HOOK)) == 0)
+		{
+			IPlayerDataPlugin *pPlugin = static_cast<IPlayerDataPlugin*>(pPlugin_in);
+
+			if (pPlugin != NULL)
+			{
+				TargetPos Data;
+
+				// update the player data for the new plugin
+				if (m_pPlayerAddr != NULL)
+				{
+					TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
+
+					Data.pPosX = &pPlayerData->PosX;
+					Data.pPosY = &pPlayerData->PosY;
+					Data.pPosZ = &pPlayerData->PosZ;
+					Data.pTargetName = pPlayerData->Name;
+
+					pPlugin->OnPlayerPtrChange(Data);
+				}
+				// update the target data for the new plugin
+				if (m_pPlayerTarget != NULL)
+				{
+					Data.pPosX = &m_pPlayerTarget->PosX;
+					Data.pPosY = &m_pPlayerTarget->PosY;
+					Data.pPosZ = &m_pPlayerTarget->PosZ;
+					Data.pTargetName = m_pPlayerTarget->Name;
+
+					pPlugin->OnTargetPtrChange(Data);
+				}
+			}
+		}
 	}
 }

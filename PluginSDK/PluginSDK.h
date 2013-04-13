@@ -11,6 +11,10 @@
 #include <PluginFramework.h>
 #include <SettingsManager.h>
 
+#ifdef __USE_UIAL
+	#include <UIAL.h>
+#endif
+
 #define _WINDOWER_PLUGIN_SDK_INCLUDE_
 
 #include <ICoreModule.h>

@@ -3,7 +3,7 @@
 	filename	: 	DistancePlugin.cpp
 	author		:	Xebeth`
 	copyright	:	North Edge (2011)
-	purpose		:	Distance plugin
+	purpose		:	m_LabelText plugin
 **************************************************************************/
 #include "stdafx.h"
 
@@ -14,7 +14,7 @@ namespace Windower
 {
 	//! \brief DistancePlugin constructor
 	DistancePlugin::DistancePlugin(PluginFramework::IPluginServices *pServices_in)
-		: IPlayerDataPlugin(pServices_in), m_Distance(0.f)
+		: IPlayerDataPlugin(pServices_in), m_Distance(0.f), m_pTextLabel(NULL)
 	{
 		memset(&m_TargetPos, 0, sizeof(m_TargetPos));
 		memset(&m_PlayerPos, 0, sizeof(m_PlayerPos));
@@ -36,6 +36,8 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
+			static_cast<DistancePlugin*>(pInstance_in)->DestroyLabel();
+
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
@@ -50,8 +52,8 @@ namespace Windower
 		PluginInfo_out.SetIdentifier(_T("F4F02060-9ED0-11E2-9E96-0800200C9A66"));
 		PluginInfo_out.SetCompatibilityFlags(PLUGIN_COMPATIBILITY_WINDOWER);
 		PluginInfo_out.SetVersion(PLUGIN_VERSION);
-		PluginInfo_out.SetName(_T("Distance"));
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
+		PluginInfo_out.SetName(_T("Distance"));
 	}
 
 	void DistancePlugin::OnPlayerPtrChange(const TargetPos &PlayerData_in)
@@ -62,6 +64,23 @@ namespace Windower
 	void DistancePlugin::OnTargetPtrChange(const TargetPos &TargetData_in)
 	{
 		m_TargetPos = TargetData_in;
+
+		if (TargetData_in.pTargetName != NULL)
+		{
+			std::string TargetName = TargetData_in.pTargetName;
+
+			// convert only once to UTF-8 for display
+			convert_utf8(TargetName, m_TargetName);
+
+			if (m_pTextLabel == NULL)
+			{
+				LabelCreationParam LabelParam = { &m_pTextLabel, _T("m_LabelText##label"), 500UL, 24UL, 5L, 5L, false };
+				PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
+
+				if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
+					m_pTextLabel = NULL;
+			}
+		}
 	}
 
 	bool DistancePlugin::Update()
@@ -75,10 +94,33 @@ namespace Windower
 
 			m_Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
 
+			if (m_pTextLabel != NULL)
+			{
+				format(m_LabelText, _T("%s => %.2f"), m_TargetName.c_str(), m_Distance);
+				m_pTextLabel->SetTitleText(m_LabelText);
+				m_pTextLabel->SetVisibile(true);
+			}
+
 			return true;
+		}
+		else if (m_pTextLabel != NULL)
+		{
+			m_pTextLabel->SetVisibile(false);
 		}
 
 		return false;
+	}
+
+	void DistancePlugin::DestroyLabel()
+	{
+		if (m_pTextLabel != NULL)
+		{
+			LabelCreationParam LabelParam = { &m_pTextLabel, NULL, 0UL, 0UL, 0L, 0L, true };
+			PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
+
+			if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
+				m_pTextLabel = NULL;
+		}
 	}
 }
 

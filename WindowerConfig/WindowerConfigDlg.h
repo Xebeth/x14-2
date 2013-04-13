@@ -63,7 +63,7 @@ namespace Windower
 			explicit DummyServices(const PluginFramework::VersionInfo &Version_in, const string_t& WorkingDir_in)
 				: PluginFramework::IPluginServices(Version_in), m_WorkingDir(WorkingDir_in) {}
 		private:
-			virtual bool InvokeService(const string_t&, const string_t&, const PluginFramework::ServiceParam&) const { return true; }
+			virtual bool InvokeService(const string_t&, const string_t&, const PluginFramework::ServiceParam &) const { return true; }
 			virtual bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
 			virtual bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
 			virtual const TCHAR* GetConfigFile() const { return m_WorkingDir.c_str(); }

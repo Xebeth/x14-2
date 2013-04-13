@@ -14,9 +14,19 @@
 
 namespace Windower
 {
+#ifdef __USE_UIAL
+	typedef struct _LabelCreationParam
+	{
+		UIAL::CUiWindow<> **pLabel;
+		const TCHAR *pLabelName;
+		unsigned long W, H;
+		long X, Y;
+		bool Destroy;
+	} LabelCreationParam;
+#endif // __USE_UIAL
+
 	typedef struct _TargetPos
 	{
-	public:
 		_TargetPos() : pPosX(NULL), pPosY(NULL), pPosZ(NULL), pTargetName(NULL) {}
 
 		float *pPosX, *pPosY, *pPosZ;

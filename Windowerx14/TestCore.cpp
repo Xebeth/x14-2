@@ -30,8 +30,8 @@ namespace Windower
 	*/
 	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-	  	HookManager_in.RegisterHook("On868970", SIGSCAN_GAME_PROCESSA, (LPVOID)0x00868970, ::Sub868970Hook, 11);
-		HookManager_in.RegisterHook("On83FD00", SIGSCAN_GAME_PROCESSA, (LPVOID)0x0083FD00, ::Sub83FD00Hook, 14);
+// 	  	HookManager_in.RegisterHook("On868970", SIGSCAN_GAME_PROCESSA, (LPVOID)0x00868970, ::Sub868970Hook, 11);
+// 		HookManager_in.RegisterHook("On83FD00", SIGSCAN_GAME_PROCESSA, (LPVOID)0x0083FD00, ::Sub83FD00Hook, 14);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed

@@ -151,6 +151,9 @@
     <ClCompile Include="UiFPSCounter.cpp">
       <Filter>Windower\Modules\Graphics\UI</Filter>
     </ClCompile>
+    <ClCompile Include="TextLabelService.cpp">
+      <Filter>Windower\Modules\Graphics\Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">

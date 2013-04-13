@@ -19,7 +19,8 @@ public:
 	float GetFPS() { return m_fps; }
 	float GetRunningTime() { return m_runningTime; }
 	float GetElapsedTime() { return m_timerStopped ? 0.0f : m_timeElapsed; }
-	void SetTick(INT64 Interval_in) { m_TickInterval = Interval_in; }
+	void SetTickInterval(float Interval_in);
+	void SetRawTickInterval(INT64 Interval_in) { m_TickInterval = Interval_in; }
 	bool HasTicked() { return m_bTicked; }
 
 private:

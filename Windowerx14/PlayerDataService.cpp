@@ -14,7 +14,6 @@ namespace Windower
 {
 	/*! \brief PlayerDataService constructor
 		\param[in] Name_in : the name of the service
-		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	PlayerDataService::PlayerDataService(const string_t& Name_in, bool InvokePermission_in)
@@ -59,26 +58,29 @@ namespace Windower
 
 	void PlayerDataService::OnTargetPtrChange(TargetData *pTargetData_in)
 	{
-		m_pPlayerTarget = pTargetData_in;
-
-		PluginFramework::PluginSet::const_iterator PluginIt;
-		IPlayerDataPlugin *pPlugin;
-		TargetPos PlayerTarget;
-
-		if (pTargetData_in != NULL)
+		if (m_pPlayerTarget != pTargetData_in)
 		{
-			PlayerTarget.pPosX = &pTargetData_in->PosX;
-			PlayerTarget.pPosY = &pTargetData_in->PosY;
-			PlayerTarget.pPosZ = &pTargetData_in->PosZ;
-			PlayerTarget.pTargetName = pTargetData_in->Name;
-		}
+			PluginFramework::PluginSet::const_iterator PluginIt;
+			IPlayerDataPlugin *pPlugin;
+			TargetPos PlayerTarget;
 
-		for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
-		{
-			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
+			m_pPlayerTarget = pTargetData_in;
 
-			if (pPlugin != NULL)
-				pPlugin->OnTargetPtrChange(PlayerTarget);
+			if (pTargetData_in != NULL)
+			{
+				PlayerTarget.pPosX = &pTargetData_in->PosX;
+				PlayerTarget.pPosY = &pTargetData_in->PosY;
+				PlayerTarget.pPosZ = &pTargetData_in->PosZ;
+				PlayerTarget.pTargetName = pTargetData_in->Name;
+			}
+
+			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
+			{
+				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
+
+				if (pPlugin != NULL)
+					pPlugin->OnTargetPtrChange(PlayerTarget);
+			}
 		}
 	}
 }

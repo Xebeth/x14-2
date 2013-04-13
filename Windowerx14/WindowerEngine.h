@@ -10,6 +10,8 @@
 
 #define ENGINE_KEY 0xDEADBEEF
 
+class Timer;
+
 namespace Windower
 {
 	class CommandDispatcher;
@@ -47,6 +49,9 @@ namespace Windower
 		DWORD MainThread();
 
 		void OnShutdown();
+
+		bool UnlockPlugins();
+		void LockPlugins();
 
 #ifdef _DEBUG
 		/*! \brief Retrieves the test core module
@@ -106,6 +111,10 @@ namespace Windower
 		HWND m_hGameWnd;
 		//! the process ID of the game
 		DWORD m_dwPID;
+		//! update timer
+		Timer *m_pUpdateTimer;
+		//! critical section for plugin operations
+		CRITICAL_SECTION m_PluginLock;
 	};
 }
 

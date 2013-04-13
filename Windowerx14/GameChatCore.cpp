@@ -55,7 +55,6 @@ namespace Windower
 
 	/*! \brief Creates a service object given its name
 		\param[in] ServiceName_in : the name of the service
-		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 		\return a pointer to the service object if successful; NULL otherwise
 	*/

@@ -308,12 +308,22 @@ namespace UIAL
 			\param[in] X_in : the new x-coordinate
 			\return true if the point changed; false otherwise
 		*/
-		bool SetX(T X_in) { return m_Point1.SetX(X_in); }
+		bool SetX(T X_in)
+		{
+			T Width = GetWidth();
+
+			return (m_Point1.SetX(X_in) && m_Point2.SetX(X_in + Width));
+		}
 		/*! \brief Sets the y-coordinate of the first point
 			\param[in] X_in : the new y-coordinate
 			\return true if the point changed; false otherwise
 		*/
-		bool SetY(T Y_in) { return m_Point1.SetY(Y_in); }
+		bool SetY(T Y_in)
+		{
+			T Height = GetHeight();
+
+			return (m_Point1.SetY(Y_in) && m_Point2.SetY(Y_in + Height));
+		}
 		/*! \brief Sets the z-coordinate of the first point
 			\param[in] X_in : the new z-coordinate
 			\return true if the point changed; false otherwise
@@ -324,12 +334,22 @@ namespace UIAL
 			\param[in] X_in : the new x-coordinate
 			\return true if the point changed; false otherwise
 		*/
-		bool SetX2(T X_in) { return m_Point2.SetX(X_in); }
+		bool SetX2(T X_in)
+		{
+			T Width = GetWidth();
+
+			return (m_Point1.SetX(X_in - Width) && m_Point2.SetX(X_in));
+		}
 		/*! \brief Sets the y-coordinate of the second point
 			\param[in] X_in : the new y-coordinate
 			\return true if the point changed; false otherwise
 		*/
-		bool SetY2(T Y_in) { return m_Point2.SetY(Y_in); }
+		bool SetY2(T Y_in)
+		{
+			T Height = GetHeight();
+
+			return (m_Point1.SetY(Y_in - Height) && m_Point2.SetY(Y_in));
+		}
 		/*! \brief Sets the z-coordinate of the second point
 			\param[in] X_in : the new z-coordinate
 			\return true if the point changed; false otherwise

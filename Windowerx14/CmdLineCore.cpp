@@ -316,6 +316,8 @@ namespace Windower
 	*/
 	bool CmdLineCore::ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out)
 	{
+		bool Result = false;
+
 		switch(CmdID_in)
 		{
 			case CMD_HELP:
@@ -326,18 +328,24 @@ namespace Windower
 				std::string PluginName = Command_in.GetStringValue("plugin");
 				string_t PluginNameW;
 
+				// >>> Critical section
+				m_Engine.LockPlugins();
+
 				if (m_Engine.LoadPlugin(convert_utf8(PluginName, PluginNameW)))
 				{
 					format(Feedback_out, "The plugin '%s' was loaded successfully.", PluginName.c_str());
-
-					return true;
+					Result = true;
 				}
 				else
 				{
 					format(Feedback_out, "The plugin '%s' couldn't be loaded.", PluginName.c_str());
-
-					return false;
+					Result = false;
 				}
+
+				m_Engine.UnlockPlugins();
+				// Critical section <<<
+
+				return Result;
 			}
 			break;
 			case CMD_UNLOAD_PLUGIN:
@@ -345,18 +353,24 @@ namespace Windower
 				std::string PluginName = Command_in.GetStringValue("plugin");
 				string_t PluginNameW;
 
+				// >>> Critical section
+				m_Engine.LockPlugins();
+
 				if (m_Engine.UnloadPlugin(convert_utf8(PluginName, PluginNameW)))
 				{
 					format(Feedback_out, "The plugin '%s' was unloaded successfully.", PluginName.c_str());
-
-					return true;
+					Result = true;
 				}
 				else
 				{
 					format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
-
-					return false;
+					Result = false;
 				}
+
+				m_Engine.UnlockPlugins();
+				// Critical section <<<
+
+				return Result;
 			}
 			break;
 			case CMD_LIST_PLUGINS:

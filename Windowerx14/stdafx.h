@@ -21,6 +21,5 @@
 #include <SettingsManager.h>
 #include <HookEngine.h>
 #include <PluginSDK.h>
-#include <UIAL.h>
 
 #endif//__X14_AFX_H__

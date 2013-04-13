@@ -74,3 +74,11 @@ void Timer::Update()
 
 	m_lastTime = m_currentTime;
 }
+
+void Timer::SetTickInterval(float Interval_in)
+{
+	if (Interval_in < 1.f)
+		m_TickInterval = m_ticksPerSecond / (INT64)(1.f / Interval_in);
+	else
+		m_TickInterval = m_ticksPerSecond * (INT64)Interval_in;
+}

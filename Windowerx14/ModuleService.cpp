@@ -13,7 +13,6 @@ namespace Windower
 {
 	/*! \brief ModuleService constructor
 		\param[in] Name_in : the name of the service
-		\param[in] Hooks_in : the hooks associated with the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	ModuleService::ModuleService(const string_t& Name_in, bool InvokePermission_in)

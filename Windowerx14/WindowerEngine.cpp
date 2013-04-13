@@ -29,6 +29,8 @@
 #include "SystemCore.h"
 #include "PlayerCore.h"
 
+#include "Timer.h"
+
 #define _TESTING
 
 #if defined _DEBUG && defined _TESTING
@@ -45,8 +47,10 @@ namespace Windower
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
 		: PluginEngine(hModule_in, pConfigFile_in), m_bShutdown(false), m_bThreadInit(false), 
 		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pUpdateTimer(NULL)
 	{
+		InitializeCriticalSection(&m_PluginLock);
+
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the system core module
@@ -119,6 +123,8 @@ namespace Windower
 			m_pTestCore = NULL;
 		}
 #endif // _DEBUG
+
+		DeleteCriticalSection(&m_PluginLock);
 	}
 
 	//! \brief Initializes the plugins
@@ -126,6 +132,9 @@ namespace Windower
 	{
 		if (m_pPluginManager != NULL)
 		{
+			// >>> Critical section
+			LockPlugins();
+
 			// list the available plugins compatible with windower
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_WINDOWER);
@@ -135,7 +144,8 @@ namespace Windower
 			// load active plugins
 			LoadPlugins(m_Settings.GetActivePlugins());
 
-			return true;
+			return UnlockPlugins();
+			// Critical section <<<
 		}
 
 		return false;
@@ -210,18 +220,29 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_bShutdown == false && m_pPlayerCore->IsLoggedIn())
+		if (m_bShutdown == false && m_pUpdateTimer != NULL)
 		{
-			WindowerPlugins::const_iterator PluginIt = m_Plugins.cbegin();
-			WindowerPlugins::const_iterator EndIt = m_Plugins.cend();
-			WindowerPlugin *pPlugin = NULL;
+			m_pUpdateTimer->Update();
 
-			for (; PluginIt != EndIt; ++PluginIt)
+			if (m_pUpdateTimer->HasTicked() && m_pPlayerCore->IsLoggedIn())
 			{
-				pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
+				WindowerPlugins::const_iterator PluginIt = m_Plugins.cbegin();
+				WindowerPlugins::const_iterator EndIt = m_Plugins.cend();
+				WindowerPlugin *pPlugin = NULL;
 
-				if (pPlugin != NULL)
-					pPlugin->Update();
+				// >>> Critical section
+				LockPlugins();
+
+				for (; PluginIt != EndIt; ++PluginIt)
+				{
+					pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
+
+					if (pPlugin != NULL)
+						pPlugin->Update();
+				}
+
+				UnlockPlugins();
+				// Critical section <<<
 			}
 		}
 	}
@@ -233,6 +254,14 @@ namespace Windower
 		{
 			m_hGameWnd = m_pSystemCore->GameHWND();
 			m_dwPID = m_pSystemCore->GamePID();
+		}
+
+		if (m_pUpdateTimer == NULL)
+		{
+			m_pUpdateTimer = new Timer;
+
+			m_pUpdateTimer->SetRawTickInterval(100000);
+			m_pUpdateTimer->Start();			
 		}
 
 		InitializePlugins();
@@ -248,5 +277,17 @@ namespace Windower
 	void WindowerEngine::OnShutdown()
 	{
 		m_bShutdown = true;
+	}
+
+	void WindowerEngine::LockPlugins()
+	{
+		EnterCriticalSection(&m_PluginLock);
+	}
+
+	bool WindowerEngine::UnlockPlugins()
+	{
+		LeaveCriticalSection(&m_PluginLock);
+
+		return true;
 	}
 }

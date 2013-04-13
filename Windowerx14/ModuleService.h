@@ -11,6 +11,11 @@
 //! the hooks of a service
 typedef stdext::hash_map<std::string, LPVOID> HookPointers;
 
+namespace PluginFramework
+{
+	class ServiceParam;
+}
+
 namespace Windower
 {
 	//! Calling context base class
@@ -45,6 +50,12 @@ namespace Windower
 			\return true if plugins can subscribe; false otherwise
 		*/
 		virtual bool CanSubscribe() const { return false; }
+
+		/*! \brief Invokes the service
+			\param[in] Params[in] : user data
+			\return true if the service was invoked successfully; false otherwise
+		*/
+		virtual bool Invoke(const PluginFramework::ServiceParam &Params_in) { return CanInvoke(); }
 
 	protected:
 		//! the name of the service

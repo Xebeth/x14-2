@@ -42,6 +42,9 @@ namespace Windower
 
 		bool IsLoggedIn() const;
 
+	protected:
+		void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in);
+
 	private:
 		PlayerDataService *m_pPlayerDataService;
 

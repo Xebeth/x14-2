@@ -25,9 +25,13 @@ namespace Windower
 		bool Update();
 
 	private:
+		void DestroyLabel();
+
+		UIAL::CUiWindow<> *m_pTextLabel;
 		TargetPos m_PlayerPos;
 		TargetPos m_TargetPos;
-
+		string_t m_TargetName;
+		string_t m_LabelText;
 		float m_Distance;
 	};
 }

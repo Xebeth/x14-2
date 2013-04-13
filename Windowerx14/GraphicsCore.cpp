@@ -27,6 +27,9 @@
 #include "WindowerCore.h"
 #include "GraphicsCore.h"
 
+#include "ModuleService.h"
+#include "TextLabelService.h"
+
 using namespace UIAL;
 
 namespace Windower
@@ -38,6 +41,61 @@ namespace Windower
 	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
 		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in), m_pLabelRenderer(NULL),
 		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U) {}
+
+	//! \brief GraphicsCore destructor
+	GraphicsCore::~GraphicsCore()
+	{
+		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
+		RenderableMap::const_iterator EndIt = m_UiElements.end();
+
+		for(; RenderableIt != EndIt; ++RenderableIt)
+		{
+			if (m_pDeviceWrapper != NULL)
+				m_pDeviceWrapper->RemoveRenderable(RenderableIt->first);
+
+			delete RenderableIt->second;
+		}
+
+		m_UiElements.clear();
+
+		if (m_pLabelRenderer != NULL)
+		{
+			delete m_pLabelRenderer;
+			m_pLabelRenderer = NULL;
+		}
+	}
+
+	bool GraphicsCore::RegisterServices()
+	{
+		// register the services
+		return (RegisterService(_T("TextLabelCreation"), true) != NULL);
+	}
+
+
+	bool GraphicsCore::Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in)
+	{
+		if (m_pDirect3DWrapper != NULL)
+		{
+			ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+
+			// the service exists and can be invoked
+			if (Iter != m_Services.end() && Iter->second->CanInvoke())
+			{
+				if (ServiceName_in.compare(_T("TextLabelCreation")) == 0
+					&& Params_in.DataType.compare(_T("LabelCreationParam")) == 0
+					&& Params_in.pData != NULL)
+				{
+					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);					
+
+					pService->SetRenderer(m_pDeviceWrapper, m_pLabelRenderer);
+
+					return pService->Invoke(Params_in);
+				}
+			}
+		}
+
+		return false;
+	}
 
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
 		\param[in] SDKVersion_in : the DirectX SDK version
@@ -67,29 +125,6 @@ namespace Windower
 
 		return pDirect3D;
 	}
-	
-	//! \brief GraphicsCore destructor
-	GraphicsCore::~GraphicsCore()
-	{
-		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
-		RenderableMap::const_iterator EndIt = m_UiElements.end();
-
-		for(; RenderableIt != EndIt; ++RenderableIt)
-		{
-			if (m_pDeviceWrapper != NULL)
-				m_pDeviceWrapper->RemoveRenderable(RenderableIt->first);
-
-			delete RenderableIt->second;
-		}
-
-		m_UiElements.clear();
-
-		if (m_pLabelRenderer != NULL)
-		{
-			delete m_pLabelRenderer;
-			m_pLabelRenderer = NULL;
-		}
-	}
 
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
@@ -114,8 +149,8 @@ namespace Windower
 
 		if (RenderableIt == m_UiElements.end())
 		{
-			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), 5, 5, 200, 24,
-										 _T("Arial"), 10, true, false, 0xFFFF0000, m_pLabelRenderer, true);
+			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10, 24, 60, 20,
+										 _T("Arial"), 12, true, false, 0xFFFF0000, m_pLabelRenderer, true);
 
 			m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
 			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
@@ -144,5 +179,15 @@ namespace Windower
 	void GraphicsCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");		
+	}
+
+	/*! \brief Creates a service object given its name
+		\param[in] ServiceName_in : the name of the service
+		\param[in] InvokePermission_in : flag specifying if the service can be invoked
+		\return a pointer to the service object if successful; NULL otherwise
+	*/
+	BaseModuleService* GraphicsCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
+	{
+		return new TextLabelService(ServiceName_in, m_UiElements, GFX_TEXT_COUNT, InvokePermission_in);
 	}
 }

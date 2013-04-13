@@ -22,9 +22,10 @@ namespace Windower
 							 unsigned short FontSize_in, bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
 							 UIAL::IWindowRenderer<> *pRenderer_in, bool Visibile_in)
 		: UIAL::CUiWindow<>(ID_in, Name_in, X_in, Y_in, W_in, H_in, Visibile_in, _T(""), UIAL::CUiFont(FontName_in, FontSize_in),
-							UIAL::CUiColor(ARGB_in), UIAL::CUiColor(0xFFFFFFFF), pRenderer_in)
+							UIAL::CUiColor(ARGB_in), UIAL::CUiColor(0xFFFFFFFF), pRenderer_in), m_pDevice(pDevice_in)
 	{
 		m_Font.Initialize(pDevice_in, FontName_in.c_str(), FontSize_in, true, bBold_in, bItalic_in);
+		NormalizePosition();
 	}
 
 	void UiTextLabel::OnDeviceReset()
@@ -52,4 +53,26 @@ namespace Windower
 
 	bool UiTextLabel::Draw()
 	{ return CUiWindow::Draw(); }
+
+	void UiTextLabel::NormalizePosition()
+	{
+		if (m_pDevice != NULL)
+		{
+			long X = m_Rect.GetX();
+			long Y = m_Rect.GetY();
+
+			if (X < 0L || Y < 0L)
+			{
+				D3DVIEWPORT9 Viewport;
+
+				m_pDevice->GetViewport(&Viewport);
+
+				if (X < 0L)
+					m_Rect.SetX(Viewport.Width + X - m_Rect.GetWidth());
+
+				if (Y < 0L)
+					m_Rect.SetY(Viewport.Height + Y - m_Rect.GetHeight());
+			}
+		}
+	}
 }
