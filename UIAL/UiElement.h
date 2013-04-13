@@ -242,6 +242,17 @@ namespace UIAL
 			SetDirty(Visible_in);
 		}
 
+		/*! \brief Toggles the flag specifying if the element is visible
+			\return the new value of the flag
+		*/
+		bool ToggleVisible()
+		{
+			m_Visible = !m_Visible;
+			SetDirty(true);
+
+			return m_Visible;
+		}
+
 		/*! \brief Checks if the element is visible
 			\return true if the element is visible; false otherwise
 		*/

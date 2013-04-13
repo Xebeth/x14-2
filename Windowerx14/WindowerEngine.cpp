@@ -20,6 +20,8 @@
 	#include "TestHook.h"
 #endif // _DEBUG
 
+#include "IRenderable.h"
+
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 #include "GameChatCore.h"

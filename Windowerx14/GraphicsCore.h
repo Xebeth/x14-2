@@ -13,12 +13,12 @@ class IDirect3D9Wrapper;
 
 namespace Windower
 {
-	typedef UIAL::CUiWindow<> UiWindow;
-	typedef std::map<unsigned long, UiWindow*> WindowMap;
-	typedef std::vector<IDirect3DDevice9Wrapper*> DeviceWrappers;
-
+	class TextLabelRenderer;
 	class WindowerEngine;
+	class UiTextLabel;
 
+	typedef std::vector<IDirect3DDevice9Wrapper*> DeviceWrappers;
+	
 	class GraphicsCore : public WindowerCore
 	{
 		enum eStaticLabels
@@ -28,6 +28,7 @@ namespace Windower
 		};
 	public:
 		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in);
+		~GraphicsCore();
 
 		void SetRendering(bool bEnable_in);
 		void ToggleRendering();
@@ -51,7 +52,10 @@ namespace Windower
 		unsigned int m_SkipDeviceCount;
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;
-		//! text label for the FPS display
+		//! graphical elements
+		RenderableMap m_UiElements;
+		//! text label renderer
+		TextLabelRenderer *m_pLabelRenderer;
 	};
 }
 

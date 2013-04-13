@@ -2,7 +2,6 @@
 #define __IDIRECT3D9_WRAPPER_H
 
 class IDirect3DDevice9Wrapper;
-
 typedef std::vector<IDirect3DDevice9Wrapper**> DeviceSubscribers;
 
 class IDirect3D9Wrapper : public IDirect3D9

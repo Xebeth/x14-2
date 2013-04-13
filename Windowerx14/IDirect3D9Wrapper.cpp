@@ -3,6 +3,7 @@
 #include <d3d9.h>
 
 #include "Font.h"
+#include "IRenderable.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 
@@ -38,13 +39,14 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 
 	if(pDirect3dDevice9 != NULL)
 	{
-		DeviceSubscribers::iterator Iter;
+		DeviceSubscribers::const_iterator DeviceIt = m_Subscribers.cbegin();
+		DeviceSubscribers::const_iterator EndIt = m_Subscribers.cend();
 
 		// wrap the device up
-		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters);
+		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters, m_Subscribers);
 		// give the subscribers a pointer to the new device wrapper
-		for (Iter = m_Subscribers.begin(); Iter != m_Subscribers.end(); ++Iter)
-			*(*Iter) = m_pWrappedDevice;
+		for (; DeviceIt != EndIt; ++DeviceIt)
+			*(*DeviceIt) = m_pWrappedDevice;
 	}
 
 	return Result;

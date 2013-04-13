@@ -94,7 +94,7 @@ namespace UIAL
 	*/
 	void CUiTextElement::SetTextColor(unsigned long ARGB_in)
 	{
-		m_TextColor.SetColor(ARGB_in);
+		m_TextColor.SetARGB(ARGB_in);
 	}
 
 	/*! \brief Retrieves the color of the text

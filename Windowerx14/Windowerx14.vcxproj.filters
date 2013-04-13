@@ -61,6 +61,9 @@
     <Filter Include="Windower\Services">
       <UniqueIdentifier>{2769741b-1c60-4dfe-b3fd-7cc812e9e97b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Windower\Modules\Graphics\UI">
+      <UniqueIdentifier>{bb2012f0-9053-4529-b916-e9a7f0166be2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -138,6 +141,15 @@
     </ClCompile>
     <ClCompile Include="ModuleService.cpp">
       <Filter>Windower\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TextLabelRenderer.cpp">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UiTextLabel.cpp">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UiFPSCounter.cpp">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +233,18 @@
     </ClInclude>
     <ClInclude Include="ModuleService.h">
       <Filter>Windower\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="TextLabelRenderer.h">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UiTextLabel.h">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderable.h">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UiFPSCounter.h">
+      <Filter>Windower\Modules\Graphics\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

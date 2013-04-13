@@ -25,14 +25,18 @@ class Font
 {
 public:
 	Font();
-	//! Font destructor
-	virtual ~Font() { Release(); }
+	virtual ~Font();
 
 	bool Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in,
 					bool Antialising_in = true, bool Bold_in = false, bool Italic_in = false);
 	void Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
 			   ULONG BoxWidth_in = 0UL, ULONG BoxHeight_in = 0UL, FONTALIGNMENT Alignment_in = FA_LEFT);
+
 	void Release();
+	void OnLostDevice();
+	void OnDeviceReset();
+
+	ID3DXSprite* GetSprite() const;
 private:
 	//! the sprite used to draw text
 	ID3DXSprite		*m_pTextSprite;

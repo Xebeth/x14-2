@@ -32,9 +32,11 @@ namespace UIAL
 		unsigned char GetBlue() const;
 		unsigned char GetRed() const;
 
+		void SetARGB(unsigned long ARGB_in);
+		unsigned long GetARGB() const;
+
 		void SetColor(unsigned char Red_in, unsigned char Green_in,
 					  unsigned char Blue_in, unsigned char Alpha_in = 255U);
-		void SetColor(unsigned long ARGB_in);
 
 		void SetAlpha(unsigned char Alpha_in);
 		void SetGreen(unsigned char Green_in);

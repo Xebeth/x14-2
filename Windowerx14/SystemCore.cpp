@@ -15,6 +15,8 @@
 #include "Direct3D9Hook.h"
 #include "WndProcHook.h"
 
+#include "IRenderable.h"
+
 #include "WindowerCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
@@ -158,6 +160,10 @@ namespace Windower
 				m_Engine.OnShutdown();
 				// remove the WndProc hook before the game window is destroyed
 				RestoreWndProc();
+			break;
+			case WM_ACTIVATEAPP:
+			case WM_ACTIVATE:
+				m_Engine.Graphics().SetRendering(true);
 			break;
 			case WM_KEYDOWN:
 			case WM_KEYUP:

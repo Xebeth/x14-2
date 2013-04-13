@@ -45,38 +45,38 @@ namespace UIAL
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, const CUiPoint& TopLeft_in,
 				  const CUiPoint& BottomRight_in, bool Visible_in, const CUiTextElement &Title_in,
 				  const CUiColor BckgColor_in, IWindowRenderer<T,U> *pRenderer_in = NULL)
-		  : CUiElement<T,U>(ID_in, TopLeft_in, BottomRight_in, Visible_in), m_pRenderer(pRenderer_in),
+		  : CUiElement<T,U>(ID_in, Name_in, TopLeft_in, BottomRight_in, Visible_in), m_pRenderer(pRenderer_in),
 		    m_Title(Title_in), m_BackgroundColor(BckgColor_in) {}  
 
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, const CUiPoint& TopLeft_in,
 				  const CUiPoint& BottomRight_in, bool Visible_in, const string_t &Title_in,
 				  const CUiFont &Font_in, const CUiColor &TextColor_in, const CUiColor BckgColor_in,
 				  IWindowRenderer<T,U> *pRenderer_in = NULL)
-			: CUiElement<T,U>(ID_in, TopLeft_in, BottomRight_in, Visible_in), m_pRenderer(pRenderer_in),
+			: CUiElement<T,U>(ID_in, Name_in, TopLeft_in, BottomRight_in, Visible_in), m_pRenderer(pRenderer_in),
 			  m_Title(Title_in, Font_in, TextColor_in), m_BackgroundColor(BckgColor_in) {}
 
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, const CUiPoint& Pos_in,
 				  T W_in, T H_in, bool Visible_in, const CUiTextElement &Title_in,
 				  const CUiColor BckgColor_in, IWindowRenderer<T,U> *pRenderer_in = NULL)
-			: CUiElement<T,U>(ID_in, Pos_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
+			: CUiElement<T,U>(ID_in, Name_in, Pos_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
 			  m_Title(Title_in), m_BackgroundColor(BckgColor_in) {}
 
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, const CUiPoint& Pos_in,
 				  T W_in, T H_in, bool Visible_in, const string_t &Title_in, const CUiFont &Font_in,
 				  const CUiColor &TextColor_in, const CUiColor BckgColor_in, IWindowRenderer<T,U> *pRenderer_in = NULL)
-			: CUiElement<T,U>(ID_in, Pos_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
+			: CUiElement<T,U>(ID_in, Name_in, Pos_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
 			  m_Title(Title_in, Font_in, TextColor_in), m_BackgroundColor(BckgColor_in) {}
 
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, T X_in, T Y_in,
 				  T W_in, T H_in, bool Visible_in, const CUiTextElement &Title_in,
 				  const CUiColor BckgColor_in, IWindowRenderer<T,U> *pRenderer_in = NULL)
-			: CUiElement<T,U>(ID_in, X_in, Y_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
+			: CUiElement<T,U>(ID_in, Name_in, X_in, Y_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
 			  m_Title(Title_in), m_BackgroundColor(BckgColor_in) {}
 
 		CUiWindow(unsigned long ID_in, const string_t& Name_in, T X_in, T Y_in, T W_in, T H_in,
 				  bool Visible_in, const string_t &Title_in, const CUiFont &Font_in,
 				  const CUiColor &TextColor_in, const CUiColor BckgColor_in, IWindowRenderer<T,U> *pRenderer_in = NULL)
-			: CUiElement<T,U>(ID_in, X_in, Y_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
+			: CUiElement<T,U>(ID_in, Name_in, X_in, Y_in, W_in, H_in, Visible_in), m_pRenderer(pRenderer_in),
 			  m_Title(Title_in, Font_in, TextColor_in), m_BackgroundColor(BckgColor_in) {}
 
 		explicit CUiWindow(unsigned long ID_in) : CUiElement<T,U>(ID_in) {}
@@ -91,8 +91,8 @@ namespace UIAL
 		void SetBackgroundColor(unsigned long ARGB_in) { m_BackgroundColor.SetColor(ARGB_in); }
 		const CUiColor& GetBackgroundColor() const { return m_BackgroundColor; }
 
-		void SetTitle(const string_t &Title_in) { m_Title = Title_in; }
-		const string_t& GetTitle() const { return m_Title; }
+		void SetTitleText(const string_t &Title_in) { m_Title.SetText(Title_in); }
+		const string_t& GetTitleText() const { return m_Title.GetText(); }
 
 		void SetTitleColor(unsigned char Red_in, unsigned char Green_in,
 						   unsigned char Blue_in, unsigned char Alpha_in = 255U)
@@ -109,7 +109,7 @@ namespace UIAL
 
 		virtual bool Draw()
 		{
-			if (m_Dirty && m_Visible && m_pRenderer != NULL)
+			if (m_Visible && m_pRenderer != NULL)
 			{
 				// before render event
 				m_pRenderer->BeforeRender(*this);

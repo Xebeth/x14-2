@@ -14,13 +14,18 @@
 
 #include "Direct3D9Hook.h"
 
-#include "WindowerCore.h"
-#include "GraphicsCore.h"
-
 #include "Font.h"
+#include "IRenderable.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
 #include "Direct3D9Hook.h"
+
+#include "TextLabelRenderer.h"
+#include "UiTextLabel.h"
+#include "UiFPSCounter.h"
+
+#include "WindowerCore.h"
+#include "GraphicsCore.h"
 
 using namespace UIAL;
 
@@ -31,7 +36,7 @@ namespace Windower
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
 	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
-		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
+		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in), m_pLabelRenderer(NULL),
 		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U) {}
 
 	/*! \brief Creates a Direct3D device given a DirectX SDK version
@@ -62,6 +67,29 @@ namespace Windower
 
 		return pDirect3D;
 	}
+	
+	//! \brief GraphicsCore destructor
+	GraphicsCore::~GraphicsCore()
+	{
+		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
+		RenderableMap::const_iterator EndIt = m_UiElements.end();
+
+		for(; RenderableIt != EndIt; ++RenderableIt)
+		{
+			if (m_pDeviceWrapper != NULL)
+				m_pDeviceWrapper->RemoveRenderable(RenderableIt->first);
+
+			delete RenderableIt->second;
+		}
+
+		m_UiElements.clear();
+
+		if (m_pLabelRenderer != NULL)
+		{
+			delete m_pLabelRenderer;
+			m_pLabelRenderer = NULL;
+		}
+	}
 
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
@@ -78,7 +106,27 @@ namespace Windower
 
 	void GraphicsCore::ToggleFPS()
 	{
-		
+		if (m_pLabelRenderer == NULL)
+			m_pLabelRenderer = new TextLabelRenderer();
+
+		RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
+		UiTextLabel *pFPSLabel = NULL;
+
+		if (RenderableIt == m_UiElements.end())
+		{
+			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), 5, 5, 200, 24,
+										 _T("Arial"), 10, true, false, 0xFFFF0000, m_pLabelRenderer, true);
+
+			m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
+			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
+		}
+		else
+		{
+			pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
+
+			if (pFPSLabel != NULL)
+				pFPSLabel->ToggleVisible();
+		}
 	}
 
 	/*! \brief Register the hooks for this module

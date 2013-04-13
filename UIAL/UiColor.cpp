@@ -31,13 +31,17 @@ namespace UIAL
 		SetColor(Red_in, Green_in, Blue_in, Alpha_in);
 	}
 
-	/*! \brief Sets the color of the text
+	/*! \brief Retrieves the color as a 32-bit color packed ARGB values
+		\return the color as a 32-bit color packed ARGB values
+	*/
+	unsigned long CUiColor::GetARGB() const
+	{ return m_ARGB; }
+
+	/*! \brief Sets the color components from a 32-bit color packed ARGB values
 		\param[in] ARGB_in : 32-bit color packed ARGB values
 	*/
-	void CUiColor::SetColor(unsigned long ARGB_in)
-	{
-		m_ARGB = ARGB_in;
-	}
+	void CUiColor::SetARGB(unsigned long ARGB_in)
+	{ m_ARGB = ARGB_in; }
 
 	/*! \brief Sets the color of the text
 		\param[in] Red_in : the red component of the color

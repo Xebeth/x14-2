@@ -1,17 +1,26 @@
 #ifndef __IDIRECT3DDEVICE9_WRAPPER_H
 #define __IDIRECT3DDEVICE9_WRAPPER_H
 
+class IDirect3DDevice9Wrapper;
+class IRenderable;
 class Timer;
+
+typedef std::vector<IDirect3DDevice9Wrapper**> DeviceSubscribers;
 
 class IDirect3DDevice9Wrapper: public IDirect3DDevice9
 {
 public:
-	IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice, D3DPRESENT_PARAMETERS &PresentParams_in);
+	IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice,
+							D3DPRESENT_PARAMETERS &PresentParams_in,
+							DeviceSubscribers &Subscribers_in);
 	virtual ~IDirect3DDevice9Wrapper();
 
 	bool IsRendering() const { return m_bRender; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
 	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }
+
+	bool AddRenderable(unsigned long ID_in, IRenderable *pRenderable_in);
+	bool RemoveRenderable(unsigned long ID_in);
 
 	/*** IUnknown methods ***/
 	HRESULT __stdcall QueryInterface(REFIID iid, void ** ppvObject);
@@ -159,9 +168,12 @@ protected:
 	LPDIRECT3DDEVICE9 m_pDirect3dDevice;
 
 	ULONG					 m_RefCount;
-
+	bool					 m_DrawUi;
 	bool					 m_bRender;
 	bool					 m_bSceneStarted;
+	bool					 m_Fullscreen;
+	DeviceSubscribers		&m_Subscribers;
+	RenderableMap			 m_UiElements;
 };
 
 #endif//__IDIRECT3DDEVICE9_WRAPPER_H

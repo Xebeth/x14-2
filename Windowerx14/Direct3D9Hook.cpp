@@ -10,6 +10,7 @@
 #include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
+#include "IRenderable.h"
 #include "Direct3D9Hook.h"
 
 #include "WindowerCore.h"

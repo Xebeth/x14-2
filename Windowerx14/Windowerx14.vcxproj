@@ -174,7 +174,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="TextLabelRenderer.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="UiFPSCounter.cpp" />
+    <ClCompile Include="UiTextLabel.cpp" />
     <ClCompile Include="WindowerCore.cpp" />
     <ClCompile Include="WindowerEngine.cpp" />
     <ClCompile Include="WndProcHook.cpp" />
@@ -191,6 +194,7 @@
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
+    <ClInclude Include="IRenderable.h" />
     <ClInclude Include="ModuleService.h" />
     <ClInclude Include="PlayerCore.h" />
     <ClInclude Include="PlayerDataHook.h" />
@@ -207,8 +211,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="TextLabelRenderer.h" />
     <ClInclude Include="TextLabelService.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="UiFPSCounter.h" />
+    <ClInclude Include="UiTextLabel.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerCore.h" />
     <ClInclude Include="WindowerEngine.h" />

@@ -18,6 +18,12 @@ Font::Font()
 	m_pFont = NULL; 
 }
 
+//! Font destructor
+Font::~Font()
+{
+	Release();
+}
+
 /*! \brief Initializes the font
 	\param[in] pDevice_in : the Direct3D device
 	\param[in] pFaceName_in : the name of the font face
@@ -29,15 +35,22 @@ Font::Font()
 */
 bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in, bool Antialising_in, bool Bold_in, bool Italic_in)
 {
+	HRESULT Result;
+
 	Release();
 
 	// create the sprite
-	D3DXCreateSprite(pDevice_in, &m_pTextSprite);
+	Result = D3DXCreateSprite(pDevice_in, &m_pTextSprite);
 
-	return D3DXCreateFont(pDevice_in, -Size_in, 0, Bold_in ? FW_BOLD : FW_NORMAL,
-						  1, Italic_in, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, 
-						  DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, 
-						  pFaceName_in, &m_pFont) == D3D_OK;
+	if (SUCCEEDED(Result))
+	{
+		Result = D3DXCreateFont(pDevice_in, -Size_in, 0, Bold_in ? FW_BOLD : FW_NORMAL,
+								1, Italic_in, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+								DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE,
+								pFaceName_in, &m_pFont);
+	}
+
+	return (Result == D3D_OK);
 }
 
 /*! \brief Displays text at the specified position
@@ -106,15 +119,31 @@ void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3
 //! \brief Destroys the font data
 void Font::Release()
 {
-	if (m_pFont != NULL)
-	{
-		m_pFont->Release();
-		m_pFont = NULL;
-	}
-
-	if (m_pTextSprite != NULL)
-	{
-		m_pTextSprite->Release();
+	if (m_pTextSprite != NULL && m_pTextSprite->Release() == 0UL)
 		m_pTextSprite = NULL;
-	}
+
+	m_pFont = NULL;
+}
+
+ID3DXSprite* Font::GetSprite() const
+{
+	return m_pTextSprite;
+}
+
+void Font::OnDeviceReset()
+{
+	if (m_pTextSprite != NULL)
+		m_pTextSprite->OnResetDevice();
+
+	if (m_pFont != NULL)
+		m_pFont->OnResetDevice();
+}
+
+void Font::OnLostDevice()
+{
+	if (m_pTextSprite != NULL)
+		m_pTextSprite->OnLostDevice();
+
+	if (m_pFont != NULL)
+		m_pFont->OnLostDevice();
 }
