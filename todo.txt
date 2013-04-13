@@ -1,0 +1,2 @@
+Text labels : capture mouse to move them
+Distance : add distance to aggro list
