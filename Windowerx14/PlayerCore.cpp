@@ -26,7 +26,7 @@ namespace Windower
 	*/
 	PlayerCore::PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
 		: WindowerCore(_T(PLAYER_DATA_MODULE), Engine_in_out, HookManager_in_out),
-		  m_pPlayerAddr(NULL), m_pPlayerDataService(NULL),
+		  m_pPlayerAddr(NULL), m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
 		  m_pCharMgrInitTrampoline(NULL), m_pGetTargetTrampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
