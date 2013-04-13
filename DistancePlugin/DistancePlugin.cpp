@@ -96,7 +96,11 @@ namespace Windower
 
 			if (m_pTextLabel != NULL)
 			{
+#ifdef _DEBUG
+				format(m_LabelText, _T("%s (0x%08X) => %.2f"), m_TargetName.c_str(), m_TargetPos.dwTargetAddr, m_Distance);
+#else
 				format(m_LabelText, _T("%s => %.2f"), m_TargetName.c_str(), m_Distance);
+#endif // _DEBUG
 				m_pTextLabel->SetTitleText(m_LabelText);
 				m_pTextLabel->SetVisibile(true);
 			}

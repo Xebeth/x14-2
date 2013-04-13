@@ -130,6 +130,9 @@ namespace Windower
 					Data.pPosY = &pPlayerData->PosY;
 					Data.pPosZ = &pPlayerData->PosZ;
 					Data.pTargetName = pPlayerData->Name;
+#ifdef _DEBUG
+					Data.dwTargetAddr = *m_pPlayerAddr;
+#endif // _DEBUG
 
 					pPlugin->OnPlayerPtrChange(Data);
 				}
@@ -140,6 +143,9 @@ namespace Windower
 					Data.pPosY = &m_pPlayerTarget->PosY;
 					Data.pPosZ = &m_pPlayerTarget->PosZ;
 					Data.pTargetName = m_pPlayerTarget->Name;
+#ifdef _DEBUG
+					Data.dwTargetAddr = (DWORD)m_pPlayerTarget;
+#endif // _DEBUG
 
 					pPlugin->OnTargetPtrChange(Data);
 				}

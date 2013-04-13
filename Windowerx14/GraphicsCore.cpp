@@ -142,14 +142,14 @@ namespace Windower
 	void GraphicsCore::ToggleFPS()
 	{
 		if (m_pLabelRenderer == NULL)
-			m_pLabelRenderer = new TextLabelRenderer();
+			m_pLabelRenderer = new TextLabelRenderer(m_pDeviceWrapper);
 
 		RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
 		UiTextLabel *pFPSLabel = NULL;
 
 		if (RenderableIt == m_UiElements.end())
 		{
-			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10, 24, 60, 20,
+			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 20UL,
 										 _T("Arial"), 12, true, false, 0xFFFF0000, m_pLabelRenderer, true);
 
 			m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
@@ -159,8 +159,8 @@ namespace Windower
 		{
 			pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
 
-			if (pFPSLabel != NULL)
-				pFPSLabel->ToggleVisible();
+			if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
+				pFPSLabel->SetPos(-10L, 24L);
 		}
 	}
 

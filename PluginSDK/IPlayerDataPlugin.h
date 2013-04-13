@@ -27,10 +27,18 @@ namespace Windower
 
 	typedef struct _TargetPos
 	{
-		_TargetPos() : pPosX(NULL), pPosY(NULL), pPosZ(NULL), pTargetName(NULL) {}
+		_TargetPos() : pPosX(NULL), pPosY(NULL), pPosZ(NULL), pTargetName(NULL)
+		{
+#ifdef _DEBUG
+			dwTargetAddr = 0UL;
+#endif // _DEBUG
+		}
 
 		float *pPosX, *pPosY, *pPosZ;
 		const char *pTargetName;
+#ifdef _DEBUG
+		DWORD dwTargetAddr;
+#endif // _DEBUG
 	} TargetPos;
 
 	//! \brief Base class for plugins subscribing to the FormatChatMessage service

@@ -45,6 +45,9 @@ namespace Windower
 			PlayerData.pPosY = &pPlayerData_in->PosY;
 			PlayerData.pPosZ = &pPlayerData_in->PosZ;
 			PlayerData.pTargetName = pPlayerData_in->Name;
+#ifdef _DEBUG
+			PlayerData.dwTargetAddr = (DWORD)pPlayerData_in;
+#endif // _DEBUG
 		}
 
 		for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
@@ -72,6 +75,9 @@ namespace Windower
 				PlayerTarget.pPosY = &pTargetData_in->PosY;
 				PlayerTarget.pPosZ = &pTargetData_in->PosZ;
 				PlayerTarget.pTargetName = pTargetData_in->Name;
+#ifdef _DEBUG
+				PlayerTarget.dwTargetAddr = (DWORD)pTargetData_in;
+#endif // _DEBUG
 			}
 
 			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)

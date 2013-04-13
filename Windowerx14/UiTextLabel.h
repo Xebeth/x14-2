@@ -33,9 +33,6 @@ namespace Windower
 		Font* GetFont();
 
 	protected:
-		void NormalizePosition();
-
-		IDirect3DDevice9 *m_pDevice;
 		//! the font object of the label
 		Font m_Font;
 	};
