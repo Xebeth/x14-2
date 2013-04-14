@@ -261,4 +261,7 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\todo.txt" />
+  </ItemGroup>
 </Project>

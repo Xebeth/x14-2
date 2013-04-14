@@ -1,2 +1,11 @@
-Text labels : capture mouse to move them
+Volume : toggle through shortcuts ( + automatic music switch on during cutscene?)
+TellDetect : expand to a user list of keywords with a custom sound per entry
 Distance : add distance to aggro list
+Text labels : capture mouse to move
+ChatLog : HTML output
+
+Split PluginSDK (PluginEngine & Plugins/Subscribers interfaces)
+Subscriber/Service interface rewrite
+Plugin loading mechanism
+Autoupdater
+Installer?
