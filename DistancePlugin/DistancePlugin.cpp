@@ -24,10 +24,10 @@ namespace Windower
 	{
 		if (m_pTextLabel != NULL)
 		{
-			LabelCreationParam LabelParam = { &m_pTextLabel, NULL, 0UL, 0UL, 0L, 0L, true };
-			PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
+			LabelServiceParam LabelParam(&m_pTextLabel);
+			PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
-			if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
+			if (InvokeService(_T("Graphics"), _T("TextLabelService"), Param) == false)
 				m_pTextLabel = NULL;
 		}
 	}
@@ -84,10 +84,10 @@ namespace Windower
 
 			if (m_pTextLabel == NULL)
 			{
-				LabelCreationParam LabelParam = { &m_pTextLabel, _T("m_LabelText##label"), 500UL, 24UL, 5L, 5L, false };
-				PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
+				LabelServiceParam LabelParam(&m_pTextLabel, _T("Distance##label"), 5L, 5L, 500UL, 24UL);
+				PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
-				if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
+				if (InvokeService(_T("Graphics"), _T("TextLabelService"), Param) == false)
 					m_pTextLabel = NULL;
 			}
 		}

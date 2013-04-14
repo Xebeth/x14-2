@@ -41,14 +41,14 @@ namespace Windower
 	{
 		if (m_pDevice != NULL && Params_in.pData != NULL)
 		{
-			LabelCreationParam *pParam = reinterpret_cast<LabelCreationParam*>(Params_in.pData);
+			LabelServiceParam *pParam = reinterpret_cast<LabelServiceParam*>(Params_in.pData);
 			NULL;
 
-			if (pParam->pLabel != NULL)
+			if (pParam->m_ppUiLabel != NULL)
 			{
-				if (pParam->Destroy)
+				if (pParam->m_Destroy)
 				{
-					UIAL::CUiWindow<> *pLabel = *pParam->pLabel;
+					UIAL::CUiWindow<> *pLabel = *pParam->m_ppUiLabel;
 
 					if (pLabel != NULL)
 					{
@@ -62,7 +62,7 @@ namespace Windower
 						}
 
 						m_pDevice->RemoveRenderable(ID);
-						*pParam->pLabel = NULL;
+						*pParam->m_ppUiLabel = NULL;
 					}
 
 					return true;
@@ -70,12 +70,12 @@ namespace Windower
 				else
 				{
 					// create a new label window
-					UiTextLabel *pLabel = pLabel = new UiTextLabel(m_NextID, m_pDevice, pParam->pLabelName, pParam->X, pParam->Y, pParam->W,
-																   pParam->H, _T("Arial"), 12, true, false, 0xFFFFFFFF, m_pRenderer, true);
+					UiTextLabel *pLabel = new UiTextLabel(m_NextID, m_pDevice, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
+														  pParam->m_H, _T("Arial"), 12, true, false, pParam->m_ARGBColor, m_pRenderer, true);
 					// add it to the map
 					m_UiElements[m_NextID] = pLabel;
 					// set the return value
-					*pParam->pLabel = pLabel;
+					*pParam->m_ppUiLabel = pLabel;
 
 					return m_pDevice->AddRenderable(m_NextID++, pLabel);
 				}

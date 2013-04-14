@@ -68,7 +68,7 @@ namespace Windower
 	bool GraphicsCore::RegisterServices()
 	{
 		// register the services
-		return (RegisterService(_T("TextLabelCreation"), true) != NULL);
+		return (RegisterService(_T("TextLabelService"), true) != NULL);
 	}
 
 
@@ -81,8 +81,8 @@ namespace Windower
 			// the service exists and can be invoked
 			if (Iter != m_Services.end() && Iter->second->CanInvoke())
 			{
-				if (ServiceName_in.compare(_T("TextLabelCreation")) == 0
-					&& Params_in.DataType.compare(_T("LabelCreationParam")) == 0
+				if (ServiceName_in.compare(_T("TextLabelService")) == 0
+					&& Params_in.DataType.compare(_T("LabelServiceParam")) == 0
 					&& Params_in.pData != NULL)
 				{
 					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);					
