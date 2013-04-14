@@ -14,6 +14,7 @@ namespace Windower
 	{
 	public:
 		explicit DistancePlugin(PluginFramework::IPluginServices *pServices_in);
+		~DistancePlugin();
 
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
@@ -25,8 +26,6 @@ namespace Windower
 		bool Update();
 
 	private:
-		void DestroyLabel();
-
 		UIAL::CUiWindow<> *m_pTextLabel;
 		TargetPos m_PlayerPos;
 		TargetPos m_TargetPos;

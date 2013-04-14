@@ -20,6 +20,18 @@ namespace Windower
 		memset(&m_PlayerPos, 0, sizeof(m_PlayerPos));
 	}
 
+	DistancePlugin::~DistancePlugin()
+	{
+		if (m_pTextLabel != NULL)
+		{
+			LabelCreationParam LabelParam = { &m_pTextLabel, NULL, 0UL, 0UL, 0L, 0L, true };
+			PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
+
+			if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
+				m_pTextLabel = NULL;
+		}
+	}
+
 	/*! \brief Creates an instance of DistancePlugin
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new DistancePlugin instance
@@ -36,8 +48,6 @@ namespace Windower
 	{
 		if (pInstance_in != NULL)
 		{
-			static_cast<DistancePlugin*>(pInstance_in)->DestroyLabel();
-
 			delete pInstance_in;
 			pInstance_in = NULL;
 		}
@@ -113,18 +123,6 @@ namespace Windower
 		}
 
 		return false;
-	}
-
-	void DistancePlugin::DestroyLabel()
-	{
-		if (m_pTextLabel != NULL)
-		{
-			LabelCreationParam LabelParam = { &m_pTextLabel, NULL, 0UL, 0UL, 0L, 0L, true };
-			PluginFramework::ServiceParam Param(_T("LabelCreationParam"), &LabelParam);
-
-			if (InvokeService(_T("Graphics"), _T("TextLabelCreation"), Param) == false)
-				m_pTextLabel = NULL;
-		}
 	}
 }
 
