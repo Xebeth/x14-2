@@ -8,9 +8,7 @@
 #include "stdafx.h"
 
 #include "WindowerCore.h"
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
-
 #include "ModuleService.h"
 
 namespace Windower

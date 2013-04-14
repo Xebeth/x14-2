@@ -8,12 +8,8 @@
 #ifndef __TEST_HOOK_H__
 #define __TEST_HOOK_H__
 
-// int __thiscall sub_868970(int this) -- PlayerDestroy?
-typedef int (WINAPI *fnSub868970)(LPVOID pThis);
-int WINAPI Sub868970Hook(LPVOID pThis);
-
-// int __thiscall sub_83FD00(int this) -- PlayerInit?
-typedef int (WINAPI *fnSub83FD00)(LPVOID pThis);
-int WINAPI Sub83FD00Hook(LPVOID pThis);
+// int __thiscall sub_4357A0(int this, int a2, int a3, int a4, int a5) -- ObjectInterface::Invoke?
+typedef int (WINAPI *fnSub4357A0)(LPVOID pThis, DWORD a2, char *a3, int a4, int a5);
+int WINAPI Sub4357A0Hook(LPVOID pThis, DWORD a2, char *a3, int a4, int a5);
 
 #endif//__TEST_HOOK_H__

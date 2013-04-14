@@ -7,15 +7,14 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
-#include "WindowerSettingsManager.h"
-
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "SetCursorPosHook.h"
 #include "PlayerDataHook.h"
 #include "Direct3D9Hook.h"
+
 #ifdef _DEBUG
 	#include "TestHook.h"
 #endif // _DEBUG

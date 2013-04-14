@@ -10,7 +10,6 @@
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 #include "CommandDispatcher.h"
 #include "CommandParser.h"

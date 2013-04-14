@@ -7,11 +7,11 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "SetCursorPosHook.h"
 #include "WndProcHook.h"
 
 #include "WindowerCore.h"

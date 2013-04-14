@@ -37,20 +37,23 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 		// hooks
+		BOOL SetCursorPosAHook(INT X_in, INT Y_in);
 		ATOM RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
 		LRESULT WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		HWND CreateWindowExAHook(DWORD dwExStyle_in, LPCSTR lpClassName_in, LPCSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in, 
 								 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in);
 
 	protected:
+		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
+		void RestoreWndProc();
+
 		//! function pointer to the original RegisterClassExA function
 		fnRegisterClassExA		m_pRegisterClassExATrampoline;
 		//! function pointer to the original CreateWindowExA function
 		fnCreateWindowExA		m_pCreateWindowExATrampoline;
-
-		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
-		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
-		void RestoreWndProc();
+		//! function pointer to the original SetCursorPos function
+		fnSetCursorPos			m_pSetCursorPosTrampoline;
 
 		//! the handle to the main thread
 		HANDLE m_hMainThreadHandle;

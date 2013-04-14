@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "IRenderable.h"

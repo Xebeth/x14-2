@@ -9,16 +9,13 @@
 #include <d3dx9.h>
 #include <d3d9.h>
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
-
 #include "Direct3D9Hook.h"
 
 #include "Font.h"
 #include "IRenderable.h"
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
-#include "Direct3D9Hook.h"
 
 #include "TextLabelRenderer.h"
 #include "UiTextLabel.h"
@@ -39,8 +36,10 @@ namespace Windower
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
 	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
-		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in), m_pLabelRenderer(NULL),
-		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U) {}
+		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
+		  m_pLabelRenderer(NULL), m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
+		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseX(0U), m_MouseY(0U),
+		  m_pMovingLabel(NULL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -71,7 +70,6 @@ namespace Windower
 		return (RegisterService(_T("TextLabelService"), true) != NULL);
 	}
 
-
 	bool GraphicsCore::Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in)
 	{
 		if (m_pDirect3DWrapper != NULL)
@@ -85,7 +83,7 @@ namespace Windower
 					&& Params_in.DataType.compare(_T("LabelServiceParam")) == 0
 					&& Params_in.pData != NULL)
 				{
-					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);					
+					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);
 
 					pService->SetRenderer(m_pDeviceWrapper, m_pLabelRenderer);
 
@@ -139,18 +137,24 @@ namespace Windower
 			m_pDeviceWrapper->SetRendering(bEnable_in);
 	}
 
-	void GraphicsCore::ToggleFPS()
+	TextLabelRenderer* GraphicsCore::GetLabelRenderer()
 	{
 		if (m_pLabelRenderer == NULL)
-			m_pLabelRenderer = new TextLabelRenderer(m_pDeviceWrapper);
+			m_pLabelRenderer = new TextLabelRenderer(m_Width, m_Height);
 
+		return m_pLabelRenderer;
+	}
+
+
+	void GraphicsCore::ToggleFPS()
+	{
 		RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
 		UiTextLabel *pFPSLabel = NULL;
 
 		if (RenderableIt == m_UiElements.end())
 		{
-			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 20UL,
-										 _T("Arial"), 12, true, false, 0xFFFF0000, m_pLabelRenderer, true);
+			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
+										 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
 
 			m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
 			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
@@ -189,5 +193,75 @@ namespace Windower
 	BaseModuleService* GraphicsCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
 		return new TextLabelService(ServiceName_in, m_UiElements, GFX_TEXT_COUNT, InvokePermission_in);
+	}
+
+	void GraphicsCore::SetWindowSize(WORD Width_in, WORD Height_in)
+	{
+		m_Height = Height_in;
+		m_Width = Width_in;
+
+		if (m_pLabelRenderer != NULL)
+			m_pLabelRenderer->SetWindowSize(Width_in, Height_in);
+	}
+
+	bool GraphicsCore::OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	{
+		if (m_pMovingLabel != NULL)
+		{
+			WORD X = m_MouseX, Y = m_MouseY;
+
+			m_MouseX = X_in;
+			m_MouseY = Y_in;
+
+			if (X_in != X && Y_in != Y)
+				m_pMovingLabel->Move(X_in - X, Y_in - Y);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	UiTextLabel* GraphicsCore::HitTest(WORD X_in, WORD Y_in)
+	{
+		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
+		RenderableMap::const_iterator EndIt = m_UiElements.end();
+		UiTextLabel *pResult = NULL, *pLabel = NULL;
+
+		for(; RenderableIt != EndIt; ++RenderableIt)
+		{
+			pLabel = static_cast<UiTextLabel*>(RenderableIt->second);
+
+			if (pLabel != NULL && pLabel->IsVisible() && pLabel->HitTest(X_in, Y_in)
+			 && (pResult == NULL || pLabel->GetZOrder() > pResult->GetZOrder()))
+			{
+				pResult = pLabel;
+			}
+		}
+
+		return pResult;
+	}
+
+	bool GraphicsCore::OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	{
+		bool Result = (m_pMovingLabel != NULL);
+
+		m_pMovingLabel = NULL;
+
+		return Result;
+	}
+
+	bool GraphicsCore::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	{
+		m_pMovingLabel = HitTest(X_in, Y_in);
+		m_MouseX = X_in;
+		m_MouseY = Y_in;
+
+		return (m_pMovingLabel != NULL);
+	}
+
+	bool GraphicsCore::IsMouseCaptured() const
+	{
+		return (m_pMovingLabel != NULL);
 	}
 }

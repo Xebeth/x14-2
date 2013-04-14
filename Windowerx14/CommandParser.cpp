@@ -7,11 +7,9 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "WindowerCore.h"
-#include "WindowerSettings.h"
 #include "CommandDispatcher.h"
 #include "CommandParser.h"
 

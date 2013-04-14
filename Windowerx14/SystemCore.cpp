@@ -7,11 +7,11 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
 #include "CreateWindowExHook.h"
+#include "SetCursorPosHook.h"
 #include "Direct3D9Hook.h"
 #include "WndProcHook.h"
 
@@ -27,17 +27,11 @@ namespace Windower
 		\param[in,out] pEngine : the windower engine
 	*/
 	SystemCore::SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(_T("System"), Engine_in_out, HookManager_in_out)
-	{
-		m_pRegisterClassExATrampoline = RegisterClassExA;
-		m_pCreateWindowExATrampoline = CreateWindowExA;
-		m_dwPID = GetCurrentProcessId();
-		m_hMainThreadHandle = NULL;
-		m_MinimizeVKey = VK_F11;
-		m_pGameWndProc = NULL;
-		m_MainThreadID = 0;
-		m_hGameWnd = NULL;
-	}
+		: WindowerCore(_T("System"), Engine_in_out, HookManager_in_out), m_hGameWnd(NULL),
+		  m_pRegisterClassExATrampoline(RegisterClassExA), m_dwPID (GetCurrentProcessId()),
+		  m_pCreateWindowExATrampoline(CreateWindowExA), m_hMainThreadHandle(NULL),
+		  m_pSetCursorPosTrampoline(SetCursorPos), m_MinimizeVKey(VK_F11),
+		  m_pGameWndProc(NULL), m_MainThreadID(0) {}
 
 	/*! \brief Starts the main thread of the windower engine
 		\param[in,out] pParam_in_out : a pointer to the windower engine
@@ -152,6 +146,22 @@ namespace Windower
 	{
 		switch (uMsg_in)
 		{
+			case WM_SIZE:
+				m_Engine.Graphics().SetWindowSize(LOWORD(lParam_in), HIWORD(lParam_in));
+			break;
+/*
+			case WM_LBUTTONDOWN:
+				if (m_Engine.Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
+					return 0;
+			break;
+			case WM_LBUTTONUP:
+				if (m_Engine.Graphics().OnLButtonUp(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
+					return 0;
+			break;
+			case WM_MOUSEMOVE:
+				m_Engine.Graphics().OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
+			break;
+*/
 			case WM_QUIT:
 			case WM_CLOSE:
 			case WM_DESTROY:
@@ -174,7 +184,7 @@ namespace Windower
 		if (m_pGameWndProc != NULL)
 			return m_pGameWndProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
 		else
-			return DefWindowProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
+			return ::DefWindowProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
 	}
 
 	/*! \brief Filters key presses
@@ -224,6 +234,8 @@ namespace Windower
 		HookManager_in.RegisterHook("RegisterClassExA", "user32.dll", RegisterClassExA, ::RegisterClassExAHook);
 		// register the CreateWindowExA hook 
 		HookManager_in.RegisterHook("CreateWindowExA", "user32.dll", CreateWindowExA, ::CreateWindowExAHook);
+		// register the SetCursorPos hook 
+		// HookManager_in.RegisterHook("SetCursorPos", "user32.dll", SetCursorPos, ::SetCursorPosAHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -233,5 +245,14 @@ namespace Windower
 	{
 		m_pRegisterClassExATrampoline = (fnRegisterClassExA)HookManager_in.GetTrampolineFunc("RegisterClassExA");
 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
+		m_pSetCursorPosTrampoline = (fnSetCursorPos)HookManager_in.GetTrampolineFunc("SetCursorPos");
+	}
+
+	BOOL SystemCore::SetCursorPosAHook(INT X_in, INT Y_in)
+	{
+		if (m_Engine.Graphics().IsMouseCaptured() == false)
+			return m_pSetCursorPosTrampoline(X_in, Y_in);
+
+		return TRUE;
 	}
 }

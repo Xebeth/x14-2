@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 Windower::WindowerEngine *g_pEngine = NULL;

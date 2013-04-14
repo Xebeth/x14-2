@@ -33,6 +33,14 @@ namespace Windower
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);		
 
+		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
+		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
+		bool OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
+		void SetWindowSize(WORD Width_in, WORD Height_in);
+		UiTextLabel* HitTest(WORD X_in, WORD Y_in);
+
+		bool IsMouseCaptured() const;
+
 		void SetRendering(bool bEnable_in);
 		bool RegisterServices();
 		void ToggleRendering();
@@ -46,6 +54,8 @@ namespace Windower
 		IDirect3D9* Direct3DCreate9Hook(UINT SDKVersion_in);
 
 	protected:
+		TextLabelRenderer* GetLabelRenderer();
+
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D9 device wrapper
@@ -60,6 +70,12 @@ namespace Windower
 		RenderableMap m_UiElements;
 		//! text label renderer
 		TextLabelRenderer *m_pLabelRenderer;
+		//! game window size
+		WORD m_Width, m_Height;
+		//! mouse position
+		WORD m_MouseX, m_MouseY;
+		//! pointer to the label being moved
+		UiTextLabel *m_pMovingLabel;
 	};
 }
 

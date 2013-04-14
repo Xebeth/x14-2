@@ -10,7 +10,6 @@
 #include "WindowerCore.h"
 #include "GameChatCore.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "ModuleService.h"

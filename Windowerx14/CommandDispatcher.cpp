@@ -7,12 +7,10 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 #include "WindowerCore.h"
 #include "CommandDispatcher.h"
-
 #include "ModuleService.h"
 
 namespace Windower

@@ -12,6 +12,7 @@
 #include "Font.h"
 #include "Timer.h"
 #include "IRenderable.h"
+#include "TextLabelRenderer.h"
 #include "UiTextLabel.h"
 
 #include "UiFPSCounter.h"
@@ -22,7 +23,7 @@ namespace Windower
 								 const string_t& Name_in, long X_in, long Y_in, long W_in,
 								 long H_in, const string_t &FontName_in, unsigned short FontSize_in,
 								 bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
-								 UIAL::IWindowRenderer<> *pRenderer_in, bool Visibile_in)
+								 TextLabelRenderer *pRenderer_in, bool Visibile_in)
 		: UiTextLabel(ID_in, pDevice_in, Name_in, X_in, Y_in, W_in, H_in, FontName_in, FontSize_in,
 					  bBold_in, bItalic_in, ARGB_in, pRenderer_in, Visibile_in), m_pRenderTimer(NULL)
 	{

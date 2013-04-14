@@ -154,6 +154,9 @@
     <ClCompile Include="TextLabelService.cpp">
       <Filter>Windower\Modules\Graphics\Services</Filter>
     </ClCompile>
+    <ClCompile Include="SetCursorPosHook.cpp">
+      <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -248,6 +251,9 @@
     </ClInclude>
     <ClInclude Include="UiFPSCounter.h">
       <Filter>Windower\Modules\Graphics\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SetCursorPosHook.h">
+      <Filter>Windower\Modules\System\Hooks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

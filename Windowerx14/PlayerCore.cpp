@@ -14,8 +14,6 @@
 
 #include "ModuleService.h"
 #include "PlayerDataService.h"
-
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
 
 namespace Windower

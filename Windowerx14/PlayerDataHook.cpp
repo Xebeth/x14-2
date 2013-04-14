@@ -7,9 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "WindowerSettings.h"
 #include "WindowerEngine.h"
-
 #include "PlayerDataHook.h"
 
 #include "WindowerCore.h"

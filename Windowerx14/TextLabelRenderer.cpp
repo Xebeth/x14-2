@@ -17,8 +17,8 @@
 
 namespace Windower
 {
-	TextLabelRenderer::TextLabelRenderer(IDirect3DDevice9 *pDevice_in)
-		: m_pFont(NULL), m_pDevice(pDevice_in) {}
+	TextLabelRenderer::TextLabelRenderer(WORD Width_in, WORD Height_in)
+		: m_pFont(NULL), m_Width(Width_in), m_Height(Height_in) {}
 
 	void TextLabelRenderer::BeforeRender(UIAL::CUiWindow<> &Window_in_out)
 	{
@@ -56,20 +56,19 @@ namespace Windower
 	void TextLabelRenderer::NormalizePosition(long &X_in_out, long &Y_in_out,
 											  long Width_in, long Height_in)
 	{
-		if (m_pDevice != NULL)
+		if (X_in_out < 0L || Y_in_out < 0L)
 		{
-			if (X_in_out < 0L || Y_in_out < 0L)
-			{
-				D3DVIEWPORT9 Viewport;
+			if (X_in_out < 0L)
+				X_in_out = m_Width + X_in_out - Width_in;
 
-				m_pDevice->GetViewport(&Viewport);
-
-				if (X_in_out < 0L)
-					X_in_out = Viewport.Width + X_in_out - Width_in;
-
-				if (Y_in_out < 0L)
-					Y_in_out = Viewport.Height + Y_in_out - Height_in;
-			}
+			if (Y_in_out < 0L)
+				Y_in_out = m_Height + Y_in_out - Height_in;
 		}
+	}
+
+	void TextLabelRenderer::SetWindowSize(WORD Width_in, WORD Height_in)
+	{
+		m_Height = Height_in;
+		m_Width = Width_in;
 	}
 }

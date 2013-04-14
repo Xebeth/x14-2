@@ -159,6 +159,7 @@
     <ClCompile Include="PlayerDataHook.cpp" />
     <ClCompile Include="PlayerDataService.cpp" />
     <ClCompile Include="RegisterClassExHook.cpp" />
+    <ClCompile Include="SetCursorPosHook.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -201,6 +202,7 @@
     <ClInclude Include="PlayerDataHook.h" />
     <ClInclude Include="PlayerDataService.h" />
     <ClInclude Include="RegisterClassExHook.h" />
+    <ClInclude Include="SetCursorPosHook.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="SystemCore.h" />

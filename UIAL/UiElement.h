@@ -74,7 +74,7 @@ namespace UIAL
 			\param[out] Width_out : receives the width of the element
 			\param[out] Height_out : receives the height of the element 
 		*/
-		void GetSize(unsigned long &Width_out, unsigned long &Height_out) const
+		virtual void GetSize(unsigned long &Width_out, unsigned long &Height_out) const
 		{
 			Height_out = m_Rect.GetHeight();
 			Width_out = m_Rect.GetWidth();
@@ -84,7 +84,7 @@ namespace UIAL
 			\param[in] Width_in : the new width of the element
 			\param[in] Height_in : the new height of the element
 		*/
-		void SetSize(unsigned long Width_in, unsigned long Height_in)
+		virtual void SetSize(unsigned long Width_in, unsigned long Height_in)
 		{
 			// update the size
 			SetDirty(m_Rect.SetSize(Width_in, Height_in));
@@ -93,7 +93,7 @@ namespace UIAL
 		/*! \brief Sets the height of the element
 			\param[in] Height_in : the new height of the element
 		*/
-		void SetHeight(unsigned long Height_in)
+		virtual void SetHeight(unsigned long Height_in)
 		{
 			// update the height
 			SetDirty(m_Rect.SetHeight(Height_in));
@@ -102,7 +102,7 @@ namespace UIAL
 		/*! \brief Sets the width of the element
 			\param[in] Width_in : the new width of the element
 		*/
-		void SetWidth(unsigned long Width_in)
+		virtual void SetWidth(unsigned long Width_in)
 		{
 			// update the width
 			SetDirty(m_Rect.SetWidth(Width_in));
@@ -111,17 +111,17 @@ namespace UIAL
 		/*! \brief Retrieves the height of the element
 			\return the height of the element
 		*/
-		unsigned long GetHeight() const { return m_Rect.GetHeight(); }
+		virtual unsigned long GetHeight() const { return m_Rect.GetHeight(); }
 
 		/*! \brief Retrieves the width of the element
 			\return the width of the element
 		*/
-		unsigned long GetWidth() const { return m_Rect.GetWidth(); }
+		virtual unsigned long GetWidth() const { return m_Rect.GetWidth(); }
 
 		/*! \brief Sets the name of the element
 			\param[in] Name_in : the new name of the element
 		*/
-		void SetName(const string_t &Name_in)
+		virtual void SetName(const string_t &Name_in)
 		{
 			// update the name
 			m_Name = Name_in;
@@ -130,28 +130,28 @@ namespace UIAL
 		/*! \brief Retrieves the name of the element
 			\returns the name of the element
 		*/
-		const string_t& GetName() const { return m_Name; }
+		virtual const string_t& GetName() const { return m_Name; }
 
 		/*! \brief Retrieves the ID of the element
 			\return the ID of the element
 		*/
-		unsigned long GetID() const { return m_ID; }
+		virtual unsigned long GetID() const { return m_ID; }
 	
 		/*! \brief Checks if the element is dirty
 			\returns true if the element is dirty; false otherwise
 		*/
-		bool IsDirty() const { return m_Dirty; }
+		virtual bool IsDirty() const { return m_Dirty; }
 
 		/*! \brief Sets the state of the dirty flag
 			\param[in] Dirty_in : the new state of the dirty flag
 		*/
-		void SetDirty(bool Dirty_in) { m_Dirty = Dirty_in; }
+		virtual void SetDirty(bool Dirty_in) { m_Dirty = Dirty_in; }
 
 		/*! \brief Changes the size of the element by the specified offsets
 			\param[in] WidthOffset_in : offset in width
 			\param[in] HeightOffset_in : offset in height
 		*/
-		void Resize(T WidthOffset_in, T HeightOffset_in)
+		virtual void Resize(T WidthOffset_in, T HeightOffset_in)
 		{
 			if (WidthOffset_in != 0L || HeightOffset_in != 0L)
 			{
@@ -163,7 +163,7 @@ namespace UIAL
 			\param[out] X_out : the x-coordinate from the top-left corner of the screen of the element
 			\param[out] Y_out : the y-coordinate from the top-left corner of the screen of the element
 		*/
-		void GetPos(T &X_out, T &Y_out) const
+		virtual void GetPos(T &X_out, T &Y_out) const
 		{
 			X_out = m_Rect.GetX();
 			Y_out = m_Rect.GetY();
@@ -173,7 +173,7 @@ namespace UIAL
 			\param[in] X_in : the new x-coordinate of the element from the top-left corner of the screen
 			\param[in] Y_in : the new y-coordinate of the element from the top-left corner of the screen
 		*/
-		void SetPos(T X_in, T Y_in)
+		virtual void SetPos(T X_in, T Y_in)
 		{
 			// update the position but keep the z-order
 			bool Dirty = m_Rect.SetX(X_in);
@@ -184,7 +184,7 @@ namespace UIAL
 		/*! \brief Sets the x-coordinate of the element
 			\param[in] X_in : the new x-coordinate of the element from the top-left corner of the screen
 		*/
-		void SetX(T X_in)
+		virtual void SetX(T X_in)
 		{
 			// update the x-coordinate
 			SetDirty(m_Rect.SetX(X_in));
@@ -193,7 +193,7 @@ namespace UIAL
 		/*! \brief Sets the y-coordinate of the element
 			\param[in] Y_in : the new y-coordinate of the element from the top-left corner of the screen
 		*/
-		void SetY(T Y_in)
+		virtual void SetY(T Y_in)
 		{
 			// update the y-coordinate
 			SetDirty(m_Rect.SetY(Y_in));		
@@ -202,7 +202,7 @@ namespace UIAL
 		/*! \brief Sets the z-order of the element
 			\param[in] ZOrder_in : the new z-order of the element
 		*/
-		void SetZOrder(T ZOrder_in)
+		virtual void SetZOrder(T ZOrder_in)
 		{
 			// update the z-order
 			SetDirty(m_Rect.SetZ(ZOrder_in));
@@ -211,23 +211,23 @@ namespace UIAL
 		/*! \brief Retrieves the x-coordinate of the element
 			\return the x-coordinate from the top-left corner of the screen of the element
 		*/
-		T GetX() const { return m_Rect.GetX(); }
+		virtual T GetX() const { return m_Rect.GetX(); }
 
 		/*! \brief Retrieves the y-coordinate of the element
 			\return the y-coordinate from the top-left corner of the screen of the element
 		*/
-		T GetY() const { return m_Rect.GetY(); }
+		virtual T GetY() const { return m_Rect.GetY(); }
 
 		/*! \brief Retrieves the z-order of the element
 			\return the z-order of the element
 		*/
-		T GetZOrder() const { return m_Rect.GetZ(); }
+		virtual T GetZOrder() const { return m_Rect.GetZ(); }
 
 		/*! \brief Moves the element by specified offsets
 			\param[in] XOffset_in : the offset in x-coordinate from the top-left corner of the screen
 			\param[in] YOffset_in : the offset in y-coordinate from the top-left corner of the screen
 		*/
-		void Move(T XOffset_in, T YOffset_in)
+		virtual void Move(T XOffset_in, T YOffset_in)
 		{
 			// move the element but keep the z-order
 			SetDirty(m_Rect.Move(XOffset_in, YOffset_in));
@@ -236,7 +236,7 @@ namespace UIAL
 		/*! \brief Sets the flag specifying if the element is visible
 			\param[in] Visible_in : the flag specifying if the element is visible
 		*/
-		void SetVisibile(bool Visible_in)
+		virtual void SetVisibile(bool Visible_in)
 		{
 			m_Visible = Visible_in;
 			SetDirty(Visible_in);
@@ -245,7 +245,7 @@ namespace UIAL
 		/*! \brief Toggles the flag specifying if the element is visible
 			\return the new value of the flag
 		*/
-		bool ToggleVisible()
+		virtual bool ToggleVisible()
 		{
 			m_Visible = !m_Visible;
 			SetDirty(true);
@@ -256,7 +256,30 @@ namespace UIAL
 		/*! \brief Checks if the element is visible
 			\return true if the element is visible; false otherwise
 		*/
-		bool IsVisible() const { return m_Visible; }
+		virtual bool IsVisible() const { return m_Visible; }
+
+		/*! \brief Checks if the coordinates are inside the element rectangle
+			\param[in] Rect_in : the rectangle to check
+			\param[in] X_in : the x-coordinate to check
+			\param[in] Y_in : the y-coordinate to check
+			\return true if the coordinates are inside the element rectangle; false otherwise
+		*/
+		virtual bool IsInsideRect(const CUiRect &Rect_in, T X_in, T Y_in) const
+		{
+			CUiPoint Point(X_in, Y_in);
+
+			return IsInsideRect(Rect_in, Point);
+		}
+
+		/*! \brief Checks if the specified point is inside the element rectangle
+			\param[in] Rect_in : the rectangle to check
+			\param[in] Point_in : the point to check
+			\return true if the point is inside inside the element rectangle; false otherwise
+		*/
+		virtual bool IsInsideRect(const CUiRect &Rect_in, const CUiPoint &Point_in) const
+		{
+			return Rect_in.Contains(Point_in);
+		}
 
 	protected:
 		/*! \brief Sets the ID of the element
