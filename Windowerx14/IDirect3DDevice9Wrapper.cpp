@@ -8,21 +8,13 @@
 #include "IDirect3DDevice9Wrapper.h"
 
 IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice,
-												 D3DPRESENT_PARAMETERS &PresentParams_in,
-												 DeviceSubscribers &Subscribers_in)
-	: m_pDirect3dDevice(*pDirect3dDevice), m_PresentParams(PresentParams_in), m_Fullscreen(false), m_DrawUi(false),
-	  m_Subscribers(Subscribers_in), m_RefCount(0UL), m_bSceneStarted(false), m_bRender(true) {}
+												 D3DPRESENT_PARAMETERS &PresentParams_in)
+	: m_pDirect3dDevice(*pDirect3dDevice), m_PresentParams(PresentParams_in), m_bRender(true), 
+	  m_Fullscreen(false), m_DrawUi(false), m_bSceneStarted(false) {}
 
 IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
 {
-	DeviceSubscribers::const_iterator DeviceIt = m_Subscribers.cbegin();
-	DeviceSubscribers::const_iterator EndIt = m_Subscribers.cend();
-
-	m_UiElements.clear();
 	m_pDirect3dDevice = NULL;
-
-	for (; DeviceIt != EndIt; ++DeviceIt)
-		*(*DeviceIt) = NULL;
 }
 
 bool IDirect3DDevice9Wrapper::AddRenderable(unsigned long ID_in, IRenderable *pRenderable_in)
@@ -53,12 +45,7 @@ bool IDirect3DDevice9Wrapper::RemoveRenderable(unsigned long ID_in)
 
 ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
 {
-	ULONG Result = 0UL;
-	
-	if (m_pDirect3dDevice != NULL)
-		Result = m_pDirect3dDevice->Release();
-
-	return Result;
+	return m_pDirect3dDevice->Release();
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene() 
@@ -145,8 +132,6 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::QueryInterface(REFIID iid, void ** pp
 
 ULONG	__stdcall IDirect3DDevice9Wrapper::AddRef(void)
 {
-	++m_RefCount;
-
 	return m_pDirect3dDevice->AddRef();
 }
 

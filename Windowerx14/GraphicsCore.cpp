@@ -39,7 +39,7 @@ namespace Windower
 		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
 		  m_pLabelRenderer(NULL), m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
 		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseX(0U), m_MouseY(0U),
-		  m_pMovingLabel(NULL) {}
+		  m_pMovingLabel(NULL), m_pDeviceWrapper(NULL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -61,6 +61,18 @@ namespace Windower
 		{
 			delete m_pLabelRenderer;
 			m_pLabelRenderer = NULL;
+		}
+
+		if (m_pDeviceWrapper != NULL)
+		{
+			delete m_pDeviceWrapper;
+			m_pDeviceWrapper = NULL;
+		}
+
+		if (m_pDirect3DWrapper != NULL)
+		{
+			delete m_pDirect3DWrapper;
+			m_pDirect3DWrapper = NULL;
 		}
 	}
 

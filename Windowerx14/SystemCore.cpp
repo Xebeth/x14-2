@@ -28,10 +28,10 @@ namespace Windower
 	*/
 	SystemCore::SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
 		: WindowerCore(_T("System"), Engine_in_out, HookManager_in_out), m_hGameWnd(NULL),
-		  m_pRegisterClassExATrampoline(RegisterClassExA), m_dwPID (GetCurrentProcessId()),
-		  m_pCreateWindowExATrampoline(CreateWindowExA), m_hMainThreadHandle(NULL),
-		  m_pSetCursorPosTrampoline(SetCursorPos), m_MinimizeVKey(VK_F11),
-		  m_pGameWndProc(NULL), m_MainThreadID(0) {}
+		  m_pRegisterClassExATrampoline(NULL), m_dwPID (GetCurrentProcessId()),
+		  m_pCreateWindowExATrampoline(NULL), m_hMainThreadHandle(NULL),
+		  m_pSetCursorPosTrampoline(NULL), m_MinimizeVKey(VK_F11),
+		  m_pGameWndProc(NULL), m_MainThreadID(0UL) {}
 
 	/*! \brief Starts the main thread of the windower engine
 		\param[in,out] pParam_in_out : a pointer to the windower engine
@@ -91,6 +91,7 @@ namespace Windower
 				// remove the hook since it is no longer needed
 				m_HookManager.UninstallHook("CreateWindowExA");
 				m_HookManager.UnregisterHook("CreateWindowExA");
+				m_pCreateWindowExATrampoline = NULL;
 			}
 		}
 
@@ -110,19 +111,25 @@ namespace Windower
 		{
 			// replacing the pointer to the window procedure
 			WNDCLASSEXA *pWndClass = const_cast<WNDCLASSEXA *>(pWndClass_in);
+			bool Uninstall = false;
 
 			// check for the game class name
 			if (strcmp(pWndClass->lpszClassName, FFXIV_WINDOW_CLASSA) == 0)
 			{
+				Uninstall = true;
 				// save the original window procedure then replace it
 				m_pGameWndProc = pWndClass->lpfnWndProc;
 				pWndClass->lpfnWndProc = ::WndProcHook;
+			}
+
+			Result = m_pRegisterClassExATrampoline(pWndClass);
+
+			if (Uninstall)
+			{
 				// remove the hook since it is no longer needed
 				m_HookManager.UninstallHook("RegisterClassExA");
 				m_HookManager.UnregisterHook("RegisterClassExA");
 			}
-
-			Result = m_pRegisterClassExATrampoline(pWndClass);
 		}
 
 		return Result;
@@ -149,7 +156,10 @@ namespace Windower
 			case WM_SIZE:
 				m_Engine.Graphics().SetWindowSize(LOWORD(lParam_in), HIWORD(lParam_in));
 			break;
-/*
+#ifdef _DEBUG
+			case WM_RBUTTONUP:
+				m_Engine.Graphics().ToggleFPS();
+			break;
 			case WM_LBUTTONDOWN:
 				if (m_Engine.Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
 					return 0;
@@ -161,7 +171,7 @@ namespace Windower
 			case WM_MOUSEMOVE:
 				m_Engine.Graphics().OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
 			break;
-*/
+#endif // _DEBUG
 			case WM_QUIT:
 			case WM_CLOSE:
 			case WM_DESTROY:
@@ -235,7 +245,9 @@ namespace Windower
 		// register the CreateWindowExA hook 
 		HookManager_in.RegisterHook("CreateWindowExA", "user32.dll", CreateWindowExA, ::CreateWindowExAHook);
 		// register the SetCursorPos hook 
-		// HookManager_in.RegisterHook("SetCursorPos", "user32.dll", SetCursorPos, ::SetCursorPosAHook);
+#ifdef _DEBUG
+		HookManager_in.RegisterHook("SetCursorPos", "user32.dll", SetCursorPos, ::SetCursorPosAHook);
+#endif // _DEBUG
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -245,7 +257,9 @@ namespace Windower
 	{
 		m_pRegisterClassExATrampoline = (fnRegisterClassExA)HookManager_in.GetTrampolineFunc("RegisterClassExA");
 		m_pCreateWindowExATrampoline = (fnCreateWindowExA)HookManager_in.GetTrampolineFunc("CreateWindowExA");
+#ifdef _DEBUG
 		m_pSetCursorPosTrampoline = (fnSetCursorPos)HookManager_in.GetTrampolineFunc("SetCursorPos");
+#endif // _DEBUG
 	}
 
 	BOOL SystemCore::SetCursorPosAHook(INT X_in, INT Y_in)

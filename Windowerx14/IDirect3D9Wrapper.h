@@ -41,9 +41,6 @@ protected:
 	HWND						 m_hGameWnd;
 
 	DeviceSubscribers			 m_Subscribers;
-
-	ULONG						 m_RefCount;
-
 	//! flag specifying if vertical synchronization is in use
 	const BOOL m_VSync;
 };
