@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Updater.h" />
+    <ClInclude Include="UpdaterThread.h">
+      <Filter>Updater\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="IThreadProc.h">
+      <Filter>Updater\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="IThreadProgress.h">
+      <Filter>Updater\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamProgress.h">
+      <Filter>Updater\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDownload.h">
+      <Filter>Updater\Stream</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{a62dabbd-9358-4713-86a7-cdfe87749703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Updater">
+      <UniqueIdentifier>{d7d4f881-c8e1-478e-bf7c-6336924777af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Updater\Thread">
+      <UniqueIdentifier>{8ad3e14f-3a58-4ff5-bf08-6ccdeb9f1141}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Updater\Stream">
+      <UniqueIdentifier>{c3d3c76c-7250-4b03-88cb-20ffea84e061}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdaterThread.cpp">
+      <Filter>Updater\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamProgress.cpp">
+      <Filter>Updater\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDownload.cpp">
+      <Filter>Updater\Stream</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
