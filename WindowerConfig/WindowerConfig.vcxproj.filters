@@ -40,5 +40,8 @@
     <ResourceCompile Include="WindowerConfig.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

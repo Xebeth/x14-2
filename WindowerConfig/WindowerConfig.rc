@@ -67,12 +67,12 @@ CAPTION "Windower configuration"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_PROFILES_COMBO,7,19,166,169,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Delete",IDC_DELETE_PROFILE,175,17,50,16
+    PUSHBUTTON      "Delete",IDC_DELETE_PROFILE,180,17,50,16
     PUSHBUTTON      "New Profile",IDC_NEW_PROFILE,228,17,50,16
-    EDITTEXT        IDC_GAME_PATH,7,48,249,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_GAME_PATH,7,48,249,12,ES_AUTOHSCROLL | ES_READONLY,WS_EX_ACCEPTFILES
     PUSHBUTTON      "...",IDC_BROWSE_GAME_PATH,259,48,19,12
-    CONTROL         "vSync / Triple buffering",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,7,80,97,10
-    COMBOBOX        IDC_LNG_COMBO,131,80,95,77,CBS_DROPDOWNLIST | CBS_OEMCONVERT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "vSync / Triple buffering",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,80,97,10
+    COMBOBOX        IDC_LNG_COMBO,191,80,87,77,CBS_DROPDOWNLIST | CBS_OEMCONVERT | WS_VSCROLL | WS_TABSTOP
     CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,104,271,186
     DEFPUSHBUTTON   "Launch",IDOK,122,293,50,16,WS_DISABLED
     PUSHBUTTON      "Save",IDC_SAVE,175,293,50,16
@@ -81,7 +81,9 @@ BEGIN
     LTEXT           "Game directory :",IDC_STATIC,7,36,54,8
     LTEXT           "Plugins :",IDC_STATIC,7,92,28,8
     LTEXT           "Graphics :",IDC_STATIC,7,69,33,8
-    LTEXT           "Language :",IDC_STATIC,131,69,37,8
+    LTEXT           "Language :",IDC_STATIC,191,69,37,8
+    LTEXT           "Updates:",IDC_STATIC,104,69,30,8
+    CONTROL         "Check at startup",IDC_AUTOUPDATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,80,69,10
 END
 
 
@@ -108,8 +110,7 @@ BEGIN
         RIGHTMARGIN, 278
         VERTGUIDE, 13
         VERTGUIDE, 47
-        VERTGUIDE, 131
-        VERTGUIDE, 173
+        VERTGUIDE, 104
         VERTGUIDE, 191
         TOPMARGIN, 7
         BOTTOMMARGIN, 309
@@ -126,6 +127,8 @@ END
 
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
+
+
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

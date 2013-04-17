@@ -164,6 +164,7 @@ namespace Windower
 				m_DefaultProfile = m_Profiles.begin()->first;
 
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, m_DefaultProfile);
+			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, m_bAutoUpdate ? 1L : 0L);
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, m_GamePath);
 
 			return m_pSettingsFile->Save();
@@ -234,7 +235,8 @@ namespace Windower
 			VerifyConfig();
 			// get the general parameters
 			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE));
-			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));
+			SetAutoUpdate(m_pSettingsFile->GetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE) != 0L);
+			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
 
