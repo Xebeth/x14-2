@@ -74,6 +74,9 @@ void CryptUtils::Crypt(const string_t &CryptKey_in, const string_t &InputStr_in,
 			t = ((unsigned long) m_SubstBox1[i] + (unsigned long) m_SubstBox1[j]) % 256UL;
 			// xor with the data and done
 			temp = (pTempStr[k] ^ m_SubstBox1[t]);
+			// fix corruption in some cases
+			if (temp == NULL)
+				temp = m_SubstBox1[t] ^ pTempStr[k];
 		}
 		while(temp == NULL);
 
