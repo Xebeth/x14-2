@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resources\images">
-      <UniqueIdentifier>{6bd85a61-c106-43f7-939b-9b3d96594d74}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Precompiled headers">
       <UniqueIdentifier>{378c0806-17f0-419e-93cd-e16e9155eea7}</UniqueIdentifier>
     </Filter>
@@ -19,12 +16,13 @@
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled headers</Filter>
     </ClInclude>
+    <ClInclude Include="LauncherApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="launcher.cpp" />
     <ClCompile Include="stdafx.cpp">
       <Filter>Precompiled headers</Filter>
     </ClCompile>
+    <ClCompile Include="LauncherApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">
@@ -33,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\x14.ico">
-      <Filter>Resources\images</Filter>
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
 </Project>

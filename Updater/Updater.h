@@ -26,6 +26,8 @@
 	#pragma comment(lib, "Updater.x86.lib")
 #endif // _DEBUG
 
+#pragma comment(lib, "urlmon.lib")
+
 #undef _UPDATER_SDK_INCLUDE_
 
 #endif//__UPDATER_H__

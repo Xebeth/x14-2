@@ -23,6 +23,7 @@ namespace Updater
 		virtual ~Thread();
 
 		HANDLE Execute();
+		void Reset();
 		void Abort();
 
 	protected:

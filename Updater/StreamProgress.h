@@ -48,8 +48,9 @@ namespace Updater
 		const std::vector<char>& GetBuffer(unsigned long &BufferSize_out) const;
 		bool IsCancelPending() const;
 		bool IsCompleted() const;
+		void PumpMessages();
 		void Cancel();
-
+		void Reset();
 	protected:
 		IThreadProgress *m_pProgress;
 		std::vector<char> m_Buffer;
@@ -58,7 +59,6 @@ namespace Updater
 		IBinding *m_pBinding;
 		bool m_bCancelling;
 		bool m_bCompleted;
-		string_t m_Status;
 	};
 }
 

@@ -5,13 +5,15 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled headers support
 **************************************************************************/
-#ifndef __LAUNCHER_AFX_H__
-#define __LAUNCHER_AFX_H__
+#ifndef __BOOTSTRAP_AFX_H__
+#define __BOOTSTRAP_AFX_H__
+
+#define UPDATER_API __declspec(dllexport)
 
 // #define __USE_VLD
 #include <stdhdr.h>
 
-#include <ModuleInjection.h>
-#include <Updaterx14.h>
+#include <PluginSDK.h>
+#include <Updater.h>
 
-#endif//__LAUNCHER_AFX_H__
+#endif//__BOOTSTRAP_AFX_H__

@@ -19,6 +19,7 @@
 
 #if defined _AFXDLL || defined _AFXEXT
 	#include <afxwin.h>
+	#include <afxcmn.h>
 #else
 	#include <windows.h>	
 #endif // _AFXEXT

@@ -17,10 +17,6 @@ namespace Updater
 
 	Thread::~Thread()
 	{
-		if (m_pThreadProc != NULL)
-			m_pThreadProc->Cancel();
-
-		WaitForSingleObject(m_hThreadHandle, INFINITE);
 		m_pThreadProc = NULL;
 	}
 
@@ -42,13 +38,11 @@ namespace Updater
 
 			do
 			{
-				if (pThreadProc->IsCancelPending())
-					return -1;
-
 				pThreadProc->Update();
 				Sleep(0);
 			}
-			while (pThreadProc->IsCompleted() == false);
+			while (pThreadProc->IsCancelPending() == false
+				&& pThreadProc->IsCompleted() == false);
 
 			pThreadProc->Cleanup();
 		}
@@ -60,5 +54,11 @@ namespace Updater
 	{
 		if (m_pThreadProc != NULL)
 			m_pThreadProc->Cancel();
+	}
+
+	void Thread::Reset()
+	{
+		if (m_pThreadProc != NULL)
+			m_pThreadProc->Cleanup();
 	}
 }

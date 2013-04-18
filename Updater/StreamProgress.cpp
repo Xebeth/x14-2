@@ -30,10 +30,7 @@ namespace Updater
 	HRESULT StreamProgress::OnProgress(ULONG ulProgress, ULONG ulProgressMax, ULONG ulStatusCode, LPCWSTR szStatusText)
 	{
 		if (m_pProgress != NULL)
-			m_pProgress->OnProgress(ulProgress, ulProgressMax);
-
-		if (szStatusText != NULL)
-			m_Status.assign(szStatusText);
+			m_pProgress->OnProgress(ulProgress, ulProgressMax, szStatusText);
 
 		return m_bCancelling ? E_ABORT : S_OK;
 	}
@@ -69,10 +66,7 @@ namespace Updater
 
 		if ((grfBSCF & BSCF_FIRSTDATANOTIFICATION) == BSCF_FIRSTDATANOTIFICATION)
 		{
-			m_BufferSize = m_BufferPos = 0UL;
-			m_Buffer.resize(READ_CHUNK_SIZE);
-			m_bCompleted = false;
-			m_Buffer.clear();
+			Reset();
 			// download starting
 			if (m_pProgress != NULL)
 				m_pProgress->OnStart();
@@ -118,6 +112,31 @@ namespace Updater
 		m_bCancelling = true;
 	}
 
+	void StreamProgress::Reset()
+	{
+		m_bCompleted = m_bCancelling = false;
+		m_BufferSize = m_BufferPos = 0UL;
+		m_Buffer.resize(READ_CHUNK_SIZE);
+		m_bCompleted = false;
+		m_Buffer.clear();
+	}
+
+	void StreamProgress::PumpMessages()
+	{
+		if (m_pProgress == NULL)
+		{
+			MSG msg;
+
+			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+		else
+			m_pProgress->PumpMessages();
+	}
+
 	const std::vector<char>& StreamProgress::GetBuffer(unsigned long &BufferSize_out) const
 	{ BufferSize_out = m_BufferSize; return m_Buffer; }
 
@@ -147,8 +166,13 @@ namespace Updater
 			m_pBinding = NULL;
 		}
 
-		if (szError != NULL)
-			m_Status.assign(szError);
+		if (hresult != S_FALSE && hresult != S_OK)
+		{
+			if (m_pProgress != NULL)
+				m_pProgress->OnProgress(0UL, 0UL, _T("Download failed..."));
+
+			Cancel();
+		}
 
 		return m_bCancelling ? E_ABORT : S_OK;
 	}

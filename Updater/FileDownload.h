@@ -21,12 +21,14 @@ namespace Updater
 	class FileDownload : public IThreadProc
 	{
 	public:
-		FileDownload(const string_t &UpdateURL_in, IThreadProgress *pProgress_in);
+		FileDownload(const string_t &URL_in, IThreadProgress *pProgress_in);
 		virtual ~FileDownload();
 
 		const std::vector<char>& GetBuffer(unsigned long &BufferSize_out) const;
 		bool SaveToDisk(const TCHAR *pFilename_in) const;		
-		const string_t& GetUpdateURL() const;
+
+		void SetURL(const string_t &URL_in);
+		const string_t& GetURL() const;
 
 		virtual bool IsCancelPending() const;
 		virtual bool IsCompleted() const;

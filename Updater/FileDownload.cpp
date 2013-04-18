@@ -23,13 +23,11 @@ namespace Updater
 	{
 		if (m_pProgress != NULL)
 		{
+			m_pProgress->Cancel();
 			delete m_pProgress;
 			m_pProgress = NULL;
 		}
 	}
-
-	const string_t& FileDownload::GetUpdateURL() const
-	{ return m_UpdateURL; }
 
 	const std::vector<char>& FileDownload::GetBuffer(unsigned long &BufferSize_out) const
 	{ return m_pProgress->GetBuffer(BufferSize_out); }
@@ -81,6 +79,9 @@ namespace Updater
 
 	void FileDownload::Cleanup()
 	{
+		if (m_pProgress != NULL)
+			m_pProgress->Reset();
+
 		if (m_pMoniker != NULL)
 		{
 			m_pMoniker->Release();
@@ -120,12 +121,13 @@ namespace Updater
 
 	void FileDownload::Update()
 	{
-		MSG msg;
-
-		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+		if (m_pProgress != NULL)
+			m_pProgress->PumpMessages();
 	}
+
+	const string_t& FileDownload::GetURL() const
+	{ return m_UpdateURL; }
+
+	void FileDownload::SetURL(const string_t &URL_in)
+	{ m_UpdateURL = URL_in; }
 }

@@ -13,10 +13,10 @@ namespace Updater
 	class IThreadProgress
 	{
 	public:
-		IThreadProgress();
 		virtual ~IThreadProgress() {}
 
-		virtual void OnProgress(unsigned long Completed_in, unsigned long Total_in) =0;
+		virtual void OnProgress(unsigned long Completed_in, unsigned long Total_in, const TCHAR *pFeedbackMsg_in) =0;
+		virtual void PumpMessages() =0;
 		virtual void OnFinish() =0;
 		virtual void OnCancel() =0;
 		virtual void OnStart() =0;
