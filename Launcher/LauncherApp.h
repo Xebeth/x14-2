@@ -19,9 +19,7 @@ public:
 	enum eCommandFlags
 	{
 		FLAG_PROFILE = 0,	// /profile or /Profile
-#ifdef _DEBUG
 		FLAG_SID,
-#endif // _DEBUG
 		FLAG_COUNT
 	};
 
@@ -33,21 +31,16 @@ public:
 	*/
 	const CString& GetProfileName(CString &ProfileName_out)
 	{ ProfileName_out = m_ProfileName; return ProfileName_out; }
-
-#ifdef _DEBUG
 	/*! \brief Retrieves the SID found on the command line
 		\param[out] ProfileName_out : string receiving the profile name
 		\return a const reference to ProfileName_out
 	*/
 	const CString& GetSID(CString &SID_out)
 	{ SID_out = m_SID; return SID_out; }
-#endif // _DEBUG
 
 protected:
-#ifdef _DEBUG
 	//! SID passed on the command line
 	CString m_SID;
-#endif // _DEBUG
 	//! name of the profile passed on the command line
 	CString m_ProfileName;
 	//! last flag parsed

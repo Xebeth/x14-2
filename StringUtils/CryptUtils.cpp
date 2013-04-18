@@ -76,7 +76,7 @@ void CryptUtils::Crypt(const string_t &CryptKey_in, const string_t &InputStr_in,
 			temp = (pTempStr[k] ^ m_SubstBox1[t]);
 			// fix corruption in some cases
 			if (temp == NULL)
-				temp = m_SubstBox1[t] ^ pTempStr[k];
+				temp = pTempStr[k];
 		}
 		while(temp == NULL);
 

@@ -42,10 +42,8 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 		{
 			if (_tcsicmp(lpszParam, _T("profile")) == 0)
 				m_LastFlag = FLAG_PROFILE;
-#ifdef _DEBUG
 			else if (_tcsicmp(lpszParam, _T("SID")) == 0)
 				m_LastFlag = FLAG_SID;
-#endif // _DEBUG
 		}
 	}
 	else
@@ -55,11 +53,9 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 			case FLAG_PROFILE:
 				m_ProfileName.Format(_T("%s%s"), PROFILE_PREFIX, lpszParam);
 			break;
-#ifdef _DEBUG
 			case FLAG_SID:
 				m_SID = lpszParam;
 			break;
-#endif // _DEBUG
 		}
 	}
 }
@@ -89,13 +85,14 @@ BOOL LauncherApp::InitInstance()
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 	ParseCommandLine(CmdInfo);
 
+#ifdef _DEBUG
 	if (m_pSettingsManager->IsAutoUpdated())
 	{
 		m_pMainWnd = pUpdaterDlg = new UpdateDlg(m_pSettingsManager);
 
 		pUpdaterDlg->DoModal();
 
-#ifdef _DEBUG
+
 		if (pUpdaterDlg != NULL)
 		{
 			delete pUpdaterDlg;
@@ -103,8 +100,8 @@ BOOL LauncherApp::InitInstance()
 		}
 
 		return FALSE;
-#endif // _DEBUG
 	}
+#endif // _DEBUG
 
 	if (m_pSettingsManager->IsGamePathValid())
 	{
@@ -128,7 +125,7 @@ BOOL LauncherApp::InitInstance()
 		format(ExePath, _T("%sboot\\ffxivboot.exe"), GamePath.c_str());
 		format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		#define GAMEVER_BUFFER_SIZE 24
 
 		CString SID;
@@ -175,7 +172,7 @@ BOOL LauncherApp::InitInstance()
 				}
 			}
 		}
-#endif // _DEBUG
+//#endif // _DEBUG
 
 		// create the process
 		InjectModule::CreateProcessEx(ExePath, ProcessInfo, pCmdLine,
