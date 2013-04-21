@@ -9,10 +9,15 @@
 #define __MEMORY_SCANNER_H__
 
 #include <NonCopyable.h>
+#include <StringUtils.h>
+#include <vector>
+#include <map>
 
 #define _MEMORY_SCANNER_SDK_INCLUDE_
 
 #include <SigScan.h>
+#include <ScanResult.h>
+#include <ProcessImage.h>
 
 #ifdef _DEBUG
 	#pragma comment(lib, "SigScan.x86d.lib")

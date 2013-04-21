@@ -111,6 +111,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ProcessImage.cpp" />
+    <ClCompile Include="ScanResult.cpp" />
     <ClCompile Include="SigScan.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
@@ -120,6 +122,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MemoryScanner.h" />
+    <ClInclude Include="ProcessImage.h" />
+    <ClInclude Include="ScanResult.h" />
     <ClInclude Include="SigScan.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

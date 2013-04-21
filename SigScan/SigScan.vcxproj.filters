@@ -8,6 +8,12 @@
       <Filter>Precompiled headers</Filter>
     </ClInclude>
     <ClInclude Include="MemoryScanner.h" />
+    <ClInclude Include="ScanResult.h">
+      <Filter>SigScan</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessImage.h">
+      <Filter>SigScan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SigScan">
@@ -23,6 +29,12 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="ScanResult.cpp">
+      <Filter>SigScan</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessImage.cpp">
+      <Filter>SigScan</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

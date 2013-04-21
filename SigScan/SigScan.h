@@ -14,48 +14,48 @@
 
 namespace SigScan
 {
-	//! \brief internal structure used in the memory scan
-	class MemoryCheck
-	{
-	public:
-		//! \brief MemoryCheck default constructor
-		MemoryCheck() : Start(NULL), Size(0U) {}
-		/*! \brief MemoryCheck constructor
-			\param[in] Start_in : address of the memory chunk to check
-			\param[in] Size_in : size of the memory chunk
-		*/
-		MemoryCheck(size_t Start_in, size_t Size_in)
-			: Start(Start_in), Size(Size_in) {}
-		//! address of the memory chunk to check
-		size_t Start;
-		//! size of the memory chunk
-		size_t Size;
-	};
+	class ProcessImage;
+	//! map of process ID + module name hash / ProcessImage*
+	typedef std::map<long, ProcessImage*> ProcessMap;
 
 	//! \brief Memory scanner
-	class SigScan
+	class SigScan : public NonCopyable
 	{
+		//! \brief internal structure used in the memory scan
+		class SubPattern
+		{
+		public:
+			//! \brief SubPattern default constructor
+			SubPattern() : Start(NULL), Size(0U) {}
+			/*! \brief SubPattern constructor
+				\param[in] Start_in : address of the memory chunk to check
+				\param[in] Size_in : size of the memory chunk
+			*/
+			SubPattern(size_t Start_in, size_t Size_in)
+				: Start(Start_in), Size(Size_in) {}
+			//! address of the memory chunk to check
+			size_t Start;
+			//! size of the memory chunk
+			size_t Size;
+		};
+
+		typedef std::vector<SubPattern> SubPatternArray;
+
 	public:
 		SigScan();
-		~SigScan();
+		 ~SigScan();
 
-		DWORD_PTR Scan(const char* pPattern_in, int Offset_in = 0);
-		bool Initialize(DWORD ProcessID_in, const TCHAR* pModule_in);
-		bool IsInitialized() const { return m_bInitialized; }
+		ProcessImage* FindProcess(DWORD ProcessID_in, const string_t & ModuleName_in) const;
+		bool Initialize(DWORD ProcessID_in, const string_t &ModuleName_in);
+		DWORD_PTR Scan(const std::string &Pattern_in, long Offset_in);
+		bool AddProcess(ProcessImage *pProcess_in);
+		void Clear();
 
-	private:
-		void TerminateSigScan();
-
-		//! a chunk of the target memory
-		BYTE *m_pProcessMemory;
-		//! the base address of the target process
-		BYTE *m_pBaseAddress;
-		//! the 
-		DWORD m_dwModSize;
-		//! flag specifying if the scanning process has been initialized
-		bool m_bInitialized;
-		//! flag specifying if the memory chunk is within the local process
-		bool m_bIsLocal;
+	protected:
+		//! pointer to the current process image
+		ProcessImage *m_pCurrentProcess;
+		//! a map of process images
+		ProcessMap m_ProcessMap;
 	};
 }
 

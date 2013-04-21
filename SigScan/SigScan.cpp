@@ -6,237 +6,271 @@
 	purpose		:	Memory scanner based on Aikar's
 **************************************************************************/
 #include "stdafx.h"
-#include "SigScan.h"
-
 #include <tlhelp32.h>
-#include <tchar.h>
+
+#include "SigScan.h"
+#include "ProcessImage.h"
+#include "ScanResult.h"
 
 namespace SigScan
 {
 	//! \brief SigScan default constructor
-	SigScan::SigScan()
-	{
-		m_pBaseAddress = m_pProcessMemory = NULL;
-		m_bIsLocal = m_bInitialized = false;
-	}
+	SigScan::SigScan() : m_pCurrentProcess(NULL) {}
 
 	//! \brief SigScan destructor
 	SigScan::~SigScan()
+	{ Clear(); }
+
+	//! \brief Terminates the scanning process and cleans memory up
+	void SigScan::Clear()
 	{
-		TerminateSigScan();
+		ProcessMap::const_iterator ProcessIt = m_ProcessMap.cbegin();
+		ProcessMap::const_iterator EndIt = m_ProcessMap.cend();
+
+		for(; ProcessIt != EndIt; ++ProcessIt)
+			delete ProcessIt->second;
+
+		m_pCurrentProcess = NULL;
+		m_ProcessMap.clear();
+	}
+	
+	/*! \brief Adds a process to the map of processes
+		\param[in] pProcess_in : the process to add
+		\return true if the process was added; false otherwise
+	*/
+	bool SigScan::AddProcess(ProcessImage *pProcess_in)
+	{
+		if (pProcess_in != NULL)
+		{
+			m_ProcessMap[pProcess_in->GetProcessKey()] = pProcess_in;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/*! \brief Retrieves a result given the process ID and module name
+		\param[in] ProcessID_in : the process ID
+		\param[in] ModuleName_in : the module name
+		\return a pointer to the process image if found; NULL otherwise
+	*/
+	ProcessImage* SigScan::FindProcess(DWORD ProcessID_in, const string_t & ModuleName_in) const
+	{
+		ProcessImage DummyInfo(ProcessID_in, ModuleName_in, NULL, 0UL, false);
+		ProcessMap::const_iterator ProcessIt = m_ProcessMap.find(DummyInfo.GetProcessKey());
+
+		if (ProcessIt != m_ProcessMap.cend())
+			return ProcessIt->second;
+
+		return NULL;
 	}
 
 	/*! \brief Initializes the scanning process
 		\param[in] ProcessID_in : the process ID of the scanned process
-		\param[in] pModule_in : the name of the process
+		\param[in] ModuleName_in : the name of the process
 	*/
-	bool SigScan::Initialize(DWORD ProcessID_in, const TCHAR *pModule_in)
+	bool SigScan::Initialize(DWORD ProcessID_in, const string_t &ModuleName_in)
 	{
-		if (m_bInitialized == false && pModule_in != NULL && _tcslen(pModule_in) > 0)
+		m_pCurrentProcess = FindProcess(ProcessID_in, ModuleName_in);
+
+		if (m_pCurrentProcess == NULL)
 		{
 			MODULEENTRY32 uModule;
 
-			SecureZeroMemory(&uModule, sizeof(uModule));
+			ZeroMemory(&uModule, sizeof(uModule));
 			uModule.dwSize = sizeof(uModule); 
-			// Create snapshot of modules and Iterate them
+			// create a snapshot of modules and iterate the list
 			HANDLE hModuleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, ProcessID_in);
-
-			for(BOOL bContinue = Module32First(hModuleSnapshot, &uModule); bContinue; bContinue = Module32Next(hModuleSnapshot, &uModule))
+			bool bCurrentProcess = (GetCurrentProcessId() == ProcessID_in);
+			BOOL bContinue = Module32First(hModuleSnapshot, &uModule);
+			
+			// walk through the process list
+			while(bContinue)
 			{
-				uModule.dwSize = sizeof(uModule); 
-
-				if(_tcsicmp(uModule.szModule, pModule_in) == 0)
+				if(ModuleName_in.compare(uModule.szModule) == 0)
 				{
-					TerminateSigScan();
-					m_pBaseAddress = uModule.modBaseAddr;
-					m_dwModSize = uModule.modBaseSize;
+					// create the process entry
+					m_pCurrentProcess = new ProcessImage(ProcessID_in, ModuleName_in, uModule.modBaseAddr,
+														uModule.modBaseSize, bCurrentProcess);
 
-					if(GetCurrentProcessId() == ProcessID_in)
+					if (bCurrentProcess == false && m_pCurrentProcess->InitializeImage() == false)
 					{
-						m_bIsLocal = m_bInitialized = true;
-						m_pProcessMemory = m_pBaseAddress;
+						// reading the process memory failed
+						delete m_pCurrentProcess;
+						m_pCurrentProcess = NULL;
 					}
-					else
-					{
-						HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, ProcessID_in);
-
-						m_pProcessMemory = new BYTE[m_dwModSize];
-						m_bIsLocal = false;
-
-						if(hProcess)
-						{
-							if(ReadProcessMemory(hProcess, (LPCVOID)m_pBaseAddress, m_pProcessMemory, m_dwModSize, NULL))
-								m_bInitialized = true;
-
-							CloseHandle(hProcess);
-						}
-					}
+					// else the process is the current one, no memory reading necessary
+					if (m_pCurrentProcess != NULL)
+						AddProcess(m_pCurrentProcess);
+					// lookup finished
 					break;
 				}
+
+				Module32Next(hModuleSnapshot, &uModule);
 			}
 
 			CloseHandle(hModuleSnapshot);
 		}
 
-		return m_bInitialized;
+		return (m_pCurrentProcess != NULL);
 	}
 
-	//! \brief Terminates the scanning process and cleans memory up
-	void SigScan::TerminateSigScan()
-	{
-		if (m_pProcessMemory != NULL)
-		{
-			if (m_bIsLocal == false)
-				delete m_pProcessMemory;
-
-			m_pProcessMemory = NULL;
-			m_bInitialized = false;
-		}
-	}
 	/*! \brief Scans the process memory for the specified pattern of byte codes
-		\param[in] pPattern_in : the pattern to search for
+		\param[in] Pattern_in : the pattern to search for
 		\param[in] Offset_in : an offset to apply to the address once the pattern is found
-		\return the address of the pattern + offset
+		\return the address of the first match
 	*/
-	DWORD_PTR SigScan::Scan(const char *pPattern_in, int Offset_in)
+	DWORD_PTR SigScan::Scan(const std::string &Pattern_in, long Offset_in)
 	{
-		// Get Pattern length
-		size_t PatternLength = strlen(pPattern_in);
-		// Pattern must be divisible by 2 to be valid.
-		if (PatternLength % 2 != 0 || PatternLength < 2 || !m_bInitialized || !m_pProcessMemory || !m_pBaseAddress)
-			return NULL;
-		// Get the buffer size
-		size_t buffersize = PatternLength / 2;
-		//Setup custom ptr location. Default to buffersize(first byte after signature)+offset
-		size_t PtrOffset = buffersize + Offset_in;
-		bool Dereference = true;
-		if(memcmp(pPattern_in,"##",2) == 0)
+		if (m_pCurrentProcess != NULL)
 		{
-			Dereference = false;
-			pPattern_in += 2;
-			PtrOffset = 0 + Offset_in;
-			PatternLength -= 2;
-			--buffersize;
-		}
-		//Don't follow the pointer, return the exact end of signature+offset.
-		if(memcmp(pPattern_in,"@@",2) == 0)
-		{
-			Dereference = false;
-			pPattern_in += 2;
-			PatternLength -= 2;
-			--buffersize;
-			--PtrOffset;
-		}
+			ScanResult *pResult = m_pCurrentProcess->FindResult(Pattern_in, Offset_in);
 
-		//Capitalize the strings and create a string for cache key.
-		char Pattern[1024];
-		ZeroMemory(Pattern,sizeof(Pattern));
-		strcpy_s(Pattern,sizeof(Pattern),pPattern_in);
-		_strupr_s(Pattern,sizeof(Pattern));
-
-		//Create the buffer
-		unsigned char * buffer = new unsigned char[buffersize];
-		SecureZeroMemory(buffer,buffersize);
-
-		//array for bytes we need to check and temporary holders for size/start
-		MemoryCheck memchecks[32];
-		size_t cmpcount = 0;
-		size_t cmpsize = 0;
-		size_t cmpstart = 0;
-		//Iterate the pattern and build the buffer.
-		for(size_t i = 0; i < PatternLength / 2 ; ++i)
-		{
-			//Read the values of the bytes for usage to reduce use of STL.
-			unsigned char byte1 = Pattern[i*2];
-			unsigned char byte2 = Pattern[(i*2)+1];
-			//Check for valid hexadecimal digits.
-			if(((byte1 >= '0' && byte1 <= '9') || (byte1 <= 'F' && byte1 >= 'A')) || ((byte2 >= '0' && byte2 <= '9') || (byte2 <= 'F' && byte2 >= 'A')))
+			if (pResult == NULL)
 			{
-				//Increase the comparison size.
-				++cmpsize;
-				//convert the 2 byte string to a byte value ("14" == 0x14-2 == 20)
-				if (byte1 <= '9')
-					buffer[i] += byte1 - '0';
-				else
-					buffer[i] += byte1 - 'A' + 10;
-				buffer[i] *= 16;
-				if (byte2 <= '9')
-					buffer[i] += byte2 - '0';
-				else
-					buffer[i] += byte2 - 'A' + 10;
+				size_t PatternLength = Pattern_in.length();
 
-				continue;
-			}
-			//Wasn't valid hex, is it a custom ptr location?
-			else if(byte1 == 'X' && byte2 == byte1 && (PatternLength / 2) - i > 3) 
-			{
-				//Set the ptr to this current location + offset.
-				PtrOffset = i + Offset_in;
-				//Fill the buffer with the ptr locations.
-				buffer[i++]	= 'X';
-				buffer[i++]	= 'X';
-				buffer[i++]	= 'X';
-				buffer[i]	= 'X';			
-			}
-			//Wasn't a custom ptr location nor valid hex, so set it as a wildcard.
-			else 
-			{
-				//? for wildcard, unknown byte value.
-				buffer[i] = '?';
-			}
-			//Add the check to the array.
-			if(cmpsize>0)
-				memchecks[cmpcount++] = MemoryCheck(cmpstart, cmpsize);
-			//Increase the starting check byte and reset the size comparison size.
-			cmpstart = i+1;
-			cmpsize = 0;
-		}
-
-		//Add the final check 
-		if(cmpsize > 0)
-			memchecks[cmpcount++] = MemoryCheck(cmpstart, cmpsize);
-	
-		//Get the current base address and module size.
-		BYTE *pBaseAddr = m_pProcessMemory;
-		unsigned int mModSize = m_dwModSize;
-		//Boolean that returns true or false for matching.
-		bool bMatching = true;
-		//Iterate the Module.
-		for	(BYTE *pAddr = (BYTE*)memchr(pBaseAddr, buffer[0], mModSize - buffersize);
-			 pAddr && pAddr < (pBaseAddr + mModSize - buffersize); 
-			 pAddr = (BYTE*)memchr(pAddr+1, buffer[0], mModSize - buffersize - (pAddr+1 - pBaseAddr)))
-		{
-			bMatching = true;
-			//Iterate each comparison we need to do. (separated by wildcards)
-			for(size_t c = 0; c < cmpcount; ++c)
-			{
-				//Compare the memory.
-				if(memcmp(buffer + memchecks[c].Start,(LPVOID)(pAddr + memchecks[c].Start),memchecks[c].Size) != 0)
+				// make sure the pattern is of even length and at least 2 characters
+				if (PatternLength >= 2U && PatternLength % 2 == 0)
 				{
-					//Did not match, try next byte.
-					bMatching = false;
-					break;
+					const BYTE *pBaseAddress = m_pCurrentProcess->GetBaseAddress();
+
+					if (pBaseAddress != NULL)
+					{
+						std::string::const_iterator PatternIt = Pattern_in.cbegin();
+						std::string::const_iterator EndIt = Pattern_in.cend();
+						size_t ImageSize = m_pCurrentProcess->GetImageSize();
+						size_t SubPatternStart = 0U, SubPatternLen = 0U;
+						size_t BufferSize = PatternLength / 2;
+						BYTE Byte1 = '\0', Byte2 = '\0';
+						SubPatternArray SubPatterns;
+						BYTE *pMemoryPattern = NULL;
+						size_t PatternIndex = 0U;
+						bool Dereference = true;
+						long ResultOffset = 0L;
+
+						if(PatternIt[0] == '#' && PatternIt[1] == '#')
+						{
+							ResultOffset = Offset_in; // return the start of signature + offset
+							Dereference = false; // don't follow the resulting pointer
+							PatternLength -= 2; // remove ##
+							PatternIt += 2; // skip ##
+							--BufferSize; // remove ##														
+						}
+						else if(PatternIt[0] == '@' && PatternIt[1] == '@')
+						{
+							// don't follow the pointer, return the end of the signature + offset
+							ResultOffset = --BufferSize + Offset_in; // decrement => remove @@
+							Dereference = false; // don't follow the resulting pointer
+							PatternLength -= 2; // remove @@
+							PatternIt += 2; // skip @@
+						}
+						// initialize the pattern from the string
+						pMemoryPattern = new BYTE[BufferSize];
+						ZeroMemory(pMemoryPattern, BufferSize);
+						
+						for (; PatternIt != EndIt; ++PatternIt, ++PatternIndex)
+						{
+							Byte1 = *PatternIt;
+							Byte2 = *(++PatternIt);
+
+							if (((Byte1 >= '0' && Byte1 <= '9')		// check if Byte1 is hexadecimal
+							  || (Byte1 <= 'F' && Byte1 >= 'A'))
+							 && ((Byte2 >= '0' && Byte2 <= '9')		// check if Byte2 is hexadecimal
+							  || (Byte2 <= 'F' && Byte2 >= 'A')))
+							{
+								// increase the length of the sub-pattern
+								++SubPatternLen;
+								// convert the 2 characters to a byte value ("14" == 0x14-2 == 20)
+								if (Byte1 <= '9')
+									pMemoryPattern[PatternIndex] += Byte1 - '0';
+								else
+									pMemoryPattern[PatternIndex] += Byte1 - 'A' + 10;
+
+								pMemoryPattern[PatternIndex] <<= 4;	 // * 16
+
+								if (Byte2 <= '9')
+									pMemoryPattern[PatternIndex] += Byte2 - '0';
+								else
+									pMemoryPattern[PatternIndex] += Byte2 - 'A' + 10;
+							}
+							else
+							{
+								if(Byte1 == 'X' && Byte2 == 'X' && BufferSize - PatternIndex > 3)
+								{
+									// set the result position to position of the custom ptr mask
+									ResultOffset = PatternIndex;
+									// fill the memory pattern with the custom ptr mask
+									pMemoryPattern[PatternIndex++]	= 'X';
+									pMemoryPattern[PatternIndex++]	= 'X';
+									pMemoryPattern[PatternIndex++]	= 'X';
+									pMemoryPattern[PatternIndex]	= 'X';
+									// skip all the X characters
+									while (PatternIt != EndIt && *PatternIt == 'X')
+										++PatternIt;
+								}
+								else 
+								{
+									// unknown byte value
+									pMemoryPattern[PatternIndex] = '?';
+								}
+								
+								// add the sub-pattern to the array
+								if (SubPatternLen > 0)
+									SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
+								// set the starting position of the next sub-pattern
+								SubPatternStart = PatternIndex + 1;
+								// reset the sub-pattern length
+								SubPatternLen = 0;
+							}
+						}
+						// add the last sub-pattern
+						if(SubPatternLen > 0)
+							SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
+
+						// start the memory search
+						SubPatternArray::const_iterator SubPatternIt = SubPatterns.cbegin();
+						SubPatternArray::const_iterator SubEndIt = SubPatterns.cend();
+						BYTE *pSearchAddr = NULL;
+						bool bMatching = true;
+
+						// search for the pattern in the process image
+						for	(pSearchAddr = (BYTE*)memchr(pBaseAddress, pMemoryPattern[0], ImageSize - BufferSize);
+							 pSearchAddr && pSearchAddr < (pBaseAddress + ImageSize - BufferSize); 
+							 pSearchAddr = (BYTE*)memchr(++pSearchAddr, pMemoryPattern[0], ImageSize - BufferSize - (pSearchAddr - pBaseAddress)))
+						{
+							for (; SubPatternIt != SubEndIt; ++SubPatternIt)
+							{
+								// compare the sub-patterns one by one
+								if(memcmp(pMemoryPattern + SubPatternIt->Start, pSearchAddr + SubPatternIt->Start, SubPatternIt->Size) != 0)
+								{
+									// the current sub-pattern didn't match => abort
+									bMatching = false;
+									break;
+								}
+							}
+							// all the sub-patterns matched
+							if (bMatching)
+							{
+								pResult = m_pCurrentProcess->AddResult(Pattern_in, pSearchAddr, ResultOffset, Dereference);
+								break;
+							}
+							else
+								bMatching = true;
+							// reset the sub-pattern array
+							SubPatternIt = SubPatterns.cbegin();							
+						}
+						// cleanup
+						delete [] pMemoryPattern;
+					}
 				}
 			}
-			//After full Pattern scan, check if it matched.
-			if(bMatching)
-			{
-				// Find address wanted in the target memory space - not ours.
-				LPVOID Address = NULL;
 
-				if(Dereference)
-					Address = *((LPVOID*)(pAddr + PtrOffset));
-				else
-					Address = m_pBaseAddress + ((pAddr + PtrOffset) - m_pProcessMemory);
-				//Clear buffer and return result.
-				delete [] buffer;
-
-				return (DWORD_PTR)Address;
-			}
+			if (pResult != NULL)
+				return pResult->GetAddress();
 		}
-		//Nothing matched. Clear buffer
-		delete [] buffer;
 
 		return NULL;
-	}	
+	}
 }

@@ -11,4 +11,8 @@
 // #define __USE_VLD
 #include <stdhdr.h>
 
+#include <StringUtils.h>
+#include <vector>
+#include <map>
+
 #endif//__SIG_SCAN_AFX_H__
