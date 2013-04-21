@@ -85,7 +85,9 @@ namespace HookEngineLib
 		bool InstallRegisteredHooks();
 
 		void RetourClassFunc(const LPBYTE pSrc_in, LPBYTE pTrampoline_in, DWORD OpCodesSize_in);
-		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);		
+		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);
+
+		SigScan::SigScan& GetSigScan();
 
 	protected:
 		virtual LPVOID FindModuleFunction(const char *pModuleName_in, const char *pFuncName_in);

@@ -6,6 +6,7 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
+#include <algorithm>
 
 #include "HookManager.h"
 
@@ -183,24 +184,25 @@ namespace HookEngineLib
 									const char* pPattern_in, int Offset_in, 
 									LPVOID pHookFunc_in, DWORD dwOpCodeSize_in)
 	{
-		// initialize the scanner if needed
-		if (m_MemScan.IsInitialized() == false)
+		if (pPattern_in != NULL && pModuleName_in != NULL && pFuncName_in != NULL && pHookFunc_in != NULL)
 		{
+			std::string ModuleName(pModuleName_in);
+			std::string Pattern(pPattern_in);			
 			string_t ProcessName;
 
 			// convert the process name to ANSI
-			convert_utf8(std::string(pModuleName_in), ProcessName);
-			// initialize the memory scanner
-			m_MemScan.Initialize(::GetCurrentProcessId(), ProcessName.c_str());
-		}
+			convert_utf8(ModuleName, ProcessName);
+			// convert to upper case
+			std::transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::toupper);
 
-		if (m_MemScan.IsInitialized())
-		{
-			// scan for the pattern
-			DWORD_PTR dwFuncAddr = m_MemScan.Scan(pPattern_in, Offset_in);
+			if (m_MemScan.Initialize(::GetCurrentProcessId(), ProcessName.c_str()))
+			{
+				// scan for the pattern
+				DWORD_PTR dwFuncAddr = m_MemScan.Scan(pPattern_in, Offset_in);
 
-			if (dwFuncAddr != NULL)
-				RegisterHook(pFuncName_in, pModuleName_in, (LPVOID)dwFuncAddr, pHookFunc_in, dwOpCodeSize_in);
+				if (dwFuncAddr != NULL)
+					RegisterHook(pFuncName_in, pModuleName_in, (LPVOID)dwFuncAddr, pHookFunc_in, dwOpCodeSize_in);
+			}
 		}
 	}
 
@@ -407,4 +409,7 @@ namespace HookEngineLib
 
 		return NULL;
 	}
+
+	SigScan::SigScan& IHookManager::GetSigScan()
+	{ return m_MemScan; }
 }
