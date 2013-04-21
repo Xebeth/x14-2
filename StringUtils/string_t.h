@@ -143,31 +143,31 @@ template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_
 	return String_in_out;
 }
 
-template <typename T> class purgeable_chars : public std::unary_function<T, bool> 
+template <typename T> class purgeable_chars
 {
 public:
-	explicit purgeable_chars(const T* pExclusions_in = NULL)
-		: m_pExclusions(pExclusions_in) {}
+	purgeable_chars(const T* pExclusions_in, UINT Mask_in, bool Invert_in)
+		: m_pExclusions(pExclusions_in), m_PurgeMask(Mask_in), m_Invert(Invert_in ? 0 : 1)  {}
 
-	template<typename T> bool in_seq(T &val);
+	template<typename T> bool operator() (T val);
 
-	template<> bool in_seq(char &val) { return (strchr(m_pExclusions, val) != NULL); }
-	template<> bool in_seq(wchar_t &val) { return (wcschr(m_pExclusions, val) != NULL); }
+	template<> bool operator() (wchar_t val)
+	{ return ((m_pExclusions == NULL || wcschr(m_pExclusions, val) == NULL) && iswctype(val, m_PurgeMask) == m_Invert); }
+	template<> bool operator() (char val)
+	{ return ((m_pExclusions == NULL || strchr(m_pExclusions, val) == NULL) && _isctype(val, m_PurgeMask) == m_Invert); }
 
-	bool operator() (T& val) 
-	{
-		return ((m_pExclusions == NULL || in_seq(val) == false) && iscntrl(val));
-	}
-
+private:
 	const T* m_pExclusions;
+	UINT m_PurgeMask;
+	int m_Invert;
 };
 
 /*! \brief Removes all control characters
 	\param[in,out] String_in_out : the string to clean up
 */
-template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in_out, T* pExcludedChars = NULL)
+template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in_out, UINT Mask_in, T* pExcludedChars = NULL, bool Invert_in = false)
 {
-	purgeable_chars<T> PurgeablePredicate(pExcludedChars);
+	purgeable_chars<T> PurgeablePredicate(pExcludedChars, Mask_in, Invert_in);
 
 	String_in_out.erase(remove_if(String_in_out.begin(),String_in_out.end(), PurgeablePredicate), String_in_out.end());  
 

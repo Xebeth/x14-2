@@ -15,14 +15,14 @@
 	\param[out] String_out : the output string receiving the result of the conversion
 	\return a reference to the output string parameter
 */
-std::string& convert_ansi(const string_t& String_in, std::string& String_out)
+std::string& convert_ansi(const string_t& String_in, std::string& String_out, UINT CharSet_in)
 {
 	size_t Length = ansi_len(String_in);
 
 	// reserve enough space to hold the converted text
 	String_out.resize(Length);
 	// convert the string
-	WideCharToMultiByte(CP_ACP, 0UL, String_in.c_str(), String_in.length(),
+	WideCharToMultiByte(CharSet_in, 0UL, String_in.c_str(), String_in.length(),
 						const_cast<char*>(String_out.c_str()), Length, NULL, NULL);
 
 	return String_out;
@@ -35,14 +35,14 @@ std::string& convert_ansi(const string_t& String_in, std::string& String_out)
 	\param[out] String_out : the output string receiving the result of the conversion
 	\return a reference to the output string parameter
 */
-string_t& convert_utf8(const std::string& String_in, string_t& String_out)
+string_t& convert_utf8(const std::string& String_in, string_t& String_out, UINT CharSet_in)
 {
 	size_t Length = utf8_len(String_in);
 
 	// reserve enough space to hold the converted text
 	String_out.resize(Length);
 	// convert the string
-	MultiByteToWideChar(CP_UTF8, 0UL, String_in.c_str(), String_in.length(),
+	MultiByteToWideChar(CharSet_in, 0UL, String_in.c_str(), String_in.length(),
 						const_cast<TCHAR*>(String_out.c_str()), Length);
 
 	return String_out;
