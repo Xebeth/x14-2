@@ -198,7 +198,7 @@ namespace HookEngineLib
 			if (m_MemScan.Initialize(::GetCurrentProcessId(), ProcessName.c_str()))
 			{
 				// scan for the pattern
-				DWORD_PTR dwFuncAddr = m_MemScan.Scan(pPattern_in, Offset_in);
+				DWORD_PTR dwFuncAddr = m_MemScan.ScanCode(pPattern_in, Offset_in);
 
 				if (dwFuncAddr != NULL)
 					RegisterHook(pFuncName_in, pModuleName_in, (LPVOID)dwFuncAddr, pHookFunc_in, dwOpCodeSize_in);
