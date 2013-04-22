@@ -92,7 +92,7 @@ namespace SigScan
 				{
 					// create the process entry
 					m_pCurrentProcess = new ProcessImage(ProcessID_in, ModuleName_in, uModule.modBaseAddr,
-														uModule.modBaseSize, bCurrentProcess);
+														 uModule.modBaseSize, bCurrentProcess);
 
 					if (bCurrentProcess == false && m_pCurrentProcess->InitializeImage() == false)
 					{
@@ -116,161 +116,260 @@ namespace SigScan
 		return (m_pCurrentProcess != NULL);
 	}
 
-	/*! \brief Scans the process memory for the specified pattern of byte codes
+	/*! \brief Scans the process image for the specified pattern of opcodes
 		\param[in] Pattern_in : the pattern to search for
 		\param[in] Offset_in : an offset to apply to the address once the pattern is found
 		\return the address of the first match
 	*/
-	DWORD_PTR SigScan::Scan(const std::string &Pattern_in, long Offset_in)
+	DWORD_PTR SigScan::ScanCode(const std::string &Pattern_in, long Offset_in)
 	{
+		DWORD_PTR Result = NULL;
+
 		if (m_pCurrentProcess != NULL)
 		{
-			ScanResult *pResult = m_pCurrentProcess->FindResult(Pattern_in, Offset_in);
+			const BYTE *pBaseAddress = m_pCurrentProcess->GetBaseAddress();
+
+			if (pBaseAddress != NULL)
+			{
+				Result = Scan(m_pCurrentProcess, pBaseAddress,
+							  m_pCurrentProcess->GetImageSize(),
+							  Pattern_in, Offset_in);
+
+				if (Result != NULL)
+					m_pCurrentProcess->AddResult(Pattern_in, Result, Offset_in);
+			}
+		}
+
+		return Result;
+	}
+
+	/*! \brief Scans the process memory pages for the specified pattern of bytes
+		\param[in] Pattern_in : the pattern to search for
+		\param[in] Offset_in : an offset to apply to the address once the pattern is found
+		\return the address of the first match
+	*/
+	DWORD_PTR SigScan::ScanMemory(const std::string &Pattern_in, long Offset_in)
+	{
+		DWORD_PTR Result = NULL;
+
+		if (m_pCurrentProcess != NULL)
+		{
+			// open the process for reading
+			HANDLE hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, m_pCurrentProcess->GetProcessID());
+
+			if (hProcess != NULL)
+			{
+				bool bIsCurrent = m_pCurrentProcess->IsCurrentProcess();
+				const BYTE *pAddr = m_pCurrentProcess->GetBaseAddress()
+								  + m_pCurrentProcess->GetImageSize();				
+				MEMORY_BASIC_INFORMATION MemoryInfo;				
+				BYTE *pMemoryBlock = NULL;				
+				BYTE *pRealloc = NULL;
+
+				memset(&MemoryInfo, 0, sizeof(MemoryInfo));
+
+				while (Result == NULL && VirtualQueryEx(hProcess, pAddr, &MemoryInfo, sizeof(MemoryInfo)) != 0UL)
+				{
+					if ((MemoryInfo.State & MEM_COMMIT) == MEM_COMMIT
+					 && ((MemoryInfo.Protect & (PAGE_NOACCESS | PAGE_GUARD))) == 0x0)
+					{
+						if (bIsCurrent == false)
+						{
+							pRealloc = (BYTE*)realloc((LPVOID)pMemoryBlock, MemoryInfo.RegionSize);
+
+							if (pRealloc != NULL)
+							{
+								pMemoryBlock = pRealloc;
+								
+								if (ReadProcessMemory(hProcess, (LPCVOID)MemoryInfo.BaseAddress,
+													  (LPVOID)pMemoryBlock, MemoryInfo.RegionSize, NULL) == FALSE)
+								{
+									// failed to read from the process memory
+									// => try the next memory block
+									continue;
+								}
+							}
+						}
+						else
+							pMemoryBlock = (BYTE*)MemoryInfo.BaseAddress;
+
+						if (pMemoryBlock != NULL)
+						{
+							Result = Scan(m_pCurrentProcess, pMemoryBlock,
+										  MemoryInfo.RegionSize, Pattern_in, Offset_in);
+						}
+					}
+
+					pAddr = (const BYTE *)MemoryInfo.BaseAddress + MemoryInfo.RegionSize;
+				}
+
+				CloseHandle(hProcess);
+
+				if (pRealloc != NULL)
+					free(pRealloc);
+			}
+		}
+
+		return Result;
+	}
+
+	/*! \brief Scans the process memory for the specified pattern of byte codes
+		\param[in] pProcess_in : the process image to scan
+		\param[in] pMemoryBlock_in : the block of memory to scan
+		\param[in] Pattern_in : the pattern to search for
+		\param[in] Offset_in : an offset to apply to the address once the pattern is found
+		\return the address of the first match
+	*/
+	DWORD_PTR SigScan::Scan(ProcessImage *pProcess_in, const BYTE* pMemoryBlock_in,
+							DWORD BlockSize_in, const std::string &Pattern_in, long Offset_in)
+	{
+		DWORD_PTR Result = NULL;
+
+		if (pProcess_in != NULL)
+		{
+			ScanResult *pResult = pProcess_in->FindResult(Pattern_in, Offset_in);
 
 			if (pResult == NULL)
 			{
 				size_t PatternLength = Pattern_in.length();
 
 				// make sure the pattern is of even length and at least 2 characters
-				if (PatternLength >= 2U && PatternLength % 2 == 0)
+				if (pMemoryBlock_in != NULL && PatternLength >= 2U && PatternLength % 2 == 0)
 				{
-					const BYTE *pBaseAddress = m_pCurrentProcess->GetBaseAddress();
+					std::string::const_iterator PatternIt = Pattern_in.cbegin();
+					std::string::const_iterator EndIt = Pattern_in.cend();
+					size_t SubPatternStart = 0U, SubPatternLen = 0U;
+					size_t BufferSize = PatternLength / 2;
+					BYTE Byte1 = '\0', Byte2 = '\0';
+					SubPatternArray SubPatterns;
+					BYTE *pMemoryPattern = NULL;
+					size_t PatternIndex = 0U;
+					bool Dereference = true;
+					long ResultOffset = 0L;
 
-					if (pBaseAddress != NULL)
+					if(PatternIt[0] == '#' && PatternIt[1] == '#')
 					{
-						std::string::const_iterator PatternIt = Pattern_in.cbegin();
-						std::string::const_iterator EndIt = Pattern_in.cend();
-						size_t ImageSize = m_pCurrentProcess->GetImageSize();
-						size_t SubPatternStart = 0U, SubPatternLen = 0U;
-						size_t BufferSize = PatternLength / 2;
-						BYTE Byte1 = '\0', Byte2 = '\0';
-						SubPatternArray SubPatterns;
-						BYTE *pMemoryPattern = NULL;
-						size_t PatternIndex = 0U;
-						bool Dereference = true;
-						long ResultOffset = 0L;
+						ResultOffset = Offset_in; // return the start of signature + offset
+						Dereference = false; // don't follow the resulting pointer
+						PatternLength -= 2; // remove ##
+						PatternIt += 2; // skip ##
+						--BufferSize; // remove ##														
+					}
+					else if(PatternIt[0] == '@' && PatternIt[1] == '@')
+					{
+						// don't follow the pointer, return the end of the signature + offset
+						ResultOffset = --BufferSize + Offset_in; // decrement => remove @@
+						Dereference = false; // don't follow the resulting pointer						
+						PatternLength -= 2; // remove @@
+						PatternIt += 2; // skip @@
+					}
+					// initialize the pattern from the string
+					pMemoryPattern = new BYTE[BufferSize];
+					ZeroMemory(pMemoryPattern, BufferSize);
 
-						if(PatternIt[0] == '#' && PatternIt[1] == '#')
+					for (; PatternIt != EndIt; ++PatternIt, ++PatternIndex)
+					{
+						Byte1 = *PatternIt;
+						Byte2 = *(++PatternIt);
+
+						if (((Byte1 >= '0' && Byte1 <= '9')		// check if Byte1 is hexadecimal
+							|| (Byte1 <= 'F' && Byte1 >= 'A'))
+							&& ((Byte2 >= '0' && Byte2 <= '9')		// check if Byte2 is hexadecimal
+							|| (Byte2 <= 'F' && Byte2 >= 'A')))
 						{
-							ResultOffset = Offset_in; // return the start of signature + offset
-							Dereference = false; // don't follow the resulting pointer
-							PatternLength -= 2; // remove ##
-							PatternIt += 2; // skip ##
-							--BufferSize; // remove ##														
-						}
-						else if(PatternIt[0] == '@' && PatternIt[1] == '@')
-						{
-							// don't follow the pointer, return the end of the signature + offset
-							ResultOffset = --BufferSize + Offset_in; // decrement => remove @@
-							Dereference = false; // don't follow the resulting pointer
-							PatternLength -= 2; // remove @@
-							PatternIt += 2; // skip @@
-						}
-						// initialize the pattern from the string
-						pMemoryPattern = new BYTE[BufferSize];
-						ZeroMemory(pMemoryPattern, BufferSize);
-						
-						for (; PatternIt != EndIt; ++PatternIt, ++PatternIndex)
-						{
-							Byte1 = *PatternIt;
-							Byte2 = *(++PatternIt);
-
-							if (((Byte1 >= '0' && Byte1 <= '9')		// check if Byte1 is hexadecimal
-							  || (Byte1 <= 'F' && Byte1 >= 'A'))
-							 && ((Byte2 >= '0' && Byte2 <= '9')		// check if Byte2 is hexadecimal
-							  || (Byte2 <= 'F' && Byte2 >= 'A')))
-							{
-								// increase the length of the sub-pattern
-								++SubPatternLen;
-								// convert the 2 characters to a byte value ("14" == 0x14-2 == 20)
-								if (Byte1 <= '9')
-									pMemoryPattern[PatternIndex] += Byte1 - '0';
-								else
-									pMemoryPattern[PatternIndex] += Byte1 - 'A' + 10;
-
-								pMemoryPattern[PatternIndex] <<= 4;	 // * 16
-
-								if (Byte2 <= '9')
-									pMemoryPattern[PatternIndex] += Byte2 - '0';
-								else
-									pMemoryPattern[PatternIndex] += Byte2 - 'A' + 10;
-							}
+							// increase the length of the sub-pattern
+							++SubPatternLen;
+							// convert the 2 characters to a byte value ("14" == 0x14-2 == 20)
+							if (Byte1 <= '9')
+								pMemoryPattern[PatternIndex] += Byte1 - '0';
 							else
-							{
-								if(Byte1 == 'X' && Byte2 == 'X' && BufferSize - PatternIndex > 3)
-								{
-									// set the result position to position of the custom ptr mask
-									ResultOffset = PatternIndex;
-									// fill the memory pattern with the custom ptr mask
-									pMemoryPattern[PatternIndex++]	= 'X';
-									pMemoryPattern[PatternIndex++]	= 'X';
-									pMemoryPattern[PatternIndex++]	= 'X';
-									pMemoryPattern[PatternIndex]	= 'X';
-									// skip all the X characters
-									while (PatternIt != EndIt && *PatternIt == 'X')
-										++PatternIt;
-								}
-								else 
-								{
-									// unknown byte value
-									pMemoryPattern[PatternIndex] = '?';
-								}
-								
-								// add the sub-pattern to the array
-								if (SubPatternLen > 0)
-									SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
-								// set the starting position of the next sub-pattern
-								SubPatternStart = PatternIndex + 1;
-								// reset the sub-pattern length
-								SubPatternLen = 0;
-							}
+								pMemoryPattern[PatternIndex] += Byte1 - 'A' + 10;
+
+							pMemoryPattern[PatternIndex] <<= 4;	 // * 16
+
+							if (Byte2 <= '9')
+								pMemoryPattern[PatternIndex] += Byte2 - '0';
+							else
+								pMemoryPattern[PatternIndex] += Byte2 - 'A' + 10;
 						}
-						// add the last sub-pattern
-						if(SubPatternLen > 0)
-							SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
-
-						// start the memory search
-						SubPatternArray::const_iterator SubPatternIt = SubPatterns.cbegin();
-						SubPatternArray::const_iterator SubEndIt = SubPatterns.cend();
-						BYTE *pSearchAddr = NULL;
-						bool bMatching = true;
-
-						// search for the pattern in the process image
-						for	(pSearchAddr = (BYTE*)memchr(pBaseAddress, pMemoryPattern[0], ImageSize - BufferSize);
-							 pSearchAddr && pSearchAddr < (pBaseAddress + ImageSize - BufferSize); 
-							 pSearchAddr = (BYTE*)memchr(++pSearchAddr, pMemoryPattern[0], ImageSize - BufferSize - (pSearchAddr - pBaseAddress)))
+						else
 						{
-							for (; SubPatternIt != SubEndIt; ++SubPatternIt)
+							if(Byte1 == 'X' && Byte2 == 'X' && BufferSize - PatternIndex >= 4)
 							{
-								// compare the sub-patterns one by one
-								if(memcmp(pMemoryPattern + SubPatternIt->Start, pSearchAddr + SubPatternIt->Start, SubPatternIt->Size) != 0)
-								{
-									// the current sub-pattern didn't match => abort
-									bMatching = false;
-									break;
-								}
+								// set the result position to position of the custom ptr mask
+								ResultOffset = PatternIndex;
+								// fill the memory pattern with the custom ptr mask
+								pMemoryPattern[PatternIndex++]	= 'X';
+								pMemoryPattern[PatternIndex++]	= 'X';
+								pMemoryPattern[PatternIndex++]	= 'X';
+								pMemoryPattern[PatternIndex]	= 'X';
+								// skip all the X characters
+								while (PatternIt != EndIt && *PatternIt == 'X')
+									++PatternIt;
 							}
-							// all the sub-patterns matched
-							if (bMatching)
+							else 
 							{
-								pResult = m_pCurrentProcess->AddResult(Pattern_in, pSearchAddr, ResultOffset, Dereference);
+								// unknown byte value
+								pMemoryPattern[PatternIndex] = '?';
+							}
+
+							// add the sub-pattern to the array
+							if (SubPatternLen > 0)
+								SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
+							// set the starting position of the next sub-pattern
+							SubPatternStart = PatternIndex + 1;
+							// reset the sub-pattern length
+							SubPatternLen = 0;
+						}
+					}
+					// add the last sub-pattern
+					if(SubPatternLen > 0)
+						SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
+
+					// start the memory search
+					SubPatternArray::const_iterator SubPatternIt = SubPatterns.cbegin();
+					SubPatternArray::const_iterator SubEndIt = SubPatterns.cend();
+					BYTE *pSearchAddr = NULL;
+					bool bMatching = true;
+
+					// search for the pattern in the process image
+					for	(pSearchAddr = (BYTE*)memchr(pMemoryBlock_in, pMemoryPattern[0], BlockSize_in - BufferSize);
+						 pSearchAddr && pSearchAddr < (pMemoryBlock_in + BlockSize_in - BufferSize); 
+						 pSearchAddr = (BYTE*)memchr(++pSearchAddr, pMemoryPattern[0], BlockSize_in - BufferSize - (pSearchAddr - pMemoryBlock_in)))
+					{
+						for (; SubPatternIt != SubEndIt; ++SubPatternIt)
+						{
+							// compare the sub-patterns one by one
+							if(memcmp(pMemoryPattern + SubPatternIt->Start,
+									  pSearchAddr + SubPatternIt->Start,
+									  SubPatternIt->Size) != 0)
+							{
+								// the current sub-pattern didn't match => abort
+								bMatching = false;
 								break;
 							}
-							else
-								bMatching = true;
-							// reset the sub-pattern array
-							SubPatternIt = SubPatterns.cbegin();							
 						}
-						// cleanup
-						delete [] pMemoryPattern;
+						// all the sub-patterns matched
+						if (bMatching)
+						{
+							Result = (DWORD_PTR)pSearchAddr + ResultOffset;
+							break;
+						}
+						else
+						{
+							bMatching = true;
+							// reset the sub-pattern array
+							SubPatternIt = SubPatterns.cbegin();
+						}
 					}
+					// cleanup
+					delete [] pMemoryPattern;
 				}
 			}
-
-			if (pResult != NULL)
-				return pResult->GetAddress();
+			else
+				Result = pResult->GetAddress();
 		}
 
-		return NULL;
+		return Result;
 	}
 }

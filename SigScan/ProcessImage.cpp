@@ -71,22 +71,27 @@ namespace SigScan
 		\param[in] Pattern_in : the memory pattern searched
 		\param[in] pMatchAddr_in : the matching address
 		\param[in] Offset_in : the offset to apply to the result
-		\param[in] bDereference_in : flag specifying if the result should be dereferenced
+		\param[in] bDereference : flag specifying if the result should be dereferenced
 		\return a pointer to the new result
 	*/
-	ScanResult* ProcessImage::AddResult(const std::string &Pattern_in, const BYTE *pMatchAddr_in,
-									    long Offset_in, bool bDereference_in)
+	ScanResult* ProcessImage::AddResult(const std::string &Pattern_in,
+										DWORD_PTR RawAddress_in,
+									    long Offset_in)
 	{
 		ScanResult *pResult = NULL;
 
-		if (pMatchAddr_in != NULL)
+		if (RawAddress_in != NULL)
 		{
+			bool bDereference = ((Pattern_in[0] != '@' || Pattern_in[1] != '@')
+							  && (Pattern_in[0] != '#' || Pattern_in[1] != '#'));
 			pResult = new ScanResult(Pattern_in, Offset_in);
 
-			if (bDereference_in)
-				pResult->SetAddress(*((DWORD_PTR*)(pMatchAddr_in + Offset_in)));
+			if (bDereference)
+				pResult->SetAddress(*((DWORD_PTR*)RawAddress_in));
+			else if (m_IsCurrent)
+				pResult->SetAddress(RawAddress_in);
 			else
-				pResult->SetAddress((DWORD_PTR)m_pBaseAddress + ((pMatchAddr_in + Offset_in) - m_pProcessImage));
+				pResult->SetAddress((DWORD_PTR)(m_pBaseAddress - m_pProcessImage) + RawAddress_in);
 
 			m_ResultMap[pResult->GetResultKey()] = pResult;
 		}
@@ -145,4 +150,10 @@ namespace SigScan
 	*/
 	DWORD ProcessImage::GetImageSize() const
 	{ return m_ImageSize; }
+
+	/*! \brief Checks if the process is the current one
+		\return true if the process is the current one; false otherwise
+	*/
+	bool ProcessImage::IsCurrentProcess() const
+	{ return m_IsCurrent; }
 }

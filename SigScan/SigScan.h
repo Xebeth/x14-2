@@ -47,11 +47,15 @@ namespace SigScan
 
 		ProcessImage* FindProcess(DWORD ProcessID_in, const string_t & ModuleName_in) const;
 		bool Initialize(DWORD ProcessID_in, const string_t &ModuleName_in);
-		DWORD_PTR Scan(const std::string &Pattern_in, long Offset_in);
+		DWORD_PTR ScanMemory(const std::string &Pattern_in, long Offset_in);
+		DWORD_PTR ScanCode(const std::string &Pattern_in, long Offset_in);
 		bool AddProcess(ProcessImage *pProcess_in);
 		void Clear();
 
 	protected:
+		DWORD_PTR Scan(ProcessImage *pProcess_in, const BYTE* MemoryBlock_in,
+					   DWORD BlockSize_in, const std::string &Pattern_in, long Offset_in);
+
 		//! pointer to the current process image
 		ProcessImage *m_pCurrentProcess;
 		//! a map of process images

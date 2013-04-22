@@ -25,13 +25,15 @@ namespace SigScan
 					 BYTE *pBaseAddr_in, DWORD ImageSize_in, bool IsCurrent_in);
 		virtual ~ProcessImage();
 
-		virtual ScanResult* AddResult(const std::string &Pattern_in, const BYTE *pMatchAddr_in,
-				 					  long Offset_in, bool bDereference_in);
+		virtual ScanResult* AddResult(const std::string &Pattern_in,
+									  DWORD_PTR RawAddress_in,
+				 					  long Offset_in);
 		virtual ScanResult* FindResult(const std::string & Pattern_in, long Offset_in);
 		virtual const BYTE* GetProcessImage() const;
 		virtual const BYTE* GetBaseAddress() const;
 		virtual bool InitializeImage();
 
+		bool IsCurrentProcess() const;
 		DWORD GetProcessID() const;
 		bool IsInitialized() const;
 		long GetProcessKey() const;
