@@ -5,8 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled header
 **************************************************************************/
-#ifndef __INJECT_MODULE_AFX_H__
-#define __INJECT_MODULE_AFX_H__
+#ifndef __STRING_UTILS_AFX_H__
+#define __STRING_UTILS_AFX_H__
 
 // #define __USE_VLD
 #include <stdhdr.h>
@@ -15,4 +15,4 @@
 #include <string>
 #include <list>
 
-#endif//__INJECT_MODULE_AFX_H__
+#endif//__STRING_UTILS_AFX_H__

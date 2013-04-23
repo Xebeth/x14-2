@@ -5,8 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled headers support
 **************************************************************************/
-#ifndef __LAUNCHER_AFX_H__
-#define __LAUNCHER_AFX_H__
+#ifndef __WINDOWER_CONFIG_AFX_H__
+#define __WINDOWER_CONFIG_AFX_H__
 
 #include <sdkddkver.h>
 #include <afxwin.h>
@@ -16,4 +16,4 @@
 #include <SettingsManager.h>
 #include <PluginSDK.h>
 
-#endif//__LAUNCHER_AFX_H__
+#endif//__WINDOWER_CONFIG_AFX_H__

@@ -5,11 +5,11 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled headers support
 **************************************************************************/
-#ifndef __TELL_DETECT_PLUGIN_AFX_H__
-#define __TELL_DETECT_PLUGIN_AFX_H__
+#ifndef __TIMESTAMP_PLUGIN_AFX_H__
+#define __TIMESTAMP_PLUGIN_AFX_H__
 
 // #define __USE_VLD
 #include <stdhdr.h>
 #include <PluginSDK.h>
 
-#endif//__TELL_DETECT_PLUGIN_AFX_H__
+#endif//__TIMESTAMP_PLUGIN_AFX_H__

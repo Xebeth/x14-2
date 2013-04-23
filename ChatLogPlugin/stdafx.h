@@ -5,8 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled headers support
 **************************************************************************/
-#ifndef __TELL_DETECT_PLUGIN_AFX_H__
-#define __TELL_DETECT_PLUGIN_AFX_H__
+#ifndef __CHAT_LOG_PLUGIN_AFX_H__
+#define __CHAT_LOG_PLUGIN_AFX_H__
 
 // #define __USE_VLD
 #include <stdhdr.h>
@@ -17,4 +17,4 @@
 	#error Timestamp shouldn't export InitPlugin
 #endif
 
-#endif//__TELL_DETECT_PLUGIN_AFX_H__
+#endif//__CHAT_LOG_PLUGIN_AFX_H__

@@ -5,8 +5,8 @@
 	copyright	:	North Edge (2011)
 	purpose		:	Precompiled headers support
 **************************************************************************/
-#ifndef __BOOTSTRAP_AFX_H__
-#define __BOOTSTRAP_AFX_H__
+#ifndef __UPDATER_X14_AFX_H__
+#define __UPDATER_X14_AFX_H__
 
 #define UPDATER_API __declspec(dllexport)
 
@@ -16,4 +16,4 @@
 #include <PluginSDK.h>
 #include <Updater.h>
 
-#endif//__BOOTSTRAP_AFX_H__
+#endif//__UPDATER_X14_AFX_H__
