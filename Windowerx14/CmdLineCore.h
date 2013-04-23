@@ -7,11 +7,17 @@
 **************************************************************************/
 #ifndef __CMD_LINE_CORE_H__
 #define __CMD_LINE_CORE_H__
-												 //53558BAC2488010000568BF133DB57					2013-03-22
-#define PROCESS_CMD_OPCODES_SIGNATURE			"@@53558B????????????568BF133DB57"
-#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	-42
-#define PROCESS_CMD_OPCODES_HOOK_SIZE			 11
+												 //53558BAC2488010000568BF133DB57		-42 11		2013-03-22
+												 //81ECD000000056578BBC24DC000000		-15 8		2013-03-22
+#define PROCESS_CMD_OPCODES_SIGNATURE			"##81ECD000000056578BBC24??000000"
+#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 0
+#define PROCESS_CMD_OPCODES_HOOK_SIZE			 8
 #define PROCESS_CMD_HOOK "OnProcessCmd"
+//																			   T e x t C o m m a n d
+#define TEXT_COMMAND_SIGNATURE					"##400000000C00000000000000000154657874436F6D6D616E64"
+#define TEXT_COMMAND_OFFSET						-0x164
+
+#define CMD_LINE_MODULE "CmdLine"
 
 namespace Windower
 {
@@ -20,13 +26,27 @@ namespace Windower
 
 	// char __thiscall sub_900110(void *this, int a2, int a3) => search Component\Shell\ShellCommandModule.cpp, 
 	// the function makes reference to the offset below that (contains ' '	aka SpaceStrA)
-	typedef bool (WINAPI *fnProcessCmd)(LPVOID pThis_in_out, StringNode* pCmd_in_out, char **pRawCmd_in);
+	typedef bool (WINAPI *fnProcessCmd)(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in);
 
 	class CommandDispatcher;
+	class WindowerEngine;
 	class CommandParser;	
 
 	class CmdLineCore : public WindowerCore, public ICommandHandler
 	{
+		class CallingContext
+		{
+		public:
+			CallingContext(fnProcessCmd pTrampoline_in, CommandParser *pParser_in)
+				: m_pTrampoline(pTrampoline_in), m_pParser(pParser_in) {}
+			~CallingContext() { m_pParser = NULL; m_pTrampoline = NULL; }
+
+			//! the command parser
+			CommandParser *m_pParser;
+			//! trampoline to the original ProcessCmd function
+			fnProcessCmd m_pTrampoline;
+		};
+	public:
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
 		{
@@ -34,13 +54,15 @@ namespace Windower
 			CMD_LOAD_PLUGIN,		//!< loads a plugin
 			CMD_UNLOAD_PLUGIN,		//!< unloads a plugin
 			CMD_LIST_PLUGINS,		//!< list all plugins
+			CMD_EXIT,				//!< exit the game
 			CMD_COUNT				//!< number of registered commands
 		};
-	public:
-		CmdLineCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+
+		CmdLineCore();
 		~CmdLineCore();
 
-		static bool WINAPI ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, char **pRawCmd_in);
+		static bool WINAPI ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in);
+		static bool InjectCommand(const std::string &Cmd_in);
 
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
 
@@ -61,11 +83,15 @@ namespace Windower
 		bool RegisterCommands();
 
 		//! the command dispatcher
-		static CommandDispatcher *m_pCommandDispatcher;
+		CommandDispatcher *m_pCommandDispatcher;
 		//! the command parser
-		static CommandParser *m_pCommandParser;
+		CommandParser *m_pCommandParser;
 		//! trampoline to the original ProcessCmd function
-		static fnProcessCmd m_pProcessCmdTrampoline;
+		fnProcessCmd m_pProcessCmdTrampoline;
+		//! calling context for the service hooks
+		static CallingContext *m_pContext;
+		//! the object required for the command processing hook
+		static LPVOID m_pThis;
 	};
 }
 

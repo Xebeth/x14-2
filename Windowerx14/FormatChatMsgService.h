@@ -12,8 +12,8 @@
 														 //5356578BF98DB71402000050					2013-03-16
 														 //5356578BF98DB71402000050					2013-03-22
 														 //538B5D0856578BF953897C242CE8F235FCFF		2013-04-05
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"@@53??????56578B????89??????E8"
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-26
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"##53??????56578B????89??????E8"
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-12
 #define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 12
 
 #define GAME_CHAT_MODULE			"GameChat"
@@ -44,12 +44,16 @@ namespace Windower
 		void DestroyContext();
 		void CreateContext();
 
+		static bool InjectMessage(const std::string &Msg_in, const std::string &Sender_in = "",
+								  UINT MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
+
 	private:
 		static bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-														StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
-														bool AlwaysShow_in = false);
+														StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in);
 		//! calling context for the service hooks
 		static CallingContext *m_pContext;
+		//! game pointer to this
+		static LPVOID m_pThis;
 	};
 }
 

@@ -15,6 +15,8 @@ class IRenderable
 public:
 	virtual ~IRenderable() {}
 
+	virtual void SetVisible(bool Visible_in) =0;
+	virtual bool IsVisible() const =0;
 	virtual void OnDeviceReset() =0;
 	virtual void OnDeviceLost() =0;
 	virtual void Update() =0;	

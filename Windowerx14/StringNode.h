@@ -10,24 +10,18 @@
 
 namespace Windower
 {
-	#pragma pack(push, 1)
-
 	typedef struct _StringNode
 	{
-		char		*pResBuf;		// +4
-		DWORD		 dwCapacity;	// +8
-		DWORD		 dwSize;		// +12
-		DWORD		 dwUnknown2;	// +16
-		bool		 bUnknown;		// +17
-		bool		 bUnknown2;		// +18
-		char		 cBuf0;
-		char		 cBuf1;
-		char		 cBuf2;
-		char		 cBuf3;
-	} StringNode;
-
-	#pragma pack(pop)
+		char		*pResBuf;				// +4
+		DWORD		 dwCapacity;			// +8
+		DWORD		 dwSize;				// +12
+		DWORD		 dwUnknown2;			// +16
+		bool		 bUnknown;				// +17
+		bool		 bUnknown2;				// +18
+		char		 InternalBuffer[64];	// +19
+	} StringNode;							// total size = 52 / with alignment = 54
 
 	size_t UpdateNode(char *pText_in, size_t TextLen_in, StringNode &Node_in_out);
+	void InitStringNode(StringNode &Node_in_out, const std::string &Msg_in);
 }
 #endif//__STRINGNODE_H__

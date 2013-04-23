@@ -14,6 +14,7 @@
 namespace Windower
 {
 	FormatChatMsgService::CallingContext * FormatChatMsgService::m_pContext = NULL;
+	LPVOID FormatChatMsgService::m_pThis = NULL;
 
 	/*! \brief FormatChatMsgService constructor
 		\param[in] Name_in : the name of the service
@@ -41,51 +42,28 @@ namespace Windower
 	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
 	{
+		m_pThis = pThis_in_out;
+
 		if (m_pContext != NULL)
 		{
-#ifdef _DEBUG
-			switch(MessageType_in)
-			{
-				case CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE:
-				case CHAT_MESSAGE_TYPE_SAY_MESSAGE:
-				case CHAT_MESSAGE_TYPE_SHOUT_MESSAGE:
-				case CHAT_MESSAGE_TYPE_OUTGOING_TELL_MESSAGE:
-				case CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE:
-				case CHAT_MESSAGE_TYPE_PARTY_MESSAGE:
-				case CHAT_MESSAGE_TYPE_LINKSHELL_MESSAGE:
-				case CHAT_MESSAGE_TYPE_INVALID_MESSAGE:
-				case CHAT_MESSAGE_TYPE_ECHO_MESSAGE:
-				case CHAT_MESSAGE_TYPE_SANCTUARY:
-				case CHAT_MESSAGE_TYPE_ERROR_MESSAGE:
-				case CHAT_MESSAGE_TYPE_PARTY_INVITE:
-				case CHAT_MESSAGE_TYPE_PARTY_JOIN:
-				case CHAT_MESSAGE_TYPE_BATTLE_MESSAGE:
-				case BATTLE_MESSAGE_TYPE_ABILITY:
-				case BATTLE_MESSAGE_TYPE_ABILITY_RESULT:
-				case BATTLE_MESSAGE_TYPE_STATUS_EFFECT:			
-					// known message
-				break;
-				default: {}
-			}
-#endif // _DEBUG
-
 			if (m_pContext->m_pTrampoline != NULL)
 			{
-				DWORD dwResult = 0UL, dwNewSize = 0UL, dwOriginalSize = pMessage_in_out->dwSize;
-				const char *pOriginalMsg = pMessage_in_out->pResBuf;
-				PluginFramework::PluginSet::const_iterator PluginIt;			
+				PluginFramework::PluginSet::const_iterator PluginIt = m_pContext->m_Subscribers.cbegin();
+				PluginFramework::PluginSet::const_iterator EndIt = m_pContext->m_Subscribers.cend();
+				DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
+				const char *pOriginalMsg = pMessage_in_out->pResBuf;				
 				char *pModifiedMsg = NULL;
 				IGameChatPlugin *pPlugin;
 				bool bResult = false;
 
-				for (PluginIt = m_pContext->m_Subscribers.begin(); PluginIt != m_pContext->m_Subscribers.end(); ++PluginIt)
+				for (; PluginIt != EndIt; ++PluginIt)
 				{
 					pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
 
 					if (pPlugin != NULL)
 					{
 						dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf,
-														  dwOriginalSize, pOriginalMsg, &pModifiedMsg);
+														  dwOriginalSize, pOriginalMsg, &pModifiedMsg, dwNewSize);
 
 						if (pModifiedMsg != NULL && dwResult > dwNewSize)
 							dwNewSize = dwResult;
@@ -103,33 +81,27 @@ namespace Windower
 	}
 
 	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in,
-											 bool AlwaysShow_in)
+											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in)
 	{
+		DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
+		char *pOriginalSender = pSender_in_out->pResBuf;
+		StringNode OriginalMsg = *pMessage_in_out;
 		bool Result = false;
 
-		//if (AlwaysShow_in)
-		{
-			DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
-			char *pOriginalSender = pSender_in_out->pResBuf;
-			StringNode OriginalMsg = *pMessage_in_out;
-
-			if (pModifiedMsg_in != NULL)
-				UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
-			// display the error message instead of the typed command
-			Result = ((fnFormatChatMessage)m_pContext->m_pTrampoline)(pThis_in_out, MessageType_in,
-																	  pSender_in_out, pMessage_in_out, NULL);
-			// restore the original message and sender
-			pSender_in_out->dwSize = dwOriginalSenderSize;
-			pSender_in_out->pResBuf = pOriginalSender;
-
-			if (pModifiedMsg_in != NULL)
-				*pMessage_in_out = OriginalMsg;
-		}
-
+		if (pModifiedMsg_in != NULL)
+			UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
+		// display the error message instead of the typed command
+		Result = ((fnFormatChatMessage)m_pContext->m_pTrampoline)(pThis_in_out, MessageType_in,
+																  pSender_in_out, pMessage_in_out, NULL);
+		// restore the original message and sender
+		pSender_in_out->dwSize = dwOriginalSenderSize;
+		pSender_in_out->pResBuf = pOriginalSender;
 		// cleanup
 		if (pModifiedMsg_in != NULL)
+		{
+			*pMessage_in_out = OriginalMsg;
 			free(pModifiedMsg_in);
+		}
 
 		return Result;
 	}
@@ -154,5 +126,24 @@ namespace Windower
 			if (pTrampoline != NULL)
 				m_pContext = new CallingContext((fnFormatChatMessage)pTrampoline, m_Subscribers);
 		}
+	}
+
+	bool FormatChatMsgService::InjectMessage(const std::string &Msg_in,
+											 const std::string &Sender_in,
+											 UINT MessageType_in)
+	{
+		if (m_pContext != NULL && m_pThis != NULL)
+		{
+			StringNode DummySender, DummyMsg;
+
+			InitStringNode(DummySender, Sender_in);
+			InitStringNode(DummyMsg, Msg_in);			
+
+			FormatChatMessageHook(m_pThis, MessageType_in, &DummySender, &DummyMsg, NULL);
+
+			return true;
+		}
+
+		return false;
 	}
 }

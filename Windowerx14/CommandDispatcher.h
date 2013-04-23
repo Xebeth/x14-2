@@ -22,7 +22,7 @@ namespace Windower
 	class CommandDispatcher : public WindowerCore
 	{
 	public:
-		CommandDispatcher(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		CommandDispatcher();
 		virtual ~CommandDispatcher();
 
 		bool UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in);

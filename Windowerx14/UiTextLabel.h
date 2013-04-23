@@ -15,7 +15,7 @@ namespace Windower
 {
 	class TextLabelRenderer;
 
-	class UiTextLabel : public UIAL::CUiWindow<>, public IRenderable
+	class UiTextLabel : public IRenderable, public UIAL::CUiWindow<>
 	{
 	public:
 		/*! \brief UiTextLabel constructor
@@ -26,6 +26,8 @@ namespace Windower
 							 unsigned short FontSize_in, bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
 							 TextLabelRenderer *pRenderer_in, bool Visibile_in = true);
 
+		virtual void SetVisible(bool Visible_in);
+		virtual bool IsVisible() const;
 		virtual void OnDeviceReset();
 		virtual void OnDeviceLost();
 		virtual void Release();

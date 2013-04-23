@@ -68,14 +68,12 @@ namespace Windower
 				else
 				{
 					// create a new label window
-					UiTextLabel *pLabel = CreateLabel(m_NextID, m_pDevice, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
-													  pParam->m_H, _T("Arial"), 12, true, false, pParam->m_ARGBColor, m_pRenderer, true);
-					// add it to the map
-					m_UiElements[m_NextID] = pLabel;
+					UiTextLabel *pLabel = CreateLabel(m_pDevice, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
+													  pParam->m_H, pParam->m_FontName, 12, true, false, pParam->m_ARGBColor, m_pRenderer, true);
 					// set the return value
 					*pParam->m_ppUiLabel = pLabel;
 
-					return m_pDevice->AddRenderable(m_NextID++, pLabel);
+					return (pLabel != NULL);
 				}
 			}
 		}
@@ -83,31 +81,60 @@ namespace Windower
 		return false;
 	}
 
-	UiTextLabel* TextLabelService::CreateLabel(unsigned long ID_in, IDirect3DDevice9Wrapper *pDevice_in,
+	UiTextLabel* TextLabelService::CreateLabel(IDirect3DDevice9Wrapper *pDevice_in,
 											   const string_t& Name_in, long X_in, long Y_in,
 											   long W_in, long H_in, const string_t &FontName_in,
 											   unsigned short FontSize_in, bool bBold_in,
 											   bool bItalic_in, unsigned long ARGB_in,
 											   TextLabelRenderer *pRenderer_in, bool Visibile_in)
 	{
+		UiTextLabel *pLabel = NULL;
+
 		if (pRenderer_in != NULL && pDevice_in != NULL)
 		{
-			UiTextLabel *pLabel = new UiTextLabel(m_NextID, pDevice_in, Name_in, X_in, Y_in, W_in, H_in, _T("Arial"),
-												  12, true, false, ARGB_in, pRenderer_in, Visibile_in);
+			UiIdMap::const_iterator IdIt = m_LabelIDs.begin();
+			UiLabelMap::const_iterator LabelIt;
+			unsigned long LabelID = 0UL;
 
-			if (pLabel != NULL)
+			if (IdIt != m_LabelIDs.cend())
+				LabelID = IdIt->second;
+			else
+				LabelID = m_NextID;
+
+			LabelIt = m_RemovedLabels.find(LabelID);
+
+			if (LabelIt == m_RemovedLabels.end())
 			{
+				pLabel = new UiTextLabel(m_NextID, pDevice_in, Name_in, X_in, Y_in, W_in, H_in, FontName_in,
+										 FontSize_in, bBold_in, bItalic_in, ARGB_in, pRenderer_in, Visibile_in);
+
 				// add it to the map
-				m_UiElements[m_NextID] = pLabel;
-				// add it to the renderable elements
-				pDevice_in->AddRenderable(m_NextID++, pLabel);
+				m_LabelIDs[Name_in] = m_NextID;
+				m_UiElements[m_NextID] = pLabel;				
+				m_pDevice->AddRenderable(m_NextID++, pLabel);
 			}
+			else
+			{
+				pLabel = LabelIt->second;
 
-
-			return pLabel;
+				if (pLabel != NULL)
+				{
+					pLabel->SetName(Name_in);
+					pLabel->SetPos(X_in, Y_in);
+					pLabel->SetSize(W_in, H_in);
+					pLabel->SetTitleColor(ARGB_in);
+					pLabel->SetVisible(Visibile_in);				
+					pLabel->SetTitleFont(FontName_in, FontSize_in, bBold_in, bItalic_in);
+					pLabel->GetFont()->Initialize(m_pDevice, FontName_in.c_str(), FontSize_in, true, bBold_in, bItalic_in);
+					// add it to the map
+					m_UiElements[LabelID] = pLabel;
+					m_pDevice->AddRenderable(LabelID, pLabel);
+					m_RemovedLabels.erase(LabelIt);
+				}
+			}
 		}
 
-		return NULL;
+		return pLabel;
 	}
 
 	bool TextLabelService::DestroyLabel(unsigned long ID_in, IDirect3DDevice9Wrapper *pDevice_in)
@@ -115,12 +142,19 @@ namespace Windower
 		if (pDevice_in != NULL)
 		{
 			RenderableMap::const_iterator LabelIt = m_UiElements.find(ID_in);
+			IRenderable *pRenderable = NULL;
 			bool Result = false;
 
 			if (LabelIt != m_UiElements.cend())
 			{
-				Result = true;
-				delete LabelIt->second;
+				pRenderable = LabelIt->second;
+
+				if (LabelIt->second != NULL)
+				{
+					pRenderable->SetVisible(false);
+					m_RemovedLabels[ID_in] = static_cast<UiTextLabel*>(pRenderable);
+				}
+				
 				m_UiElements.erase(LabelIt);			
 			}
 

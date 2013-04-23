@@ -8,13 +8,13 @@
 #ifndef __PLAYER_CORE_H__
 #define __PLAYER_CORE_H__
 														 //53565733DB536A21				2013-04-05
-#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE			"@@53565733DB536A21"
-#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET		-8
+#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE			"##53565733DB536A21"
+#define INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET		 0
 #define INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE			 8
 
 														 //8B41288B492C3D000000E0		2013-04-05
-#define GET_SELECTED_TARGET_OPCODES_SIGNATURE			"@@8B41??8B49??3D000000E0"
-#define GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET	-11
+#define GET_SELECTED_TARGET_OPCODES_SIGNATURE			"##8B41??8B49??3D000000E0"
+#define GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET	 0
 #define GET_SELECTED_TARGET_OPCODES_HOOK_SIZE			 11
 
 #define PLAYER_DATA_OFFSET								0x1B8
@@ -28,7 +28,7 @@ namespace Windower
 	class PlayerCore : public WindowerCore
 	{
 	public:
-		PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		PlayerCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterServices();
@@ -51,8 +51,12 @@ namespace Windower
 		fnCharacterMgrInit m_pCharMgrInitTrampoline;
 		fnGetSelectedTarget m_pGetTargetTrampoline;
 
+		//! player target data structure
 		TargetData *m_pPlayerTarget;
+		//! address of the player data structure
 		DWORD *m_pPlayerAddr;
+		//! flag specifying if the player is logged in
+		bool m_bLoggedIn;
 	};
 }
 

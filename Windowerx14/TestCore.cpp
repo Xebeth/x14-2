@@ -19,16 +19,18 @@ namespace Windower
 	/*! \brief TestCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
-	TestCore::TestCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(_T("Testing"), Engine_in_out, HookManager_in_out),
-		  m_pSub4357A0Trampoline(NULL) {}
+	TestCore::TestCore()
+		: WindowerCore(_T(TESTING_MODULE)),
+		  m_pSub5D1C70Trampoline(NULL),
+		  m_pSub5E9E30Trampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
 	*/
 	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
- 	  	//HookManager_in.RegisterHook("On4357A0", SIGSCAN_GAME_PROCESSA, (LPVOID)0x004357A0, ::Sub4357A0Hook, 13);
+//		HookManager_in.RegisterHook("On5D1C70", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005D1C70, ::Sub5D1C70Hook, 9);
+// 		HookManager_in.RegisterHook("On5E9E30", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005E9E30, ::Sub5E9E30Hook, 8);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -36,11 +38,17 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pSub4357A0Trampoline = (fnSub4357A0)HookManager_in.GetTrampolineFunc("On4357A0");
+		m_pSub5D1C70Trampoline = (fnSub5D1C70)HookManager_in.GetTrampolineFunc("On5D1C70");
+		m_pSub5E9E30Trampoline = (fnSub5E9E30)HookManager_in.GetTrampolineFunc("On5E9E30");
 	}
 
-	int TestCore::Sub4357A0Hook(LPVOID pThis, DWORD a2, char * a3, int a4, int a5)
+	int TestCore::Sub5D1C70Hook(LPVOID pThis, DWORD a2, char * a3, int a4, int a5)//a5 => StringNode
 	{
-		return m_pSub4357A0Trampoline(pThis, a2, a3, a4, a5);
+		return m_pSub5D1C70Trampoline(pThis, a2, a3, a4, a5);
+	}
+
+	int TestCore::Sub5E9E30Hook(LPVOID pThis, StringNode *a2)
+	{
+		return m_pSub5E9E30Trampoline(pThis, a2);
 	}
 }

@@ -31,16 +31,24 @@ bool IDirect3DDevice9Wrapper::AddRenderable(unsigned long ID_in, IRenderable *pR
 
 bool IDirect3DDevice9Wrapper::RemoveRenderable(unsigned long ID_in)
 {
-	RenderableMap::const_iterator RenderableIt = m_UiElements.find(ID_in);
+	RenderableMap::iterator RenderableIt = m_UiElements.find(ID_in);
+	bool Result = false, DrawUi = m_DrawUi;
+
+	while (m_DrawUi && m_bSceneStarted)
+		Sleep(0);
+
+	m_DrawUi = false;
 
 	if (RenderableIt != m_UiElements.end())
 	{
 		m_UiElements.erase(RenderableIt);
 
-		return true;
+		Result = true;
 	}
 
-	return false;
+	m_DrawUi = DrawUi;
+
+	return Result;
 }
 
 ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
@@ -67,8 +75,12 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 			for(; RenderableIt != EndIt; ++RenderableIt)
 			{
 				pRenderable = RenderableIt->second;
-				pRenderable->Update();
-				pRenderable->Draw();
+
+				if (pRenderable != NULL && pRenderable->IsVisible())
+				{
+					pRenderable->Update();
+					pRenderable->Draw();
+				}
 			}
 		}
 	}
@@ -105,9 +117,15 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 
 	RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
 	RenderableMap::const_iterator EndIt = m_UiElements.cend();
+	IRenderable *pRenderable = NULL;
 
 	for(; RenderableIt != EndIt; ++RenderableIt)
-		RenderableIt->second->OnDeviceLost();
+	{
+		pRenderable = RenderableIt->second;
+
+		if (pRenderable != NULL)
+			pRenderable->OnDeviceLost();
+	}
 
 	HRESULT Result = m_pDirect3dDevice->Reset(pPresentationParameters);
 
@@ -119,7 +137,12 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 		RenderableIt = m_UiElements.cbegin();
 
 		for(; RenderableIt != EndIt; ++RenderableIt)
-			RenderableIt->second->OnDeviceReset();
+		{
+			pRenderable = RenderableIt->second;
+
+			if (pRenderable != NULL)
+				pRenderable->OnDeviceReset();
+		}
 	}
 
 	return Result;

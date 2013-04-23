@@ -53,6 +53,11 @@ namespace Windower
 		bool UnlockPlugins();
 		void LockPlugins();
 
+		DWORD_PTR FindAddress(const std::string &Pattern_in, DWORD Offset_in);
+		bool Exit(std::string& Feedback_out) const;
+
+		void DisplayHelp();
+
 #ifdef _DEBUG
 		/*! \brief Retrieves the test core module
 			\return the test core module

@@ -8,18 +8,21 @@
 #ifndef __SYSTEM_CORE_H__
 #define __SYSTEM_CORE_H__
 
+//! the class name of the target window
+#define FFXIV_WINDOW_CLASSA	"FFXIVGAME"
+#define SYSTEM_MODULE "System"
+
 namespace Windower
 {
 	class WindowerEngine;
 
-	//! the class name of the target window
-	#define FFXIV_WINDOW_CLASSA		"FFXIVGAME"
+
 
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public WindowerCore
 	{
 	public:
-		SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		SystemCore();
 
 		/*! \brief Retrieves the handle to the game window
 			\return the handle to the game window
@@ -61,8 +64,6 @@ namespace Windower
 		WNDPROC	 m_pGameWndProc;
 		//! the ID of the main thread
 		DWORD m_MainThreadID;
-		//! the virtual key used to minimize the game
-		UINT m_MinimizeVKey;
 		//! the handle to the game window
 		HWND m_hGameWnd;
 		//! the ID of the game process

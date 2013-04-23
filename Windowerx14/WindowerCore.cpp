@@ -13,15 +13,18 @@
 
 namespace Windower
 {
+	HookEngine* WindowerCore::m_pHookManager = NULL;
+	WindowerEngine* WindowerCore::m_pEngine = NULL;	
+
 	/*! \brief WindowerCore constructor
 		\param[in] ModuleName_in : the name of the module
 		\param[in,out] Engine_in_out : the plugin engine
 		\param[in,out] HookManager_in_out : the hook manager
 	*/
-	WindowerCore::WindowerCore(const string_t& ModuleName_in, WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-	  : m_Engine(Engine_in_out), m_HookManager(HookManager_in_out)
+	WindowerCore::WindowerCore(const string_t& ModuleName_in)
 	{
-		m_Engine.RegisterModule(ModuleName_in, this);
+		if (m_pEngine != NULL)
+			m_pEngine->RegisterModule(ModuleName_in, this);
 	}
 
 	//! \brief WindowerCore destructor
@@ -88,7 +91,7 @@ namespace Windower
 	{
 		bool Result = false;
 
-		if (pService_in_out != NULL)
+		if (pService_in_out != NULL && m_pHookManager != NULL)
 		{
 			const HookPointers &HookList = pService_in_out->GetHooks();
 			HookPointers::const_iterator HookIt = HookList.cbegin();
@@ -101,13 +104,13 @@ namespace Windower
 			{
 				if (Install_in)
 				{
-					pPointer = m_HookManager.InstallHook(HookIt->first.c_str());
+					pPointer = m_pHookManager->InstallHook(HookIt->first.c_str());
 					Result &= (pPointer != NULL);
 				}
 				else
 				{
 					// uninstall the hook
-					Result &= m_HookManager.UninstallHook(HookIt->first.c_str());
+					Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());
 					pPointer = NULL;
 				}
 				// update the pointers (only create them when installing)

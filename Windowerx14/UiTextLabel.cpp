@@ -98,4 +98,10 @@ namespace Windower
 
 		__super::Move(XOffset_in, YOffset_in);
 	}
+
+	void UiTextLabel::SetVisible(bool Visible_in)
+	{ m_Visible = Visible_in; }
+
+	bool UiTextLabel::IsVisible() const
+	{ return m_Visible; }
 }

@@ -20,8 +20,8 @@ namespace Windower
 		\param[in] HookManager_in_out : the hook manager
 		\param[in] Dispatcher_in : the command dispatcher
 	*/
-	CommandParser::CommandParser(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, CommandDispatcher &Dispatcher_in)
-		: WindowerCore(_T("CommandParser"), Engine_in_out, HookManager_in_out), m_CommandDispatcher(Dispatcher_in) {}
+	CommandParser::CommandParser(CommandDispatcher &Dispatcher_in)
+		: WindowerCore(_T("CommandParser")), m_CommandDispatcher(Dispatcher_in) {}
 
 	/*! \brief Parses a raw command (e.g. chat line) and returns the arguments and a feedback message
 		\param[in] pRawCommand_in : the raw command buffer

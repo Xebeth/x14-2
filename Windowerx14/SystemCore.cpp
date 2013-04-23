@@ -26,11 +26,10 @@ namespace Windower
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
-	SystemCore::SystemCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(_T("System"), Engine_in_out, HookManager_in_out), m_hGameWnd(NULL),
-		  m_pRegisterClassExATrampoline(NULL), m_dwPID (GetCurrentProcessId()),
-		  m_pCreateWindowExATrampoline(NULL), m_hMainThreadHandle(NULL),
-		  m_pSetCursorPosTrampoline(NULL), m_MinimizeVKey(VK_F11),
+	SystemCore::SystemCore() 
+		: WindowerCore(_T(SYSTEM_MODULE)), m_hGameWnd(NULL), m_dwPID (GetCurrentProcessId()),
+		  m_pRegisterClassExATrampoline(NULL), m_pCreateWindowExATrampoline(NULL),
+		  m_hMainThreadHandle(NULL), m_pSetCursorPosTrampoline(NULL),
 		  m_pGameWndProc(NULL), m_MainThreadID(0UL) {}
 
 	/*! \brief Starts the main thread of the windower engine
@@ -39,7 +38,7 @@ namespace Windower
 	*/
 	DWORD WINAPI SystemCore::MainThreadStatic(LPVOID pParam_in_out)
 	{
-		return reinterpret_cast<WindowerEngine*>(pParam_in_out)->MainThread();
+		return m_pEngine->MainThread();
 	}
 
 	/*! \brief Creates the main thread of the windower engine
@@ -50,7 +49,7 @@ namespace Windower
 		if (m_hMainThreadHandle == NULL)
 		{
 			// create the main thread
-			m_hMainThreadHandle = CreateThread(NULL, 0, SystemCore::MainThreadStatic, &m_Engine, 0, &m_MainThreadID);
+			m_hMainThreadHandle = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &m_MainThreadID);
 		}
 
 		return m_hMainThreadHandle;
@@ -89,8 +88,8 @@ namespace Windower
 				CreateEngineThread();
 				m_hGameWnd = hWnd_in;
 				// remove the hook since it is no longer needed
-				m_HookManager.UninstallHook("CreateWindowExA");
-				m_HookManager.UnregisterHook("CreateWindowExA");
+				m_pHookManager->UninstallHook("CreateWindowExA");
+				m_pHookManager->UnregisterHook("CreateWindowExA");
 				m_pCreateWindowExATrampoline = NULL;
 			}
 		}
@@ -127,8 +126,8 @@ namespace Windower
 			if (Uninstall)
 			{
 				// remove the hook since it is no longer needed
-				m_HookManager.UninstallHook("RegisterClassExA");
-				m_HookManager.UnregisterHook("RegisterClassExA");
+				m_pHookManager->UninstallHook("RegisterClassExA");
+				m_pHookManager->UnregisterHook("RegisterClassExA");
 			}
 		}
 
@@ -154,22 +153,21 @@ namespace Windower
 		switch (uMsg_in)
 		{
 			case WM_SIZE:
-				m_Engine.Graphics().SetWindowSize(LOWORD(lParam_in), HIWORD(lParam_in));
+				if (m_pEngine != NULL)
+					m_pEngine->Graphics().SetWindowSize(LOWORD(lParam_in), HIWORD(lParam_in));
 			break;
 #ifdef _DEBUG
-			case WM_RBUTTONUP:
-				m_Engine.Graphics().ToggleFPS();
-			break;
 			case WM_LBUTTONDOWN:
-				if (m_Engine.Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
+				if (m_pEngine != NULL && m_pEngine->Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
 					return 0;
 			break;
 			case WM_LBUTTONUP:
-				if (m_Engine.Graphics().OnLButtonUp(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
+				if (m_pEngine != NULL && m_pEngine->Graphics().OnLButtonUp(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
 					return 0;
 			break;
 			case WM_MOUSEMOVE:
-				m_Engine.Graphics().OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
+				if (m_pEngine != NULL)
+					m_pEngine->Graphics().OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
 			break;
 #endif // _DEBUG
 			case WM_QUIT:
@@ -177,17 +175,19 @@ namespace Windower
 			case WM_DESTROY:
 			case WM_NCDESTROY:
 				// start shutting down the engine
-				m_Engine.OnShutdown();
+				if (m_pEngine != NULL)
+					m_pEngine->OnShutdown();
 				// remove the WndProc hook before the game window is destroyed
 				RestoreWndProc();
 			break;
 			case WM_ACTIVATEAPP:
 			case WM_ACTIVATE:
-				m_Engine.Graphics().SetRendering(true);
+				m_pEngine->Graphics().SetRendering(true);
 			break;
 			case WM_KEYDOWN:
 			case WM_KEYUP:
-				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
+				if (FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in) == 0)
+					return 0;
 			break;
 		}
 
@@ -208,27 +208,30 @@ namespace Windower
 	{
 		LRESULT Result = TRUE;
 
-		if (hWnd_in == m_hGameWnd && uMsg_in == WM_KEYUP)
+		if (hWnd_in == m_hGameWnd && uMsg_in == WM_KEYUP && m_pEngine != NULL)
 		{
 			bool bCtrl = ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000);
 
-			if (wParam_in == m_MinimizeVKey)
+			if (wParam_in == VK_F10 && bCtrl)
 			{
-				if (bCtrl)
-				{
-					m_Engine.Graphics().ToggleRendering();
-				}
-				else
-				{
-					m_Engine.Graphics().SetRendering(false);
-					ShowWindow(m_hGameWnd, SW_MINIMIZE);
-				}
-
+				m_pEngine->Graphics().ToggleRendering();
+				Result = FALSE;
+			}
+			else if (wParam_in == VK_F11 && bCtrl)
+			{
+				m_pEngine->Graphics().SetRendering(false);
+				ShowWindow(m_hGameWnd, SW_MINIMIZE);
 				Result = FALSE;
 			}
 			else if (wParam_in == VK_F12 && bCtrl)
 			{
-				m_Engine.Graphics().ToggleFPS();
+				m_pEngine->Graphics().ToggleFPS();
+				Result = FALSE;
+			}
+			else if (wParam_in == VK_F1 && bCtrl)
+			{
+				m_pEngine->DisplayHelp();
+				Result = FALSE;
 			}
 		}
 
@@ -264,7 +267,7 @@ namespace Windower
 
 	BOOL SystemCore::SetCursorPosAHook(INT X_in, INT Y_in)
 	{
-		if (m_Engine.Graphics().IsMouseCaptured() == false)
+		if (m_pEngine != NULL && m_pEngine->Graphics().IsMouseCaptured() == false)
 			return m_pSetCursorPosTrampoline(X_in, Y_in);
 
 		return TRUE;

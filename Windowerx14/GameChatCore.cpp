@@ -18,8 +18,8 @@
 namespace Windower
 {
 	/*! \brief GameChatCore constructor */
-	GameChatCore::GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out) 
-		: WindowerCore(_T(GAME_CHAT_MODULE), Engine_in_out, HookManager_in_out) {}
+	GameChatCore::GameChatCore() 
+		: WindowerCore(_T(GAME_CHAT_MODULE)) {}
 
 	/*! \brief Registers the services of the module
 		\return true if the services were registered; false otherwise
@@ -40,9 +40,9 @@ namespace Windower
 		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(FORMAT_CHAT_MESSAGE_HOOK)) == 0)
 		{
 			// register the format chat message hook
-			m_HookManager.RegisterHook(FORMAT_CHAT_MESSAGE_HOOK, SIGSCAN_GAME_PROCESSA, FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
-									   FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET, &FormatChatMsgService::FormatChatMessageHook, 
-									   FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
+			m_pHookManager->RegisterHook(FORMAT_CHAT_MESSAGE_HOOK, SIGSCAN_GAME_PROCESSA, FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
+										 FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET, &FormatChatMsgService::FormatChatMessageHook, 
+										 FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
 			// add it to the hook set
 			pService_in_out->SetPointer(FORMAT_CHAT_MESSAGE_HOOK, NULL);
 

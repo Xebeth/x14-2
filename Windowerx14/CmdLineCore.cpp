@@ -16,24 +16,33 @@
 
 #include "StringNode.h"
 
+#include "ModuleService.h"
+#include "FormatChatMsgService.h"
+
 namespace Windower
 {
-	CommandDispatcher* CmdLineCore::m_pCommandDispatcher = NULL;
-	fnProcessCmd CmdLineCore::m_pProcessCmdTrampoline = NULL;
-	CommandParser * CmdLineCore::m_pCommandParser = NULL;
+	CmdLineCore::CallingContext * CmdLineCore::m_pContext = NULL;
+	LPVOID CmdLineCore::m_pThis = NULL;
 
 	/*! \brief CmdLineCore constructor
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in,out] HookManager_in_out : the hook manager
 	*/
-	CmdLineCore::CmdLineCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(_T("CmdLine"), Engine_in_out, HookManager_in_out) {}
-	
+	CmdLineCore::CmdLineCore()
+		: WindowerCore(_T(CMD_LINE_MODULE)), m_pCommandDispatcher(NULL),
+		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL) {}
+
 	//! \brief CmdLineCore destructor
 	CmdLineCore::~CmdLineCore()
 	{
 		// unregister the commands
 		UnregisterCommands();
+
+		if (m_pContext != NULL)
+		{
+			delete m_pContext;
+			m_pContext = NULL;
+		}
 
 		if (m_pCommandParser != NULL)
 		{
@@ -51,34 +60,28 @@ namespace Windower
 	/*! \brief Process a command typed by the player
 		\param[in,out] pThis_in_out : the caller object
 		\param[in,out] pCmd_in_out : a string node containing the command typed
-		\param[in] pArgs_in : args?
+		\param[in] pUnknown_in : unknown object (contains pThis_in_out at offset 0x41950)
 	*/
-	bool WINAPI CmdLineCore::ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, char **pRawCmd_in)
+	bool WINAPI CmdLineCore::ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in)
 	{
 		bool Result = false;
 
-		if (m_pProcessCmdTrampoline != NULL)
+		m_pThis = pThis_in_out;
+
+		if (m_pContext != NULL && m_pContext->m_pTrampoline != NULL)
 		{
-			StringNode OriginalCmd = *pCmd_in_out;
-			char *pFeedback = NULL;
 			std::string Feedback;
 
 			if (FilterCommands(pCmd_in_out, Feedback))
 			{
-				// insert the echo command
-				Feedback.insert(0U, "/echo ");
-				// duplicate the buffer
-				pFeedback = _strdup(Feedback.c_str());
-				// update the node capacity to match the new size of the buffer
-				UpdateNode(pFeedback, Feedback.size() + 1, *pCmd_in_out);
+				// skip command processing
+				Result = FormatChatMsgService::InjectMessage(Feedback);
 			}
-			// call the trampoline to process the echo command
-			Result = m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pRawCmd_in);
-			// restore the command
-			*pCmd_in_out = OriginalCmd;
-			// cleanup
-			if (pFeedback != NULL)
-				free(pFeedback);
+			else
+			{
+				// call the trampoline to process the command
+				Result = m_pContext->m_pTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
+			}
 		}
 
 		return Result;
@@ -91,7 +94,8 @@ namespace Windower
 	*/
 	bool CmdLineCore::FilterCommands(const StringNode *pCmd_in, std::string &Feedback_out)
 	{
-		if (pCmd_in != NULL && pCmd_in->pResBuf != NULL && m_pCommandParser != NULL)
+		if (pCmd_in != NULL && pCmd_in->pResBuf != NULL
+		 && m_pContext != NULL && m_pContext->m_pParser != NULL)
 		{
 			// the message starts with 2 forward slashes => expect a command
 			if (pCmd_in->dwSize != 0 && strstr(pCmd_in->pResBuf, "//") == pCmd_in->pResBuf)
@@ -104,7 +108,7 @@ namespace Windower
 					WindowerCommand Command;
 					DWORD dwNewSize = 0UL;
 
-					if (m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
+					if (m_pContext->m_pParser->ParseCommand(pCmd_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
 					{
 						Command.Execute(Feedback_out);
 						Result = true;
@@ -159,8 +163,10 @@ namespace Windower
 		if (m_pProcessCmdTrampoline != NULL)
 		{
 			// create the command dispatcher and parser
-			m_pCommandDispatcher = new CommandDispatcher(m_Engine, m_HookManager);
-			m_pCommandParser = new CommandParser(m_Engine, m_HookManager, *m_pCommandDispatcher);
+			m_pCommandDispatcher = new CommandDispatcher;
+			m_pCommandParser = new CommandParser(*m_pCommandDispatcher);
+			// create the calling context for the hook
+			m_pContext = new CallingContext(m_pProcessCmdTrampoline, m_pCommandParser);
 			// register the built-in commands
 			RegisterCommands();
 		}
@@ -234,6 +240,18 @@ namespace Windower
 
 			Result &= (pCommand != NULL);
 
+			// register the "exit" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_EXIT, "exit",
+										   "Forces the game to exit.", this);
+
+			if (pCommand != NULL && RegisterCommand(pCommand) == false)
+			{
+				delete pCommand;
+				pCommand = NULL;
+			}
+
+			Result &= (pCommand != NULL);
+
 			return Result;
 		}
 
@@ -289,6 +307,9 @@ namespace Windower
 			pCommand = m_pCommandDispatcher->FindCommand("list");
 			Result &= UnregisterCommand(pCommand);
 
+			pCommand = m_pCommandDispatcher->FindCommand("exit");
+			Result &= UnregisterCommand(pCommand);
+
 			return Result;
 		}
 
@@ -323,59 +344,64 @@ namespace Windower
 				return ShowCommandHelp(Command_in.GetStringValue("command"), Feedback_out);
 			break;
 			case CMD_LOAD_PLUGIN:
-			{
-				std::string PluginName = Command_in.GetStringValue("plugin");
-				string_t PluginNameW;
-
-				// >>> Critical section
-				m_Engine.LockPlugins();
-
-				if (m_Engine.LoadPlugin(convert_utf8(PluginName, PluginNameW)))
+				if (m_pEngine != NULL)
 				{
-					format(Feedback_out, "The plugin '%s' was loaded successfully.", PluginName.c_str());
-					Result = true;
-				}
-				else
-				{
-					format(Feedback_out, "The plugin '%s' couldn't be loaded.", PluginName.c_str());
-					Result = false;
-				}
+					std::string PluginName = Command_in.GetStringValue("plugin");
+					string_t PluginNameW;
 
-				m_Engine.UnlockPlugins();
-				// Critical section <<<
+					// >>> Critical section
+					m_pEngine->LockPlugins();
 
-				return Result;
-			}
+					if (m_pEngine->LoadPlugin(convert_utf8(PluginName, PluginNameW)))
+					{
+						format(Feedback_out, "The plugin '%s' was loaded successfully.", PluginName.c_str());
+						Result = true;
+					}
+					else
+					{
+						format(Feedback_out, "The plugin '%s' couldn't be loaded.", PluginName.c_str());
+						Result = false;
+					}
+
+					m_pEngine->UnlockPlugins();
+					// Critical section <<<
+
+					return Result;
+				}
 			break;
 			case CMD_UNLOAD_PLUGIN:
-			{
-				std::string PluginName = Command_in.GetStringValue("plugin");
-				string_t PluginNameW;
-
-				// >>> Critical section
-				m_Engine.LockPlugins();
-
-				if (m_Engine.UnloadPlugin(convert_utf8(PluginName, PluginNameW)))
+				if (m_pEngine != NULL)
 				{
-					format(Feedback_out, "The plugin '%s' was unloaded successfully.", PluginName.c_str());
-					Result = true;
-				}
-				else
-				{
-					format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
-					Result = false;
-				}
+					std::string PluginName = Command_in.GetStringValue("plugin");
+					string_t PluginNameW;
 
-				m_Engine.UnlockPlugins();
-				// Critical section <<<
+					// >>> Critical section
+					m_pEngine->LockPlugins();
 
-				return Result;
-			}
+					if (m_pEngine->UnloadPlugin(convert_utf8(PluginName, PluginNameW)))
+					{
+						format(Feedback_out, "The plugin '%s' was unloaded successfully.", PluginName.c_str());
+						Result = true;
+					}
+					else
+					{
+						format(Feedback_out, "The plugin '%s' couldn't be unloaded.", PluginName.c_str());
+						Result = false;
+					}
+
+					m_pEngine->UnlockPlugins();
+					// Critical section <<<
+
+					return Result;
+				}
 			break;
 			case CMD_LIST_PLUGINS:
 			{
-				return m_Engine.ListPlugins(Feedback_out);
+				return (m_pEngine ? m_pEngine->ListPlugins(Feedback_out) : false);
 			}
+			break;
+			case CMD_EXIT:
+				return (m_pEngine ? m_pEngine->Exit(Feedback_out) : false);
 			break;
 		}
 
@@ -437,5 +463,27 @@ namespace Windower
 		}
 
 		 return false;
+	}
+
+	bool CmdLineCore::InjectCommand(const std::string &Cmd_in)
+	{
+		if (m_pThis == NULL && m_pEngine != NULL)
+		{
+			// find the address in the process memory
+			m_pThis = (LPVOID)m_pEngine->FindAddress(TEXT_COMMAND_SIGNATURE,
+													 TEXT_COMMAND_OFFSET);
+		}
+
+		if (m_pThis != NULL)
+		{
+			StringNode Cmd;
+
+			InitStringNode(Cmd, Cmd_in);
+			ProcessCmdHook(m_pThis, &Cmd, NULL);
+
+			return true;
+		}
+
+		return false;
 	}
 }

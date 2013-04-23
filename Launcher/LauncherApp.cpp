@@ -85,7 +85,7 @@ BOOL LauncherApp::InitInstance()
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 	ParseCommandLine(CmdInfo);
 
-#ifdef _DEBUG
+#ifdef __DEBUG
 	if (m_pSettingsManager->IsAutoUpdated())
 	{
 		m_pMainWnd = pUpdaterDlg = new UpdateDlg(m_pSettingsManager);

@@ -28,6 +28,9 @@
 #include "SystemCore.h"
 #include "PlayerCore.h"
 
+#include "ModuleService.h"
+#include "FormatChatMsgService.h"
+
 #include "Timer.h"
 
 #define _TESTING
@@ -46,19 +49,21 @@ namespace Windower
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
 		: PluginEngine(hModule_in, pConfigFile_in), m_bShutdown(false), m_bThreadInit(false), 
 		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pUpdateTimer(NULL)
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pUpdateTimer(NULL), m_dwPID(0UL)
 	{
 		InitializeCriticalSection(&m_PluginLock);
+
+		WindowerCore::Initialize(this, &m_HookManager);
 
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the system core module
-		m_pSystemCore = new SystemCore(*this, m_HookManager);
+		m_pSystemCore = new SystemCore;
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
 		// create the testing module
-		m_pTestCore = new TestCore(*this, m_HookManager);
+		m_pTestCore = new TestCore;
 	#else
 		m_pTestCore = NULL;
 	#endif
@@ -68,13 +73,13 @@ namespace Windower
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
 			// create the game chat module
-			m_pGameChatCore = new GameChatCore(*this, m_HookManager);
+			m_pGameChatCore = new GameChatCore;
 			// create the command line module
-			m_pCmdLineCore = new CmdLineCore(*this, m_HookManager);
+			m_pCmdLineCore = new CmdLineCore;
 			// create the player data module
-			m_pPlayerCore = new PlayerCore(*this, m_HookManager);
+			m_pPlayerCore = new PlayerCore;
 			// create the graphics module
-			m_pGraphicsCore = new GraphicsCore(*this, m_HookManager, m_Settings.GetVSync());
+			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 		}
 	}
 
@@ -184,6 +189,9 @@ namespace Windower
 				pModule->RegisterServices();
 		}
 
+		// terminate sigscan to free the copy of the process memory
+		m_HookManager.GetSigScan().Clear();
+
 		return true;
 	}
 
@@ -286,5 +294,32 @@ namespace Windower
 		LeaveCriticalSection(&m_PluginLock);
 
 		return true;
+	}
+
+	bool WindowerEngine::Exit(std::string& Feedback_out) const
+	{
+		Feedback_out = "Exiting the game...";
+
+		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
+	}
+
+	void WindowerEngine::DisplayHelp()
+	{
+		if (m_pPlayerCore->IsLoggedIn())
+			CmdLineCore::InjectCommand("//help");
+	}
+
+	DWORD_PTR WindowerEngine::FindAddress(const std::string &Pattern_in, DWORD Offset_in)
+	{
+		SigScan::SigScan &MemScan = m_HookManager.GetSigScan();
+		DWORD_PTR Result = NULL;
+
+		if (MemScan.Initialize(m_dwPID, _T(SIGSCAN_GAME_PROCESSA)))
+		{
+			Result = MemScan.ScanMemory(Pattern_in, Offset_in);
+			MemScan.Clear();
+		}
+
+		return Result;
 	}
 }

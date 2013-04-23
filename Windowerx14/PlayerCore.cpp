@@ -22,10 +22,10 @@ namespace Windower
 		\param[in,out] Engine_in_out : Windower engine
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
-	PlayerCore::PlayerCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(_T(PLAYER_DATA_MODULE), Engine_in_out, HookManager_in_out),
-		  m_pPlayerAddr(NULL), m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
-		  m_pCharMgrInitTrampoline(NULL), m_pGetTargetTrampoline(NULL) {}
+	PlayerCore::PlayerCore()
+		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL), m_bLoggedIn(false),
+		  m_pCharMgrInitTrampoline(NULL), m_pPlayerDataService(NULL), 
+		  m_pPlayerTarget(NULL), m_pGetTargetTrampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
@@ -33,13 +33,13 @@ namespace Windower
 	void PlayerCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 		// register the character manager initialization hook
-		m_HookManager.RegisterHook(INIT_CHARACTER_MGR_HOOK, SIGSCAN_GAME_PROCESSA, INIT_CHARACTER_MGR_OPCODES_SIGNATURE,
-								   INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, ::CharacterMgrInitHook,
-								   INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE);
+		m_pHookManager->RegisterHook(INIT_CHARACTER_MGR_HOOK, SIGSCAN_GAME_PROCESSA, INIT_CHARACTER_MGR_OPCODES_SIGNATURE,
+									 INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, ::CharacterMgrInitHook,
+									 INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE);
 		// register the selected target hook
-		m_HookManager.RegisterHook(GET_SELECTED_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, GET_SELECTED_TARGET_OPCODES_SIGNATURE,
-								   GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, ::GetSelectedTargetHook,
-								   GET_SELECTED_TARGET_OPCODES_HOOK_SIZE);
+		m_pHookManager->RegisterHook(GET_SELECTED_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, GET_SELECTED_TARGET_OPCODES_SIGNATURE,
+									 GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, ::GetSelectedTargetHook,
+									 GET_SELECTED_TARGET_OPCODES_HOOK_SIZE);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -63,9 +63,11 @@ namespace Windower
 			if (m_pPlayerDataService != NULL && m_pPlayerAddr != NULL)
 			{
 				TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
-
 				m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
 			}
+			// update the flag specifying if the player is logged in
+			m_bLoggedIn = (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL
+					    && ((TargetData*)m_pPlayerAddr)->Name[0] != '\0');
 		}
 
 		return Result;
@@ -105,9 +107,7 @@ namespace Windower
 	}
 
 	bool PlayerCore::IsLoggedIn() const
-	{
-		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL);
-	}
+	{ return m_bLoggedIn; }
 
 	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)
 	{

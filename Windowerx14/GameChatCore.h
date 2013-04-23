@@ -26,7 +26,7 @@ namespace Windower
 			CMD_COUNT		//!< number of registered commands
 		};
 
-		GameChatCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		GameChatCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterHooks(ModuleService *pService_in_out);

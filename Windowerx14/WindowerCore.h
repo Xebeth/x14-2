@@ -23,13 +23,16 @@ namespace Windower
 	{
 	public:
 		//! \brief WindowerCore constructor
-		WindowerCore(const string_t& ModuleName_in, WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out);
+		WindowerCore(const string_t& ModuleName_in);
 		virtual ~WindowerCore();
 
 		virtual void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in);
 		virtual bool Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in);
 		virtual bool Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in);
 		virtual BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
+
+		static void Initialize(WindowerEngine *pEngine_in, HookEngine *pHookManager_in)
+		{ m_pEngine = pEngine_in; m_pHookManager = pHookManager_in; }
 
 		/*! \brief Register the hooks for this module
 			\param[in] HookManager_in : the hook manager
@@ -72,11 +75,11 @@ namespace Windower
 		virtual void OnUnsubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
 
 		//! a reference to the windower engine
-		WindowerEngine		&m_Engine;
-		//! the module services
-		ModuleServices		 m_Services;
+		static WindowerEngine *m_pEngine;
 		//! a reference to the hook manager
-		HookEngine			&m_HookManager;
+		static HookEngine *m_pHookManager;
+		//! the module services
+		ModuleServices m_Services;
 	};
 }
 

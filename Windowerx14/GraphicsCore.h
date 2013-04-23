@@ -11,6 +11,8 @@
 class IDirect3DDevice9Wrapper;
 class IDirect3D9Wrapper;
 
+#define GRAPHICS_MODULE "Graphics"
+
 namespace Windower
 {
 	class TextLabelRenderer;
@@ -27,7 +29,7 @@ namespace Windower
 			GFX_TEXT_COUNT		// number of static text labels
 		};
 	public:
-		GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in);
+		explicit GraphicsCore(bool VSync_in);
 		~GraphicsCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);

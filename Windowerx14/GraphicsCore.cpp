@@ -35,11 +35,11 @@ namespace Windower
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
-	GraphicsCore::GraphicsCore(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out, bool VSync_in)
-		: WindowerCore(_T("Graphics"), Engine_in_out, HookManager_in_out), m_VSync(VSync_in),
-		  m_pLabelRenderer(NULL), m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
-		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseX(0U), m_MouseY(0U),
-		  m_pMovingLabel(NULL), m_pDeviceWrapper(NULL) {}
+	GraphicsCore::GraphicsCore(bool VSync_in)
+		: WindowerCore(_T(GRAPHICS_MODULE)), m_VSync(VSync_in), m_pLabelRenderer(NULL),
+		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
+		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseX(0U),
+		  m_MouseY(0U), m_pMovingLabel(NULL), m_pDeviceWrapper(NULL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -97,7 +97,7 @@ namespace Windower
 				{
 					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);
 
-					pService->SetRenderer(m_pDeviceWrapper, m_pLabelRenderer);
+					pService->SetRenderer(m_pDeviceWrapper, GetLabelRenderer());
 
 					return pService->Invoke(Params_in);
 				}

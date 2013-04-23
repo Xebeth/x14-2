@@ -18,8 +18,8 @@ namespace Windower
 	/*! \brief CommandDispatcher constructor
 		\param[in] Engine_in_out : the windower engine
 	*/
-	CommandDispatcher::CommandDispatcher(WindowerEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: WindowerCore(_T("CommandDispatcher"), Engine_in_out, HookManager_in_out)
+	CommandDispatcher::CommandDispatcher()
+		: WindowerCore(_T("CommandDispatcher"))
 	{
 		m_ValidKeys.insert(ENGINE_KEY);	// Windower Engine
 		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
