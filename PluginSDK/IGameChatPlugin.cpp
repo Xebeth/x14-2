@@ -31,4 +31,47 @@ namespace Windower
 	{
 		return UnsubscribeService(_T(GAME_CHAT_MODULE), _T(FORMAT_CHAT_MESSAGE_HOOK));
 	}
+
+	bool IGameChatPlugin::ResizeBuffer(const char *pSrc_in, DWORD SrcSize_in, DWORD dwNewSize_in,
+									   char **pBuffer_in_out, DWORD BufferSize_in, DWORD Offset_in) const
+	{
+		if (pBuffer_in_out != NULL)
+		{
+			// allocate a new buffer
+			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize_in * sizeof(char));
+
+			if  (pRealloc != NULL)
+			{
+				// clear the buffer on the first allocation
+				if (*pBuffer_in_out == NULL)
+				{
+					// clear the buffer
+					memset(pRealloc, 0, dwNewSize_in * sizeof(char));
+					// copy the source
+					memcpy_s(pRealloc + Offset_in,
+							 sizeof(char) * (dwNewSize_in - Offset_in),
+							 pSrc_in, SrcSize_in);
+				}
+				else
+				{
+					// clear the buffer
+					memset(pRealloc + BufferSize_in, 0, (dwNewSize_in - BufferSize_in) * sizeof(char));
+
+					if (Offset_in > 0UL)
+					{
+						// shift the buffer
+						memcpy_s(pRealloc + Offset_in,
+								 sizeof(char) * (dwNewSize_in - Offset_in),
+								 *pBuffer_in_out, BufferSize_in);
+					}
+				}
+
+				*pBuffer_in_out = pRealloc;
+
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

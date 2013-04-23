@@ -84,10 +84,11 @@ namespace Windower
 		\param[in] MsgSize_in : the size of the unmodified message
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
-		\return the new size of the message if modified; 0 otherwise
+		\param[in] DWORD ModifiedSize_in : the modified message size
+		\return the new size of the message
 	*/
 	DWORD TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										  const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
+										  const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
 			PlaySound(m_SoundFile.c_str(), NULL, SND_FILENAME | SND_ASYNC);

@@ -34,7 +34,7 @@ namespace Windower
 		bool SetFormat(const std::string& Format_in);
 
 		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-							const char *pOriginalMsg_in, char **pModifiedMsg_in_out);
+							const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in);
 
 	protected:
 		virtual bool UnregisterCommands();

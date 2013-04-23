@@ -34,6 +34,7 @@ namespace Windower
 
 		BATTLE_MESSAGE_TYPE_ABILITY					= 0x042B,	//!< ability
 		BATTLE_MESSAGE_TYPE_ABILITY_RESULT			= 0x042C,	//!< ability result?
+		BATTLE_MESSAGE_TYPE_EXPERIENCE_GAIN			= 0x0440,	//!< experience?
 		BATTLE_MESSAGE_TYPE_STATUS_EFFECT			= 0x04AE,	//!< status effect
 	};
 
@@ -54,12 +55,15 @@ namespace Windower
 			\param[in] pOriginalMsg_in : a pointer to the unmodified message
 			\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 			\param[in] dwNewSize_out : the new size of the message
-			StringUtils::UUID
+			\param[in] DWORD ModifiedSize_in : the modified message size
+			\return the new size of the message
 		*/
 		virtual DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-									const char *pOriginalMsg_in, char **pModifiedMsg_in_out) =0;
+									const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in) =0;
 
 	protected:
+		bool ResizeBuffer(const char *pSrc_in, DWORD SrcSize_in, DWORD dwNewSize_in,
+						  char **pBuffer_in_out, DWORD BufferSize_in, DWORD Offset_in = 0UL) const;
 		virtual bool Unsubscribe();
 		virtual bool Subscribe();
 	};

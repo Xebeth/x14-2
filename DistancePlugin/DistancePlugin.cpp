@@ -84,7 +84,7 @@ namespace Windower
 
 			if (m_pTextLabel == NULL)
 			{
-				LabelServiceParam LabelParam(&m_pTextLabel, _T("Distance##label"), 5L, 5L, 500UL, 16UL);
+				LabelServiceParam LabelParam(&m_pTextLabel, _T("Distance##label"), 5L, 5L, 500UL, 16UL, _T("Arial"));
 				PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
 				if (InvokeService(_T("Graphics"), _T("TextLabelService"), Param) == false)

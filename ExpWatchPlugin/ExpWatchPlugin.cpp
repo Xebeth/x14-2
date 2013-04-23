@@ -6,9 +6,9 @@
 	purpose		:	ExpWatch plugin
 **************************************************************************/
 #include "stdafx.h"
+#include "version.h"
 
 #include "ExpWatchPlugin.h"
-#include "version.h"
 
 namespace Windower
 {
@@ -17,14 +17,13 @@ namespace Windower
 	*/
 	ExpWatchPlugin::ExpWatchPlugin(PluginFramework::IPluginServices *pServices_in)
 		: IGameChatPlugin(pServices_in), CommandHandler(0xEB71A021, "ExpWatchPlugin"),
-		  m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_StartTime(0UL),
-		  m_TotalExp(0.f), m_bStarted(false), m_KillCounter(0L) {}
+		  m_bStarted(false), m_AvgExpPerKill(0.f), m_AvgExpPerHour(0.f), m_TotalExp(0.f),
+		  m_BonusExp(0.f), m_ExpPeriod(0.f), m_StartTime(0UL),  m_KillCounter(0L),
+		  m_iHours(0U), m_iMinutes(0U)  {}
 
 	//! \brief ExpWatchPlugin destructor
 	ExpWatchPlugin::~ExpWatchPlugin()
-	{
-		Stop();
-	}
+	{ Stop(); }
 
 	/*! \brief Creates an instance of ExpWatchPlugin
 		\return a pointer to the new ExpWatchPlugin instance
@@ -66,10 +65,11 @@ namespace Windower
 	{
 		bool Result = true;
 
-		// register the commands		
+		// register the commands
 		Result &= (RegisterCommand(CMD_START, "expwatch::start", "starts gathering statistics on experience points earned") != NULL);
 		Result &= (RegisterCommand(CMD_RESET, "expwatch::reset", "resets gathering statistics on experience points earned") != NULL);
 		Result &= (RegisterCommand(CMD_STOP, "expwatch::stop", "stops gathering statistics on experience points earned") != NULL);
+		Result &= (RegisterCommand(CMD_REPORT, "expwatch::report", "gives a report on the statistics collected") != NULL);
 
 		return Result;
 	}
@@ -82,6 +82,7 @@ namespace Windower
 		bool Result = true;
 
 		// revoke the commands
+		Result &= RevokeCommand(CMD_REPORT);
 		Result &= RevokeCommand(CMD_START);
 		Result &= RevokeCommand(CMD_RESET);
 		Result &= RevokeCommand(CMD_STOP);
@@ -96,26 +97,72 @@ namespace Windower
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 		\param[in] dwNewSize_out : the new size of the message
-		\return the new size of the message if modified; 0 otherwise
+		\param[in] DWORD ModifiedSize_in : the modified message size
+		\return the new size of the message
 	*/
 	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
+										const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
 	{
-		if (m_bStarted)
+		if (MessageType_in == BATTLE_MESSAGE_TYPE_EXPERIENCE_GAIN)
 		{
-			// You earn 147 experience points.
-			// You earn 332 (+20%) experience points.
-			long ExpValue = 0, BonusValue = 0;
-
-			if (sscanf_s(pOriginalMsg_in, "You gain %ld (+%ld%%) experience points.", &ExpValue, &BonusValue) >= 1)
+			if (m_bStarted)
 			{
-				m_TotalExp += ExpValue;
-				m_TotalExp += BonusValue;
-				++m_KillCounter;
+				// You earn 147 experience points.
+				// You earn 332 (+20%) experience points.
+				long ExpValue = 0, BonusValue = 0;
+
+				m_ScanStr = pOriginalMsg_in;
+				// purge everything but numbers and +
+				purge<char>(m_ScanStr, _DIGIT, "+", true);
+
+				if (sscanf_s(m_ScanStr.c_str(), "%ld+%ld", &ExpValue, &BonusValue) >= 1)
+				{
+					++m_KillCounter;
+					m_TotalExp += ExpValue;
+
+					if (BonusValue > 0.f)
+						m_BonusExp += ExpValue - ExpValue / (1L + BonusValue * 0.01f);
+					// update the stats
+					UpdateStats();
+
+#ifndef _DEBUG
+					if (m_KillCounter >= 10 && m_iMinutes > 0)
+#endif // _DEBUG
+					{
+						DWORD dwNewSize, MsgSize;
+
+						// add the exp rate to the text
+						format(m_ExpRateMsg, " \xe2\x87\x92 exp. rate : %.2f/h", m_AvgExpPerHour);
+						MsgSize = m_ExpRateMsg.length();
+						// add 11 characters for the timestamp
+						dwNewSize = ModifiedSize_in + MsgSize;
+						// allocate a new buffer
+						if (ResizeBuffer(pOriginalMsg_in, MsgSize_in, dwNewSize, pModifiedMsg_in_out, ModifiedSize_in))
+						{
+							// copy the exp rate message
+							memcpy_s(*pModifiedMsg_in_out + ModifiedSize_in - 1, MsgSize * sizeof(char), m_ExpRateMsg.c_str(), MsgSize);					
+
+							return dwNewSize;
+						}
+					}
+				}
 			}
 		}
 
 		return MsgSize_in;
+	}
+
+	//! \brief Updates the statistics
+	void ExpWatchPlugin::UpdateStats()
+	{
+		m_ExpPeriod = (GetTickCount() - m_StartTime) / 3600000.f;
+		m_iHours = (int)m_ExpPeriod;
+		m_iMinutes = (int)(60 * (m_ExpPeriod - m_iHours));
+
+		m_AvgExpPerHour = m_TotalExp / m_ExpPeriod;
+
+		if (m_KillCounter > 0)
+			m_AvgExpPerKill = m_TotalExp / m_KillCounter;
 	}
 
 	/*! \brief Executes the command specified by its ID
@@ -134,6 +181,8 @@ namespace Windower
 				return Stop(&Feedback_out);
 			case CMD_RESET:
 				return Reset(&Feedback_out);
+			case CMD_REPORT:
+				return Report(&Feedback_out);
 		}
 
 		return false;
@@ -150,27 +199,14 @@ namespace Windower
 			if (pFeedback_in_out != NULL)
 				*pFeedback_in_out = "ExpWatch started gathering statistics on experience points earned.";
 
-//			m_pTargetPtr = NULL;
 			m_bStarted = true;
 			Subscribe();
-			Reset();			
-		}
-		else if (pFeedback_in_out != NULL)
-		{
-			float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
-			int iHours = (int)Hours;
-			int iMinutes = (int)(60 * (Hours - iHours));
+			Reset();
 
-			m_AvgExpPerHour = m_TotalExp / Hours;
-			m_AvgExpPerKill = m_TotalExp / m_KillCounter;
-
-			format(*pFeedback_in_out, "ExpWatch statistics on experience points earned:\n"
-				   "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
-				   "\tAverage experience per hour: %.2f\n\tAverage experience per kill: %.2f",
-				   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
+			return true;
 		}
 
-		return true;
+		return Report(pFeedback_in_out);
 	}
 
 	/*! \brief Stops the experience counter
@@ -182,18 +218,10 @@ namespace Windower
 		if (m_bStarted)
 		{
 			if (pFeedback_in_out != NULL)
-			{
-				float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
-				int iHours = (int)Hours;
-				int iMinutes = (int)(60 * (Hours - iHours));
-
-				format(*pFeedback_in_out, "ExpWatch stopped gathering statistics on experience points earned.\n"
-					   "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
-					   "\tAverage experience per hour: %.2f\n\tAverage experience per kill: %.2f",
-					   m_TotalExp, m_KillCounter, iHours, iMinutes, m_AvgExpPerHour, m_AvgExpPerKill);
-			}
-
-//			m_pTargetPtr = NULL;
+				*pFeedback_in_out = "ExpWatch stopped gathering statistics on experience points earned.\n";
+			// report on stats
+			Report(pFeedback_in_out);
+			// change the flag after the report
 			m_bStarted = false;
 			Unsubscribe();			
 		}
@@ -212,7 +240,7 @@ namespace Windower
 			if (pFeedback_in_out != NULL)
 				*pFeedback_in_out = "ExpWatch statistics were reset successfully.";
 
-			m_TotalExp = m_AvgExpPerHour = m_AvgExpPerKill = 0.f;
+			m_BonusExp = m_TotalExp = m_AvgExpPerHour = m_AvgExpPerKill = 0.f;
 			m_StartTime = GetTickCount();
 			m_KillCounter = 0L;
 		}
@@ -220,43 +248,27 @@ namespace Windower
 		return true;
 	}
 
-	/*! \brief Callback function invoked when the game creates a string object
-		\param[in] pText_in : the text used to create the string node
-		\param[in] Unsubscribe_out : flag specifying if the plugin wants to revoke its subscription to the hook
-		\return the modified version of the text
-	*
-	const char* ExpWatchPlugin::OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out)
+	/*! \brief Gvies a report on the experience statistics
+		\param[in,out] pFeedback_in_out : pointer to a string receiving feedback
+		\return true
+	*/
+	bool ExpWatchPlugin::Report(std::string *pFeedback_in_out)
 	{
-		Unsubscribe_out = false;
-
-		if (m_bStarted)
+		if (m_bStarted && pFeedback_in_out != NULL)
 		{
-			if (m_pTargetPtr == NULL && strcmp(pText_in, m_TargetText.c_str()) == 0)
-				m_pTargetPtr = pText_in;
+			UpdateStats();
 
-			if (pText_in == m_pTargetPtr)
-			{
-				float Hours = (GetTickCount() - m_StartTime) / 3600000.f;
-				int iHours = (int)Hours;
-				int iMinutes = (int)(60 * (Hours - iHours));
-
-				if (m_KillCounter > 0)
-				{
-					m_AvgExpPerHour = m_TotalExp / Hours;
-					m_AvgExpPerKill = m_TotalExp / m_KillCounter;
-					format(m_InjectedText, "%s\t\t  %.2f exp/hr %.2f exp/kill (%.0f / %02d:%02d)",
-						   pText_in, m_AvgExpPerHour, m_AvgExpPerKill, m_TotalExp, iHours, iMinutes);
-				}
-				else
-					format(m_InjectedText, "%s\t\t  0.00 exp/hr 0.00 exp/kill (0 / %02d:%02d)", pText_in, iHours, iMinutes);
-
-				return m_InjectedText.c_str();
-			}
+			append_format(*pFeedback_in_out, "ExpWatch statistics on experience points earned:\n"
+											 "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
+											 "\tExperience bonus from chains: %.0f\n"
+											 "\tAverage experience per hour: %.2f\n"
+											 "\tAverage experience per kill: %.2f",
+											 m_TotalExp, m_KillCounter, m_iHours, m_iMinutes,
+											 m_BonusExp, m_AvgExpPerHour, m_AvgExpPerKill);
 		}
 
-		return pText_in;
+		return true;
 	}
-*/
 }
 
 using Windower::ExpWatchPlugin;

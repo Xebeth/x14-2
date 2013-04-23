@@ -129,37 +129,29 @@ namespace Windower
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 		\param[in] dwNewSize_out : the new size of the message
-		\return the new size of the message if modified; 0 otherwise
+		\param[in] DWORD ModifiedSize_in : the modified message size
+		\return the new size of the message
 	*/
 	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										 const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
+										 const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
 	{
-		DWORD dwNewSize = MsgSize_in;
-
 		if (pOriginalMsg_in != NULL && MsgSize_in > 1U)
 		{
 			// add 11 characters for the timestamp
-			dwNewSize = MsgSize_in + m_TimestampLength;
+			DWORD dwNewSize = ModifiedSize_in + m_TimestampLength;
 			// allocate a new buffer
-			char *pRealloc = (char*)realloc(*pModifiedMsg_in_out, dwNewSize * sizeof(char));
-
-			if  (pRealloc != NULL)
+			if (ResizeBuffer(pOriginalMsg_in, MsgSize_in, dwNewSize, pModifiedMsg_in_out, ModifiedSize_in, m_TimestampLength))
 			{
-				*pModifiedMsg_in_out = pRealloc;
-				// clear the buffer
-				memset(*pModifiedMsg_in_out, 0, dwNewSize);
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
 							   m_TimestampFormat.c_str(),
 							   *pModifiedMsg_in_out, m_TimestampLength);
-				// copy the original text
-				memcpy_s(*pModifiedMsg_in_out + m_TimestampLength, 
-						 MsgSize_in * sizeof(char),
-						 pOriginalMsg_in, MsgSize_in);
+
+				return dwNewSize;
 			}
 		}
 
-		return dwNewSize;
+		return MsgSize_in;
 	}
 
 	

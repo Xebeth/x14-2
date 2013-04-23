@@ -80,10 +80,11 @@ namespace Windower
 		\param[in] pOriginalMsg_in : a pointer to the unmodified message
 		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
 		\param[in] dwNewSize_out : the new size of the message
-		\return the new size of the message if modified; 0 otherwise
+		\param[in] DWORD ModifiedSize_in : the modified message size
+		\return the new size of the message
 	*/
 	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-									   const char *pOriginalMsg_in, char **pModifiedMsg_in_out)
+									   const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
 		{
@@ -96,15 +97,11 @@ namespace Windower
 			convert_utf8(pOriginalMsg_in, Message);
 			// format the line
 			if (Sender.empty())
-				format(m_Buffer, _T("%s %s"), m_pTimestamp, Message.c_str());
+				format(m_Buffer, _T("%s%s\r\n"), m_pTimestamp, Message.c_str());
 			else
-				format(m_Buffer, _T("%s %s: %s"), m_pTimestamp, Sender.c_str(), Message.c_str());
-#ifndef _DEBUG
+				format(m_Buffer, _T("%s%s: %s\r\n"), m_pTimestamp, Sender.c_str(), Message.c_str());
 			// remove any non-printable character
-			purge<wchar_t>(m_Buffer, _T("\r\n\t"));
-#endif // _DEBUG
-			// add CRLF after purging or they'll be removed
-			m_Buffer += _T("\r\n");
+			purge<wchar_t>(m_Buffer, _CONTROL, _T("\r\n\t"));
 			// write the line in the log
 			WriteLine(m_Buffer);
 		}
@@ -176,14 +173,16 @@ namespace Windower
 	void ChatLogPlugin::UpdateTimestamp()
 	{
 		if (m_pTimestamp == NULL)
+		{
 			m_pTimestamp = new TCHAR[m_TimestampLength + 1];
+			// clear the buffer
+			memset(m_pTimestamp, 0, (m_TimestampLength + 1) * sizeof(TCHAR));
+		}
 
-		// clear the buffer
-		memset(m_pTimestamp, 0, m_TimestampLength + 1);
 		// get the current time
-		GetTimeFormatW(LOCALE_INVARIANT, NULL, NULL,
+		GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0UL, NULL,
 					   m_TimestampFormatW.c_str(),
-					   m_pTimestamp, m_TimestampLength);
+					   m_pTimestamp, m_TimestampLength + 1);
 	}
 }
 
