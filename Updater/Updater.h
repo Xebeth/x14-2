@@ -8,6 +8,7 @@
 #ifndef __UPDATER_H__
 #define __UPDATER_H__
 
+#include <ZipArchiveLib.h>
 #include <StringUtils.h>
 #include <UrlMon.h>
 #include <vector>

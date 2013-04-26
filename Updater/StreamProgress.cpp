@@ -6,6 +6,7 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
+#include <Realloc.h>
 
 #include "IThreadProgress.h"
 #include "StreamProgress.h"
@@ -13,12 +14,18 @@
 namespace Updater
 {
 	StreamProgress::StreamProgress(IThreadProgress *pProgress_in)
-		: m_bCancelling(false), m_pProgress(pProgress_in), m_bCompleted(false),
-		  m_BufferPos(0UL), m_BufferSize(0UL), m_pBinding(NULL) {}
+		: m_bCancelling(false), m_pProgress(pProgress_in), m_bCompleted(false), m_pBuffer(NULL),
+		  m_BufferPos(0UL), m_BufferSize(READ_CHUNK_SIZE), m_pBinding(NULL) {}
 
 	StreamProgress::~StreamProgress()
 	{
 		m_pProgress = NULL;
+
+		if (m_pBuffer != NULL)
+		{
+			free(m_pBuffer);
+			m_pBuffer = NULL;
+		}
 
 		if (m_pBinding != NULL)
 		{
@@ -61,7 +68,7 @@ namespace Updater
 
 	HRESULT StreamProgress::OnDataAvailable(DWORD grfBSCF, DWORD dwSize, FORMATETC *pformatetc, STGMEDIUM *pstgmed)
 	{
-		unsigned long DataToRead = 0UL, BufferAlloc = 0UL, CurrentAlloc = 0UL, DataRead = 0UL;
+		DWORD BufferAlloc = 0UL, DataToRead = 0UL, DataRead = 0UL;
 		HRESULT hResult = S_OK;
 
 		if ((grfBSCF & BSCF_FIRSTDATANOTIFICATION) == BSCF_FIRSTDATANOTIFICATION)
@@ -74,24 +81,35 @@ namespace Updater
 
 		do
 		{
-			CurrentAlloc = m_Buffer.size();
 			// read in big gulps to spin as little as possible
-			DataToRead = max(CurrentAlloc - m_BufferSize, READ_CHUNK_SIZE);
-			// ensure our data buffer is large enough
-			BufferAlloc = m_BufferSize + DataToRead;
-			// grow the buffer if needed
-			if (CurrentAlloc < BufferAlloc)
-				m_Buffer.resize(BufferAlloc * 2);
-			// read from the stream
-			hResult = pstgmed->pstm->Read(&m_Buffer[m_BufferSize], DataToRead, &DataRead);
-			m_BufferSize += DataRead;
+			if (DataRead < DataToRead)
+				DataToRead -= DataRead;
+			else
+				DataToRead = max(m_BufferSize - m_BufferPos, READ_CHUNK_SIZE);
+			// reset the amount of data read
 			DataRead = 0UL;
+			// ensure our data buffer is large enough
+			BufferAlloc = m_BufferPos + DataToRead;
+			// grow the buffer if needed
+			if (m_BufferSize < BufferAlloc)
+			{
+				if (Buffer::Realloc(&m_pBuffer, BufferAlloc))
+				{
+					memset(m_pBuffer + m_BufferPos, 0, (BufferAlloc - m_BufferPos) * sizeof(BYTE));
+					m_BufferSize = BufferAlloc;
+				}
+			}
+			// read from the stream
+			hResult = pstgmed->pstm->Read(m_pBuffer + m_BufferPos, DataToRead, &DataRead);
+			m_BufferPos += DataRead;
 		}
 		while (hResult != E_PENDING && hResult != S_FALSE && SUCCEEDED(hResult));
 
 		if ((grfBSCF & BSCF_LASTDATANOTIFICATION) == BSCF_LASTDATANOTIFICATION)
 		{
-			m_Buffer.resize(m_BufferSize);
+			if (Buffer::Realloc(&m_pBuffer, m_BufferPos + 1))
+				m_BufferSize = m_BufferPos + 1;
+
 			m_bCompleted = true;
 			// download finished
 			if (m_pProgress != NULL)
@@ -116,9 +134,13 @@ namespace Updater
 	{
 		m_bCompleted = m_bCancelling = false;
 		m_BufferSize = m_BufferPos = 0UL;
-		m_Buffer.resize(READ_CHUNK_SIZE);
 		m_bCompleted = false;
-		m_Buffer.clear();
+
+		if (m_pBuffer != NULL)
+		{
+			free(m_pBuffer);
+			m_pBuffer = NULL;
+		}
 	}
 
 	void StreamProgress::PumpMessages()
@@ -137,8 +159,8 @@ namespace Updater
 			m_pProgress->PumpMessages();
 	}
 
-	const std::vector<char>& StreamProgress::GetBuffer(unsigned long &BufferSize_out) const
-	{ BufferSize_out = m_BufferSize; return m_Buffer; }
+	BYTE* StreamProgress::GetBuffer(unsigned long &BufferSize_out) const
+	{ BufferSize_out = m_BufferSize; return m_pBuffer; }
 
 	bool StreamProgress::IsCancelPending() const
 	{ return m_bCancelling; }

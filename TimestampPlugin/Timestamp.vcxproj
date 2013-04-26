@@ -92,6 +92,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -116,6 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -141,6 +143,7 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>

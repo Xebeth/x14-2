@@ -20,6 +20,9 @@
     <ClInclude Include="FileDownload.h">
       <Filter>Updater\Stream</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Realloc.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Precompiled headers">
@@ -33,6 +36,9 @@
     </Filter>
     <Filter Include="Updater\Stream">
       <UniqueIdentifier>{c3d3c76c-7250-4b03-88cb-20ffea84e061}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{17641037-1feb-4a88-8cba-73bc24e8edc2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

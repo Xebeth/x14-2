@@ -14,6 +14,9 @@
     <ClInclude Include="ProcessImage.h">
       <Filter>SigScan</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Realloc.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SigScan">
@@ -21,6 +24,9 @@
     </Filter>
     <Filter Include="Precompiled headers">
       <UniqueIdentifier>{a6622c72-eede-4fdc-aa81-56176f828002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{4951b376-ff33-4712-99a2-d50a0561e7f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

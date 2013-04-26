@@ -44,19 +44,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
-    <Import Project="..\HookEngine.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
-    <Import Project="..\HookEngine.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Solution Directories.props" />
     <Import Project="..\vld.props" />
-    <Import Project="..\HookEngine.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -78,11 +75,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;_DEBUG;_WINDOWS;_USRDLL;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;_DEBUG;_WINDOWS;_LIB;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnablePREfast>true</EnablePREfast>
+      <AdditionalIncludeDirectories>../SigScan/;../IATPatcher/;$(CPP_SDK_PATH)/MinHook/include/;$(CPP_SDK_PATH)/Detours/include/;$(CPP_SDK_PATH)/EasyHook/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,7 +88,9 @@
     </Link>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>SigScan.x86d.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +101,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_WINDOWS;_USRDLL;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_WINDOWS;_LIB;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../SigScan/;../IATPatcher/;$(CPP_SDK_PATH)/MinHook/include/;$(CPP_SDK_PATH)/Detours/include/;$(CPP_SDK_PATH)/EasyHook/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -113,7 +113,9 @@
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SigScan.x86.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
@@ -124,7 +126,8 @@
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_WINDOWS;_USRDLL;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HOOK_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_WINDOWS;_LIB;HOOKMANAGER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../SigScan/;../IATPatcher/;$(CPP_SDK_PATH)/MinHook/include/;$(CPP_SDK_PATH)/Detours/include/;$(CPP_SDK_PATH)/EasyHook/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,7 +138,8 @@
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SigScan.x86.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

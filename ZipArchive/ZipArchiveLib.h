@@ -18,11 +18,11 @@
 
 #ifdef _DEBUG
 	#pragma comment(lib, "ZipArchive.x86d.lib")
+	#pragma comment(lib, "zlib.x86d.lib")
 #else
 	#pragma comment(lib, "ZipArchive.x86.lib")
+	#pragma comment(lib, "zlib.x86.lib")
 #endif // _DEBUG
-
-#pragma comment(lib, "zlib.lib")
 
 #undef _ZIP_ARCHIVE_SDK_INCLUDE_
 

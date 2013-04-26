@@ -12,7 +12,7 @@
 	#error Please include the global header file 'Updater.h'
 #endif
 
-#define READ_CHUNK_SIZE 16384
+#define READ_CHUNK_SIZE 512
 
 namespace Updater
 {
@@ -45,7 +45,7 @@ namespace Updater
 		ULONG __stdcall Release(void);
 		ULONG __stdcall AddRef(void);
 
-		const std::vector<char>& GetBuffer(unsigned long &BufferSize_out) const;
+		BYTE* GetBuffer(unsigned long &BufferSize_out) const;
 		bool IsCancelPending() const;
 		bool IsCompleted() const;
 		void PumpMessages();
@@ -53,12 +53,12 @@ namespace Updater
 		void Reset();
 	protected:
 		IThreadProgress *m_pProgress;
-		std::vector<char> m_Buffer;
 		unsigned long m_BufferSize;
 		unsigned long m_BufferPos;
 		IBinding *m_pBinding;
 		bool m_bCancelling;
 		bool m_bCompleted;
+		BYTE* m_pBuffer;
 	};
 }
 

@@ -29,23 +29,39 @@ namespace Updater
 		}
 	}
 
-	const std::vector<char>& FileDownload::GetBuffer(unsigned long &BufferSize_out) const
-	{ return m_pProgress->GetBuffer(BufferSize_out); }
-
-	bool FileDownload::SaveToDisk(const TCHAR *pFilename_in) const
+	bool FileDownload::SaveToDisk(const TCHAR *pPath_in, const TCHAR *pDeflateFile_in) const
 	{
-		if (pFilename_in != NULL && m_pProgress != NULL && m_pProgress->IsCompleted())
+		if (pPath_in != NULL && m_pProgress != NULL && m_pProgress->IsCompleted())
 		{
 			unsigned long BufferSize = 0UL, WritePosition = 0UL, DataToWrite = 0UL;
-			const std::vector<char>&Buffer = m_pProgress->GetBuffer(BufferSize);
-			std::ofstream File(pFilename_in, std::ios::out | std::ios::binary);
+			BYTE *pBuffer = m_pProgress->GetBuffer(BufferSize);
+			long DestSize = 0L;
 
-			while (WritePosition < BufferSize)
+			if (pDeflateFile_in != NULL)
 			{
-				DataToWrite = max(BufferSize - WritePosition, READ_CHUNK_SIZE);
-				File.write(&Buffer[WritePosition] , DataToWrite);
+				ZipArchiveLib::ZipArchive ZipFile(pBuffer, BufferSize);
+				std::string FileMask, Filename;
 
-				WritePosition += DataToWrite;
+				// convert the filenames
+				convert_ansi(pDeflateFile_in, FileMask);
+				convert_ansi(pPath_in, Filename);
+
+				// extract the files
+				return (ZipFile.Extract(FileMask, Filename) != 0U);
+			}
+			else
+			{
+				FileStream File(pPath_in, std::ios::out | std::ios::binary);
+
+				while (WritePosition < BufferSize)
+				{
+					DataToWrite = max(BufferSize - WritePosition, READ_CHUNK_SIZE);
+					File.write(pBuffer + WritePosition , DataToWrite);
+
+					WritePosition += DataToWrite;
+				}
+
+				return true;
 			}
 		}
 

@@ -6,5 +6,3 @@
 	purpose		:	Precompiled headers support
 **************************************************************************/
 #include "stdafx.h"
-
-#pragma comment(lib, "urlmon.lib")

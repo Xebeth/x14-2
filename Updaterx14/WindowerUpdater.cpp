@@ -46,8 +46,8 @@ void WindowerUpdater::Cancel()
 	}
 }
 
-void WindowerUpdater::SaveFile(const TCHAR* pFilename_in) const
+void WindowerUpdater::SaveFile(const TCHAR* pFilename_in, const TCHAR *pDeflateFile_in) const
 {
 	if (m_pDownloader != NULL)
-		m_pDownloader->SaveToDisk(pFilename_in);
+		m_pDownloader->SaveToDisk(pFilename_in, pDeflateFile_in);
 }

@@ -10,8 +10,9 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-
 #include <vector>
+
+#include <ZipArchiveLib.h>
 #include <StringUtils.h>
 #include <UrlMon.h>
 

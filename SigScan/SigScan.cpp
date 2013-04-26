@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <tlhelp32.h>
+#include <Realloc.h>
 
 #include "SigScan.h"
 #include "ProcessImage.h"
@@ -164,7 +165,6 @@ namespace SigScan
 								  + m_pCurrentProcess->GetImageSize();				
 				MEMORY_BASIC_INFORMATION MemoryInfo;				
 				BYTE *pMemoryBlock = NULL;				
-				BYTE *pRealloc = NULL;
 
 				memset(&MemoryInfo, 0, sizeof(MemoryInfo));
 
@@ -175,19 +175,14 @@ namespace SigScan
 					{
 						if (bIsCurrent == false)
 						{
-							pRealloc = (BYTE*)realloc((LPVOID)pMemoryBlock, MemoryInfo.RegionSize);
-
-							if (pRealloc != NULL)
-							{
-								pMemoryBlock = pRealloc;
+							Buffer::Realloc(&pMemoryBlock, MemoryInfo.RegionSize);
 								
-								if (ReadProcessMemory(hProcess, (LPCVOID)MemoryInfo.BaseAddress,
-													  (LPVOID)pMemoryBlock, MemoryInfo.RegionSize, NULL) == FALSE)
-								{
-									// failed to read from the process memory
-									// => try the next memory block
-									continue;
-								}
+							if (ReadProcessMemory(hProcess, (LPCVOID)MemoryInfo.BaseAddress,
+												  (LPVOID)pMemoryBlock, MemoryInfo.RegionSize, NULL) == FALSE)
+							{
+								// failed to read from the process memory
+								// => try the next memory block
+								continue;
 							}
 						}
 						else
@@ -205,8 +200,8 @@ namespace SigScan
 
 				CloseHandle(hProcess);
 
-				if (pRealloc != NULL)
-					free(pRealloc);
+				if (pMemoryBlock != NULL)
+					free(pMemoryBlock);
 			}
 		}
 

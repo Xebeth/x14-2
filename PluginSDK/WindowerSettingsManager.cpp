@@ -438,31 +438,33 @@ namespace Windower
 		SecureZeroMemory(&BrowseInfo, sizeof(BrowseInfo));
 
 		CoInitialize(NULL);
-		SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &PIDL);
 
-		BrowseInfo.hwndOwner = NULL;
-		BrowseInfo.pidlRoot = PIDL;
-		BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NONEWFOLDERBUTTON | BIF_USENEWUI | BIF_RETURNFSANCESTORS;
-		BrowseInfo.lpszTitle = _T("Please select the Final Fantasy XIV installation folder or type the complete path in the edit box below:");
-
-		// select the directory manually
-		pSelectedPIDL = SHBrowseForFolder(&BrowseInfo);
-
-		if (pSelectedPIDL != NULL)
+		if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &PIDL)))
 		{
-			LPTSTR pPathBuffer = new TCHAR[_MAX_PATH];
+			BrowseInfo.hwndOwner = NULL;
+			BrowseInfo.pidlRoot = PIDL;
+			BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NONEWFOLDERBUTTON | BIF_USENEWUI | BIF_RETURNFSANCESTORS;
+			BrowseInfo.lpszTitle = _T("Please select the Final Fantasy XIV installation folder or type the complete path in the edit box below:");
 
-			if (SHGetPathFromIDList(pSelectedPIDL, pPathBuffer))
+			// select the directory manually
+			pSelectedPIDL = SHBrowseForFolder(&BrowseInfo);
+
+			if (pSelectedPIDL != NULL)
 			{
-				SelectedDir_out.assign(pPathBuffer);
+				LPTSTR pPathBuffer = new TCHAR[_MAX_PATH];
 
-				if (SelectedDir_out.back() != '\\')
-					SelectedDir_out += '\\';
+				if (SHGetPathFromIDList(pSelectedPIDL, pPathBuffer))
+				{
+					SelectedDir_out.assign(pPathBuffer);
 
-				Result = true;				
+					if (SelectedDir_out.back() != '\\')
+						SelectedDir_out += '\\';
+
+					Result = true;				
+				}
+
+				delete[] pPathBuffer;
 			}
-
-			delete[] pPathBuffer;
 		}
 
 		CoUninitialize();

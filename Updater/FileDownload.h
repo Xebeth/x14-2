@@ -14,6 +14,8 @@
 
 namespace Updater
 {
+	typedef std::basic_ofstream<unsigned char, std::char_traits<unsigned char> > FileStream;	
+
 	class IThreadProgress;
 	class StreamProgress;	
 	class IThreadProc;
@@ -24,9 +26,8 @@ namespace Updater
 		FileDownload(const string_t &URL_in, IThreadProgress *pProgress_in);
 		virtual ~FileDownload();
 
-		const std::vector<char>& GetBuffer(unsigned long &BufferSize_out) const;
-		bool SaveToDisk(const TCHAR *pFilename_in) const;		
-
+		bool SaveToDisk(const TCHAR *pPath_in,
+						const TCHAR *pDeflateFile_in = NULL) const;
 		void SetURL(const string_t &URL_in);
 		const string_t& GetURL() const;
 

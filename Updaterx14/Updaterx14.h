@@ -16,7 +16,11 @@
 
 #include <UpdateDlg.h>
 
-#pragma comment(lib, "Updaterx14.lib")
+#ifdef _DEBUG
+	#pragma comment(lib, "Updaterx14.x86d.lib")
+#else
+	#pragma comment(lib, "Updaterx14.x86.lib")
+#endif // _DEBUG
 
 #undef _UPDATER_X14_SDK_INCLUDE_
 

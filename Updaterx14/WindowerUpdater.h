@@ -20,7 +20,8 @@ public:
 	WindowerUpdater(const TCHAR *pURL_in, Updater::IThreadProgress *pProgress_in);
 	~WindowerUpdater();
 
-	void SaveFile(const TCHAR* pFilename_in) const;
+	void SaveFile(const TCHAR* pFilename_in,
+				  const TCHAR *pDeflateFile_in = NULL) const;
 	void Cancel();
 	void Start();
 

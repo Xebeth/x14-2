@@ -25,7 +25,7 @@ UpdateDlg::UpdateDlg(Windower::SettingsManager *pSettingsManager, CWnd* pParent)
 	m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetWorkingDir() + _T("config.ini"));
 	m_pPluginManager = new PluginFramework::PluginManager(m_pServices);
 
-	m_pUpdater = new WindowerUpdater(_T("http://woodart.free.fr/_tmp/OR3D.7z"), this);
+	m_pUpdater = new WindowerUpdater(_T("http://woodart.free.fr/_tmp/config.zip"), this);
 
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -132,14 +132,11 @@ void UpdateDlg::OnFinish()
 
 		pStart->SetWindowText(_T("Start"));
 		pStart->EnableWindow(TRUE);
-
-		if (m_pProgressCtrl != NULL)
-			m_pProgressCtrl->SetStep(0xFFFFFFFF);
 	}
 
 	if (m_pUpdater != NULL)
 	{
-		m_pUpdater->SaveFile(_T("F:\\LOL.7z"));
+		m_pUpdater->SaveFile(_T("F:\\config.ini"), _T("config.ini"));
 	}
 
 	m_bStarted = false;
