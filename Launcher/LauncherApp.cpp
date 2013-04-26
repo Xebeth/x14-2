@@ -85,7 +85,7 @@ BOOL LauncherApp::InitInstance()
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 	ParseCommandLine(CmdInfo);
 
-#ifdef _DEBUG
+#ifdef __DEBUG
 	if (m_pSettingsManager->IsAutoUpdated())
 	{
 		// _CrtSetBreakAlloc(956);
@@ -100,8 +100,6 @@ BOOL LauncherApp::InitInstance()
 			delete pUpdaterDlg;
 			m_pMainWnd = pUpdaterDlg = NULL;
 		}
-
-		return FALSE;
 	}
 #endif // _DEBUG
 

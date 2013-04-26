@@ -55,8 +55,6 @@ namespace Windower
 		TargetData *m_pPlayerTarget;
 		//! address of the player data structure
 		DWORD *m_pPlayerAddr;
-		//! flag specifying if the player is logged in
-		bool m_bLoggedIn;
 	};
 }
 

@@ -175,9 +175,8 @@ namespace SigScan
 					{
 						if (bIsCurrent == false)
 						{
-							Buffer::Realloc(&pMemoryBlock, MemoryInfo.RegionSize);
-								
-							if (ReadProcessMemory(hProcess, (LPCVOID)MemoryInfo.BaseAddress,
+							if (Buffer::Realloc(&pMemoryBlock, MemoryInfo.RegionSize)
+							 && ReadProcessMemory(hProcess, (LPCVOID)MemoryInfo.BaseAddress,
 												  (LPVOID)pMemoryBlock, MemoryInfo.RegionSize, NULL) == FALSE)
 							{
 								// failed to read from the process memory
@@ -200,7 +199,7 @@ namespace SigScan
 
 				CloseHandle(hProcess);
 
-				if (pMemoryBlock != NULL)
+				if (bIsCurrent == false && pMemoryBlock != NULL)
 					free(pMemoryBlock);
 			}
 		}

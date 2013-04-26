@@ -119,9 +119,7 @@ void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3
 //! \brief Destroys the font data
 void Font::Release()
 {
-	if (m_pTextSprite != NULL && m_pTextSprite->Release() == 0UL)
-		m_pTextSprite = NULL;
-
+	m_pTextSprite = NULL;
 	m_pFont = NULL;
 }
 

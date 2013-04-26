@@ -23,7 +23,7 @@ namespace Windower
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
 	PlayerCore::PlayerCore()
-		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL), m_bLoggedIn(false),
+		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL),
 		  m_pCharMgrInitTrampoline(NULL), m_pPlayerDataService(NULL), 
 		  m_pPlayerTarget(NULL), m_pGetTargetTrampoline(NULL) {}
 
@@ -65,9 +65,6 @@ namespace Windower
 				TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
 				m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
 			}
-			// update the flag specifying if the player is logged in
-			m_bLoggedIn = (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL
-					    && ((TargetData*)m_pPlayerAddr)->Name[0] != '\0');
 		}
 
 		return Result;
@@ -107,7 +104,10 @@ namespace Windower
 	}
 
 	bool PlayerCore::IsLoggedIn() const
-	{ return m_bLoggedIn; }
+	{
+		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL
+			 && ((TargetData*)*m_pPlayerAddr)->Name[0] != '\0');
+	}
 
 	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)
 	{
