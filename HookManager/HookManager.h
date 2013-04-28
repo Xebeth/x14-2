@@ -54,6 +54,8 @@ namespace HookEngineLib
 
 		SigScan::SigScan& GetSigScan();
 
+		virtual void Shutdown();
+
 	protected:
 		virtual LPVOID FindModuleFunction(const char *pModuleName_in, const char *pFuncName_in);
 
@@ -71,11 +73,6 @@ namespace HookEngineLib
 			\return true if the initialization succeeded; false otherwise
 		*/
 		virtual bool Initialize() { return true; }
-		/*! \brief Terminates the hooking process
-			\return true if the termination succeeded; false otherwise
-		*/
-		virtual void Shutdown() { m_bInit = false; }
-
 		/*! \brief Ends the installation process
 		\return true if the termination succeeded; false otherwise
 		*/

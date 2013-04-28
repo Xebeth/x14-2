@@ -47,7 +47,7 @@ namespace HookEngineLib
 	*/
 	void IATHookManager::Shutdown()
 	{
-		m_bInit = false;
+		IHookManager::Shutdown();
 		m_hProcess = NULL;
 	}
 

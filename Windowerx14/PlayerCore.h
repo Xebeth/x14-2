@@ -17,6 +17,11 @@
 #define GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET	 0
 #define GET_SELECTED_TARGET_OPCODES_HOOK_SIZE			 11
 
+														 //568BF1B803000000				2013-04-16
+#define DESTROY_SINGLETONS_OPCODES_SIGNATURE			"##568BF1B803000000"
+#define DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET		 0
+#define DESTROY_SINGLETONS_OPCODES_HOOK_SIZE			 8
+
 #define PLAYER_DATA_OFFSET								0x1B8
 
 namespace Windower
@@ -39,18 +44,18 @@ namespace Windower
 
 		TargetData* GetSelectedTargetHook(LPVOID pThis);
 		int CharacterMgrInitHook(LPVOID pThis_in_out);
+		int DestroySingletonsHook(LPVOID pThis);
 
 		bool IsLoggedIn() const;
 
-	protected:
-		void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in);
-
 	private:
-		PlayerDataService *m_pPlayerDataService;
+		void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in);
+		void Clear();
 
+		fnDestroySingletons m_pDestroySingletonsTrampoline;
 		fnCharacterMgrInit m_pCharMgrInitTrampoline;
 		fnGetSelectedTarget m_pGetTargetTrampoline;
-
+		PlayerDataService *m_pPlayerDataService;
 		//! player target data structure
 		TargetData *m_pPlayerTarget;
 		//! address of the player data structure

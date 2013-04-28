@@ -25,7 +25,8 @@ namespace Windower
 	PlayerCore::PlayerCore()
 		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL),
 		  m_pCharMgrInitTrampoline(NULL), m_pPlayerDataService(NULL), 
-		  m_pPlayerTarget(NULL), m_pGetTargetTrampoline(NULL) {}
+		  m_pPlayerTarget(NULL), m_pGetTargetTrampoline(NULL),
+		  m_pDestroySingletonsTrampoline(NULL) {}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
@@ -40,6 +41,19 @@ namespace Windower
 		m_pHookManager->RegisterHook(GET_SELECTED_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, GET_SELECTED_TARGET_OPCODES_SIGNATURE,
 									 GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, ::GetSelectedTargetHook,
 									 GET_SELECTED_TARGET_OPCODES_HOOK_SIZE);
+		// register the destroy singletons hook
+		m_pHookManager->RegisterHook(DESTROY_SINGLETONS_HOOK, SIGSCAN_GAME_PROCESSA, DESTROY_SINGLETONS_OPCODES_SIGNATURE,
+									 DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET, ::DestroySingletonsHook,
+									 DESTROY_SINGLETONS_OPCODES_HOOK_SIZE);
+	}
+
+	/*! \brief Registers the services of the module
+		\return true if the services were registered; false otherwise
+	*/
+	bool PlayerCore::RegisterServices()
+	{
+		// register the services
+		return (RegisterService(_T(INIT_CHARACTER_MGR_HOOK), false) != NULL);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -47,8 +61,22 @@ namespace Windower
 	*/
 	void PlayerCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
+		m_pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
 		m_pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
 		m_pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
+	}
+
+	int PlayerCore::DestroySingletonsHook(LPVOID pThis)
+	{
+		// clear any saved player data
+		Clear();
+		// shutdown the main thread
+		m_pEngine->OnClose();
+
+		if (m_pDestroySingletonsTrampoline != NULL)
+			return m_pDestroySingletonsTrampoline(pThis);
+
+		return 0;
 	}
 
 	int PlayerCore::CharacterMgrInitHook(LPVOID pThis_in_out)
@@ -76,27 +104,6 @@ namespace Windower
 		return Result;
 	}
 
-	/*! \brief Registers the services of the module
-		\return true if the services were registered; false otherwise
-	*/
-	bool PlayerCore::RegisterServices()
-	{
-		// register the services
-		return (RegisterService(_T(INIT_CHARACTER_MGR_HOOK), false) != NULL);
-	}
-
-	/*! \brief Creates a service object given its name
-		\param[in] ServiceName_in : the name of the service
-		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return a pointer to the service object if successful; NULL otherwise
-	*/
-	BaseModuleService* PlayerCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
-	{
- 		m_pPlayerDataService = new PlayerDataService(ServiceName_in, InvokePermission_in);
-
-		return m_pPlayerDataService;
-	}
-
 	TargetData* PlayerCore::GetSelectedTargetHook(LPVOID pThis)
 	{
 		TargetData *pPreviousTarget = m_pPlayerTarget;
@@ -109,10 +116,34 @@ namespace Windower
 		return m_pPlayerTarget;
 	}
 
+	void PlayerCore::Clear()
+	{
+		if (m_pPlayerDataService != NULL)
+		{
+			m_pPlayerDataService->OnTargetPtrChange(NULL);
+			m_pPlayerDataService->OnPlayerPtrChange(NULL);
+		}
+
+		m_pPlayerTarget = NULL;
+		m_pPlayerAddr = NULL;		
+	}
+
 	bool PlayerCore::IsLoggedIn() const
 	{
 		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL
-			 && ((TargetData*)*m_pPlayerAddr)->Name[0] != '\0');
+			&& ((TargetData*)*m_pPlayerAddr)->Name[0] != '\0');
+	}
+
+	/*! \brief Creates a service object given its name
+		\param[in] ServiceName_in : the name of the service
+		\param[in] InvokePermission_in : flag specifying if the service can be invoked
+		\return a pointer to the service object if successful; NULL otherwise
+	*/
+	BaseModuleService* PlayerCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
+	{
+ 		m_pPlayerDataService = new PlayerDataService(ServiceName_in, InvokePermission_in);
+
+		return m_pPlayerDataService;
 	}
 
 	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)

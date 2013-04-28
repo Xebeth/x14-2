@@ -167,23 +167,26 @@ namespace Windower
 
 	void GraphicsCore::ToggleFPS()
 	{
-		RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
-		UiTextLabel *pFPSLabel = NULL;
-
-		if (RenderableIt == m_UiElements.cend())
+		if (m_pDeviceWrapper != NULL)
 		{
-			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
-										 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
+			RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
+			UiTextLabel *pFPSLabel = NULL;
 
-			m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
-			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
-		}
-		else
-		{
-			pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
+			if (RenderableIt == m_UiElements.cend())
+			{
+				pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
+											 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
 
-			if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
-				pFPSLabel->SetPos(-10L, 24L);
+				m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
+				m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
+			}
+			else
+			{
+				pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
+
+				if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
+					pFPSLabel->SetPos(-10L, 24L);
+			}
 		}
 	}
 

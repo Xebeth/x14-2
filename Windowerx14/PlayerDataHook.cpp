@@ -24,3 +24,8 @@ Windower::TargetData* WINAPI GetSelectedTargetHook(LPVOID pThis)
 {
 	return g_pEngine->Player().GetSelectedTargetHook(pThis);
 }
+
+int WINAPI DestroySingletonsHook(LPVOID pThis)
+{
+	return g_pEngine->Player().DestroySingletonsHook(pThis);
+}

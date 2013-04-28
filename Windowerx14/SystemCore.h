@@ -19,15 +19,40 @@ namespace Windower
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public WindowerCore
 	{
+		class CallingContext
+		{
+		public:
+			CallingContext(fnSetWindowSubclass pSetWindowSubclassTrampoline_in,
+						   fnRegisterClassExA pRegisterClassExATrampoline_in,
+						   HWND &hGameWnd_in, HANDLE &hMainThread_in)
+				: m_pRegisterClassExATrampoline(pRegisterClassExATrampoline_in), 
+				  m_pSetWindowSubclassTrampoline(pSetWindowSubclassTrampoline_in),
+				  m_hGameWnd(hGameWnd_in),m_hMainThread(hMainThread_in) {}
+
+			//! hook to sub class over the game sub-classing
+			fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
+			//! function pointer to the original RegisterClassExA function
+			fnRegisterClassExA m_pRegisterClassExATrampoline;		
+			//! the handle to the game window
+			HWND &m_hGameWnd;
+			//! Engine thread handle
+			HANDLE &m_hMainThread;
+		};
+
 	public:
 		SystemCore();
+		~SystemCore();
+
+		void RestoreWndProc();
 
 		/*! \brief Retrieves the handle to the game window
 			\return the handle to the game window
 		*/
 		HWND GameHWND() const { return m_hGameWnd; }
-
-		void RestoreWndProc();
+		/*! \brief Retrieves the handle to the engine thread
+			\return the handle to the engine thread
+		*/
+		HANDLE GetMainThreadHandle() { return m_hMainThread; }
 
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
@@ -39,25 +64,19 @@ namespace Windower
 		static LRESULT WINAPI WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static ATOM WINAPI RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
 
-		static HANDLE GetMainThreadHandle() { return m_hMainThread; }
-
 	protected:
 		static LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
-		
-		//! hook to sub class over the game sub-classing
-		static fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
-		//! function pointer to the original RegisterClassExA function
-		static fnRegisterClassExA m_pRegisterClassExATrampoline;		
+
 		//! the original WndProc of the game
 		static WNDPROC m_pGameWndProc;
 		//! the handle to the game window
-		static HWND m_hGameWnd;
-		//! Number of sub-classing to skip
-		static DWORD m_SubClassRef;
+		HWND m_hGameWnd;
 		//! Engine thread handle
-		static HANDLE m_hMainThread;
+		HANDLE m_hMainThread;
+		//! calling context for the module hooks
+		static CallingContext *m_pContext;
 	};
 }
 

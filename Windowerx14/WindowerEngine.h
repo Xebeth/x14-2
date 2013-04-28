@@ -47,6 +47,7 @@ namespace Windower
 
 		void OnClose();
 		DWORD MainThread();
+		void ShutdownEngine();
 
 		bool IsPlayerLoggedIn() const;
 
@@ -110,6 +111,8 @@ namespace Windower
 		PlayerCore *m_pPlayerCore;
 		//! a handle to the game window
 		HWND m_hGameWnd;
+		//! handle of the windower DLL
+		HMODULE m_hWindowerDLL;
 		//! the process ID of the game
 		DWORD m_dwPID;
 		//! update timer

@@ -46,7 +46,7 @@ namespace Windower
 		: PluginEngine(hModule_in, pConfigFile_in), m_dwPID(0UL),
 		  m_bShutdown(false), m_pPlayerCore(NULL), m_pGameChatCore(NULL),
 		  m_hGameWnd(NULL), m_pSystemCore(NULL), m_pUpdateTimer(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_hWindowerDLL(hModule_in)
 	{
 		InitializeCriticalSection(&m_PluginLock);
 		// set the static members of modules
@@ -84,10 +84,6 @@ namespace Windower
 	/*! \brief WindowerEngine destructor */
 	WindowerEngine::~WindowerEngine()
 	{
-		// detach will not unload plugins if called from
-		// dllmain which is sadly the most likely scenario
-		Detach();
-
 		if (m_pSettingsManager != NULL)
 		{
 			delete m_pSettingsManager;
@@ -120,8 +116,6 @@ namespace Windower
 
 		if (m_pSystemCore != NULL)
 		{
-			m_pSystemCore->RestoreWndProc();
-
 			delete m_pSystemCore;
 			m_pSystemCore = NULL;
 		}
@@ -217,21 +211,19 @@ namespace Windower
 	*/
 	bool WindowerEngine::Detach()
 	{
-		OnClose();
-
+		// restore the window procedures
+		if (m_pSystemCore != NULL)
+			m_pSystemCore->RestoreWndProc();
 		// unregister the hooks and uninstall the plugins (in this order)
-		return (m_HookManager.UnregisterHooks()
-			 && PluginEngine::Detach());
+		m_HookManager.Shutdown();
+
+		return PluginEngine::Detach();
 	}
 
 	void WindowerEngine::OnClose()
 	{
-		// >>> Critical section
-		LockEngineThread();
 		// terminate the engine thread
 		m_bShutdown = true;
-		UnlockEngineThread();
-		// Critical section <<<
 	}
 
 
@@ -244,19 +236,25 @@ namespace Windower
 		
 		while (m_bShutdown == false)
 		{
+			// >>> Critical section
+			LockEngineThread();
+
 			UpdateEngine();
 			Sleep(0);
+
+			UnlockEngineThread();
+			// Critical section <<<
 		}
 
-		return 0UL;
+		// remove hooks and unload plugins
+		Detach();
+
+		return (DWORD)m_hWindowerDLL;
 	}
 
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		// >>> Critical section
-		LockEngineThread();
-
 		if (m_bShutdown == false && m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn() && m_pUpdateTimer != NULL)
 		{
 			m_pUpdateTimer->Update();
@@ -275,10 +273,31 @@ namespace Windower
 				}
 			}
 		}
-
-		UnlockEngineThread();
-		// Critical section <<<
 	}
+
+	void WindowerEngine::ShutdownEngine()
+	{
+		// check if the main thread is still running
+		if (m_bShutdown == false)
+		{
+			// stop the engine thread
+			OnClose();
+			// wait for the main thread to terminate
+			if (m_pSystemCore != NULL)
+			{
+				HANDLE hThread = m_pSystemCore->GetMainThreadHandle();
+
+				if (hThread != NULL)
+				{
+					DWORD dwThreadExitCode = 0UL, dwWaitResult = WaitForSingleObject(hThread, 500);
+
+					if (dwWaitResult != WAIT_OBJECT_0 || GetExitCodeThread(hThread, &dwThreadExitCode) == FALSE || dwThreadExitCode == 0UL)
+						Detach();
+				}
+			}
+		}
+	}
+
 
 	//! \brief Initializes the engine
 	void WindowerEngine::InitializeEngine()
@@ -317,9 +336,7 @@ namespace Windower
 		Feedback_out = "Exiting the game...";
 
 		// stop the engine thread
-		Detach();
-		// wait for the main thread to terminate
-		WaitForSingleObject(SystemCore::GetMainThreadHandle(), INFINITE);
+		OnClose();
 
 		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
 	}

@@ -46,6 +46,7 @@ namespace HookEngineLib
 	*/
 	void MinHookManager::Shutdown()
 	{
+		IHookManager::Shutdown();
 		m_bInit = !(MH_Uninitialize() == MH_OK);
 	}
 

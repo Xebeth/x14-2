@@ -165,7 +165,8 @@ namespace Windower
 			m_pCommandDispatcher = new CommandDispatcher;
 			m_pCommandParser = new CommandParser(*m_pCommandDispatcher);
 			// create the calling context for the hook
-			m_pContext = new CallingContext(m_pProcessCmdTrampoline, m_pCommandParser);
+			if (m_pContext == NULL)
+				m_pContext = new CallingContext(m_pProcessCmdTrampoline, m_pCommandParser);
 			// register the built-in commands
 			RegisterCommands();
 		}

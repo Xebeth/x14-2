@@ -21,4 +21,10 @@ int WINAPI CharacterMgrInitHook(LPVOID pThis);
 typedef Windower::TargetData* (WINAPI *fnGetSelectedTarget)(LPVOID pThis);
 Windower::TargetData* WINAPI GetSelectedTargetHook(LPVOID pThis);
 
+// int __thiscall sub_7B4B60(int this) ; DestroySingletons
+typedef int (WINAPI *fnDestroySingletons)(LPVOID pThis);
+int WINAPI DestroySingletonsHook(LPVOID pThis);
+
+#define DESTROY_SINGLETONS_HOOK "DestroySingletons"
+
 #endif//__PLAYER_DATA_HOOK_H__

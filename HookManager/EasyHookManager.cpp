@@ -38,6 +38,7 @@ namespace HookEngineLib
 	*/
 	void EasyHookManager::Shutdown()
 	{
+		IHookManager::Shutdown();
 		m_bInit = !(LhWaitForPendingRemovals() == S_OK);
 	}
 

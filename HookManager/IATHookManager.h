@@ -23,11 +23,12 @@ namespace HookEngineLib
 		//! \brief IATHookManager default constructor
 		IATHookManager() : IHookManager(), m_hProcess(NULL) {}
 
+		void Shutdown();
+
 	protected:
 		bool DestroyHook(const Hook *pHook_in);
 		bool CreateHook(Hook *pHook_in_out);
 		bool Initialize();
-		void Shutdown();
 
 		//! the handle of the target process
 		HMODULE m_hProcess;		

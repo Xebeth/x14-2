@@ -19,7 +19,7 @@ namespace Windower
 	class WindowerEngine;
 		
 	//! \brief Windower core module base class
-	class WindowerCore : public ICoreModule
+	class WindowerCore : public ICoreModule, public NonCopyable
 	{
 	public:
 		//! \brief WindowerCore constructor

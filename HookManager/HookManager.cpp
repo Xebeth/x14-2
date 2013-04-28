@@ -16,19 +16,6 @@ namespace HookEngineLib
 	//! \brief IHookManager destructor
 	IHookManager::~IHookManager()
 	{
-		UnregisterHooks();
-		Shutdown();
-
-		HookPtrMap::const_iterator HookIt = m_HookMap.cbegin();
-		HookPtrMap::const_iterator EndIt = m_HookMap.cend();
-		Hook *pHook = NULL;
-
-		while (HookIt != EndIt)
-		{
-			if (UnregisterHook(HookIt) == false)
-				++HookIt;
-		}
-
 		MemberDetours::const_iterator DetourIt, DetourEndIt = m_AsmData.cend();
 
 		for (DetourIt = m_AsmData.cbegin(); DetourIt != DetourEndIt; ++DetourIt)
@@ -425,4 +412,11 @@ namespace HookEngineLib
 
 	SigScan::SigScan& IHookManager::GetSigScan()
 	{ return m_MemScan; }
+
+	//! \brief Terminates the hooking process
+	void IHookManager::Shutdown()
+	{
+		UnregisterHooks();
+		m_bInit = false;
+	}
 }
