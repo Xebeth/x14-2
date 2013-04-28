@@ -19,50 +19,15 @@ namespace SigScan
 
 namespace HookEngineLib
 {
-	//! \brief Hook structure
-	class Hook
-	{
-	public:
-		//! \brief Hook default constructor
-		Hook() : m_pTrampolineFunc(NULL), m_pOriginalFunc(NULL), m_pHookFunc(NULL), m_bInstalled(false), m_dwOpCodesSize(0) {}
-		/*! \brief Hook constructor
-			\param[in] pFuncName_in : the name of the target function
-			\param[in] pModuleName_in : the name of the module containing the hooked function (i.e. Kernel32.dll)
-			\param[in] pOriginalFunc_in : function pointer to the target function
-			\param[in] pHookFunc_in : function pointer to the replacement function
-			\param[in] dwOpCodeSize_in : the size of the instructions being overwritten for class member hooks
-		*/
-		Hook(const char* pFuncName_in, const char* pModuleName_in, LPVOID pOriginalFunc_in, LPVOID pHookFunc_in, DWORD dwOpCodeSize_in = 0) :
-			 m_sFuncName(pFuncName_in), m_sModuleName(pModuleName_in), m_pOriginalFunc(pOriginalFunc_in), m_pHookFunc(pHookFunc_in),
-			 m_dwOpCodesSize(dwOpCodeSize_in), m_bInstalled(false), m_pTrampolineFunc(NULL) {}
+	class MemberDetourAsm;
+	class Hook;
 
-		LPVOID			m_pOriginalFunc;		//!< function pointer to the target function
-		LPVOID			m_pHookFunc;			//!< function pointer to the replacement function
-		LPVOID			m_pTrampolineFunc;		//!< function pointer to the trampoline to the original function
-		std::string		m_sModuleName;			//!< the name of the module containing the hooked function (i.e. Kernel32.dll)
-		std::string		m_sFuncName;			//!< the name of the target function
-		bool			m_bInstalled;			//!< flag specifying if the hook is in place
-		DWORD			m_dwOpCodesSize;		//!< the size of the instructions being overwritten for class member hook
-	};
-
-	//! map of hooks
 	typedef stdext::hash_map<std::string, Hook*> HookPtrMap;
 
 	//! \brief Manager controlling the installation/removal of hooks
 	class IHookManager : public NonCopyable
 	{
 	public:
-		//! Byte codes used for class members hooking
-		enum DETOUR_CLASS_OPCODES
-		{
-			OPCODE_NOP		= 0x90,		//!< NOP
-			OPCODE_JMP		= 0xE9,		//!< JMP
-			OPCODE_PUSH_EAX	= 0x50,		//!< PUSH EAX
-			OPCODE_PUSH_ECX	= 0x51,		//!< PUSH ECX
-			OPCODE_POP_EAX	= 0x58,		//!< POP EAX
-			OPCODE_POP_ECX	= 0x59		//!< POP ECX
-		};
-
 		//! \brief IHookManager default constructor
 		IHookManager() : NonCopyable(), m_bInit(false) {}
 		~IHookManager();
@@ -81,11 +46,11 @@ namespace HookEngineLib
 		bool IsHookInstalled(const char* pFuncName_in);
 		bool IsHookRegistered(const char* pFuncName_in);
 
-		bool UninstallRegisteredHooks();
 		bool InstallRegisteredHooks();
+		bool UnregisterHooks();
 
-		void RetourClassFunc(const LPBYTE pSrc_in, LPBYTE pTrampoline_in, DWORD OpCodesSize_in);
 		LPVOID DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in);
+		bool RetourClassFunc(const LPBYTE pSrc_in, DWORD OpCodesSize_in);
 
 		SigScan::SigScan& GetSigScan();
 
@@ -120,7 +85,7 @@ namespace HookEngineLib
 		*/
 		virtual bool BeginTransaction() { return true; }
 
-		void UnregisterHook(const HookPtrMap::iterator &Iter_in);
+		bool UnregisterHook(HookPtrMap::const_iterator &Iter_in_out);
 		bool UninstallHook(Hook *pHook_in_out);
 		LPVOID InstallHook(Hook *pHook_in_out);
 
@@ -132,9 +97,9 @@ namespace HookEngineLib
 		bool m_bInit;
 
 	private:
-		typedef std::vector<LPBYTE> AsmData;
-		//! vector of byte codes used for class member hooks
-		AsmData m_AsmData;
+		typedef std::map<LPBYTE, MemberDetourAsm*> MemberDetours;
+		//! map of class member hooks
+		MemberDetours m_AsmData;
 	};
 }
 

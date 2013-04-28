@@ -74,9 +74,9 @@ namespace Windower
 			else if (ParamsCount > 0)
 			{
 				const CommandParams &Parameters = Command_out.GetParameters();
-				CommandParams::const_iterator ParamIter = Parameters.begin();
+				CommandParams::const_iterator ParamIter = Parameters.cbegin();
 
-				if (ParamIter != Parameters.end())
+				if (ParamIter != Parameters.cend())
 				{
 					char *pConvertTrail = NULL;
 					std::string CurrentParam;
@@ -90,11 +90,11 @@ namespace Windower
 
 						switch(ParamIter->second->GetType())
 						{
-						case COMMAND_PARAM_TYPE_STRING:
-						default:
-							ParamIter->second->SetStringValue(CurrentParam);
+							case COMMAND_PARAM_TYPE_STRING:
+							default:
+								ParamIter->second->SetStringValue(CurrentParam);
 							break;
-						case COMMAND_PARAM_TYPE_INTEGER:
+							case COMMAND_PARAM_TYPE_INTEGER:
 							{
 								_set_errno(0);
 								long Value = strtol(CurrentParam.c_str(), &pConvertTrail, 0);
@@ -110,7 +110,7 @@ namespace Windower
 								ParamIter->second->SetIntegerValue(Value);
 							}
 							break;
-						case COMMAND_PARAM_TYPE_FLOAT:
+							case COMMAND_PARAM_TYPE_FLOAT:
 							{
 								_set_errno(0);
 								double Value = strtod(CurrentParam.c_str(), &pConvertTrail);
@@ -130,7 +130,7 @@ namespace Windower
 
 						++ParamIter;
 					}
-					while (Params.empty() == false && ParamIter != Parameters.end());
+					while (Params.empty() == false && ParamIter != Parameters.cend());
 				}
 			}
 		}

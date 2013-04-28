@@ -31,10 +31,10 @@ namespace PluginFramework
 	{
 		if (m_LoadedPlugins.empty() == false)
 		{
-			LoadedPlugins::iterator Iter;
+			LoadedPlugins::const_iterator PluginIt, EndIt = m_LoadedPlugins.cend();
 
-			for (Iter = m_LoadedPlugins.begin(); Iter != m_LoadedPlugins.end(); ++Iter)
-				UnloadPlugin(Iter->first);
+			for (PluginIt = m_LoadedPlugins.cbegin(); PluginIt != EndIt; ++PluginIt)
+				UnloadPlugin(PluginIt->first);
 		}
 	}
 
@@ -144,7 +144,7 @@ namespace PluginFramework
 		StringUtils::UUID PluginUUID(Info_in.GetIndentifier().c_str());
 
 		return (m_pServices != NULL && Info_in.m_FrameworkVersion == m_pServices->GetVersion()
-			 && m_Blacklist.find(PluginUUID) == m_Blacklist.end());
+			 && m_Blacklist.find(PluginUUID) == m_Blacklist.cend());
 	}
 
 	/*! \brief Registers a plugin
@@ -153,10 +153,10 @@ namespace PluginFramework
 	*/
 	bool PluginManager::RegisterPlugin(const PluginInfo &Info_in)
 	{
-		if (m_RegisteredPlugins.find(Info_in.m_Name) == m_RegisteredPlugins.end())
+		if (m_RegisteredPlugins.find(Info_in.m_Name) == m_RegisteredPlugins.cend())
 		{
 			// only register the plugin if it's not blacklisted
-			if (m_Blacklist.find(Info_in.m_PluginIdentifier) == m_Blacklist.end())
+			if (m_Blacklist.find(Info_in.m_PluginIdentifier) == m_Blacklist.cend())
 				m_RegisteredPlugins[Info_in.m_Name] = Info_in;
 
 			return true;
@@ -171,38 +171,38 @@ namespace PluginFramework
 	*/
 	IPlugin* PluginManager::LoadPlugin(const string_t &PluginName_in)
 	{
-		RegisteredPlugins::iterator RegIter = m_RegisteredPlugins.find(PluginName_in);
+		RegisteredPlugins::iterator RegisteredIt = m_RegisteredPlugins.find(PluginName_in);
 
 		// is the plugin registered?
-		if (RegIter != m_RegisteredPlugins.end())
+		if (RegisteredIt != m_RegisteredPlugins.cend())
 		{
-			LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
+			LoadedPlugins::const_iterator LoadedIt = m_LoadedPlugins.find(PluginName_in);
 			RegisterParams *pParams = NULL;
 			HMODULE Handle = NULL;
 
 			// is the plugin already loaded?
-			if (LoadIter == m_LoadedPlugins.end())
+			if (LoadedIt == m_LoadedPlugins.cend())
 			{
 				// the plugin has never been loaded
-				Handle = LoadDLL(RegIter->second.m_DLLPath.c_str());
+				Handle = LoadDLL(RegisteredIt->second.m_DLLPath.c_str());
 				pParams = InitializePlugin(Handle);
 				// store the plugin with the loaded plugins
 				m_LoadedPlugins[PluginName_in] = pParams;
 			}
-			else if (LoadIter->second->Info.m_hHandle == NULL)
+			else if (LoadedIt->second->Info.m_hHandle == NULL)
 			{
 				// the plugin may have been loaded but has no handle
-				Handle = LoadDLL(RegIter->second.m_DLLPath.c_str());
-				LoadIter->second->Info.m_hHandle = Handle;
-				pParams = LoadIter->second;
+				Handle = LoadDLL(RegisteredIt->second.m_DLLPath.c_str());
+				LoadedIt->second->Info.m_hHandle = Handle;
+				pParams = LoadedIt->second;
 			}
 			else
-				pParams = LoadIter->second;
+				pParams = LoadedIt->second;
 
 			if (pParams != NULL)
 			{
 				// update the DLL handle of the registered plugin
-				RegIter->second.m_hHandle = Handle;
+				RegisteredIt->second.m_hHandle = Handle;
 
 				return CreateObject(PluginName_in);
 			}
@@ -218,18 +218,18 @@ namespace PluginFramework
 	*/
 	IPlugin* PluginManager::CreateObject(const string_t &PluginName_in)
 	{
-		PluginObjects::iterator ObjIter = m_PluginObjects.find(PluginName_in);
+		PluginObjects::const_iterator ObjIter = m_PluginObjects.find(PluginName_in);
 
-		if (ObjIter == m_PluginObjects.end())
+		if (ObjIter == m_PluginObjects.cend())
 		{
-			LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
+			LoadedPlugins::const_iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
 			IPlugin *pResult = NULL;
 
-			if (LoadIter == m_LoadedPlugins.end())
+			if (LoadIter == m_LoadedPlugins.cend())
 				if (LoadPlugin(PluginName_in))
 					LoadIter = m_LoadedPlugins.find(PluginName_in);
 
-			if (LoadIter != m_LoadedPlugins.end())
+			if (LoadIter != m_LoadedPlugins.cend())
 			{
 				// create a new instance
 				pResult = LoadIter->second->CreateFunc(m_pServices);
@@ -256,10 +256,10 @@ namespace PluginFramework
 	*/
 	bool PluginManager::UnloadPlugin(const string_t &PluginName_in)
 	{
-		LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
+		LoadedPlugins::const_iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
 
 		// is the plugin already loaded?
-		if (LoadIter != m_LoadedPlugins.end())
+		if (LoadIter != m_LoadedPlugins.cend())
 		{
 			// retrieve the handle of the DLL
 			HMODULE hDLL = LoadIter->second->Info.m_hHandle;
@@ -280,14 +280,14 @@ namespace PluginFramework
 	*/
 	void PluginManager::DestroyObject(const string_t &PluginName_in)
 	{
-		PluginObjects::iterator ObjIter = m_PluginObjects.find(PluginName_in);
+		PluginObjects::const_iterator ObjIter = m_PluginObjects.find(PluginName_in);
 
-		if (ObjIter != m_PluginObjects.end())
+		if (ObjIter != m_PluginObjects.cend())
 		{
-			LoadedPlugins::iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
+			LoadedPlugins::const_iterator LoadIter = m_LoadedPlugins.find(PluginName_in);
 			IPlugin *pPlugin = ObjIter->second;
 
-			if (LoadIter != m_LoadedPlugins.end() && pPlugin != NULL)
+			if (LoadIter != m_LoadedPlugins.cend() && pPlugin != NULL)
 			{
 				// callback
 				pPlugin->OnDestroy();
@@ -331,14 +331,14 @@ namespace PluginFramework
 	{
 		PluginObjects::const_iterator ObjIter = m_PluginObjects.find(PluginName_in);
 
-		return (ObjIter != m_PluginObjects.end());
+		return (ObjIter != m_PluginObjects.cend());
 	}
 
 	bool PluginManager::IsPluginConfigurable(const string_t &PluginName_in) const
 	{
 		LoadedPlugins::const_iterator PluginIt = m_LoadedPlugins.find(PluginName_in);
 
-		if (PluginIt != m_LoadedPlugins.end())
+		if (PluginIt != m_LoadedPlugins.cend())
 			return (PluginIt->second->ConfigureFunc != NULL);
 
 		return false;
@@ -347,9 +347,9 @@ namespace PluginFramework
 	bool PluginManager::BlacklistPlugin(const string_t &UUID_in)
 	{
 		StringUtils::UUID PluginUUID(UUID_in.c_str());
-		Blacklist::const_iterator Iter = m_Blacklist.find(PluginUUID);
+		Blacklist::const_iterator ServiceIt = m_Blacklist.find(PluginUUID);
 
-		if (Iter == m_Blacklist.end())
+		if (ServiceIt == m_Blacklist.cend())
 		{
 			m_Blacklist.insert(PluginUUID);
 
@@ -362,11 +362,11 @@ namespace PluginFramework
 	bool PluginManager::WhitelistPlugin(const string_t &UUID_in)
 	{
 		StringUtils::UUID PluginUUID(UUID_in.c_str());
-		Blacklist::const_iterator Iter = m_Blacklist.find(PluginUUID);
+		Blacklist::const_iterator ServiceIt = m_Blacklist.find(PluginUUID);
 
-		if (Iter != m_Blacklist.end())
+		if (ServiceIt != m_Blacklist.cend())
 		{
-			m_Blacklist.erase(Iter);
+			m_Blacklist.erase(ServiceIt);
 
 			return true;
 		}

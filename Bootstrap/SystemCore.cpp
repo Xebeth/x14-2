@@ -21,14 +21,14 @@ namespace Bootstrap
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
 	SystemCore::SystemCore(BootstrapEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: m_Engine(Engine_in_out), m_HookManager(HookManager_in_out)
+		: m_Engine(Engine_in_out), m_HookManager(HookManager_in_out), m_hIEWnd(NULL)
 	{
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 
 		m_pCreateWindowExWTrampoline = CreateWindowExW;
 		m_pCreateProcessTrampoline = CreateProcessW;
 
-		m_Engine.RegisterModule(_T("SystemCore"), this);
+		m_Engine.RegisterModule(_T(SYSTEM_MODULE), this);
 	}
 
 	/*! \brief CreateWindowExW hook used to start the AutoLogin thread
@@ -55,7 +55,8 @@ namespace Bootstrap
 
 		if (lpClassName_in != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName_in) == 0)
 		{
-			m_Engine.InvokeAutoLogin(hWndResult);
+			m_hIEWnd = hWndResult;
+			m_Engine.InvokeAutoLogin();			
 		}
 
 		return hWndResult;
@@ -89,14 +90,15 @@ namespace Bootstrap
 		TCHAR *pCmdLine = NULL;
 		BOOL Result = FALSE;
 
-		m_HookManager.UninstallRegisteredHooks();
+		// remove the hooks since they are not needed anymore
+		m_HookManager.UnregisterHooks();
 
 		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
 		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		{
 			string_t CmdLine(lpCommandLine_in_out);
 
-			if (static_cast<BootstrapEngine&>(m_Engine).UpdateCmdLineFromSettings(CmdLine))
+			if (m_Engine.UpdateCmdLineFromSettings(CmdLine))
 				pCmdLine = _tcsdup(CmdLine.c_str());
 
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%swindowerx14.dll"), WorkingDir.c_str());
@@ -143,7 +145,7 @@ namespace Bootstrap
 	{
 		// CreateWindowEx hook used to start the AutoLogin thread
 		if (m_AutoLogin)
-			HookManager_in.RegisterHook("CreateWindowEx", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
+			HookManager_in.RegisterHook("CreateWindowExW", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
 		// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
 		IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
 	}
@@ -154,6 +156,33 @@ namespace Bootstrap
 	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		if (m_AutoLogin)
-			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowEx");
+			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowExW");
+	}
+
+	/*! \brief Registers the services of the module
+		\return true if the services were registered; false otherwise
+	*/
+	bool SystemCore::RegisterServices()
+	{
+		// register the services
+		return (RegisterService(_T(IE_SERVER_HWND_SERVICE), true) != NULL);
+	}
+
+	/*! \brief Invokes a command registered with the specified service
+		\param[in] ServiceName_in : the name of the service
+		\param[in] Params_in : the input parameters
+		\return true if the command was invoked successfully; false otherwise
+	*/
+	bool SystemCore::Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in)
+	{
+		if (ServiceName_in.compare(_T(IE_SERVER_HWND_SERVICE)) == 0
+		 && Params_in.pData != NULL && Params_in.DataType.compare(_T("HWND*")) == 0)
+		{
+			*((HWND*)Params_in.pData) = m_hIEWnd;
+
+			return (m_hIEWnd != NULL);
+		}
+
+		return false;
 	}
 }

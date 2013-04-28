@@ -143,7 +143,7 @@
     <ClCompile Include="CmdLineCore.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
-    <ClCompile Include="CreateWindowExHook.cpp" />
+    <ClCompile Include="WndHook.cpp" />
     <ClCompile Include="Direct3D9Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -156,8 +156,6 @@
     <ClCompile Include="PlayerCore.cpp" />
     <ClCompile Include="PlayerDataHook.cpp" />
     <ClCompile Include="PlayerDataService.cpp" />
-    <ClCompile Include="RegisterClassExHook.cpp" />
-    <ClCompile Include="SetCursorPosHook.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -180,13 +178,12 @@
     <ClCompile Include="UiTextLabel.cpp" />
     <ClCompile Include="WindowerCore.cpp" />
     <ClCompile Include="WindowerEngine.cpp" />
-    <ClCompile Include="WndProcHook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CmdLineCore.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
-    <ClInclude Include="CreateWindowExHook.h" />
+    <ClInclude Include="WndHook.h" />
     <ClInclude Include="Direct3D9Hook.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FormatChatMsgService.h" />
@@ -199,8 +196,6 @@
     <ClInclude Include="PlayerCore.h" />
     <ClInclude Include="PlayerDataHook.h" />
     <ClInclude Include="PlayerDataService.h" />
-    <ClInclude Include="RegisterClassExHook.h" />
-    <ClInclude Include="SetCursorPosHook.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="SystemCore.h" />
@@ -220,7 +215,6 @@
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerCore.h" />
     <ClInclude Include="WindowerEngine.h" />
-    <ClInclude Include="WndProcHook.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc" />

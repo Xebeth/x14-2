@@ -33,8 +33,8 @@ namespace Windower
 
 	void PlayerDataService::OnPlayerPtrChange(TargetData *pPlayerData_in)
 	{
-		PluginFramework::PluginSet::const_iterator PluginIt;			
-		IPlayerDataPlugin *pPlugin;
+		PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Subscribers.cend();
+		IPlayerDataPlugin *pPlugin = NULL;
 		TargetPos PlayerData;
 
 		m_pPlayerData = pPlayerData_in;
@@ -50,7 +50,7 @@ namespace Windower
 #endif // _DEBUG
 		}
 
-		for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
+		for (PluginIt = m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 		{
 			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
@@ -63,8 +63,8 @@ namespace Windower
 	{
 		if (m_pPlayerTarget != pTargetData_in)
 		{
-			PluginFramework::PluginSet::const_iterator PluginIt;
-			IPlayerDataPlugin *pPlugin;
+			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Subscribers.cend();
+			IPlayerDataPlugin *pPlugin = NULL;
 			TargetPos PlayerTarget;
 
 			m_pPlayerTarget = pTargetData_in;
@@ -80,7 +80,7 @@ namespace Windower
 #endif // _DEBUG
 			}
 
-			for (PluginIt = m_Subscribers.begin(); PluginIt != m_Subscribers.end(); ++PluginIt)
+			for (PluginIt = m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 			{
 				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 

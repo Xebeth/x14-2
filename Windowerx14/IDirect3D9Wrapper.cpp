@@ -39,13 +39,12 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 
 	if(pDirect3dDevice9 != NULL)
 	{
-		DeviceSubscribers::const_iterator DeviceIt = m_Subscribers.cbegin();
-		DeviceSubscribers::const_iterator EndIt = m_Subscribers.cend();
+		DeviceSubscribers::const_iterator DeviceIt, EndIt = m_Subscribers.cend();
 
 		// wrap the device up
 		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters);
 		// give the subscribers a pointer to the new device wrapper
-		for (; DeviceIt != EndIt; ++DeviceIt)
+		for (DeviceIt = m_Subscribers.cbegin(); DeviceIt != EndIt; ++DeviceIt)
 			*(*DeviceIt) = m_pWrappedDevice;
 	}
 

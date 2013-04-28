@@ -17,6 +17,7 @@ namespace SigScan
 	class ProcessImage;
 	//! map of process ID + module name hash / ProcessImage*
 	typedef std::map<long, ProcessImage*> ProcessMap;
+	typedef std::vector<DWORD_PTR> MemoryScanResult;
 
 	//! \brief Memory scanner
 	class SigScan : public NonCopyable
@@ -47,10 +48,12 @@ namespace SigScan
 
 		ProcessImage* FindProcess(DWORD ProcessID_in, const string_t & ModuleName_in) const;
 		bool Initialize(DWORD ProcessID_in, const string_t &ModuleName_in);
-		DWORD_PTR ScanMemory(const std::string &Pattern_in, long Offset_in);
-		DWORD_PTR ScanCode(const std::string &Pattern_in, long Offset_in);
 		bool AddProcess(ProcessImage *pProcess_in);
 		void Clear();
+
+		DWORD_PTR ScanCode(const std::string &Pattern_in, long Offset_in);
+		DWORD ScanMemory(const std::string &Pattern_in, long Offset_in, 
+						 MemoryScanResult &ScanResults_in_out);
 
 	protected:
 		DWORD_PTR Scan(ProcessImage *pProcess_in, const BYTE* MemoryBlock_in,

@@ -20,6 +20,11 @@ namespace Bootstrap
 
 	//! the class name of the target window
 	#define TARGET_CLASSNAME _T("Shell DocObject View")
+	
+	// module name
+	#define SYSTEM_MODULE			"System"
+	// available services for the module
+	#define IE_SERVER_HWND_SERVICE	"IEServerHWND"
 
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public Windower::ICoreModule
@@ -39,11 +44,11 @@ namespace Bootstrap
 							   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
 							   LPPROCESS_INFORMATION lpProcessInformation_out);
 
-		bool RegisterServices() { return false; }
-		void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in) {}
+		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
+		bool RegisterServices();
+		// unused functions
 		bool Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) { return false; }
 		bool Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in) { return false; }
-		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in) { return true; }
 		void OnSubscribe(Windower::ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
 		void OnUnsubscribe(Windower::ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in) {}
 		Windower::ModuleService* RegisterService(const string_t& ServiceName_in, bool InvokePermission_in) { return NULL; }
@@ -59,6 +64,7 @@ namespace Bootstrap
 		BootstrapEngine		   &m_Engine;
 		//! a reference to the hook manager
 		HookEngine			   &m_HookManager;
+		HWND m_hIEWnd;
 	};
 }
 

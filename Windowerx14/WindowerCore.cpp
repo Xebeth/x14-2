@@ -30,9 +30,9 @@ namespace Windower
 	//! \brief WindowerCore destructor
 	WindowerCore::~WindowerCore()
 	{
-		ModuleServices::iterator ServiceIt;
+		ModuleServices::const_iterator ServiceIt, EndIt = m_Services.cend();
 
-		for (ServiceIt = m_Services.begin(); ServiceIt != m_Services.end(); ++ServiceIt)
+		for (ServiceIt = m_Services.cbegin(); ServiceIt != EndIt; ++ServiceIt)
 			delete ServiceIt->second;
 	}
 
@@ -43,11 +43,11 @@ namespace Windower
 	*/
 	BaseModuleService* WindowerCore::RegisterService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
-		ModuleServices::const_iterator Iter = m_Services.find(ServiceName_in);
+		ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 		BaseModuleService *pBaseService = NULL;
 
 		// the service doesn't exist
-		if (Iter == m_Services.end())
+		if (ServiceIt == m_Services.cend())
 		{
 			// create a new service
 			pBaseService = CreateService(ServiceName_in, InvokePermission_in);
@@ -66,20 +66,9 @@ namespace Windower
 			}
 		}
 		else
-			pBaseService = Iter->second;
+			pBaseService = ServiceIt->second;
 
 		return pBaseService;
-	}
-
-	/*! \brief Revokes all the subscriptions of the specified plugin
-		\param[in] pPlugin_in : the plugin revoking its subscriptions
-	*/
-	void WindowerCore::UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in)
-	{
-		ModuleServices::const_iterator Iter;
-
-		for (Iter = m_Services.begin(); Iter != m_Services.end(); ++Iter)
-			Unsubscribe(Iter->first, pPlugin_in);
 	}
 
 	/*! \brief (Un)installs a set of hooks given their names
@@ -94,13 +83,12 @@ namespace Windower
 		if (pService_in_out != NULL && m_pHookManager != NULL)
 		{
 			const HookPointers &HookList = pService_in_out->GetHooks();
-			HookPointers::const_iterator HookIt = HookList.cbegin();
-			HookPointers::const_iterator EndIt = HookList.cend();			
+			HookPointers::const_iterator HookIt, EndIt = HookList.cend();			
 			LPVOID pPointer = NULL;
 
 			Result = true;
 
-			for (; HookIt != EndIt; ++HookIt)
+			for (HookIt = HookList.cbegin(); HookIt != EndIt; ++HookIt)
 			{
 				if (Install_in)
 				{
@@ -128,11 +116,11 @@ namespace Windower
 	*/
 	bool WindowerCore::Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
 	{
-		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+		ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
-		if (Iter != m_Services.end())
+		if (ServiceIt != m_Services.cend())
 		{
-			BaseModuleService *pBaseService = Iter->second;
+			BaseModuleService *pBaseService = ServiceIt->second;
 
 			if (pBaseService != NULL && pBaseService->CanSubscribe())
 			{
@@ -169,11 +157,11 @@ namespace Windower
 	*/
 	bool WindowerCore::Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in)
 	{
-		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+		ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
-		if (Iter != m_Services.end())
+		if (ServiceIt != m_Services.cend())
 		{
-			BaseModuleService *pBaseService = Iter->second;
+			BaseModuleService *pBaseService = ServiceIt->second;
 
 			if (pBaseService != NULL && pBaseService->CanSubscribe())
 			{

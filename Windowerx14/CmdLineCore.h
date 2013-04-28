@@ -91,7 +91,7 @@ namespace Windower
 		//! calling context for the service hooks
 		static CallingContext *m_pContext;
 		//! the object required for the command processing hook
-		static LPVOID m_pThis;
+		static LPVOID m_pTextCmd;
 	};
 }
 

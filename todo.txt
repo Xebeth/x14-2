@@ -1,11 +1,46 @@
-Volume : toggle through shortcuts ( + automatic music switch on during cutscene?)
-TellDetect : expand to a user list of keywords with a custom sound per entry
-Distance : add distance to aggro list
-Text labels : capture mouse to move
-ChatLog : HTML output
+@IDEAS:
 
-Split PluginSDK (PluginEngine & Plugins/Subscribers interfaces)
-Subscriber/Service interface rewrite
+*	Misc.
+Text labels : serialize position after move and save to a file
+Threads for message boxes
+
+*	TellDetect
+expand to a user list of keywords with a custom sound per entry
+
+*	ChatLog
+HTML output
+
+*	Distance
+add distance to aggro list
+
+*	New modules
+key binding module for in-game shortcuts (bind to windower commands or text command) 
+	=> expose to plugins?
+Volume : toggle through shortcuts ( + automatic music switch on during cutscene?)
+
+*	Plugin SDK
+Authorization request (purpose of plugin + source code)
+Code review on authorization request
+IPlugin PIMPL?
+
+@TODO:
+
+*	Code
+Rebase all the DLLs *AFTER* the whole game image
+
+*	UI/PR
+Rebranding to drop any mention of windower
+
+*	Plugin framework
+Blacklist/Whitelist management (encrypted file download?)
 Plugin loading mechanism
-Autoupdater
-Installer?
+Add a mutex on plugins?
+Reduce headers
+Load order
+
+* Configuration
+Configuration wizard (set game path + configure plugins)
+
+*	Autoupdater
+Service and data specification
+Finish zip library

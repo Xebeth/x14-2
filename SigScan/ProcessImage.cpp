@@ -30,10 +30,9 @@ namespace SigScan
 	//! \brief ProcessImage destructor
 	ProcessImage::~ProcessImage()
 	{
-		ResultMap::const_iterator ResultIt = m_ResultMap.cbegin();
-		ResultMap::const_iterator EndIt = m_ResultMap.cend();
+		ResultMap::const_iterator ResultIt, EndIt = m_ResultMap.cend();
 		
-		for (; ResultIt != EndIt; ++ResultIt)
+		for (ResultIt = m_ResultMap.cbegin(); ResultIt != EndIt; ++ResultIt)
 			delete ResultIt->second;
 
 		m_ResultMap.clear();
@@ -106,8 +105,8 @@ namespace SigScan
 	*/
 	ScanResult* ProcessImage::FindResult(const std::string & Pattern_in, long Offset_in)
 	{
-		ScanResult DummyResult(Pattern_in, Offset_in);
-		ResultMap::const_iterator ResultIt = m_ResultMap.find(DummyResult.GetResultKey());
+		long Key = ScanResult(Pattern_in, Offset_in).GetResultKey();
+		ResultMap::const_iterator ResultIt = m_ResultMap.find(Key);
 
 		if (ResultIt != m_ResultMap.cend())
 			return ResultIt->second;

@@ -48,15 +48,14 @@ namespace Windower
 		{
 			if (m_pContext->m_pTrampoline != NULL)
 			{
-				PluginFramework::PluginSet::const_iterator PluginIt = m_pContext->m_Subscribers.cbegin();
-				PluginFramework::PluginSet::const_iterator EndIt = m_pContext->m_Subscribers.cend();
+				PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_pContext->m_Subscribers.cend();
 				DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
 				const char *pOriginalMsg = pMessage_in_out->pResBuf;				
 				char *pModifiedMsg = NULL;
 				IGameChatPlugin *pPlugin;
 				bool bResult = false;
 
-				for (; PluginIt != EndIt; ++PluginIt)
+				for (PluginIt = m_pContext->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 				{
 					pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
 

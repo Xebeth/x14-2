@@ -7,19 +7,11 @@
 					Handles the AutoLogin plugin during the login process
 **************************************************************************/
 #include "stdafx.h"
-#include <IAutoLoginPlugin.h>
-
 #include "BootstrapEngine.h"
 
 #include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
 #include "SystemCore.h"
-
-namespace Windower
-{
-	//! pointer to the plugin manager
-	PluginFramework::PluginManager* ICoreModule::m_pPluginManager = NULL;
-}
 
 namespace Bootstrap
 {
@@ -44,14 +36,16 @@ namespace Bootstrap
 			// load plugins
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_BOOTSTRAP);
-
-			Windower::ICoreModule::SetPluginManager(*m_pPluginManager);
+			// install the hooks
+			Attach();
 		}
 	}
 	
 	//! \brief BootstrapEngine destructor
 	BootstrapEngine::~BootstrapEngine()
 	{
+		// detach will not unload plugins if called from
+		// dllmain which is sadly the most likely scenario
 		Detach();
 
 		delete m_pSystemCore;
@@ -72,12 +66,12 @@ namespace Bootstrap
 	*/
 	bool BootstrapEngine::Attach()
 	{
-		CoreModules::const_iterator Iter;
-		Windower::ICoreModule *pModule;
+		CoreModules::const_iterator ModuleIt, EndIt = m_Modules.cend();
+		Windower::ICoreModule *pModule = NULL;
 
-		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+		for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 		{
-			pModule = Iter->second;
+			pModule = ModuleIt->second;
 
 			if (pModule != NULL)
 				pModule->RegisterHooks(m_HookManager);
@@ -85,9 +79,9 @@ namespace Bootstrap
 
 		if (m_HookManager.InstallRegisteredHooks())
 		{
-			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+			for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 			{
-				pModule = Iter->second;
+				pModule = ModuleIt->second;
 
 				if (pModule != NULL)
 				{
@@ -109,7 +103,7 @@ namespace Bootstrap
 	{
 		PluginEngine::Detach();
 
-		return m_HookManager.UninstallRegisteredHooks();
+		return m_HookManager.UnregisterHooks();
 	}
 
 	/*! \brief Checks if the AutoLogin plugin is active
@@ -124,18 +118,15 @@ namespace Bootstrap
 	}
 
 	/*! \brief Loads the AutoLogin plugin and starts the HMTL forms monitoring thread
-		\param[in] hParentWnd_in : the handle to the parent window containing the IE server
-		\return the result of the command invocation
+		\return true if the plugin was loaded; false otherwise
 	*/
-	int BootstrapEngine::InvokeAutoLogin(HWND hParentWnd_in)
+	bool BootstrapEngine::InvokeAutoLogin()
 	{
-		IAutoLoginPlugin *pPlugin = reinterpret_cast<IAutoLoginPlugin*>(LoadPlugin(_T("AutoLogin")));
+		// load the AutoLogin plugin
+		if (IsAutoLoginActive())
+			return (LoadPlugin(_T("AutoLogin")) != NULL);
 
-		// check if the AutoLogin plugin is loaded
-		if (pPlugin != NULL)
-			pPlugin->CreateAutoLoginThread(hParentWnd_in);
-
-		return Windower::DISPATCHER_RESULT_INVALID_CALL;
+		return false;
 	}
 
 	/*! \brief Replaces the parameters from the command line with user settings

@@ -38,14 +38,15 @@ namespace Windower
 	GraphicsCore::GraphicsCore(bool VSync_in)
 		: WindowerCore(_T(GRAPHICS_MODULE)), m_VSync(VSync_in), m_pLabelRenderer(NULL),
 		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
-		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseX(0U),
-		  m_MouseY(0U), m_pMovingLabel(NULL), m_pDeviceWrapper(NULL) {}
+		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseOffsetX(0U),
+		  m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_pDeviceWrapper(NULL),
+		  m_LabelHeight(0UL), m_LabelWidth (0UL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
 	{
 		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
-		RenderableMap::const_iterator EndIt = m_UiElements.end();
+		RenderableMap::const_iterator EndIt = m_UiElements.cend();
 
 		for(; RenderableIt != EndIt; ++RenderableIt)
 		{
@@ -74,28 +75,34 @@ namespace Windower
 			delete m_pDirect3DWrapper;
 			m_pDirect3DWrapper = NULL;
 		}
+
+		if (m_pDeviceWrapper != NULL)
+		{
+			delete m_pDeviceWrapper;
+			m_pDeviceWrapper = NULL;
+		}
 	}
 
 	bool GraphicsCore::RegisterServices()
 	{
 		// register the services
-		return (RegisterService(_T("TextLabelService"), true) != NULL);
+		return (RegisterService(_T(TEXT_LABEL_SERVICE), true) != NULL);
 	}
 
-	bool GraphicsCore::Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in)
+	bool GraphicsCore::Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in)
 	{
 		if (m_pDirect3DWrapper != NULL)
 		{
-			ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+			ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
 			// the service exists and can be invoked
-			if (Iter != m_Services.end() && Iter->second->CanInvoke())
+			if (ServiceIt != m_Services.cend() && ServiceIt->second->CanInvoke())
 			{
-				if (ServiceName_in.compare(_T("TextLabelService")) == 0
+				if (ServiceName_in.compare(_T(TEXT_LABEL_SERVICE)) == 0
 					&& Params_in.DataType.compare(_T("LabelServiceParam")) == 0
 					&& Params_in.pData != NULL)
 				{
-					TextLabelService *pService = static_cast<TextLabelService*>(Iter->second);
+					TextLabelService *pService = static_cast<TextLabelService*>(ServiceIt->second);
 
 					pService->SetRenderer(m_pDeviceWrapper, GetLabelRenderer());
 
@@ -163,7 +170,7 @@ namespace Windower
 		RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
 		UiTextLabel *pFPSLabel = NULL;
 
-		if (RenderableIt == m_UiElements.end())
+		if (RenderableIt == m_UiElements.cend())
 		{
 			pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
 										 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
@@ -220,13 +227,20 @@ namespace Windower
 	{
 		if (m_pMovingLabel != NULL)
 		{
-			WORD X = m_MouseX, Y = m_MouseY;
+			long PosX = m_MouseOffsetX + X_in;
+			long PosY = m_MouseOffsetY + Y_in;
 
-			m_MouseX = X_in;
-			m_MouseY = Y_in;
+			if (PosX < 0L)
+				PosX = 0L;
+			else if (PosX + m_LabelWidth > m_Width)
+				PosX = m_Width - m_LabelWidth;
+			
+			if (PosY < 0L)
+				PosY = 0L;
+			else if (PosY + m_LabelHeight > m_Height)
+				PosY = m_Height - m_LabelHeight;
 
-			if (X_in != X && Y_in != Y)
-				m_pMovingLabel->Move(X_in - X, Y_in - Y);
+			m_pMovingLabel->SetPos(PosX, PosY);
 
 			return true;
 		}
@@ -237,7 +251,7 @@ namespace Windower
 	UiTextLabel* GraphicsCore::HitTest(WORD X_in, WORD Y_in)
 	{
 		RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
-		RenderableMap::const_iterator EndIt = m_UiElements.end();
+		RenderableMap::const_iterator EndIt = m_UiElements.cend();
 		UiTextLabel *pResult = NULL, *pLabel = NULL;
 
 		for(; RenderableIt != EndIt; ++RenderableIt)
@@ -266,10 +280,21 @@ namespace Windower
 	bool GraphicsCore::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
 	{
 		m_pMovingLabel = HitTest(X_in, Y_in);
-		m_MouseX = X_in;
-		m_MouseY = Y_in;
 
-		return (m_pMovingLabel != NULL);
+		if (m_pMovingLabel != NULL)
+		{
+			long LabelX = 0UL, LabelY = 0UL;
+
+			m_pMovingLabel->GetSize(m_LabelWidth, m_LabelHeight);
+			m_pMovingLabel->GetScreenPos(LabelX, LabelY);			
+			// get the offset between the position of the mouse and the label
+			m_MouseOffsetX = LabelX - X_in;
+			m_MouseOffsetY = LabelY - Y_in;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	bool GraphicsCore::IsMouseCaptured() const

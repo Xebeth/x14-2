@@ -25,7 +25,7 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 {
 	if (pUserData_in != NULL)
 	{
-		AutoLogin Login(*((Bootstrap::AutoLoginSettings*)pUserData_in));
+		AutoLogin Login(*(reinterpret_cast<Bootstrap::AutoLoginSettings*>(pUserData_in)));
 
 		Login.MonitorForms();
 
@@ -39,8 +39,9 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
 AutoLogin::AutoLogin(Bootstrap::AutoLoginSettings &Settings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_PasswordSet(false), m_AutoSubmitted(false),
-	  m_bLoop(true), m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL), m_UserSet(false)
+	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_bLoop(true),
+	  m_PasswordSet(false), m_AutoSubmitted(false),  m_UserSet(false),
+	  m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL)
 {
 	m_hParentWnd = Settings_in.GetParentWnd();
 	// initialize COM

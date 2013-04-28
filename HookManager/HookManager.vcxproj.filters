@@ -19,6 +19,9 @@
     <ClCompile Include="IATHookManager.cpp">
       <Filter>Hook</Filter>
     </ClCompile>
+    <ClCompile Include="Hook.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MinHookManager.h">
@@ -40,6 +43,9 @@
       <Filter>Hook</Filter>
     </ClInclude>
     <ClInclude Include="HookEngine.h" />
+    <ClInclude Include="Hook.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Hook">

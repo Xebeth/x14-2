@@ -47,9 +47,9 @@ namespace Windower
 		m_Name = Command_in.m_Name;
 		m_ID = Command_in.m_ID;
 
-		CommandParams::const_iterator ParamIt;
+		CommandParams::const_iterator ParamIt, EndIt = Command_in.m_Parameters.cend();
 
-		for (ParamIt = Command_in.m_Parameters.begin(); ParamIt != Command_in.m_Parameters.end(); ++ParamIt)
+		for (ParamIt = Command_in.m_Parameters.cbegin(); ParamIt != EndIt; ++ParamIt)
 			m_Parameters[ParamIt->first] = new CommandParameter(*ParamIt->second);
 	}
 
@@ -57,8 +57,8 @@ namespace Windower
 	{
 		if (m_Public && m_Parameters.empty() == false)
 		{
-			size_t ParamCount = 0, ParamSize = m_Parameters.size();
-			CommandParams::const_iterator Iter;
+			CommandParams::const_iterator ParamIt, EndIt = m_Parameters.cend();
+			size_t ParamCount = 0, ParamSize = m_Parameters.size();			
 			std::string ParamDesc, ValueDesc;
 			char *pParamFormat = NULL;
 
@@ -70,14 +70,14 @@ namespace Windower
 			Help_out += '\n';
 
 			// if the descriptions aren't empty, their keys must match the parameter type ones
-			for(Iter = m_Parameters.begin(); Iter != m_Parameters.end(); ++Iter)
+			for(ParamIt = m_Parameters.cbegin(); ParamIt != EndIt; ++ParamIt)
 			{
-				if (Iter->second != NULL)
+				if (ParamIt->second != NULL)
 				{
 					if (ShowValues_in)
-						ValueDesc = Iter->second->GetStringValue();
+						ValueDesc = ParamIt->second->GetStringValue();
 					else
-						ValueDesc = Iter->second->GetDescription();
+						ValueDesc = ParamIt->second->GetDescription();
 
 					if (ValueDesc.empty() == false || ShowValues_in)
 					{
@@ -86,8 +86,8 @@ namespace Windower
 						else
 							pParamFormat = "\t  - %s <%s> : %s";
 
-						format(ParamDesc, pParamFormat, Iter->second->GetName().c_str(),
-							   CommandParamTypes[Iter->second->GetType()], ValueDesc.c_str());
+						format(ParamDesc, pParamFormat, ParamIt->second->GetName().c_str(),
+							   CommandParamTypes[ParamIt->second->GetType()], ValueDesc.c_str());
 					}
 					else
 					{
@@ -96,8 +96,8 @@ namespace Windower
 						else
 							pParamFormat = "\t  - %s <%s>";
 
-						format(ParamDesc, pParamFormat, Iter->second->GetName().c_str(),
-							   CommandParamTypes[Iter->second->GetType()]);
+						format(ParamDesc, pParamFormat, ParamIt->second->GetName().c_str(),
+							   CommandParamTypes[ParamIt->second->GetType()]);
 					}
 
 					if (ParamDesc.empty() == false)
@@ -253,9 +253,9 @@ namespace Windower
 
 	void WindowerCommand::Clear()	
 	{
-		CommandParams::iterator ParamIt;
+		CommandParams::const_iterator ParamIt, EndIt = m_Parameters.cend();
 
-		for (ParamIt = m_Parameters.begin(); ParamIt != m_Parameters.end(); ++ParamIt)
+		for (ParamIt = m_Parameters.cbegin(); ParamIt != EndIt; ++ParamIt)
 			delete ParamIt->second;
 
 		Invalidate();
@@ -265,7 +265,7 @@ namespace Windower
 	{
 		CommandParams::const_iterator ParamIt = m_Parameters.find(Name_in);
 
-		if (ParamIt != m_Parameters.end())
+		if (ParamIt != m_Parameters.cend())
 			return ParamIt->second;
 
 		return NULL;
@@ -422,14 +422,14 @@ namespace Windower
 	*/
 	CommandParams::const_iterator WindowerCommand::Begin() const
 	{
-		return m_Parameters.begin();
+		return m_Parameters.cbegin();
 	}
 
 	/*! \brief 
 	*/
 	CommandParams::const_iterator WindowerCommand::End() const
 	{
-		return m_Parameters.end();
+		return m_Parameters.cend();
 	}
 
 	/*! \brief 

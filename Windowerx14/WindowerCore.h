@@ -26,7 +26,6 @@ namespace Windower
 		WindowerCore(const string_t& ModuleName_in);
 		virtual ~WindowerCore();
 
-		virtual void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in);
 		virtual bool Subscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in);
 		virtual bool Unsubscribe(const string_t& ServiceName_in, PluginFramework::IPlugin* pPlugin_in);
 		virtual BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
@@ -57,7 +56,7 @@ namespace Windower
 			\param[in] Params_in : the input parameters
 			\return true if the command was invoked successfully; false otherwise
 		*/
-		virtual bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in) { return false; }
+		virtual bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in) { return false; }
 
 	protected:
 		bool UpdateServiceHooks(ModuleService *pService_in_out, bool Install_in) const;

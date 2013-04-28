@@ -32,7 +32,7 @@ namespace Windower
 
 		WindowerCommand* FindCommand(const std::string& Name_in) const;
 
-		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);
+		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
 
 		const RegisteredCommands& GetCommands() const { return m_Commands; }
 
@@ -46,7 +46,7 @@ namespace Windower
 			\param[in] Key_in : the key to check
 			\return true if the key is authorized; false otherwise
 		*/
-		bool IsKeyAuthorized(DWORD Key_in) { return (m_ValidKeys.find(Key_in) != m_ValidKeys.end()); }
+		bool IsKeyAuthorized(DWORD Key_in) { return (m_ValidKeys.find(Key_in) != m_ValidKeys.cend()); }
 
 		//! hash map of registered commands
 		RegisteredCommands m_Commands;

@@ -26,6 +26,7 @@ public:
 protected:
 	HICON m_hIcon;
 	CString m_Filename;
+	HMODULE m_hModule;
 
 	Windower::TellDetectSettings *m_pSettings;
 

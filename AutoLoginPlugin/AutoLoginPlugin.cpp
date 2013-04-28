@@ -12,7 +12,6 @@
 #include <SettingsManager.h>
 
 #include "AutoLoginConfigDlg.h"
-#include "IAutoLoginPlugin.h"
 #include "AutoLoginPlugin.h"
 #include "AutoLoginSettings.h"
 #include "AutoLogin.h"
@@ -20,10 +19,12 @@
 
 namespace Bootstrap
 {
-	//! \brief AutoLoginPlugin default constructor
+	//! \brief AutoLoginPlugin constructor
 	AutoLoginPlugin::AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in)
-		: IAutoLoginPlugin(pServices_in), m_hThread(NULL), 
-		  m_pSettings(new AutoLoginSettings(PluginFramework::IPlugin::GetConfigFile(), NULL)) {}
+		: PluginFramework::IPlugin(pServices_in), m_pSettings(NULL)
+	{
+		m_pSettings = new AutoLoginSettings(PluginFramework::IPlugin::GetConfigFile(), NULL);
+	}
 
 	//! \brief AutoLoginPlugin destructor
 	AutoLoginPlugin::~AutoLoginPlugin()
@@ -34,13 +35,39 @@ namespace Bootstrap
 			m_pSettings = NULL;
 		}
 	}
+	
+	/*! \brief Creates the thread used to monitor the forms during the login process
+		\param[in] ParentHwnd_in : the handle of the IE server window
+		\return true if the thread was created successfully; false otherwise
+	*/
+	bool AutoLoginPlugin::CreateAutoLoginThread(HWND ParentHwnd_in)
+	{
+		if (ParentHwnd_in != NULL)
+		{
+			m_pSettings->SetParentWnd(ParentHwnd_in);
+
+			return (::CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL) != NULL);
+		}
+
+		return false;
+	}
 
 	/*! \brief Creates an instance of AutoLoginPlugin
 		\return a pointer to the new AutoLoginPlugin instance
 	*/
 	PluginFramework::IPlugin* AutoLoginPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
-		return new AutoLoginPlugin(pServices_in);
+		HWND hIEServerWnd = NULL;
+		AutoLoginPlugin *pPlugin = new AutoLoginPlugin(pServices_in);
+		PluginFramework::ServiceParam Param(_T("HWND*"), &hIEServerWnd);
+
+		if (InvokeService(_T(SYSTEM_MODULE), _T(IE_SERVER_HWND_SERVICE), Param))
+		{
+			// start the thread
+			pPlugin->CreateAutoLoginThread(hIEServerWnd);
+		}
+
+		return pPlugin;
 	}
 
 	/*! \brief Destroys an instance of AutoLoginPlugin
@@ -73,25 +100,26 @@ namespace Bootstrap
 	*/
 	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		AutoLoginConfigDlg ConfigDlg(PluginFramework::IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
+		AutoLoginConfigDlg ConfigDlg(PluginFramework::IPlugin::GetConfigFile(),
+									 reinterpret_cast<const TCHAR*>(pUserData_in));
 
 		return (ConfigDlg.DoModal() == IDOK);
 	}
 
-	/*! \brief Creates the thread used to monitor the forms during the login process
-		\param[in] ParentHwnd_in : the handle of the IE server window
-		\return true if the thread was created successfully; false otherwise
+	/*! \brief Adds the plugin as a subscriber to the ie server handle service
+		\return true if the subscription succeeded; false otherwise
 	*/
-	bool AutoLoginPlugin::CreateAutoLoginThread(HWND ParentHwnd_in)
+	bool AutoLoginPlugin::Subscribe()
 	{
-		if (ParentHwnd_in != NULL)
-		{
-			m_pSettings->SetParentWnd(ParentHwnd_in);
+		return SubscribeService(_T(SYSTEM_MODULE), _T(IE_SERVER_HWND_SERVICE));
+	}
 
-			return (::CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL) != NULL);
-		}
-
-		return false;
+	/*! \brief Removes the plugin as a subscriber to the ie server handle service
+		\return true if the subscription was revoked successfully; false otherwise
+	*/
+	bool AutoLoginPlugin::Unsubscribe()
+	{
+		return UnsubscribeService(_T(SYSTEM_MODULE), _T(IE_SERVER_HWND_SERVICE));
 	}
 }
 

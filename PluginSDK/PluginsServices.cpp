@@ -31,10 +31,10 @@ namespace Windower
 	{
 		if (pPlugin_in != NULL)
 		{
-			CoreModules::const_iterator Iter = m_Modules.find(ModuleName_in);
+			CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-			if (Iter != m_Modules.end() && Iter->second != NULL)
-				return Iter->second->Subscribe(ServiceName_in, pPlugin_in);
+			if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+				return ModuleIt->second->Subscribe(ServiceName_in, pPlugin_in);
 		}
 
 		return false;
@@ -51,10 +51,10 @@ namespace Windower
 	{
 		if (pPlugin_in != NULL)
 		{
-			CoreModules::const_iterator Iter = m_Modules.find(ModuleName_in);
+			CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-			if (Iter != m_Modules.end() && Iter->second != NULL)
-				return Iter->second->Unsubscribe(ServiceName_in, pPlugin_in);
+			if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+				return ModuleIt->second->Unsubscribe(ServiceName_in, pPlugin_in);
 		}
 
 		return false;
@@ -67,12 +67,12 @@ namespace Windower
 		\return true if the command was invoked successfully; false otherwise
 	*/
 	bool PluginServices::InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
-									   const PluginFramework::ServiceParam &Params_in) const
+									   PluginFramework::ServiceParam &Params_in) const
 	{
-		CoreModules::const_iterator Iter = m_Modules.find(ModuleName_in);
+		CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-		if (Iter != m_Modules.end() && Iter->second != NULL)
-			return Iter->second->Invoke(ServiceName_in, Params_in);
+		if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+			return ModuleIt->second->Invoke(ServiceName_in, Params_in);
 
 		return false;
 	}

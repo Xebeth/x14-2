@@ -118,15 +118,6 @@
     <ClCompile Include="PlayerDataService.cpp">
       <Filter>Windower\Modules\PlayerData\Services</Filter>
     </ClCompile>
-    <ClCompile Include="CreateWindowExHook.cpp">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="RegisterClassExHook.cpp">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="WndProcHook.cpp">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="TestHook.cpp">
       <Filter>Windower\Modules\Test\Hooks</Filter>
     </ClCompile>
@@ -154,7 +145,7 @@
     <ClCompile Include="TextLabelService.cpp">
       <Filter>Windower\Modules\Graphics\Services</Filter>
     </ClCompile>
-    <ClCompile Include="SetCursorPosHook.cpp">
+    <ClCompile Include="WndHook.cpp">
       <Filter>Windower\Modules\System\Hooks</Filter>
     </ClCompile>
   </ItemGroup>
@@ -213,15 +204,6 @@
     <ClInclude Include="PlayerDataService.h">
       <Filter>Windower\Modules\PlayerData\Services</Filter>
     </ClInclude>
-    <ClInclude Include="WndProcHook.h">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="CreateWindowExHook.h">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="RegisterClassExHook.h">
-      <Filter>Windower\Modules\System\Hooks</Filter>
-    </ClInclude>
     <ClInclude Include="TestHook.h">
       <Filter>Windower\Modules\Test\Hooks</Filter>
     </ClInclude>
@@ -252,7 +234,7 @@
     <ClInclude Include="UiFPSCounter.h">
       <Filter>Windower\Modules\Graphics\UI</Filter>
     </ClInclude>
-    <ClInclude Include="SetCursorPosHook.h">
+    <ClInclude Include="WndHook.h">
       <Filter>Windower\Modules\System\Hooks</Filter>
     </ClInclude>
   </ItemGroup>

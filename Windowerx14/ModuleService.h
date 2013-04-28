@@ -55,7 +55,7 @@ namespace Windower
 			\param[in] Params[in] : user data
 			\return true if the service was invoked successfully; false otherwise
 		*/
-		virtual bool Invoke(const PluginFramework::ServiceParam &Params_in) { return CanInvoke(); }
+		virtual bool Invoke(PluginFramework::ServiceParam &Params_in) { return CanInvoke(); }
 
 	protected:
 		//! the name of the service

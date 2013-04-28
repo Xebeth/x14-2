@@ -26,7 +26,7 @@ namespace Windower
 	{
 		PluginFramework::PluginSet::const_iterator PluginIt = m_Subscribers.find(pPlugin_in);
 
-		if (PluginIt == m_Subscribers.end())
+		if (PluginIt == m_Subscribers.cend())
 		{
 			m_Subscribers.insert(pPlugin_in);
 
@@ -44,7 +44,7 @@ namespace Windower
 	{
 		PluginFramework::PluginSet::const_iterator PluginIt = m_Subscribers.find(pPlugin_in);
 
-		if (PluginIt != m_Subscribers.end())
+		if (PluginIt != m_Subscribers.cend())
 		{
 			m_Subscribers.erase(PluginIt);
 
@@ -60,7 +60,7 @@ namespace Windower
 	*/
 	bool ModuleService::IsSubscriberKeyValid(PluginFramework::IPlugin* pPlugin_in)
 	{
-		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.end());
+		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.cend());
 	}
 
 	/*! \brief Adds a hook pointer to the service
@@ -71,7 +71,7 @@ namespace Windower
 	*/
 	bool ModuleService::SetPointer(const std::string &HookName_in, LPVOID pPointer_in, bool Create_in)
 	{
-		if (Create_in || m_ServiceHooks.find(HookName_in) != m_ServiceHooks.end())
+		if (Create_in || m_ServiceHooks.find(HookName_in) != m_ServiceHooks.cend())
 		{
 			m_ServiceHooks[HookName_in] = pPointer_in;
 

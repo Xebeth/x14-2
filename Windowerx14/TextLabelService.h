@@ -30,7 +30,7 @@ namespace Windower
 								 bool bBold_in, bool bItalic_in, unsigned long ARGB_in, 
 								 TextLabelRenderer *pRenderer_in, bool Visibile_in = true);
 		bool DestroyLabel(unsigned long ID_in, IDirect3DDevice9Wrapper *pDevice_in);
-		bool Invoke(const PluginFramework::ServiceParam &Params_in);
+		bool Invoke(PluginFramework::ServiceParam &Params_in);
 
 	private:
 		IDirect3DDevice9Wrapper *m_pDevice;

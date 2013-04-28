@@ -10,13 +10,11 @@
 
 //! the class name of the target window
 #define FFXIV_WINDOW_CLASSA	"FFXIVGAME"
-#define SYSTEM_MODULE "System"
+#define SYSTEM_MODULE		"System"
 
 namespace Windower
 {
 	class WindowerEngine;
-
-
 
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public WindowerCore
@@ -28,46 +26,38 @@ namespace Windower
 			\return the handle to the game window
 		*/
 		HWND GameHWND() const { return m_hGameWnd; }
-		/*! \brief Retrieves the ID of the game process
-			\return the ID of the game process
-		*/
-		DWORD GamePID() const { return m_dwPID; }
 
-		HANDLE CreateEngineThread();
+		void RestoreWndProc();
 
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 		// hooks
-		BOOL SetCursorPosAHook(INT X_in, INT Y_in);
-		ATOM RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
-		LRESULT WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
-		HWND CreateWindowExAHook(DWORD dwExStyle_in, LPCSTR lpClassName_in, LPCSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in, 
-								 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in);
+		static LRESULT CALLBACK SubclassProcHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+		static BOOL WINAPI SetWindowSubclassHook(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
+		static LRESULT WINAPI WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		static ATOM WINAPI RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
+
+		static HANDLE GetMainThreadHandle() { return m_hMainThread; }
 
 	protected:
-		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		static LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		static LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
-		void RestoreWndProc();
-
+		
+		//! hook to sub class over the game sub-classing
+		static fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
 		//! function pointer to the original RegisterClassExA function
-		fnRegisterClassExA		m_pRegisterClassExATrampoline;
-		//! function pointer to the original CreateWindowExA function
-		fnCreateWindowExA		m_pCreateWindowExATrampoline;
-		//! function pointer to the original SetCursorPos function
-		fnSetCursorPos			m_pSetCursorPosTrampoline;
-
-		//! the handle to the main thread
-		HANDLE m_hMainThreadHandle;
+		static fnRegisterClassExA m_pRegisterClassExATrampoline;		
 		//! the original WndProc of the game
-		WNDPROC	 m_pGameWndProc;
-		//! the ID of the main thread
-		DWORD m_MainThreadID;
+		static WNDPROC m_pGameWndProc;
 		//! the handle to the game window
-		HWND m_hGameWnd;
-		//! the ID of the game process
-		DWORD m_dwPID;
+		static HWND m_hGameWnd;
+		//! Number of sub-classing to skip
+		static DWORD m_SubClassRef;
+		//! Engine thread handle
+		static HANDLE m_hMainThread;
 	};
 }
 

@@ -57,6 +57,9 @@ namespace Windower
 
 		if (m_pCharMgrInitTrampoline != NULL)
 		{
+			// >>> Critical section
+			m_pEngine->LockEngineThread();
+
 			Result = m_pCharMgrInitTrampoline(pThis_in_out);
 			m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
 
@@ -65,6 +68,9 @@ namespace Windower
 				TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
 				m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
 			}
+
+			m_pEngine->UnlockEngineThread();
+			// Critical section <<<
 		}
 
 		return Result;

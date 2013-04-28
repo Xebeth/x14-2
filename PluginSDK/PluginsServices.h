@@ -27,7 +27,7 @@ namespace Windower
 		PluginServices(const PluginFramework::VersionInfo &Version_in, const CoreModules &Modules_in, const string_t &ConfigFile_in);
 
 		virtual bool InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
-								   const PluginFramework::ServiceParam &Params_in) const;
+								   PluginFramework::ServiceParam &Params_in) const;
 		virtual bool SubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 								      PluginFramework::IPlugin* pPlugin_in) const;
 		virtual bool UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in,

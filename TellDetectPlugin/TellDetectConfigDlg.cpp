@@ -26,7 +26,7 @@ extern HINSTANCE g_hInstance;
 	\param[in] : the parent window of the dialog
  */
 TellDetectConfigDlg::TellDetectConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
-	: CDialog(TellDetectConfigDlg::IDD, pParentWnd_in),
+	: CDialog(TellDetectConfigDlg::IDD, pParentWnd_in), m_hModule(GetModuleHandle(NULL)),
 	  m_pSettings(new Windower::TellDetectSettings(pConfigFile_in, pProfileName_in))
 {
 	CWinApp *pApp = AfxGetApp();
@@ -118,7 +118,7 @@ void TellDetectConfigDlg::OnPlayChime()
 	if (m_Filename.IsEmpty() == false && pPlayButton->IsWindowEnabled())
 	{
 		pPlayButton->EnableWindow(FALSE);
-		PlaySound(m_Filename, GetModuleHandle(NULL), SND_FILENAME | SND_NODEFAULT);
+		PlaySound(m_Filename, m_hModule, SND_FILENAME | SND_NODEFAULT);
 		pPlayButton->EnableWindow(TRUE);
 	}
 }

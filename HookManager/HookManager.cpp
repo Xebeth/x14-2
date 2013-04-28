@@ -9,24 +9,30 @@
 #include <algorithm>
 
 #include "HookManager.h"
+#include "Hook.h"
 
 namespace HookEngineLib
 {
 	//! \brief IHookManager destructor
 	IHookManager::~IHookManager()
 	{
-		UninstallRegisteredHooks();
+		UnregisterHooks();
 		Shutdown();
 
-		HookPtrMap::iterator Iter;
+		HookPtrMap::const_iterator HookIt = m_HookMap.cbegin();
+		HookPtrMap::const_iterator EndIt = m_HookMap.cend();
+		Hook *pHook = NULL;
 
-		for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
-			UnregisterHook(Iter);
+		while (HookIt != EndIt)
+		{
+			if (UnregisterHook(HookIt) == false)
+				++HookIt;
+		}
 
-		AsmData::iterator AsmIter;
+		MemberDetours::const_iterator DetourIt, DetourEndIt = m_AsmData.cend();
 
-		for (AsmIter = m_AsmData.begin(); AsmIter != m_AsmData.end(); ++AsmIter)
-			free(*AsmIter);
+		for (DetourIt = m_AsmData.cbegin(); DetourIt != DetourEndIt; ++DetourIt)
+			delete DetourIt->second;
 	}
 
 	/*! \brief Installs all the hooks currently registered in the manager
@@ -39,12 +45,17 @@ namespace HookEngineLib
 
 		if (m_bInit && BeginTransaction())
 		{
-			HookPtrMap::const_iterator Iter;
+			HookPtrMap::const_iterator HookIt, HookEndIt = m_HookMap.cend();
 			bool bResult = true;
+			Hook *pHook = NULL;
 
-			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
-				if (Iter->second != NULL && Iter->second->m_bInstalled == false)
-					bResult &= (InstallHook(Iter->second) != NULL);
+			for (HookIt = m_HookMap.cbegin(); HookIt != HookEndIt; ++HookIt)
+			{
+				pHook = HookIt->second;
+
+				if (pHook != NULL && pHook->m_bInstalled == false)
+					bResult &= (InstallHook(pHook) != NULL);
+			}
 
 			return (CommitTransaction() && bResult);
 		}
@@ -55,16 +66,25 @@ namespace HookEngineLib
 	/*! \brief Uninstalls all the hooks currently registered in the manager
 		\return true if all the hooks were uninstalled successfully; false otherwise
 	*/
-	bool IHookManager::UninstallRegisteredHooks()
+	bool IHookManager::UnregisterHooks()
 	{
 		if (m_bInit && BeginTransaction())
 		{
-			HookPtrMap::const_iterator Iter;
+			HookPtrMap::const_iterator HookIt = m_HookMap.cbegin();
+			HookPtrMap::const_iterator EndIt = m_HookMap.cend();
 			bool bResult = true;
+			Hook *pHook = NULL;
 
-			for (Iter = m_HookMap.begin(); Iter != m_HookMap.end(); ++Iter)
-				if (Iter->second != NULL && Iter->second->m_bInstalled)
-					bResult &= UninstallHook(Iter->second);
+			while (HookIt != EndIt)
+			{
+				pHook = HookIt->second;
+
+				if (pHook != NULL && UnregisterHook(HookIt) == false)
+				{
+					bResult = false;
+					++HookIt;
+				}
+			}
 
 			return (CommitTransaction() && bResult);
 		}
@@ -138,11 +158,8 @@ namespace HookEngineLib
 					else
 					{
 						// use RetourClassFunc to restore the original function
-						RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
-										(LPBYTE)pHook_in_out->m_pTrampolineFunc,
-										pHook_in_out->m_dwOpCodesSize);
-						// flag the hook has been uninstalled (no real way to check success)
-						pHook_in_out->m_bInstalled = false;
+						pHook_in_out->m_bInstalled = !RetourClassFunc((LPBYTE)pHook_in_out->m_pOriginalFunc,
+																	  pHook_in_out->m_dwOpCodesSize);
 					}
 				}
 
@@ -163,11 +180,11 @@ namespace HookEngineLib
 	void IHookManager::RegisterHook(const char* pFuncName_in, const char* pModuleName_in, LPVOID pOriginalFunc_in,
 									LPVOID pHookFunc_in, DWORD dwOpCodeSize_in)
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
 		// clean up the previous instance
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			UninstallHook(Iter->second);
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			UninstallHook(HookIt->second);
 
 		m_HookMap[pFuncName_in] = new Hook(pFuncName_in, pModuleName_in, pOriginalFunc_in, pHookFunc_in, dwOpCodeSize_in);
 	}
@@ -187,13 +204,10 @@ namespace HookEngineLib
 		if (pPattern_in != NULL && pModuleName_in != NULL && pFuncName_in != NULL && pHookFunc_in != NULL)
 		{
 			std::string ModuleName(pModuleName_in);
-			std::string Pattern(pPattern_in);			
 			string_t ProcessName;
 
 			// convert the process name to ANSI
 			convert_utf8(ModuleName, ProcessName);
-			// convert to upper case
-			std::transform(Pattern.begin(), Pattern.end(), Pattern.begin(), ::toupper);
 
 			if (m_MemScan.Initialize(::GetCurrentProcessId(), ProcessName.c_str()))
 			{
@@ -211,25 +225,31 @@ namespace HookEngineLib
 	*/
 	void IHookManager::UnregisterHook(const char* pFuncName_in)
 	{
-		HookPtrMap::iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end())
-			UnregisterHook(Iter);
+		if (HookIt != m_HookMap.cend())
+			UnregisterHook(HookIt);
 	}
 
 	/*! \brief Unregisters a hook given its position in the map
-		\param[in] Iter_in : the position of the hook in the map
+		\param[in] Iter_in_out : the position of the hook in the map
 	*/
-	void IHookManager::UnregisterHook(const HookPtrMap::iterator &Iter_in)
+	bool IHookManager::UnregisterHook(HookPtrMap::const_iterator &Iter_in_out)
 	{
-		if (Iter_in != m_HookMap.end() && Iter_in->second != NULL)
+		if (Iter_in_out != m_HookMap.cend())
 		{
-			if (Iter_in->second->m_bInstalled)
-				UninstallHook(Iter_in->second);
+			Hook *pHook = Iter_in_out->second;
 
-			delete Iter_in->second;
-			Iter_in->second = NULL;
+			if (pHook != NULL && pHook->m_bInstalled)
+				UninstallHook(pHook);
+
+			Iter_in_out = m_HookMap.erase(Iter_in_out);
+			delete pHook;
+
+			return true;
 		}
+
+		return false;
 	}
 
 	/*! \brief Retrieves the original function given the hook name
@@ -238,10 +258,10 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::GetOriginalFunc(const char* pFuncName_in) const
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			return Iter->second->m_pOriginalFunc;
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			return HookIt->second->m_pOriginalFunc;
 		else
 			return NULL;
 	}
@@ -252,10 +272,10 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::GetHookFunc(const char* pFuncName_in) const
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			return Iter->second->m_pHookFunc;
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			return HookIt->second->m_pHookFunc;
 		else
 			return NULL;
 	}
@@ -266,10 +286,10 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::GetTrampolineFunc(const char* pFuncName_in) const
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			return Iter->second->m_pTrampolineFunc;
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			return HookIt->second->m_pTrampolineFunc;
 		else
 			return NULL;
 	}
@@ -279,10 +299,10 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::InstallHook(const char* pFuncName_in)
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			return InstallHook(Iter->second);
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			return InstallHook(HookIt->second);
 
 		return NULL;
 	}
@@ -293,9 +313,9 @@ namespace HookEngineLib
 	*/
 	bool IHookManager::IsHookInstalled(const char* pFuncName_in)
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		return (Iter != m_HookMap.end() && Iter->second->m_bInstalled);
+		return (HookIt != m_HookMap.cend() && HookIt->second->m_bInstalled);
 	}
 
 	/*! \brief Checks if the hook specified by the function name is registered
@@ -304,9 +324,9 @@ namespace HookEngineLib
 	*/
 	bool IHookManager::IsHookRegistered(const char* pFuncName_in)
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		return (Iter != m_HookMap.end());
+		return (HookIt != m_HookMap.cend());
 	}
 
 
@@ -315,12 +335,12 @@ namespace HookEngineLib
 	*/
 	bool IHookManager::UninstallHook(const char* pFuncName_in)
 	{
-		HookPtrMap::const_iterator Iter = m_HookMap.find(pFuncName_in);
+		HookPtrMap::const_iterator HookIt = m_HookMap.find(pFuncName_in);
 
-		if (Iter != m_HookMap.end() && Iter->second != NULL)
-			return UninstallHook(Iter->second);
+		if (HookIt != m_HookMap.cend() && HookIt->second != NULL)
+			return UninstallHook(HookIt->second);
 
-		return true;
+		return false;
 	}
 
 	/*! \brief Hooks a class member with an __stdcall function by pushing ECX (this) on the stack.
@@ -333,63 +353,56 @@ namespace HookEngineLib
 	*/
 	LPVOID IHookManager::DetourClassFunc(LPBYTE pSrc_in, const LPBYTE pDst_in, DWORD OpCodesSize_in)
 	{
-		LPBYTE pTrampoline = (LPBYTE)malloc(OpCodesSize_in + 8);
+		LPVOID pTrampoline = NULL;
 
-		memset(pTrampoline, OPCODE_NOP, OpCodesSize_in + 8);
-
-		if (pTrampoline != NULL)
+		if (OpCodesSize_in >= TRAMPOLINE_OPCODES_SIZE)
 		{
 			DWORD dwPageAccess;
 
-			VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
-			memcpy(pTrampoline + 3, pSrc_in, OpCodesSize_in);
-			
-			// write the hook code
-			pTrampoline[0] = OPCODE_POP_EAX;						// POP EAX
-			pTrampoline[1] = OPCODE_POP_ECX;						// POP ECX
-			pTrampoline[2] = OPCODE_PUSH_EAX;						// PUSH EAX
-			pTrampoline[OpCodesSize_in+3] = OPCODE_JMP;				// JMP
-			// jump offset
-			*(DWORD*)(pTrampoline+OpCodesSize_in+4) = (DWORD)((pSrc_in+OpCodesSize_in) - (pTrampoline+OpCodesSize_in+3)) - 5;
+			if (VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess))
+			{
+				MemberDetourAsm *pDetour = new MemberDetourAsm;
 
-			// detour the source function call : push ECX (this) on the stack
-			pSrc_in[0] = OPCODE_POP_EAX;							// POP EAX
-			pSrc_in[1] = OPCODE_PUSH_ECX;							// PUSH ECX
-			pSrc_in[2] = OPCODE_PUSH_EAX;							// PUSH EAX
-			pSrc_in[3] = OPCODE_JMP;								// JMP
-			// jump offset
-			*(DWORD*)(pSrc_in+4) = (DWORD)(pDst_in - (pSrc_in+3)) - 5;
-
-			for(DWORD i = 8; i < OpCodesSize_in; ++i)
-				pSrc_in[i] = OPCODE_NOP;							// NOP
-
-			VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+				if (pDetour->SetDetour(pSrc_in, pDst_in, OpCodesSize_in))
+				{
+					pTrampoline = pDetour->GetTrampoline();
+					m_AsmData[pSrc_in] = pDetour;
+				}
+				
+				VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+			}
 		}
-
-		m_AsmData.push_back(pTrampoline);
 
 		return pTrampoline;
 	}
 
 	/*! \brief Restores a hook class member function
 		\param[in] pSrc_in : the byte codes of the original function
-		\param[in] pTrampoline_in : the byte codes of the trampoline function
-		\param[in] OpCodesSize_in : the size of the byte codes
 	*/
-	void IHookManager::RetourClassFunc(const LPBYTE pSrc_in, LPBYTE pTrampoline_in, DWORD OpCodesSize_in)
+	bool IHookManager::RetourClassFunc(const LPBYTE pSrc_in, DWORD OpCodesSize_in)
 	{
-		DWORD dwPageAccess;
+		MemberDetours::const_iterator DetourIt = m_AsmData.find(pSrc_in);
 
-		VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
+		if (DetourIt != m_AsmData.cend())
+		{
+			MemberDetourAsm *pDetour = DetourIt->second;
 
-		// restore the original function
-		memcpy(pSrc_in, pTrampoline_in+3, OpCodesSize_in);
-		// jump back to the original function entry
-		pTrampoline_in[3] = OPCODE_JMP;							// JMP
-		// jump offset
-		*(DWORD*)(pTrampoline_in+4) = (DWORD)(pSrc_in - (pTrampoline_in+3)) - 5;
+			if (pDetour != NULL)
+			{
+				DWORD dwPageAccess;
 
-		VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+				VirtualProtect(pSrc_in, OpCodesSize_in, PAGE_READWRITE, &dwPageAccess);
+
+				// restore the original function
+				pDetour->SetRetour(pSrc_in, OpCodesSize_in);
+
+				VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/*! \brief Finds a function within the specified module

@@ -42,10 +42,9 @@ namespace ZipArchiveLib
 	//! \brief ZipArchive destructor
 	ZipArchive::~ZipArchive()
 	{
-		CompressorMap::const_iterator ComprIt = m_CompressorMap.cbegin();
-		CompressorMap::const_iterator EndIt = m_CompressorMap.cend();
+		CompressorMap::const_iterator ComprIt, EndIt = m_CompressorMap.cend();
 
-		for (; ComprIt != EndIt; ++ComprIt)
+		for (ComprIt = m_CompressorMap.cbegin(); ComprIt != EndIt; ++ComprIt)
 			delete ComprIt->second;
 
 		m_CompressorMap.clear();
@@ -149,18 +148,16 @@ namespace ZipArchiveLib
 
 			if (FileEntries_in_out.size() == CentralDirEntries.size())
 			{
-				CentralDirectoryEntries::iterator DirEntryIt = CentralDirEntries.begin();
-				FileEntryMap::const_iterator FileEntryIt = FileEntries_in_out.begin();
-				CentralDirectoryEntries::iterator DirEndIt = CentralDirEntries.end();
-				FileEntryMap::const_iterator FileEndIt = FileEntries_in_out.end();
+				CentralDirectoryEntries::const_iterator DirEntryIt, DirEndIt = CentralDirEntries.cend();
+				FileEntryMap::const_iterator FileEntryIt, FileEndIt = FileEntries_in_out.cend();
 				CentralDirectoryEntry *pCentralDirEntry = NULL;
 				std::string LocalFilename, CentralDirFilename;
 				ZipFileEntry *pFileEntry = NULL;
 				bool bMatch = false;
 
-				for (; DirEntryIt != DirEndIt; ++DirEntryIt)
+				for (DirEntryIt = CentralDirEntries.cbegin(); DirEntryIt != DirEndIt; ++DirEntryIt)
 				{
-					for (; FileEntryIt != FileEndIt; )
+					for (FileEntries_in_out.cbegin(); FileEntryIt != FileEndIt; )
 					{
 						pCentralDirEntry = DirEntryIt->second;
 						pFileEntry = FileEntryIt->second;
@@ -193,7 +190,7 @@ namespace ZipArchiveLib
 				{
 					// clean up the rest of the file entries
 					while (FileEntries_in_out.empty() == false)
-						delete FileEntries_in_out.begin()->second;
+						delete FileEntries_in_out.cbegin()->second;
 				}
 				else
 					return true;
@@ -219,13 +216,12 @@ namespace ZipArchiveLib
 		if (m_pZipData == NULL || ParseZipData())
 		{
 			CentralDirectoryEntries &CentralDirEntries = m_pDirectory->GetEntries();
-			CentralDirectoryEntries::iterator DirEntryIt = CentralDirEntries.begin();
-			CentralDirectoryEntries::iterator DirEndIt = CentralDirEntries.end();
+			CentralDirectoryEntries::const_iterator DirEntryIt, DirEndIt = CentralDirEntries.cend();
 			CentralDirectoryEntry *pCentralDirEntry = NULL;
 			std::string ExtractPath;
 
 			// iterate through all the files to look for matches
-			for (; DirEntryIt != DirEndIt; ++DirEntryIt)
+			for (DirEntryIt = CentralDirEntries.cbegin(); DirEntryIt != DirEndIt; ++DirEntryIt)
 			{
 				pCentralDirEntry = DirEntryIt->second;
 

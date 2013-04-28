@@ -31,11 +31,8 @@ namespace Bootstrap
 		BootstrapEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		virtual ~BootstrapEngine();
 
-		virtual bool Attach();
-		virtual bool Detach();
-
 		bool IsAutoLoginActive() const;
-		int InvokeAutoLogin(HWND hParentWnd_in);
+		bool InvokeAutoLogin();
 
 		/*! \brief Retrieves a reference to the system core module
 			\return a reference to the system core module
@@ -45,6 +42,9 @@ namespace Bootstrap
 		bool UpdateCmdLineFromSettings(string_t &CmdLine_in_out);
 
 	protected:
+		virtual bool Attach();
+		virtual bool Detach();
+
 		//! the settings manager of the engine
 		Windower::SettingsManager *m_pSettingsManager;
 		//! the current settings profile

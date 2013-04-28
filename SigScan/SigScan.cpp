@@ -147,12 +147,12 @@ namespace SigScan
 	/*! \brief Scans the process memory pages for the specified pattern of bytes
 		\param[in] Pattern_in : the pattern to search for
 		\param[in] Offset_in : an offset to apply to the address once the pattern is found
-		\return the address of the first match
+		\param[in,out] ScanResults_in_out : array receiving the results
+		\return the number of results matching the pattern
 	*/
-	DWORD_PTR SigScan::ScanMemory(const std::string &Pattern_in, long Offset_in)
+	DWORD SigScan::ScanMemory(const std::string &Pattern_in, long Offset_in, 
+							  MemoryScanResult &ScanResults_in_out)
 	{
-		DWORD_PTR Result = NULL;
-
 		if (m_pCurrentProcess != NULL)
 		{
 			// open the process for reading
@@ -164,11 +164,12 @@ namespace SigScan
 				const BYTE *pAddr = m_pCurrentProcess->GetBaseAddress()
 								  + m_pCurrentProcess->GetImageSize();				
 				MEMORY_BASIC_INFORMATION MemoryInfo;				
-				BYTE *pMemoryBlock = NULL;				
+				BYTE *pMemoryBlock = NULL;
+				DWORD_PTR Result = NULL;
 
 				memset(&MemoryInfo, 0, sizeof(MemoryInfo));
 
-				while (Result == NULL && VirtualQueryEx(hProcess, pAddr, &MemoryInfo, sizeof(MemoryInfo)) != 0UL)
+				while (VirtualQueryEx(hProcess, pAddr, &MemoryInfo, sizeof(MemoryInfo)) != 0UL)
 				{
 					if ((MemoryInfo.State & MEM_COMMIT) == MEM_COMMIT
 					 && ((MemoryInfo.Protect & (PAGE_NOACCESS | PAGE_GUARD))) == 0x0)
@@ -191,6 +192,12 @@ namespace SigScan
 						{
 							Result = Scan(m_pCurrentProcess, pMemoryBlock,
 										  MemoryInfo.RegionSize, Pattern_in, Offset_in);
+
+							if (Result != NULL)
+							{
+								ScanResults_in_out.push_back(Result);
+								Result = NULL;
+							}
 						}
 					}
 
@@ -204,7 +211,7 @@ namespace SigScan
 			}
 		}
 
-		return Result;
+		return ScanResults_in_out.size();
 	}
 
 	/*! \brief Scans the process memory for the specified pattern of byte codes
@@ -241,7 +248,7 @@ namespace SigScan
 					bool Dereference = true;
 					long ResultOffset = 0L;
 
-					if(PatternIt[0] == '#' && PatternIt[1] == '#')
+					if(Pattern_in[0] == '#' && Pattern_in[1] == '#')
 					{
 						ResultOffset = Offset_in; // return the start of signature + offset
 						Dereference = false; // don't follow the resulting pointer
@@ -249,7 +256,7 @@ namespace SigScan
 						PatternIt += 2; // skip ##
 						--BufferSize; // remove ##														
 					}
-					else if(PatternIt[0] == '@' && PatternIt[1] == '@')
+					else if(Pattern_in[0] == '@' && Pattern_in[1] == '@')
 					{
 						// don't follow the pointer, return the end of the signature + offset
 						ResultOffset = --BufferSize + Offset_in; // decrement => remove @@
@@ -321,8 +328,7 @@ namespace SigScan
 						SubPatterns.push_back(SubPattern(SubPatternStart, SubPatternLen));
 
 					// start the memory search
-					SubPatternArray::const_iterator SubPatternIt = SubPatterns.cbegin();
-					SubPatternArray::const_iterator SubEndIt = SubPatterns.cend();
+					SubPatternArray::const_iterator SubPatternIt, SubEndIt = SubPatterns.cend();
 					BYTE *pSearchAddr = NULL;
 					bool bMatching = true;
 
@@ -331,7 +337,7 @@ namespace SigScan
 						 pSearchAddr && pSearchAddr < (pMemoryBlock_in + BlockSize_in - BufferSize); 
 						 pSearchAddr = (BYTE*)memchr(++pSearchAddr, pMemoryPattern[0], BlockSize_in - BufferSize - (pSearchAddr - pMemoryBlock_in)))
 					{
-						for (; SubPatternIt != SubEndIt; ++SubPatternIt)
+						for (SubPatternIt = SubPatterns.cbegin(); SubPatternIt != SubEndIt; ++SubPatternIt)
 						{
 							// compare the sub-patterns one by one
 							if(memcmp(pMemoryPattern + SubPatternIt->Start,
@@ -350,11 +356,7 @@ namespace SigScan
 							break;
 						}
 						else
-						{
 							bMatching = true;
-							// reset the sub-pattern array
-							SubPatternIt = SubPatterns.cbegin();
-						}
 					}
 					// cleanup
 					delete [] pMemoryPattern;

@@ -45,9 +45,9 @@ namespace Windower
 	//! \brief SettingsManager destructor
 	SettingsManager::~SettingsManager()
 	{
-		WindowerSettings::const_iterator SettingsIter;
+		WindowerSettings::const_iterator SettingsIter, EndIt = m_Profiles.cend();
 
-		for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
+		for (SettingsIter = m_Profiles.cbegin(); SettingsIter != EndIt; ++SettingsIter)
 			delete SettingsIter->second;
 
 		m_Profiles.clear();
@@ -74,7 +74,7 @@ namespace Windower
 			string_t NewName = pProfileName_in;
 
 			// a plugin with the same name already exists
-			if (ProfileIt != m_Profiles.end())
+			if (ProfileIt != m_Profiles.cend())
 				CheckDuplicates(ProfileIt->first, NewName);
 
 			m_Profiles[NewName] = pNewSettings = new WindowerProfile(Settings_in);
@@ -95,7 +95,7 @@ namespace Windower
 		{
 			WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
 
-			if (ProfileIt != m_Profiles.end())
+			if (ProfileIt != m_Profiles.cend())
 			{
 				string_t ProfileName(pProfileName_in);
 
@@ -119,12 +119,12 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL)
 		{
-			WindowerSettings::const_iterator SettingsIter;
-			std::set<string_t>::const_iterator DeleteIter;
+			std::set<string_t>::const_iterator DeleteIter, DeleteEndIt = m_DeletedProfiles.cend();
+			WindowerSettings::const_iterator SettingsIter, EndIt = m_Profiles.cend();			
 			WindowerProfile *pProfile = NULL;
 			const TCHAR *pName;
 
-			for (SettingsIter = m_Profiles.begin(); SettingsIter != m_Profiles.end(); ++SettingsIter)
+			for (SettingsIter = m_Profiles.cbegin(); SettingsIter != EndIt; ++SettingsIter)
 			{
 				pProfile = SettingsIter->second;
 
@@ -135,12 +135,12 @@ namespace Windower
 					m_pSettingsFile->SetLong(pName, INI_KEY_VSYNC, pProfile->GetVSync());
 					m_pSettingsFile->SetLong(pName, INI_KEY_LNG, pProfile->GetLanguage(), INI_COMMENT_LNG);
 
-					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
-					ActivePlugins::size_type Count = Plugins.size(), Index = 0;
-					ActivePlugins::const_iterator PluginIt;
 					string_t PluginList;
-					
-					for (PluginIt = Plugins.begin(); PluginIt != Plugins.end(); ++PluginIt, ++Index)
+					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
+					ActivePlugins::size_type Count = Plugins.size(), Index = 0;									
+					ActivePlugins::const_iterator PluginIt, PluginEndIt = Plugins.cend();					
+
+					for (PluginIt = Plugins.cbegin(); PluginIt != PluginEndIt; ++PluginIt, ++Index)
 					{
 						if (Index > 0 && Index < Count)
 							PluginList += '|';
@@ -154,14 +154,14 @@ namespace Windower
 			}
 
 			// remove the sections of the delete profiles
-			for (DeleteIter = m_DeletedProfiles.begin(); DeleteIter != m_DeletedProfiles.end(); ++DeleteIter)
+			for (DeleteIter = m_DeletedProfiles.cbegin(); DeleteIter != DeleteEndIt; ++DeleteIter)
 				m_pSettingsFile->DeleteSection(*DeleteIter);
 			// reset the delete profiles
 			m_DeletedProfiles.clear();
 
 			// only update the default profile if it exists
 			if (GetSettings(m_DefaultProfile.c_str()) == NULL && m_Profiles.empty() == false)
-				m_DefaultProfile = m_Profiles.begin()->first;
+				m_DefaultProfile = m_Profiles.cbegin()->first;
 
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, m_DefaultProfile);
 			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, m_bAutoUpdate ? 1L : 0L);
@@ -225,9 +225,9 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL)
 		{
-			WindowerSettings::iterator SettingsIt;
-			CSimpleIni::TNamesDepend Sections;
-			SectionsIterator SectionIter;
+			WindowerSettings::const_iterator SettingsIt;
+			SectionsConstIterator SectionIter, EndIt;
+			CSimpleIni::TNamesDepend Sections;			
 			bool Exists, Result = false;
 			WindowerProfile *pSettings;
 
@@ -239,13 +239,14 @@ namespace Windower
 			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
+			EndIt = Sections.cend();
 
-			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
+			for (SectionIter = Sections.cbegin(); SectionIter != EndIt; ++SectionIter)
 			{
 				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
 				{
 					SettingsIt = m_Profiles.find(SectionIter->pItem);
-					Exists = (SettingsIt != m_Profiles.end());
+					Exists = (SettingsIt != m_Profiles.cend());
 
 					if (Exists)
 						pSettings = SettingsIt->second;
@@ -305,7 +306,7 @@ namespace Windower
 	{
 		WindowerSettings::const_iterator ProfileIt = GetSettingsPos(pProfileName_in);
 
-		if (ProfileIt != m_Profiles.end())
+		if (ProfileIt != m_Profiles.cend())
 			return ProfileIt->second;
 
 		return NULL;
@@ -402,14 +403,14 @@ namespace Windower
 				if (_tcscmp(CurrentName.c_str(), NewName_in_out.c_str()) != 0)
 				{
 					// move the profile in the map
-					WindowerSettings::const_iterator Iter = GetSettingsPos(CurrentName.c_str());
+					WindowerSettings::const_iterator SettingsIt = GetSettingsPos(CurrentName.c_str());
 
-					if (Iter != m_Profiles.end())
+					if (SettingsIt != m_Profiles.cend())
 					{
 						// rename the profile internally
 						pProfile_in_out->SetName(NewName_in_out.c_str());
 						// erase the current entry
-						m_Profiles.erase(Iter);
+						m_Profiles.erase(SettingsIt);
 						// insert the profile again under its new name
 						m_Profiles[NewName_in_out] = pProfile_in_out;
 						// add the old profile to the delete profiles
@@ -511,13 +512,14 @@ namespace Windower
 
 			// 2. Remove outdated entries
 			const TCHAR *pOutdatedKeys[3] = { _T("ResX"), _T("ResY"), _T("Borderless") };
+			SectionsConstIterator SectionIter, EndIt;
 			CSimpleIni::TNamesDepend Sections;
-			SectionsIterator SectionIter;
-
+			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
+			EndIt = Sections.cend();
 
-			for (SectionIter = Sections.begin(); SectionIter != Sections.end(); ++SectionIter)
+			for (SectionIter = Sections.cbegin(); SectionIter != EndIt; ++SectionIter)
 			{
 				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
 				{

@@ -43,7 +43,7 @@ namespace Windower
 		\param[in] Params[in] : user data
 		\return true if the service was invoked successfully; false otherwise
 	*/
-	bool TextLabelService::Invoke(const PluginFramework::ServiceParam &Params_in)
+	bool TextLabelService::Invoke(PluginFramework::ServiceParam &Params_in)
 	{
 		if (m_pDevice != NULL && Params_in.pData != NULL)
 		{
@@ -92,7 +92,7 @@ namespace Windower
 
 		if (pRenderer_in != NULL && pDevice_in != NULL)
 		{
-			UiIdMap::const_iterator IdIt = m_LabelIDs.begin();
+			UiIdMap::const_iterator IdIt = m_LabelIDs.cbegin();
 			UiLabelMap::const_iterator LabelIt;
 			unsigned long LabelID = 0UL;
 
@@ -103,7 +103,7 @@ namespace Windower
 
 			LabelIt = m_RemovedLabels.find(LabelID);
 
-			if (LabelIt == m_RemovedLabels.end())
+			if (LabelIt == m_RemovedLabels.cend())
 			{
 				pLabel = new UiTextLabel(m_NextID, pDevice_in, Name_in, X_in, Y_in, W_in, H_in, FontName_in,
 										 FontSize_in, bBold_in, bItalic_in, ARGB_in, pRenderer_in, Visibile_in);

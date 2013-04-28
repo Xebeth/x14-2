@@ -48,8 +48,6 @@ namespace Windower
 		while(m_Plugins.empty() == false)
 			UnloadPlugin(m_Plugins.rbegin()->first);
 
-		m_Plugins.clear();
-
 		return true;
 	}
 
@@ -62,11 +60,11 @@ namespace Windower
 
 	bool PluginEngine::UnregisterModule(const string_t& ModuleName_in)
 	{
-		CoreModules::const_iterator Iter = m_Modules.find(ModuleName_in);
+		CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-		if (Iter != m_Modules.end())
+		if (ModuleIt != m_Modules.cend())
 		{
-			m_Modules.erase(Iter);
+			m_Modules.erase(ModuleIt);
 
 			return true;
 		}
@@ -76,10 +74,10 @@ namespace Windower
 
 	PluginFramework::IPlugin* PluginEngine::GetPluginInstance(const string_t& PluginName_in)
 	{
-		WindowerPlugins::const_iterator Iter = m_Plugins.find(PluginName_in);
+		WindowerPlugins::const_iterator PluginIt = m_Plugins.find(PluginName_in);
 
-		if (Iter != m_Plugins.end())
-			return Iter->second;
+		if (PluginIt != m_Plugins.cend())
+			return PluginIt->second;
 
 		return NULL;
 	}
@@ -114,10 +112,10 @@ namespace Windower
 
 		if (pPlugin != NULL && m_pPluginManager->UnloadPlugin(PluginName_in))
 		{
-			WindowerPlugins::const_iterator Iter = m_Plugins.find(PluginName_in);
+			WindowerPlugins::const_iterator PluginIt = m_Plugins.find(PluginName_in);
 
-			if (Iter != m_Plugins.end())
-				m_Plugins.erase(Iter);
+			if (PluginIt != m_Plugins.cend())
+				m_Plugins.erase(PluginIt);
 
 			return true;
 		}
@@ -129,9 +127,9 @@ namespace Windower
 	{
 		size_t Count = 0U;
 
-		ActivePlugins::const_iterator PluginIt;
+		ActivePlugins::const_iterator PluginIt, EndIt = PluginSet_in.cend();
 
-		for (PluginIt = PluginSet_in.begin(); PluginIt != PluginSet_in.end(); ++PluginIt)
+		for (PluginIt = PluginSet_in.cbegin(); PluginIt != EndIt; ++PluginIt)
 			if (LoadPlugin(*PluginIt))
 				++Count;
 
@@ -143,12 +141,11 @@ namespace Windower
 		if  (m_pPluginManager != NULL)
 		{
 			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
-			PluginFramework::RegisteredPlugins::const_iterator PluginEnd = Plugins.end();
-			PluginFramework::RegisteredPlugins::const_iterator PluginIt = Plugins.begin();
+			PluginFramework::RegisteredPlugins::const_iterator PluginIt, PluginEnd = Plugins.cend();
 			std::string Info, LoadedList, AvailableList;
 			UINT LoadedCount = 0U, AvailableCount = 0U;
 
-			for (; PluginIt != PluginEnd; ++PluginIt)
+			for (PluginIt = Plugins.cbegin(); PluginIt != PluginEnd; ++PluginIt)
 			{
 				convert_ansi(PluginIt->second.ToString(), Info);
 

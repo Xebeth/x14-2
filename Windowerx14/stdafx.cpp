@@ -7,4 +7,5 @@
 **************************************************************************/
 #include "stdafx.h"
 
+#pragma comment(lib, "Comctl32.lib")
 #pragma comment(lib, "d3dx9.lib")

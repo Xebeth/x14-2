@@ -32,31 +32,26 @@ namespace Windower
 
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
+	typedef std::vector<DWORD_PTR> MemoryScanResult;
 
 	//! \brief Windower x14-2 engine
 	class WindowerEngine : public PluginEngine
 	{
 	public:
-		explicit WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
-		virtual ~WindowerEngine();
+		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
+		~WindowerEngine();
 
-		virtual bool Attach();
-		virtual bool Detach();
+		// thread safety
+		inline bool UnlockEngineThread();
+		inline void LockEngineThread();
 
-		void InitializeEngine();
-		void ShutdownEngine();
-		void UpdateEngine();
+		void OnClose();
 		DWORD MainThread();
 
-		void OnShutdown();
+		bool IsPlayerLoggedIn() const;
 
-		bool UnlockPlugins();
-		void LockPlugins();
-
-		DWORD_PTR FindAddress(const std::string &Pattern_in, DWORD Offset_in);
-		bool Exit(std::string& Feedback_out) const;
-
-		void DisplayHelp();
+		// commands
+		bool Exit(std::string& Feedback_out);
 
 #ifdef _DEBUG
 		/*! \brief Retrieves the test core module
@@ -86,7 +81,12 @@ namespace Windower
 		const WindowerProfile& Settings() const { return m_Settings; }
 
 	private:
+		bool Attach();
+		bool Detach();
+
 		bool InitializePlugins();
+		void InitializeEngine();
+		void UpdateEngine();
 
 		//! the settings manager
 		SettingsManager *m_pSettingsManager;
@@ -108,10 +108,6 @@ namespace Windower
 		CmdLineCore *m_pCmdLineCore;
 		//! the player data core module
 		PlayerCore *m_pPlayerCore;
-		//! flag specifying if the engine thread has been initialized
-		bool m_bThreadInit;
-		//! flag specifying if the game is shutting down
-		bool m_bShutdown;
 		//! a handle to the game window
 		HWND m_hGameWnd;
 		//! the process ID of the game
@@ -120,6 +116,8 @@ namespace Windower
 		Timer *m_pUpdateTimer;
 		//! critical section for plugin operations
 		CRITICAL_SECTION m_PluginLock;
+		//! flag controlling the lifetime of the engine thread
+		volatile bool m_bShutdown;
 	};
 }
 

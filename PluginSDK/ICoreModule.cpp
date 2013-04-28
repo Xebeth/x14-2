@@ -12,7 +12,4 @@
 namespace Windower
 {
 	ICoreModule::~ICoreModule() {}
-
-	void ICoreModule::SetPluginManager(PluginFramework::PluginManager &Manager_in_out)
-	{ m_pPluginManager = &Manager_in_out; }
 }

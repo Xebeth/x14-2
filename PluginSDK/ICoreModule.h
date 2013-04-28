@@ -41,10 +41,6 @@ namespace Windower
 			\param[in] HookManager_in : the hook manager
 		*/
 		virtual void OnHookInstall(HookEngineLib::IHookManager &HookManager_in) =0;
-		/*! \brief Revokes all the subscriptions of the specified plugin
-			\param[in] pPlugin_in : the plugin revoking its subscriptions
-		*/
-		virtual void UnsubscribeAll(PluginFramework::IPlugin* pPlugin_in) =0;
 		/*! \brief Adds a plugin subscription to the specified service
 			\param[in] ServiceName_in : the name of the service
 			\param[in] pPlugin_in : the plugin subscribing to the service
@@ -62,16 +58,7 @@ namespace Windower
 			\param[in] Params_in : the input parameters
 			\return true if the command was invoked successfully; false otherwise
 		*/
-		virtual bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in) =0;
-
-		/*! \brief Sets the pointer to the plugin manager
-			\param[in,out] Manager_in_out : the plugin manager
-		*/
-		static void SetPluginManager(PluginFramework::PluginManager &Manager_in_out);
-
-	protected:
-		//! the plugin manager
-		static PluginFramework::PluginManager *m_pPluginManager;
+		virtual bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in) =0;
 	};
 }
 

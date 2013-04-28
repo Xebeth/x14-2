@@ -13,6 +13,8 @@
 #include "HookManager.h"
 #include "DetoursManager.h"
 
+#include "Hook.h"
+
 #pragma comment(lib, "detours.lib")
 
 namespace HookEngineLib

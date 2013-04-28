@@ -53,8 +53,9 @@ namespace PluginFramework
 			\param[in] Params_in : the parameters of the call
 			\return true if the service was invoked successfully; false otherwise
 		*/
-		virtual bool InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
-								   const ServiceParam &Params_in) const =0;
+		virtual bool InvokeService(const string_t &ModuleName_in,
+								   const string_t &ServiceName_in,
+								   ServiceParam &Params_in) const =0;
 		/*! \brief Subscribes to a service by name in the specified module
 			\param[in] ModuleName_in : the name of the module
 			\param[in] ServiceName_in : the name of the service
@@ -88,15 +89,6 @@ namespace PluginFramework
 		//! the version of the services
 		const VersionInfo m_Version;
 	};
-
-	//! function pointer to an InvokeService function
-	typedef bool (PluginFramework::IPluginServices::*fnInvokeService)(const string_t&, const string_t&,
-																	  const PluginFramework::ServiceParam&,
-																	  PluginFramework::ServiceParam&) const;
-	//! function pointer to a SubscribeService function
-	typedef bool (PluginFramework::IPluginServices::*fnSubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
-	//! function pointer to an UnsubscribeService function
-	typedef bool (PluginFramework::IPluginServices::*fnUnsubscribeService)(const string_t&, const string_t&, PluginFramework::IPlugin*) const;
 }
 
 #endif//__I_PLUGIN_SERVICES_H__

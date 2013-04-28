@@ -9,9 +9,7 @@
 
 #include "WindowerEngine.h"
 
-#include "RegisterClassExHook.h"
-#include "CreateWindowExHook.h"
-#include "SetCursorPosHook.h"
+#include "WndHook.h"
 #include "PlayerDataHook.h"
 #include "Direct3D9Hook.h"
 
@@ -41,20 +39,18 @@
 
 namespace Windower
 {
-	PluginFramework::PluginManager* ICoreModule::m_pPluginManager = NULL;
-
 	/*! \brief WindowerEngine constructor
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in), m_bShutdown(false), m_bThreadInit(false), 
-		  m_pGameChatCore(NULL), m_hGameWnd(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pUpdateTimer(NULL), m_dwPID(0UL)
+		: PluginEngine(hModule_in, pConfigFile_in), m_dwPID(0UL),
+		  m_bShutdown(false), m_pPlayerCore(NULL), m_pGameChatCore(NULL),
+		  m_hGameWnd(NULL), m_pSystemCore(NULL), m_pUpdateTimer(NULL),
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
 	{
 		InitializeCriticalSection(&m_PluginLock);
-
+		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
-
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the system core module
@@ -81,11 +77,15 @@ namespace Windower
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 		}
+		// install the hooks
+		Attach();
 	}
 
 	/*! \brief WindowerEngine destructor */
 	WindowerEngine::~WindowerEngine()
 	{
+		// detach will not unload plugins if called from
+		// dllmain which is sadly the most likely scenario
 		Detach();
 
 		if (m_pSettingsManager != NULL)
@@ -106,6 +106,12 @@ namespace Windower
 			m_pGraphicsCore = NULL;
 		}
 
+		if (m_pPlayerCore != NULL)
+		{
+			delete m_pPlayerCore;
+			m_pPlayerCore = NULL;
+		}
+
 		if (m_pCmdLineCore != NULL)
 		{
 			delete m_pCmdLineCore;
@@ -114,8 +120,16 @@ namespace Windower
 
 		if (m_pSystemCore != NULL)
 		{
+			m_pSystemCore->RestoreWndProc();
+
 			delete m_pSystemCore;
 			m_pSystemCore = NULL;
+		}
+
+		if (m_pUpdateTimer != NULL)
+		{
+			delete m_pUpdateTimer;
+			m_pUpdateTimer = NULL;
 		}
 
 #if defined _DEBUG && defined _TESTING
@@ -126,7 +140,13 @@ namespace Windower
 		}
 #endif // _DEBUG
 
+		// delete the critical sections last
 		DeleteCriticalSection(&m_PluginLock);
+	}
+
+	bool WindowerEngine::IsPlayerLoggedIn() const
+	{
+		return (m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn());
 	}
 
 	//! \brief Initializes the plugins
@@ -135,18 +155,15 @@ namespace Windower
 		if (m_pPluginManager != NULL)
 		{
 			// >>> Critical section
-			LockPlugins();
+			LockEngineThread();
 
 			// list the available plugins compatible with windower
 			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
 										  PLUGIN_COMPATIBILITY_WINDOWER);
-			// set the plugin manager of the modules
-			ICoreModule::SetPluginManager(*m_pPluginManager);
-
 			// load active plugins
 			LoadPlugins(m_Settings.GetActivePlugins());
 
-			return UnlockPlugins();
+			return UnlockEngineThread();
 			// Critical section <<<
 		}
 
@@ -158,13 +175,13 @@ namespace Windower
 	*/
 	bool WindowerEngine::Attach()
 	{
-		CoreModules::const_iterator Iter;
+		CoreModules::const_iterator ModuleIt, EndIt = m_Modules.cend();
 		ICoreModule *pModule = NULL;
 		
 		// register the hooks
-		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+		for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 		{
-			pModule = Iter->second;
+			pModule = ModuleIt->second;
 
 			if (pModule != NULL)
 				pModule->RegisterHooks(m_HookManager);
@@ -172,18 +189,18 @@ namespace Windower
 		// install the hooks
 		if (m_HookManager.InstallRegisteredHooks())
 		{
-			for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+			for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 			{
-				pModule = Iter->second;
+				pModule = ModuleIt->second;
 
 				if (pModule != NULL)
 					pModule->OnHookInstall(m_HookManager);
 			}
 		}
 		// register services in a separate loop since OnHookInstall could have added more modules
-		for (Iter = m_Modules.begin(); Iter != m_Modules.end(); ++Iter)
+		for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 		{
-			pModule = Iter->second;
+			pModule = ModuleIt->second;
 
 			if (pModule != NULL)
 				pModule->RegisterServices();
@@ -200,17 +217,29 @@ namespace Windower
 	*/
 	bool WindowerEngine::Detach()
 	{
-		PluginEngine::Detach();
+		OnClose();
 
-		return m_HookManager.UninstallRegisteredHooks();
+		// unregister the hooks and uninstall the plugins (in this order)
+		return (m_HookManager.UnregisterHooks()
+			 && PluginEngine::Detach());
 	}
+
+	void WindowerEngine::OnClose()
+	{
+		// >>> Critical section
+		LockEngineThread();
+		// terminate the engine thread
+		m_bShutdown = true;
+		UnlockEngineThread();
+		// Critical section <<<
+	}
+
 
 	/*! \brief The engine main thread
 		\return the exit code of the thread
 	*/
 	DWORD WindowerEngine::MainThread()
 	{
-		m_bThreadInit = true;
 		InitializeEngine();
 		
 		while (m_bShutdown == false)
@@ -219,37 +248,36 @@ namespace Windower
 			Sleep(0);
 		}
 
-		return 0L;
+		return 0UL;
 	}
 
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_bShutdown == false && m_pUpdateTimer != NULL)
+		// >>> Critical section
+		LockEngineThread();
+
+		if (m_bShutdown == false && m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn() && m_pUpdateTimer != NULL)
 		{
 			m_pUpdateTimer->Update();
 
-			if (m_pUpdateTimer->HasTicked() && m_pPlayerCore->IsLoggedIn())
+			if (m_pUpdateTimer->HasTicked())
 			{
-				WindowerPlugins::const_iterator PluginIt = m_Plugins.cbegin();
-				WindowerPlugins::const_iterator EndIt = m_Plugins.cend();
+				WindowerPlugins::const_iterator PluginIt, EndIt = m_Plugins.cend();
 				WindowerPlugin *pPlugin = NULL;
 
-				// >>> Critical section
-				LockPlugins();
-
-				for (; PluginIt != EndIt; ++PluginIt)
+				for (PluginIt = m_Plugins.cbegin(); PluginIt != EndIt; ++PluginIt)
 				{
 					pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
 
 					if (pPlugin != NULL)
 						pPlugin->Update();
 				}
-
-				UnlockPlugins();
-				// Critical section <<<
 			}
 		}
+
+		UnlockEngineThread();
+		// Critical section <<<
 	}
 
 	//! \brief Initializes the engine
@@ -258,7 +286,7 @@ namespace Windower
 		if (m_pSystemCore != NULL)
 		{
 			m_hGameWnd = m_pSystemCore->GameHWND();
-			m_dwPID = m_pSystemCore->GamePID();
+			m_dwPID = ::GetCurrentProcessId();
 		}
 
 		if (m_pUpdateTimer == NULL)
@@ -272,54 +300,27 @@ namespace Windower
 		InitializePlugins();
 	}
 
-	//! \brief Shuts the engine down
-	void WindowerEngine::ShutdownEngine()
-	{
-
-	}
-
-	/*! \brief Callback invoked when the game is shutting down */
-	void WindowerEngine::OnShutdown()
-	{
-		m_bShutdown = true;
-	}
-
-	void WindowerEngine::LockPlugins()
+	void WindowerEngine::LockEngineThread()
 	{
 		EnterCriticalSection(&m_PluginLock);
 	}
 
-	bool WindowerEngine::UnlockPlugins()
+	bool WindowerEngine::UnlockEngineThread()
 	{
 		LeaveCriticalSection(&m_PluginLock);
 
 		return true;
 	}
 
-	bool WindowerEngine::Exit(std::string& Feedback_out) const
+	bool WindowerEngine::Exit(std::string& Feedback_out)
 	{
 		Feedback_out = "Exiting the game...";
 
+		// stop the engine thread
+		Detach();
+		// wait for the main thread to terminate
+		WaitForSingleObject(SystemCore::GetMainThreadHandle(), INFINITE);
+
 		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
-	}
-
-	void WindowerEngine::DisplayHelp()
-	{
-		if (m_pPlayerCore->IsLoggedIn())
-			CmdLineCore::InjectCommand("//help");
-	}
-
-	DWORD_PTR WindowerEngine::FindAddress(const std::string &Pattern_in, DWORD Offset_in)
-	{
-		SigScan::SigScan &MemScan = m_HookManager.GetSigScan();
-		DWORD_PTR Result = NULL;
-
-		if (MemScan.Initialize(m_dwPID, _T(SIGSCAN_GAME_PROCESSA)))
-		{
-			Result = MemScan.ScanMemory(Pattern_in, Offset_in);
-			MemScan.Clear();
-		}
-
-		return Result;
 	}
 }

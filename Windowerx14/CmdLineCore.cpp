@@ -22,7 +22,7 @@
 namespace Windower
 {
 	CmdLineCore::CallingContext * CmdLineCore::m_pContext = NULL;
-	LPVOID CmdLineCore::m_pThis = NULL;
+	LPVOID CmdLineCore::m_pTextCmd = NULL;
 
 	/*! \brief CmdLineCore constructor
 		\param[in,out] Engine_in_out : the windower engine
@@ -66,8 +66,7 @@ namespace Windower
 	{
 		bool Result = false;
 
-		m_pThis = pThis_in_out;
-
+		// update the text command pointer
 		if (m_pContext != NULL && m_pContext->m_pTrampoline != NULL)
 		{
 			std::string Feedback;
@@ -75,9 +74,9 @@ namespace Windower
 			if (FilterCommands(pCmd_in_out, Feedback))
 			{
 				// skip command processing
-				Result = FormatChatMsgService::InjectMessage(Feedback);
+				return FormatChatMsgService::InjectMessage(Feedback);
 			}
-			else
+			else if (pThis_in_out != NULL)
 			{
 				// call the trampoline to process the command
 				Result = m_pContext->m_pTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
@@ -350,7 +349,7 @@ namespace Windower
 					string_t PluginNameW;
 
 					// >>> Critical section
-					m_pEngine->LockPlugins();
+					m_pEngine->LockEngineThread();
 
 					if (m_pEngine->LoadPlugin(convert_utf8(PluginName, PluginNameW)))
 					{
@@ -363,7 +362,7 @@ namespace Windower
 						Result = false;
 					}
 
-					m_pEngine->UnlockPlugins();
+					m_pEngine->UnlockEngineThread();
 					// Critical section <<<
 
 					return Result;
@@ -376,7 +375,7 @@ namespace Windower
 					string_t PluginNameW;
 
 					// >>> Critical section
-					m_pEngine->LockPlugins();
+					m_pEngine->LockEngineThread();
 
 					if (m_pEngine->UnloadPlugin(convert_utf8(PluginName, PluginNameW)))
 					{
@@ -389,7 +388,7 @@ namespace Windower
 						Result = false;
 					}
 
-					m_pEngine->UnlockPlugins();
+					m_pEngine->UnlockEngineThread();
 					// Critical section <<<
 
 					return Result;
@@ -440,14 +439,14 @@ namespace Windower
 			{
 				// display help for all the public commands
 				const RegisteredCommands &Commands = m_pCommandDispatcher->GetCommands();
-				RegisteredCommands::const_iterator Iter;
+				RegisteredCommands::const_iterator CmdIt, EndIt = Commands.cend();
 				WindowerCommand *pCommand;
 
 				HelpMsg_out = "Available commands:";
 
-				for (Iter = Commands.begin(); Iter != Commands.end(); ++Iter)
+				for (CmdIt = Commands.cbegin(); CmdIt != EndIt; ++CmdIt)
 				{
-					pCommand = Iter->second;
+					pCommand = CmdIt->second;
 
 					if (pCommand != NULL && pCommand->IsPublic() && pCommand->IsRestricted() == false)
 					{
@@ -467,23 +466,10 @@ namespace Windower
 
 	bool CmdLineCore::InjectCommand(const std::string &Cmd_in)
 	{
-		if (m_pThis == NULL && m_pEngine != NULL)
-		{
-			// find the address in the process memory
-			m_pThis = (LPVOID)m_pEngine->FindAddress(TEXT_COMMAND_SIGNATURE,
-													 TEXT_COMMAND_OFFSET);
-		}
+		StringNode Cmd;
 
-		if (m_pThis != NULL)
-		{
-			StringNode Cmd;
+		InitStringNode(Cmd, Cmd_in);
 
-			InitStringNode(Cmd, Cmd_in);
-			ProcessCmdHook(m_pThis, &Cmd, NULL);
-
-			return true;
-		}
-
-		return false;
+		return ProcessCmdHook(m_pTextCmd, &Cmd, NULL);
 	}
 }

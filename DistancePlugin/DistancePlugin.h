@@ -8,6 +8,9 @@
 #ifndef __DISTANCE_PLUGIN_H__
 #define __DISTANCE_PLUGIN_H__
 
+#define GRAPHICS_MODULE			"Graphics"
+#define TEXT_LABEL_SERVICE		"TextLabelService"
+
 namespace Windower
 {
 	class DistancePlugin : public Windower::IPlayerDataPlugin

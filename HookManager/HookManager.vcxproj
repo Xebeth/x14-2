@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="DetoursManager.cpp" />
     <ClCompile Include="EasyHookManager.cpp" />
+    <ClCompile Include="Hook.cpp" />
     <ClCompile Include="HookManager.cpp" />
     <ClCompile Include="IATHookManager.cpp" />
     <ClCompile Include="MinHookManager.cpp" />
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="DetoursManager.h" />
     <ClInclude Include="EasyHookManager.h" />
+    <ClInclude Include="Hook.h" />
     <ClInclude Include="HookEngine.h" />
     <ClInclude Include="HookManager.h" />
     <ClInclude Include="IATHookManager.h" />

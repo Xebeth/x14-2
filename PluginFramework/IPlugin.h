@@ -196,7 +196,7 @@ namespace PluginFramework
 		*/
 		static bool InvokeService(const string_t &ModuleName_in, 
 								  const string_t &ServiceName_in,
-								  const ServiceParam &Params_in);
+								  ServiceParam &Params_in);
 
 		static const TCHAR* GetConfigFile();
 

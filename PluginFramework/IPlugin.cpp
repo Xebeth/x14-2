@@ -105,7 +105,7 @@ namespace PluginFramework
 
 	bool IPlugin::InvokeService(const string_t &ModuleName_in,
 								const string_t &ServiceName_in,
-								const ServiceParam &Params_in)
+								ServiceParam &Params_in)
 	{
 		return (m_pServices != NULL && m_pServices->InvokeService(ModuleName_in, ServiceName_in, Params_in));
 	}

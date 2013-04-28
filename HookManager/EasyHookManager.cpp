@@ -13,6 +13,8 @@
 #include "HookManager.h"
 #include "EasyHookManager.h"
 
+#include "Hook.h"
+
 #ifdef _M_X64
 	#pragma comment(lib, "EasyHookStatic64.lib")
 #else

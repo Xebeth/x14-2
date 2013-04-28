@@ -11,7 +11,8 @@
 class IDirect3DDevice9Wrapper;
 class IDirect3D9Wrapper;
 
-#define GRAPHICS_MODULE "Graphics"
+#define GRAPHICS_MODULE			"Graphics"
+#define TEXT_LABEL_SERVICE		"TextLabelService"
 
 namespace Windower
 {
@@ -33,7 +34,7 @@ namespace Windower
 		~GraphicsCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
-		bool Invoke(const string_t& ServiceName_in, const PluginFramework::ServiceParam &Params_in);		
+		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);		
 
 		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
 		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
@@ -75,7 +76,8 @@ namespace Windower
 		//! game window size
 		WORD m_Width, m_Height;
 		//! mouse position
-		WORD m_MouseX, m_MouseY;
+		long m_MouseOffsetX, m_MouseOffsetY;
+		DWORD m_LabelWidth, m_LabelHeight;
 		//! pointer to the label being moved
 		UiTextLabel *m_pMovingLabel;
 	};

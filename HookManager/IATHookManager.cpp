@@ -13,6 +13,8 @@
 #include "HookManager.h"
 #include "IATHookManager.h"
 
+#include "Hook.h"
+
 #ifdef _DEBUG
 	#ifdef _M_X64
 		#pragma comment(lib, "IATPatcher.x64d.lib")

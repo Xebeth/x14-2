@@ -23,10 +23,9 @@ namespace ZipArchiveLib
 	//! \brief CentralDirectory destructor
 	CentralDirectory::~CentralDirectory()
 	{
-		CentralDirectoryEntries::const_iterator EntryIt = m_Entries.cbegin();
-		CentralDirectoryEntries::const_iterator EndIt = m_Entries.cend();
+		CentralDirectoryEntries::const_iterator EntryIt, EndIt = m_Entries.cend();
 
-		for (; EntryIt != EndIt; ++EntryIt)
+		for (EntryIt = m_Entries.cbegin(); EntryIt != EndIt; ++EntryIt)
 			delete EntryIt->second;
 
 		m_Entries.clear();

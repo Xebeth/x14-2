@@ -8,6 +8,9 @@
 #ifndef __WINDOWER_CONFIG_AFX_H__
 #define __WINDOWER_CONFIG_AFX_H__
 
+// disable analysis warning in shlobj.h
+#pragma warning (disable : 6387)
+
 #include <sdkddkver.h>
 #include <afxwin.h>
 #include <afxcmn.h>

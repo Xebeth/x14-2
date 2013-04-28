@@ -32,7 +32,7 @@ namespace Windower
 	{
 		HandlerCommands::const_iterator CmdIt = m_Commands.find(CommandID_in);
 
-		if (CmdIt != m_Commands.end())
+		if (CmdIt != m_Commands.cend())
 			return CmdIt->second;
 
 		return NULL;
@@ -66,7 +66,7 @@ namespace Windower
 		HandlerCommands::const_iterator CmdIt = m_Commands.find(CommandID_in);
 
 		// check if the command exists
-		if (CmdIt != m_Commands.end() && CmdIt->second != NULL)
+		if (CmdIt != m_Commands.cend() && CmdIt->second != NULL)
 		{
 			if (UnregisterCommand(CmdIt->second))
 				m_Commands.erase(CmdIt);
@@ -89,7 +89,7 @@ namespace Windower
 		WindowerCommand *pCommand = NULL;
 
 		// check if the command already exists
-		if (CmdIt == m_Commands.end())
+		if (CmdIt == m_Commands.cend())
 		{
 			// create the new command
 			pCommand = new WindowerCommand(m_RegistrationKey, CmdID_in,
@@ -158,7 +158,7 @@ namespace Windower
 
 		while (m_Commands.empty() == false)
 		{
-			CmdIt = m_Commands.begin();
+			CmdIt = m_Commands.cbegin();
 
 			RevokeCommand(CmdIt->first);
 		}

@@ -68,11 +68,10 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 
 		if (m_DrawUi)
 		{
-			RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
-			RenderableMap::const_iterator EndIt = m_UiElements.cend();
+			RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
 			IRenderable *pRenderable = NULL;
 
-			for(; RenderableIt != EndIt; ++RenderableIt)
+			for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 			{
 				pRenderable = RenderableIt->second;
 
@@ -115,11 +114,10 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 	pPresentationParameters->BackBufferCount = m_PresentParams.BackBufferCount;
 	pPresentationParameters->SwapEffect = m_PresentParams.SwapEffect;
 
-	RenderableMap::const_iterator RenderableIt = m_UiElements.cbegin();
-	RenderableMap::const_iterator EndIt = m_UiElements.cend();
+	RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
 	IRenderable *pRenderable = NULL;
 
-	for(; RenderableIt != EndIt; ++RenderableIt)
+	for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 	{
 		pRenderable = RenderableIt->second;
 
@@ -134,9 +132,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 
 	if (m_bRender)
 	{
-		RenderableIt = m_UiElements.cbegin();
-
-		for(; RenderableIt != EndIt; ++RenderableIt)
+		for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 		{
 			pRenderable = RenderableIt->second;
 

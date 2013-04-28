@@ -10,12 +10,17 @@
 #ifndef __AUTO_LOGIN_PLUGIN_H__
 #define __AUTO_LOGIN_PLUGIN_H__
 
+// module name
+#define SYSTEM_MODULE			"System"
+// available services for the module
+#define IE_SERVER_HWND_SERVICE	"IEServerHWND"
+
 namespace Bootstrap
 {
 	class AutoLoginSettings;
 
 	//! \brief Auto login plugin
-	class AutoLoginPlugin : public IAutoLoginPlugin
+	class AutoLoginPlugin : public PluginFramework::IPlugin
 	{
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
@@ -34,12 +39,15 @@ namespace Bootstrap
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);		
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
+
+		AutoLoginSettings& GetSettings();
+
+		bool Unsubscribe();
+		bool Subscribe();
 		
 	protected:
 		//! AutoLogin plugin settings
 		AutoLoginSettings *m_pSettings;
-		//! the handle of the thread used to monitor the forms during the login process
-		HANDLE m_hThread;
 	};
 }
 

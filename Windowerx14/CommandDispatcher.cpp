@@ -30,10 +30,10 @@ namespace Windower
 	//! \brief CommandDispatcher destructor
 	CommandDispatcher::~CommandDispatcher()
 	{
-		RegisteredCommands::const_iterator Iter, EndIt = m_Commands.end();
+		RegisteredCommands::const_iterator CmdIt, EndIt = m_Commands.cend();
 
-		for (Iter = m_Commands.begin(); Iter != EndIt; ++Iter)
-			delete Iter->second;
+		for (CmdIt = m_Commands.cbegin(); CmdIt != EndIt; ++CmdIt)
+			delete CmdIt->second;
 
 		m_Commands.clear();
 	}
@@ -59,9 +59,9 @@ namespace Windower
 	{
 		if (pCommand_in != NULL)
 		{
-			RegisteredCommands::const_iterator Iter = m_Commands.find(pCommand_in->GetName());
+			RegisteredCommands::const_iterator CmdIt = m_Commands.find(pCommand_in->GetName());
 
-			if (Iter == m_Commands.end() || Iter->second == NULL)
+			if (CmdIt == m_Commands.cend() || CmdIt->second == NULL)
 			{
 				// parameters validation
 				if (pCommand_in->ValidateParameters() && IsKeyAuthorized(pCommand_in->GetKey()))
@@ -83,11 +83,13 @@ namespace Windower
 	*/
 	bool CommandDispatcher::UnregisterCommand(DWORD RegistrationKey_in, const std::string& CommandName_in)
 	{
-		RegisteredCommands::const_iterator Iter = m_Commands.find(CommandName_in);
+		RegisteredCommands::const_iterator CmdIt = m_Commands.find(CommandName_in);
 
-		if (Iter != m_Commands.end() && Iter->second != NULL)
-			if (Iter->second->IsKeyMatching(RegistrationKey_in))
-				return UnregisterCommand(Iter->second);
+		if (CmdIt != m_Commands.cend() && CmdIt->second != NULL
+		 && CmdIt->second->IsKeyMatching(RegistrationKey_in))
+		{
+			return UnregisterCommand(CmdIt->second);
+		}
 
 		return false;
 	}
@@ -125,12 +127,12 @@ namespace Windower
 		\return true if the command was invoked successfully; false otherwise
 	*/
 	bool CommandDispatcher::Invoke(const string_t& ServiceName_in,
-								   const PluginFramework::ServiceParam &Params_in)
+								   PluginFramework::ServiceParam &Params_in)
 	{
-		ModuleServices::iterator Iter = m_Services.find(ServiceName_in);
+		ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
 		// the service exists and can be invoked
-		if (Iter != m_Services.end() && Iter->second->CanInvoke())
+		if (ServiceIt != m_Services.cend() && ServiceIt->second->CanInvoke())
 		{
 			if (ServiceName_in.compare(_T("RegisterCommand")) == 0
 			 && Params_in.DataType.compare(_T("WindowerCommand")) == 0
@@ -161,7 +163,7 @@ namespace Windower
 	{
 		RegisteredCommands::const_iterator CmdIter = m_Commands.find(Name_in);
 
-		if (CmdIter != m_Commands.end())
+		if (CmdIter != m_Commands.cend())
 			return CmdIter->second;
 
 		return NULL;

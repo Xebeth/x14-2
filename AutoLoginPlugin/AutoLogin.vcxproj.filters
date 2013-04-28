@@ -7,7 +7,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>Precompiled headers</Filter>
     </ClInclude>
-    <ClInclude Include="AutoLoginPlugin.h" />
     <ClInclude Include="AutoLogin.h">
       <Filter>AutoLogin</Filter>
     </ClInclude>
@@ -21,7 +20,7 @@
     <ClInclude Include="AutoLoginConfigDlg.h">
       <Filter>Config</Filter>
     </ClInclude>
-    <ClInclude Include="IAutoLoginPlugin.h" />
+    <ClInclude Include="AutoLoginPlugin.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -52,7 +51,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Precompiled headers</Filter>
     </ClCompile>
-    <ClCompile Include="AutoLoginPlugin.cpp" />
     <ClCompile Include="AutoLogin.cpp">
       <Filter>AutoLogin</Filter>
     </ClCompile>
@@ -64,6 +62,7 @@
     <ClCompile Include="AutoLoginConfigDlg.cpp">
       <Filter>Config</Filter>
     </ClCompile>
+    <ClCompile Include="AutoLoginPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\AutoLogin.ico">

@@ -87,7 +87,7 @@ namespace Windower
 		{
 			ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
 
-			return (PluginIt != m_ActivePlugins.end());
+			return (PluginIt != m_ActivePlugins.cend());
 		}
 
 		void ActivatePlugin(const string_t& PluginName_in, bool Activate_in = true)
@@ -96,7 +96,7 @@ namespace Windower
 			{
 				ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
 
-				if (PluginIt != m_ActivePlugins.end())
+				if (PluginIt != m_ActivePlugins.cend())
 					m_ActivePlugins.erase(PluginIt);
 			}
 			else
