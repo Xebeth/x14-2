@@ -5,55 +5,51 @@
 #include "Font.h"
 #include "IRenderable.h"
 #include "IDirect3D9Wrapper.h"
+#include "Direct3D9WrapperImpl.h"
 #include "IDirect3DDevice9Wrapper.h"
 
-IDirect3D9Wrapper::IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, BOOL VSync_in)
-	: m_VSync(VSync_in), m_pDirect3D9(pDirect3D9_in),
-	  m_pWrappedDevice(NULL), m_hGameWnd(NULL) {}
-
-/*! \brief IDirect3D9Wrapper destructor */
-IDirect3D9Wrapper::~IDirect3D9Wrapper()
+void IDirect3D9Wrapper::SetImpl(Direct3D9WrapperImpl *pImpl_in, IDirect3D9 *pDirect3D9_in)
 {
-	m_pDirect3D9 = NULL;
-	m_pWrappedDevice = NULL;
+	m_pDirect3D9 = pDirect3D9_in;
+	m_pImpl = pImpl_in;
+}
+
+void IDirect3D9Wrapper::DestroyImpl()
+{
+	if (m_pImpl != NULL)
+	{
+		delete m_pImpl;
+		m_pImpl = NULL;
+	}
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags,
 												  D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
+	if (m_pImpl == NULL)
+		return m_pDirect3D9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+
 	LPDIRECT3DDEVICE9 pDirect3dDevice9 = NULL;
 	HRESULT Result;
 
-	m_hGameWnd = hFocusWindow;
-
 	// force vertical sync
-	if (m_VSync)
-	{
-		pPresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-		pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
-		pPresentationParameters->BackBufferCount = 2;
-	}
+	if (m_pImpl->m_VSync)
+		m_pImpl->ForceVSync(*pPresentationParameters);
 
 	// create the Direct3D device
 	Result = m_pDirect3D9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, &pDirect3dDevice9);
 
-	if(pDirect3dDevice9 != NULL)
+	if(Result == D3D_OK && pDirect3dDevice9 != NULL)
 	{
-		DeviceSubscribers::const_iterator DeviceIt, EndIt = m_Subscribers.cend();
+		IDirect3DDevice9Wrapper *pWrappedDevice;
 
 		// wrap the device up
-		*ppReturnedDeviceInterface = m_pWrappedDevice = new IDirect3DDevice9Wrapper(&pDirect3dDevice9, *pPresentationParameters);
-		// give the subscribers a pointer to the new device wrapper
-		for (DeviceIt = m_Subscribers.cbegin(); DeviceIt != EndIt; ++DeviceIt)
-			*(*DeviceIt) = m_pWrappedDevice;
+		*ppReturnedDeviceInterface = pWrappedDevice = new IDirect3DDevice9Wrapper;
+		// notify the subscriber
+		m_pImpl->OnDeviceCreate(*pPresentationParameters, pWrappedDevice, pDirect3dDevice9);
 	}
 
 	return Result;
-}
-
-void IDirect3D9Wrapper::Subscribe(IDirect3DDevice9Wrapper** pDevicePtr_in)
-{
-	m_Subscribers.push_back(pDevicePtr_in);
 }
 
 HRESULT __stdcall IDirect3D9Wrapper::QueryInterface(REFIID iid, void ** ppvObject)
@@ -68,6 +64,8 @@ ULONG __stdcall IDirect3D9Wrapper::AddRef(void)
 
 ULONG __stdcall IDirect3D9Wrapper::Release(void)
 {
+	DestroyImpl();
+
 	return m_pDirect3D9->Release();
 }
 

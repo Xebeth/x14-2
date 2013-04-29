@@ -6,82 +6,44 @@
 
 #include "IDirect3D9Wrapper.h"
 #include "IDirect3DDevice9Wrapper.h"
+#include "Direct3DDevice9WrapperImpl.h"
 
-IDirect3DDevice9Wrapper::IDirect3DDevice9Wrapper(LPDIRECT3DDEVICE9 *pDirect3dDevice,
-												 D3DPRESENT_PARAMETERS &PresentParams_in)
-	: m_pDirect3dDevice(*pDirect3dDevice), m_PresentParams(PresentParams_in), m_bRender(true), 
-	  m_Fullscreen(false), m_DrawUi(false), m_bSceneStarted(false) {}
-
-IDirect3DDevice9Wrapper::~IDirect3DDevice9Wrapper()
+void IDirect3DDevice9Wrapper::SetImpl(Direct3DDevice9WrapperImpl *pImpl_in,
+									  IDirect3DDevice9 *pDirect3dDevice_in)
 {
-	m_pDirect3dDevice = NULL;
+	m_pDirect3dDevice = pDirect3dDevice_in;
+	m_pImpl = pImpl_in;
 }
 
-bool IDirect3DDevice9Wrapper::AddRenderable(unsigned long ID_in, IRenderable *pRenderable_in)
+void IDirect3DDevice9Wrapper::DestroyImpl()
 {
-	if (pRenderable_in != NULL)
+	if (m_pImpl == NULL)
 	{
-		m_UiElements[ID_in] = pRenderable_in;
-
-		return true;
+		delete m_pImpl;
+		m_pImpl = NULL;
 	}
-
-	return false;
-}
-
-bool IDirect3DDevice9Wrapper::RemoveRenderable(unsigned long ID_in)
-{
-	RenderableMap::iterator RenderableIt = m_UiElements.find(ID_in);
-	bool Result = false, DrawUi = m_DrawUi;
-
-	while (m_DrawUi && m_bSceneStarted)
-		Sleep(0);
-
-	m_DrawUi = false;
-
-	if (RenderableIt != m_UiElements.end())
-	{
-		m_UiElements.erase(RenderableIt);
-
-		Result = true;
-	}
-
-	m_DrawUi = DrawUi;
-
-	return Result;
 }
 
 ULONG __stdcall IDirect3DDevice9Wrapper::Release(void)
 {
+	DestroyImpl();
+
 	return m_pDirect3dDevice->Release();
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene() 
 {
+	if (m_pImpl == NULL)
+		return m_pDirect3dDevice->BeginScene();
+
 	HRESULT Result = S_OK;
 
-	if (m_bRender && m_bSceneStarted == false)
+	if (m_pImpl->m_bRender && m_pImpl->m_bSceneStarted == false)
 	{
 		Result = m_pDirect3dDevice->BeginScene();
-		m_bSceneStarted = true;
-		m_DrawUi = !m_DrawUi;
 
-		if (m_DrawUi)
-		{
-			RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-			IRenderable *pRenderable = NULL;
-
-			for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
-			{
-				pRenderable = RenderableIt->second;
-
-				if (pRenderable != NULL && pRenderable->IsVisible())
-				{
-					pRenderable->Update();
-					pRenderable->Draw();
-				}
-			}
-		}
+		if (Result == D3D_OK)
+			m_pImpl->Draw();
 	}
 
 	return Result;
@@ -89,12 +51,15 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene() 
 {
+	if (m_pImpl == NULL)
+		return m_pDirect3dDevice->EndScene();
+
 	HRESULT Result = S_OK;
 
-	if (m_bRender && m_bSceneStarted)
+	if (m_pImpl->m_bRender && m_pImpl->m_bSceneStarted)
 	{
 		Result = m_pDirect3dDevice->EndScene();
-		m_bSceneStarted = false;
+		m_pImpl->m_bSceneStarted = false;
 	}
 	
 	return Result;
@@ -102,44 +67,25 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene()
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
-	m_DrawUi = m_DrawUi ? true : (State == D3DRS_SCISSORTESTENABLE && Value == 0);
+	if (m_pImpl != NULL)
+		m_pImpl->m_bDrawUi = m_pImpl->m_bDrawUi ? true : (State == D3DRS_SCISSORTESTENABLE && Value == 0);
 
 	return m_pDirect3dDevice->SetRenderState(State, Value);
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresentationParameters) 
 {
-	// force vertical sync
-	pPresentationParameters->PresentationInterval = m_PresentParams.PresentationInterval;
-	pPresentationParameters->BackBufferCount = m_PresentParams.BackBufferCount;
-	pPresentationParameters->SwapEffect = m_PresentParams.SwapEffect;
+	if (m_pImpl == NULL)
+		return m_pDirect3dDevice->Reset(pPresentationParameters);
 
-	RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-	IRenderable *pRenderable = NULL;
-
-	for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
-	{
-		pRenderable = RenderableIt->second;
-
-		if (pRenderable != NULL)
-			pRenderable->OnDeviceLost();
-	}
+	m_pImpl->OnDeviceLost(*pPresentationParameters);
 
 	HRESULT Result = m_pDirect3dDevice->Reset(pPresentationParameters);
 
-	m_Fullscreen = (pPresentationParameters->Windowed == FALSE);
-	m_bRender = (Result == D3D_OK);
-
-	if (m_bRender)
-	{
-		for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
-		{
-			pRenderable = RenderableIt->second;
-
-			if (pRenderable != NULL)
-				pRenderable->OnDeviceReset();
-		}
-	}
+	if (Result == D3D_OK)
+		m_pImpl->OnDeviceReset();
+	else
+		m_pImpl->m_bRender = false;
 
 	return Result;
 }
@@ -206,11 +152,6 @@ BOOL __stdcall IDirect3DDevice9Wrapper::ShowCursor(BOOL bShow)
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DSwapChain9** ppSwapChain) 
 {
-	// force vertical sync
-	pPresentationParameters->PresentationInterval = m_PresentParams.PresentationInterval;
-	pPresentationParameters->BackBufferCount = m_PresentParams.BackBufferCount;
-	pPresentationParameters->SwapEffect = m_PresentParams.SwapEffect;
-
 	return m_pDirect3dDevice->CreateAdditionalSwapChain(pPresentationParameters, ppSwapChain);
 }
 
@@ -226,7 +167,7 @@ UINT __stdcall IDirect3DDevice9Wrapper::GetNumberOfSwapChains()
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) 
 {
-	return m_bRender ? m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion) : S_OK;
+	return m_pDirect3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9** ppBackBuffer) 
@@ -537,18 +478,12 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::DrawPrimitive(D3DPRIMITIVETYPE Primit
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawIndexedPrimitive(D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount) 
 {
-	if (m_bRender)
-		return m_pDirect3dDevice->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount); 
-	else
-		return S_OK;
+	return m_pDirect3dDevice->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount); 
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) 
 {
-	if (m_bRender)
-		return m_pDirect3dDevice->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); 
-	else
-		return S_OK;
+	return m_pDirect3dDevice->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); 
 }
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) 
@@ -735,80 +670,3 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::CreateQuery(D3DQUERYTYPE Type, IDirec
 {
 	return m_pDirect3dDevice->CreateQuery(Type, ppQuery);
 }
-
-/*
-HRESULT __stdcall IDirect3DDevice9Wrapper::SetConvolutionMonoKernel(UINT width,UINT height,float* rows,float* columns)
-{
-	return m_pDirect3dDevice->SetConvolutionMonoKernel(width, height, rows, columns);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::ComposeRects(IDirect3DSurface9* pSrc,IDirect3DSurface9* pDst,IDirect3DVertexBuffer9* pSrcRectDescs,UINT NumRects,IDirect3DVertexBuffer9* pDstRectDescs,D3DCOMPOSERECTSOP Operation,int Xoffset,int Yoffset)
-{
-	return ComposeRects(pSrc, pDst, pSrcRectDescs, NumRects, pDstRectDescs, Operation, Xoffset, Yoffset);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::PresentEx(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion,DWORD dwFlags)
-{
-	return PresentEx(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::GetGPUThreadPriority(INT* pPriority)
-{
-	return GetGPUThreadPriority(pPriority);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::SetGPUThreadPriority(INT Priority)
-{
-	return SetGPUThreadPriority(Priority);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::WaitForVBlank(UINT iSwapChain)
-{
-	return WaitForVBlank(iSwapChain);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::CheckResourceResidency(IDirect3DResource9** pResourceArray,UINT32 NumResources)
-{
-	return CheckResourceResidency(pResourceArray, NumResources);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::SetMaximumFrameLatency(UINT MaxLatency)
-{
-	return SetMaximumFrameLatency(MaxLatency);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::GetMaximumFrameLatency(UINT* pMaxLatency)
-{
-	return GetMaximumFrameLatency(pMaxLatency);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::CheckDeviceState(HWND hDestinationWindow)
-{
-	return CheckDeviceState(hDestinationWindow);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::CreateRenderTargetEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Lockable,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
-{
-	return CreateRenderTargetEx(Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle, Usage);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::CreateOffscreenPlainSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DPOOL Pool,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
-{
-	return CreateOffscreenPlainSurfaceEx(Width, Height, Format, Pool, ppSurface, pSharedHandle, Usage);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::CreateDepthStencilSurfaceEx(UINT Width,UINT Height,D3DFORMAT Format,D3DMULTISAMPLE_TYPE MultiSample,DWORD MultisampleQuality,BOOL Discard,IDirect3DSurface9** ppSurface,HANDLE* pSharedHandle,DWORD Usage)
-{
-	return CreateDepthStencilSurfaceEx(Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle, Usage);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::ResetEx(D3DPRESENT_PARAMETERS* pPresentationParameters,D3DDISPLAYMODEEX *pFullscreenDisplayMode)
-{
-	return ResetEx(pPresentationParameters, pFullscreenDisplayMode);
-}
-
-HRESULT __stdcall IDirect3DDevice9Wrapper::GetDisplayModeEx(UINT iSwapChain,D3DDISPLAYMODEEX* pMode,D3DDISPLAYROTATION* pRotation)
-{
-	return GetDisplayModeEx(iSwapChain, pMode, pRotation);
-}
-*/

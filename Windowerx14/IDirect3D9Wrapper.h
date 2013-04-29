@@ -1,18 +1,11 @@
 #ifndef __IDIRECT3D9_WRAPPER_H
 #define __IDIRECT3D9_WRAPPER_H
 
-class IDirect3DDevice9Wrapper;
-typedef std::vector<IDirect3DDevice9Wrapper**> DeviceSubscribers;
+class Direct3D9WrapperImpl;
 
 class IDirect3D9Wrapper : public IDirect3D9
 {
 public:
-	IDirect3D9Wrapper(LPDIRECT3D9 pDirect3D9_in, BOOL VSync_in); 
-	virtual ~IDirect3D9Wrapper();
-
-	IDirect3DDevice9Wrapper* GetDevice() { return m_pWrappedDevice; }
-	void Subscribe(IDirect3DDevice9Wrapper** pDevicePtr_in);
-
 	//IDirect3D9 Interface Methods
 	HRESULT __stdcall QueryInterface(REFIID iid, void ** ppvObject);
 	ULONG	__stdcall AddRef(void);
@@ -34,15 +27,12 @@ public:
 	HMONITOR  __stdcall GetAdapterMonitor(UINT Adapter) ;
 	HRESULT __stdcall CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFocusWindow,DWORD BehaviorFlags,D3DPRESENT_PARAMETERS* pPresentationParameters,IDirect3DDevice9** ppReturnedDeviceInterface) ;
 
-	//Internal Method and member variables
-protected:
-	IDirect3DDevice9Wrapper		*m_pWrappedDevice;
-	IDirect3D9					*m_pDirect3D9;
-	HWND						 m_hGameWnd;
+	void SetImpl(Direct3D9WrapperImpl *pImpl_in, IDirect3D9 *pDirect3D9_in);
+	void DestroyImpl();
 
-	DeviceSubscribers			 m_Subscribers;
-	//! flag specifying if vertical synchronization is in use
-	const BOOL m_VSync;
+private:
+	Direct3D9WrapperImpl *m_pImpl;
+	IDirect3D9 *m_pDirect3D9;
 };
 
 #endif//__IDIRECT3D9_WRAPPER_H

@@ -143,6 +143,8 @@
     <ClCompile Include="CmdLineCore.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
+    <ClCompile Include="Direct3D9WrapperImpl.cpp" />
+    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
     <ClCompile Include="WndHook.cpp" />
     <ClCompile Include="Direct3D9Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -183,6 +185,9 @@
     <ClInclude Include="CmdLineCore.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
+    <ClInclude Include="Direct3D9WrapperImpl.h" />
+    <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
+    <ClInclude Include="IDeviceCreateSubscriber.h" />
     <ClInclude Include="WndHook.h" />
     <ClInclude Include="Direct3D9Hook.h" />
     <ClInclude Include="Font.h" />

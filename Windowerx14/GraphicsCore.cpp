@@ -15,7 +15,10 @@
 #include "Font.h"
 #include "IRenderable.h"
 #include "IDirect3D9Wrapper.h"
+#include "Direct3D9WrapperImpl.h"
+#include "IDeviceCreateSubscriber.h"
 #include "IDirect3DDevice9Wrapper.h"
+#include "Direct3DDevice9WrapperImpl.h"
 
 #include "TextLabelRenderer.h"
 #include "UiTextLabel.h"
@@ -39,8 +42,9 @@ namespace Windower
 		: WindowerCore(_T(GRAPHICS_MODULE)), m_VSync(VSync_in), m_pLabelRenderer(NULL),
 		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
 		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseOffsetX(0U),
-		  m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_pDeviceWrapper(NULL),
-		  m_LabelHeight(0UL), m_LabelWidth (0UL) {}
+		  m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_pDeviceWrapperImpl(NULL),
+		  m_LabelHeight(0UL), m_LabelWidth (0UL), m_pDirect3DDevice(NULL),
+		  m_pWrapperImpl(NULL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -50,8 +54,8 @@ namespace Windower
 
 		for(; RenderableIt != EndIt; ++RenderableIt)
 		{
-			if (m_pDeviceWrapper != NULL)
-				m_pDeviceWrapper->RemoveRenderable(RenderableIt->first);
+			if (m_pDeviceWrapperImpl != NULL)
+				m_pDeviceWrapperImpl->RemoveRenderable(RenderableIt->first);
 
 			delete RenderableIt->second;
 		}
@@ -64,10 +68,10 @@ namespace Windower
 			m_pLabelRenderer = NULL;
 		}
 
-		if (m_pDeviceWrapper != NULL)
+		if (m_pDeviceWrapperImpl != NULL)
 		{
-			delete m_pDeviceWrapper;
-			m_pDeviceWrapper = NULL;
+			delete m_pDeviceWrapperImpl;
+			m_pDeviceWrapperImpl = NULL;
 		}
 
 		if (m_pDirect3DWrapper != NULL)
@@ -76,10 +80,10 @@ namespace Windower
 			m_pDirect3DWrapper = NULL;
 		}
 
-		if (m_pDeviceWrapper != NULL)
+		if (m_pDeviceWrapperImpl != NULL)
 		{
-			delete m_pDeviceWrapper;
-			m_pDeviceWrapper = NULL;
+			delete m_pDeviceWrapperImpl;
+			m_pDeviceWrapperImpl = NULL;
 		}
 	}
 
@@ -104,7 +108,7 @@ namespace Windower
 				{
 					TextLabelService *pService = static_cast<TextLabelService*>(ServiceIt->second);
 
-					pService->SetRenderer(m_pDeviceWrapper, GetLabelRenderer());
+					pService->SetRenderer(GetLabelRenderer(), m_pDirect3DDevice, m_pDeviceWrapperImpl);
 
 					return pService->Invoke(Params_in);
 				}
@@ -128,11 +132,12 @@ namespace Windower
 
 			if (pDirect3D != NULL && m_SkipDeviceCount == 0)
 			{
-				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper(pDirect3D, m_VSync);
+				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper;
 
 				m_pDirect3DWrapper = pDirect3DWrapper;
 				// subscribe for a pointer to the Direct3DDevice wrapper
-				pDirect3DWrapper->Subscribe(&m_pDeviceWrapper);
+				m_pWrapperImpl = new Direct3D9WrapperImpl(m_VSync, this);
+				m_pDirect3DWrapper->SetImpl(m_pWrapperImpl, pDirect3D);
 
 				return pDirect3DWrapper;
 			}
@@ -143,17 +148,34 @@ namespace Windower
 		return pDirect3D;
 	}
 
+	void GraphicsCore::OnDeviceCreate(const D3DPRESENT_PARAMETERS &PresentParams_in,
+									  IDirect3DDevice9Wrapper *pDeviceWrapper_in,									  
+									  IDirect3DDevice9 *pDevice_in)
+	{
+		m_pDirect3DDevice = pDevice_in;
+
+		// set the device implementation
+		if (pDevice_in != NULL && pDeviceWrapper_in != NULL && m_pDeviceWrapperImpl == NULL)
+		{
+			m_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(PresentParams_in);
+			pDeviceWrapper_in->SetImpl(m_pDeviceWrapperImpl, pDevice_in);
+		}
+		// try to restore Direct3D
+		if (m_pDirect3DWrapper != NULL)
+			m_pDirect3DWrapper->DestroyImpl();
+	}
+
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->ToggleRendering();
+		if (m_pDeviceWrapperImpl != NULL)
+			m_pDeviceWrapperImpl->ToggleRendering();
 	}
 
 	void GraphicsCore::SetRendering(bool bEnable_in)
 	{
-		if (m_pDeviceWrapper != NULL)
-			m_pDeviceWrapper->SetRendering(bEnable_in);
+		if (m_pDeviceWrapperImpl != NULL)
+			m_pDeviceWrapperImpl->SetRendering(bEnable_in);
 	}
 
 	TextLabelRenderer* GraphicsCore::GetLabelRenderer()
@@ -164,20 +186,19 @@ namespace Windower
 		return m_pLabelRenderer;
 	}
 
-
 	void GraphicsCore::ToggleFPS()
 	{
-		if (m_pDeviceWrapper != NULL)
+		if (m_pDeviceWrapperImpl != NULL)
 		{
 			RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
 			UiTextLabel *pFPSLabel = NULL;
 
 			if (RenderableIt == m_UiElements.cend())
 			{
-				pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDeviceWrapper, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
+				pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
 											 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
 
-				m_pDeviceWrapper->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
+				m_pDeviceWrapperImpl->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
 				m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
 			}
 			else

@@ -18,6 +18,7 @@
 #endif // _DEBUG
 
 #include "IRenderable.h"
+#include "IDeviceCreateSubscriber.h"
 
 #include "WindowerCore.h"
 #include "CmdLineCore.h"

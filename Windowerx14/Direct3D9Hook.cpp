@@ -11,6 +11,7 @@
 
 #include "IRenderable.h"
 #include "Direct3D9Hook.h"
+#include "IDeviceCreateSubscriber.h"
 
 #include "WindowerCore.h"
 #include "GraphicsCore.h"

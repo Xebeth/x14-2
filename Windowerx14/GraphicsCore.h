@@ -8,7 +8,8 @@
 #ifndef __GRAPHICS_CORE_H__
 #define __GRAPHICS_CORE_H__
 
-class IDirect3DDevice9Wrapper;
+class Direct3DDevice9WrapperImpl;
+class Direct3D9WrapperImpl;
 class IDirect3D9Wrapper;
 
 #define GRAPHICS_MODULE			"Graphics"
@@ -19,10 +20,8 @@ namespace Windower
 	class TextLabelRenderer;
 	class WindowerEngine;
 	class UiTextLabel;
-
-	typedef std::vector<IDirect3DDevice9Wrapper*> DeviceWrappers;
 	
-	class GraphicsCore : public WindowerCore
+	class GraphicsCore : public WindowerCore, public IDeviceCreateSubscriber
 	{
 		enum eStaticLabels
 		{
@@ -34,7 +33,11 @@ namespace Windower
 		~GraphicsCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
-		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);		
+		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
+
+		void OnDeviceCreate(const D3DPRESENT_PARAMETERS &PresentParams_in,
+							IDirect3DDevice9Wrapper *pDeviceWrapper_in,
+							IDirect3DDevice9 *pDevice_in);
 
 		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
 		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
@@ -61,8 +64,12 @@ namespace Windower
 
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
-		//! Direct3D9 device wrapper
-		IDirect3DDevice9Wrapper *m_pDeviceWrapper;
+		//! Direct3D9 device wrapper implementation
+		Direct3DDevice9WrapperImpl *m_pDeviceWrapperImpl;
+		//! Direct3D9 wrapper implementation
+		Direct3D9WrapperImpl *m_pWrapperImpl;
+		//! Direct3D device
+		IDirect3DDevice9 *m_pDirect3DDevice;
 		//! Direct3D9 wrapper
 		IDirect3D9Wrapper* m_pDirect3DWrapper;
 		//! number of devices to skip

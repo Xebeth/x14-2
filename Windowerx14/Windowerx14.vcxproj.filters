@@ -148,6 +148,12 @@
     <ClCompile Include="WndHook.cpp">
       <Filter>Windower\Modules\System\Hooks</Filter>
     </ClCompile>
+    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9WrapperImpl.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -236,6 +242,15 @@
     </ClInclude>
     <ClInclude Include="WndHook.h">
       <Filter>Windower\Modules\System\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3DDevice9WrapperImpl.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeviceCreateSubscriber.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9WrapperImpl.h">
+      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,7 @@
 #include "UiTextLabel.h"
 
 #include "IDirect3DDevice9Wrapper.h"
+#include "Direct3DDevice9WrapperImpl.h"
 
 #include "ModuleService.h"
 #include "TextLabelService.h"
@@ -25,7 +26,7 @@ namespace Windower
 	TextLabelService::TextLabelService(const string_t& Name_in, RenderableMap &UiElements_in,
 									   unsigned long BaseID_in, bool InvokePermission_in)
 		: ModuleService(Name_in, InvokePermission_in), m_UiElements(UiElements_in),
-		  m_NextID(BaseID_in), m_pDevice(NULL), m_pRenderer(NULL)
+		  m_NextID(BaseID_in), m_pDevice(NULL), m_pRenderer(NULL), m_pWrapperImpl(NULL)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -33,8 +34,10 @@ namespace Windower
 		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("F4F02060-9ED0-11E2-9E96-0800200C9A66")));	// Distance
 	}
 
-	void TextLabelService::SetRenderer(IDirect3DDevice9Wrapper *pDevice_in, TextLabelRenderer *pRenderer_in)
+	void TextLabelService::SetRenderer(TextLabelRenderer *pRenderer_in, IDirect3DDevice9 *pDevice_in,
+									   Direct3DDevice9WrapperImpl *pWrapperImpl_in)
 	{
+		m_pWrapperImpl = pWrapperImpl_in;
 		m_pRenderer = pRenderer_in;
 		m_pDevice = pDevice_in;
 	}
@@ -45,7 +48,7 @@ namespace Windower
 	*/
 	bool TextLabelService::Invoke(PluginFramework::ServiceParam &Params_in)
 	{
-		if (m_pDevice != NULL && Params_in.pData != NULL)
+		if (m_pDevice != NULL && m_pWrapperImpl != NULL && Params_in.pData != NULL)
 		{
 			LabelServiceParam *pParam = reinterpret_cast<LabelServiceParam*>(Params_in.pData);
 			NULL;
@@ -62,13 +65,13 @@ namespace Windower
 						
 						*pParam->m_ppUiLabel = NULL;
 
-						return DestroyLabel(ID, m_pDevice);
+						return DestroyLabel(ID, m_pWrapperImpl);
 					}
 				}
 				else
 				{
 					// create a new label window
-					UiTextLabel *pLabel = CreateLabel(m_pDevice, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
+					UiTextLabel *pLabel = CreateLabel(m_pDevice, m_pWrapperImpl, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
 													  pParam->m_H, pParam->m_FontName, 12, true, false, pParam->m_ARGBColor, m_pRenderer, true);
 					// set the return value
 					*pParam->m_ppUiLabel = pLabel;
@@ -81,11 +84,10 @@ namespace Windower
 		return false;
 	}
 
-	UiTextLabel* TextLabelService::CreateLabel(IDirect3DDevice9Wrapper *pDevice_in,
-											   const string_t& Name_in, long X_in, long Y_in,
-											   long W_in, long H_in, const string_t &FontName_in,
-											   unsigned short FontSize_in, bool bBold_in,
-											   bool bItalic_in, unsigned long ARGB_in,
+	UiTextLabel* TextLabelService::CreateLabel(IDirect3DDevice9 *pDevice_in, Direct3DDevice9WrapperImpl *pWrapperImpl_in,
+											   const string_t& Name_in, long X_in, long Y_in, long W_in, long H_in,
+											   const string_t &FontName_in, unsigned short FontSize_in,
+											   bool bBold_in, bool bItalic_in, unsigned long ARGB_in, 
 											   TextLabelRenderer *pRenderer_in, bool Visibile_in)
 	{
 		UiTextLabel *pLabel = NULL;
@@ -111,7 +113,7 @@ namespace Windower
 				// add it to the map
 				m_LabelIDs[Name_in] = m_NextID;
 				m_UiElements[m_NextID] = pLabel;				
-				m_pDevice->AddRenderable(m_NextID++, pLabel);
+				pWrapperImpl_in->AddRenderable(m_NextID++, pLabel);
 			}
 			else
 			{
@@ -125,10 +127,11 @@ namespace Windower
 					pLabel->SetTitleColor(ARGB_in);
 					pLabel->SetVisible(Visibile_in);				
 					pLabel->SetTitleFont(FontName_in, FontSize_in, bBold_in, bItalic_in);
-					pLabel->GetFont()->Initialize(m_pDevice, FontName_in.c_str(), FontSize_in, true, bBold_in, bItalic_in);
+					pLabel->GetFont()->Initialize(pDevice_in, FontName_in.c_str(),
+												  FontSize_in, true, bBold_in, bItalic_in);
 					// add it to the map
 					m_UiElements[LabelID] = pLabel;
-					m_pDevice->AddRenderable(LabelID, pLabel);
+					pWrapperImpl_in->AddRenderable(LabelID, pLabel);
 					m_RemovedLabels.erase(LabelIt);
 				}
 			}
@@ -137,9 +140,9 @@ namespace Windower
 		return pLabel;
 	}
 
-	bool TextLabelService::DestroyLabel(unsigned long ID_in, IDirect3DDevice9Wrapper *pDevice_in)
+	bool TextLabelService::DestroyLabel(unsigned long ID_in, Direct3DDevice9WrapperImpl *pWrapperImpl_in)
 	{
-		if (pDevice_in != NULL)
+		if (pWrapperImpl_in != NULL)
 		{
 			RenderableMap::const_iterator LabelIt = m_UiElements.find(ID_in);
 			IRenderable *pRenderable = NULL;
@@ -158,7 +161,7 @@ namespace Windower
 				m_UiElements.erase(LabelIt);			
 			}
 
-			return (pDevice_in->RemoveRenderable(ID_in) && Result);
+			return (pWrapperImpl_in->RemoveRenderable(ID_in) && Result);
 		}
 
 		return false;
