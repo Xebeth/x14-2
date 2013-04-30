@@ -51,6 +51,9 @@ namespace Windower
 
 		bool IsPlayerLoggedIn() const;
 
+		DWORD MemoryScan(const std::string &Pattern_in,
+						 MemoryScanResult &Results_in_out);
+
 		// commands
 		bool Exit(std::string& Feedback_out);
 

@@ -335,10 +335,30 @@ namespace Windower
 	bool WindowerEngine::Exit(std::string& Feedback_out)
 	{
 		Feedback_out = "Exiting the game...";
+// 
+// 		// stop the engine thread
+// 		OnClose();
+// 
+// 		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
 
-		// stop the engine thread
 		OnClose();
+		m_pGraphicsCore->Detach();
+		
+		return true;
+	}
 
-		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
+	DWORD WindowerEngine::MemoryScan(const std::string &Pattern_in,
+									 MemoryScanResult &Results_in_out)
+	{
+		SigScan::SigScan &MemScan = m_HookManager.GetSigScan();
+		DWORD Result = 0UL;
+
+		if (MemScan.Initialize(m_dwPID, _T(SIGSCAN_GAME_PROCESSA)))
+		{
+			Result = MemScan.ScanMemory(Pattern_in, 0L, Results_in_out);
+			MemScan.Clear();
+		}
+
+		return Result;
 	}
 }

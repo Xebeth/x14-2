@@ -32,6 +32,9 @@
 
 using namespace UIAL;
 
+Direct3DDevice9WrapperImpl *g_pDeviceWrapperImpl = NULL;
+Direct3D9WrapperImpl *g_pDirect3DWrapper = NULL;
+
 namespace Windower
 {
 	/*! \brief GraphicsCore constructor
@@ -40,11 +43,9 @@ namespace Windower
 	*/
 	GraphicsCore::GraphicsCore(bool VSync_in)
 		: WindowerCore(_T(GRAPHICS_MODULE)), m_VSync(VSync_in), m_pLabelRenderer(NULL),
-		  m_pDirect3DWrapper(NULL), m_pDirect3DCreate9Trampoline(NULL),
-		  m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U), m_MouseOffsetX(0U),
-		  m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_pDeviceWrapperImpl(NULL),
-		  m_LabelHeight(0UL), m_LabelWidth (0UL), m_pDirect3DDevice(NULL),
-		  m_pWrapperImpl(NULL) {}
+		  m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U),
+		  m_MouseOffsetX(0U), m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_LabelHeight(0UL),
+		  m_LabelWidth (0UL), m_pDirect3DDevice(NULL) {}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -54,8 +55,8 @@ namespace Windower
 
 		for(; RenderableIt != EndIt; ++RenderableIt)
 		{
-			if (m_pDeviceWrapperImpl != NULL)
-				m_pDeviceWrapperImpl->RemoveRenderable(RenderableIt->first);
+			if (g_pDeviceWrapperImpl != NULL)
+				g_pDeviceWrapperImpl->RemoveRenderable(RenderableIt->first);
 
 			delete RenderableIt->second;
 		}
@@ -68,22 +69,21 @@ namespace Windower
 			m_pLabelRenderer = NULL;
 		}
 
-		if (m_pDeviceWrapperImpl != NULL)
+		Detach();
+	}
+
+	void GraphicsCore::Detach()
+	{
+		if (g_pDirect3DWrapper != NULL)
 		{
-			delete m_pDeviceWrapperImpl;
-			m_pDeviceWrapperImpl = NULL;
+			delete g_pDirect3DWrapper;
+			g_pDirect3DWrapper = NULL;
 		}
 
-		if (m_pDirect3DWrapper != NULL)
+		if (g_pDeviceWrapperImpl != NULL)
 		{
-			delete m_pDirect3DWrapper;
-			m_pDirect3DWrapper = NULL;
-		}
-
-		if (m_pDeviceWrapperImpl != NULL)
-		{
-			delete m_pDeviceWrapperImpl;
-			m_pDeviceWrapperImpl = NULL;
+			delete g_pDeviceWrapperImpl;
+			g_pDeviceWrapperImpl = NULL;
 		}
 	}
 
@@ -95,7 +95,7 @@ namespace Windower
 
 	bool GraphicsCore::Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in)
 	{
-		if (m_pDirect3DWrapper != NULL)
+		if (g_pDirect3DWrapper != NULL)
 		{
 			ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
@@ -108,7 +108,7 @@ namespace Windower
 				{
 					TextLabelService *pService = static_cast<TextLabelService*>(ServiceIt->second);
 
-					pService->SetRenderer(GetLabelRenderer(), m_pDirect3DDevice, m_pDeviceWrapperImpl);
+					pService->SetRenderer(GetLabelRenderer(), m_pDirect3DDevice, g_pDeviceWrapperImpl);
 
 					return pService->Invoke(Params_in);
 				}
@@ -132,14 +132,10 @@ namespace Windower
 
 			if (pDirect3D != NULL && m_SkipDeviceCount == 0)
 			{
-				IDirect3D9Wrapper *pDirect3DWrapper = new IDirect3D9Wrapper;
+				// create the wrapper implementation
+				g_pDirect3DWrapper = new Direct3D9WrapperImpl(pDirect3D, m_VSync, this);
 
-				m_pDirect3DWrapper = pDirect3DWrapper;
-				// subscribe for a pointer to the Direct3DDevice wrapper
-				m_pWrapperImpl = new Direct3D9WrapperImpl(m_VSync, this);
-				m_pDirect3DWrapper->SetImpl(m_pWrapperImpl, pDirect3D);
-
-				return pDirect3DWrapper;
+				return pDirect3D;
 			}
 			else
 				--m_SkipDeviceCount;
@@ -148,34 +144,45 @@ namespace Windower
 		return pDirect3D;
 	}
 
-	void GraphicsCore::OnDeviceCreate(const D3DPRESENT_PARAMETERS &PresentParams_in,
-									  IDirect3DDevice9Wrapper *pDeviceWrapper_in,									  
-									  IDirect3DDevice9 *pDevice_in)
+	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in)
 	{
 		m_pDirect3DDevice = pDevice_in;
 
 		// set the device implementation
-		if (pDevice_in != NULL && pDeviceWrapper_in != NULL && m_pDeviceWrapperImpl == NULL)
+		if (pDevice_in != NULL && g_pDeviceWrapperImpl == NULL)
 		{
-			m_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(PresentParams_in);
-			pDeviceWrapper_in->SetImpl(m_pDeviceWrapperImpl, pDevice_in);
+			// create the FPS counter
+			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
+													  _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
+			// draw once to force w/e ID3DXFont::DrawText does the first time
+			// (one of the side effect is resetting the vtable of the device)
+			pFPSLabel->Draw();
+			pFPSLabel->SetVisibile(false);
+			// create the device wrapper implementation
+			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams_in);
+			// add it to the list of renderables
+			g_pDeviceWrapperImpl->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
+			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
 		}
 		// try to restore Direct3D
-		if (m_pDirect3DWrapper != NULL)
-			m_pDirect3DWrapper->DestroyImpl();
+		if (g_pDirect3DWrapper != NULL)
+		{
+			delete g_pDirect3DWrapper;
+			g_pDirect3DWrapper = NULL;
+		}
 	}
 
 	//! \brief Switches on/off the rendering added by the windower
 	void GraphicsCore::ToggleRendering()
 	{
-		if (m_pDeviceWrapperImpl != NULL)
-			m_pDeviceWrapperImpl->ToggleRendering();
+		if (g_pDeviceWrapperImpl != NULL)
+			g_pDeviceWrapperImpl->ToggleRendering();
 	}
 
 	void GraphicsCore::SetRendering(bool bEnable_in)
 	{
-		if (m_pDeviceWrapperImpl != NULL)
-			m_pDeviceWrapperImpl->SetRendering(bEnable_in);
+		if (g_pDeviceWrapperImpl != NULL)
+			g_pDeviceWrapperImpl->SetRendering(bEnable_in);
 	}
 
 	TextLabelRenderer* GraphicsCore::GetLabelRenderer()
@@ -188,22 +195,13 @@ namespace Windower
 
 	void GraphicsCore::ToggleFPS()
 	{
-		if (m_pDeviceWrapperImpl != NULL)
+		if (g_pDeviceWrapperImpl != NULL)
 		{
 			RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_FPS);
-			UiTextLabel *pFPSLabel = NULL;
 
-			if (RenderableIt == m_UiElements.cend())
+			if (RenderableIt != m_UiElements.cend())
 			{
-				pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
-											 _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
-
-				m_pDeviceWrapperImpl->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
-				m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
-			}
-			else
-			{
-				pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
+				UiTextLabel *pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
 
 				if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
 					pFPSLabel->SetPos(-10L, 24L);

@@ -24,7 +24,6 @@ namespace Windower
 {
 
 	SystemCore::CallingContext *SystemCore::m_pContext = NULL;
-	WNDPROC SystemCore::m_pGameWndProc = NULL;
 
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : the windower engine
@@ -50,60 +49,21 @@ namespace Windower
 	DWORD WINAPI SystemCore::MainThreadStatic(LPVOID pParam_in_out)
 	{
 		if (m_pEngine != NULL)
-			m_pEngine->MainThread();
+		{
+			DWORD Result = m_pEngine->MainThread();
 
-		return 0UL;
+			// detach the DLL
+			::FreeLibraryAndExitThread((HMODULE)Result, 0UL);
+		}
+
+		return 0xFFFFFFFFUL;
 	}
 
 	//! \brief Restores the target WndProc
 	void SystemCore::RestoreWndProc()
 	{
-		if (m_pGameWndProc != NULL)
-		{
-			// remove the engine sub-classing procedure
-			RemoveWindowSubclass(m_hGameWnd, &SystemCore::SubclassProcHook, 0UL);
-			// restore the original game window procedure (this will kill any game sub-classing)
-			SetWindowLongPtr(m_hGameWnd, GWLP_WNDPROC, (LONG_PTR)m_pGameWndProc);
-			// reset the pointer to the game procedure
-			m_pGameWndProc = NULL;
-		}
-	}
-
-	/*! \brief Registers a window class
-			   Hooked to hijack the target process WndProc function
-		\param[in] pWndClass_in : pointer to a WNDCLASSEX structure
-		\return class atom that uniquely identifies the class being registered if successfuly; NULL otherwise
-	*/
-	ATOM WINAPI SystemCore::RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in)
-	{
-		ATOM Result = 0L;
-
-		if (m_pContext != NULL && m_pContext->m_pRegisterClassExATrampoline != NULL)
-		{
-			// replacing the pointer to the window procedure
-			WNDCLASSEXA *pWndClass = const_cast<WNDCLASSEXA *>(pWndClass_in);
-			bool Uninstall = false;
-
-			// check for the game class name
-			if (strcmp(pWndClass->lpszClassName, FFXIV_WINDOW_CLASSA) == 0)
-			{
-				Uninstall = true;
-				// save the original window procedure then replace it
-				m_pGameWndProc = pWndClass->lpfnWndProc;
-				pWndClass->lpfnWndProc = &SystemCore::WndProcHook;
-			}
-
-			Result = m_pContext->m_pRegisterClassExATrampoline(pWndClass);
-
-			if (Uninstall)
-			{
-				// remove the hook since it is no longer needed
-				m_pHookManager->UninstallHook("RegisterClassExA");
-				m_pHookManager->UnregisterHook("RegisterClassExA");
-			}
-		}
-
-		return Result;
+		// remove the engine sub-classing procedure
+		RemoveWindowSubclass(m_hGameWnd, &SystemCore::SubclassProcHook, 0UL);
 	}
 
 	/*! \brief Filters the message received by the game window
@@ -117,9 +77,13 @@ namespace Windower
 	{
 		switch (uMsg_in)
 		{
-			case WM_SIZE:
+			case WM_WINDOWPOSCHANGED:
 				if (m_pEngine != NULL)
-					m_pEngine->Graphics().SetWindowSize(LOWORD(lParam_in), HIWORD(lParam_in));
+				{
+					WINDOWPOS *pWindowPos = reinterpret_cast<WINDOWPOS*>(lParam_in);
+
+					m_pEngine->Graphics().SetWindowSize(pWindowPos->cx, pWindowPos->cy);
+				}
 			break;
 			case WM_LBUTTONDOWN:
 				if (m_pEngine != NULL && m_pEngine->Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
@@ -145,23 +109,6 @@ namespace Windower
 		}
 
 		return 0UL;
-	}
-
-	/*! \brief Processes messages sent to a window
-			   Hooked to intercept messages received by the game window
-		\param[in] hWnd_in : handle to the window
-		\param[in] uMsg_in : message
-		\param[in] wParam_in : additional message information
-		\param[in] lParam_in : additional message information
-	*/
-	LRESULT WINAPI SystemCore::WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in)
-	{
-		if (FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
-			return 0UL;
-		else if (m_pGameWndProc != NULL)
-			return m_pGameWndProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
-		else
-			return ::DefWindowProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
 	}
 
 	/*! \brief Processes messages sent to a sub-classed window
@@ -232,8 +179,6 @@ namespace Windower
 	*/
 	void SystemCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-		// register the RegisterClassExA hook
-		HookManager_in.RegisterHook("RegisterClassExA", "user32.dll", RegisterClassExA, &SystemCore::RegisterClassExAHook);
 		// register the SetWindowSubclass hook
 		HookManager_in.RegisterHook("SetWindowSubclass", "comctl32.dll", NULL, &SystemCore::SetWindowSubclassHook);
 	}
@@ -244,13 +189,11 @@ namespace Windower
 	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		fnSetWindowSubclass pSetWindowSubclassTrampoline = (fnSetWindowSubclass)HookManager_in.GetTrampolineFunc("SetWindowSubclass");
-		fnRegisterClassExA pRegisterClassExATrampoline = (fnRegisterClassExA)HookManager_in.GetTrampolineFunc("RegisterClassExA");
 
 		if (m_pContext == NULL)
 		{
 			// create the calling context
 			m_pContext = new CallingContext(pSetWindowSubclassTrampoline,
-											pRegisterClassExATrampoline,
 											m_hGameWnd, m_hMainThread);
 		}	
 	}

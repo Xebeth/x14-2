@@ -38,7 +38,7 @@ namespace UIAL
 			\param[in] Visible_in : flag specifying if the element is visible
 		*/
 		CUiElement(unsigned long ID_in, const string_t& Name_in, T X_in, T Y_in, T W_in, T H_in, bool Visible_in = true)
-			: m_ID(ID_in), m_Rect(X_in, Y_in, X_in + W_in, Y_in + H_in), m_Name(Name_in), m_Dirty(true), m_Visible(true) {}
+			: m_ID(ID_in), m_Rect(X_in, Y_in, X_in + W_in, Y_in + H_in), m_Name(Name_in), m_Dirty(true), m_Visible(Visible_in) {}
 
 		/*! \brief UiElement constructor
 			\param[in] ID_in : the ID of the element

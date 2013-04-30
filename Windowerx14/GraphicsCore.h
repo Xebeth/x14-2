@@ -35,9 +35,7 @@ namespace Windower
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
 
-		void OnDeviceCreate(const D3DPRESENT_PARAMETERS &PresentParams_in,
-							IDirect3DDevice9Wrapper *pDeviceWrapper_in,
-							IDirect3DDevice9 *pDevice_in);
+		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in);
 
 		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
 		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
@@ -58,20 +56,15 @@ namespace Windower
 
 		// Direct3D
 		IDirect3D9* Direct3DCreate9Hook(UINT SDKVersion_in);
+		void Detach();
 
 	protected:
 		TextLabelRenderer* GetLabelRenderer();
 
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
-		//! Direct3D9 device wrapper implementation
-		Direct3DDevice9WrapperImpl *m_pDeviceWrapperImpl;
-		//! Direct3D9 wrapper implementation
-		Direct3D9WrapperImpl *m_pWrapperImpl;
 		//! Direct3D device
 		IDirect3DDevice9 *m_pDirect3DDevice;
-		//! Direct3D9 wrapper
-		IDirect3D9Wrapper* m_pDirect3DWrapper;
 		//! number of devices to skip
 		unsigned int m_SkipDeviceCount;
 		//! flag specifying if vertical synchronization is in use

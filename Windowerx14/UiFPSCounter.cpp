@@ -48,7 +48,7 @@ namespace Windower
 		m_pRenderTimer->Update();
 
 		// retrieve the FPS counter and update the label
-		format(FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS() * 0.33333333f);
+		format(FPS, _T("%.2f fps"), m_pRenderTimer->GetFPS() * 0.333f);
 		SetTitleText(FPS);
 	}
 }
