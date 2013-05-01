@@ -174,9 +174,22 @@ BOOL LauncherApp::InitInstance()
 		}
 //#endif // _DEBUG
 
-		// create the process
-		InjectModule::CreateProcessEx(ExePath, ProcessInfo, pCmdLine,
-									  CreationFlags, DLL32Path.c_str());
+#ifdef _DEBUG
+		HANDLE hProcess = InjectModule::FindProcess(_T("ffxiv.exe"));
+
+		if (hProcess != NULL)
+		{
+			format(DLL32Path, _T("%s\\Windowerx14.dll"), DirPath);
+			InjectModule::InjectModule(hProcess, DLL32Path.c_str());
+			CloseHandle(hProcess);
+		}
+		else
+#endif // _DEBUG
+		{
+			// create the process
+			InjectModule::CreateProcessEx(ExePath, ProcessInfo, pCmdLine,
+										  CreationFlags, DLL32Path.c_str());
+		}
 	}
 	else
 	{

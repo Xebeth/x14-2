@@ -60,7 +60,7 @@ namespace Windower
 	}
 
 	//! \brief Restores the target WndProc
-	void SystemCore::RestoreWndProc()
+	void SystemCore::Detach()
 	{
 		// remove the engine sub-classing procedure
 		RemoveWindowSubclass(m_hGameWnd, &SystemCore::SubclassProcHook, 0UL);
@@ -143,6 +143,13 @@ namespace Windower
 			{
 				switch(wParam_in)
 				{
+#ifdef _DEBUG
+					case VK_F4:
+						m_pEngine->OnClose();
+
+						return 1UL;
+					break;
+#endif // _DEBUG
 					case VK_F10:
 						m_pEngine->Graphics().ToggleRendering();
 				

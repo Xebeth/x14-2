@@ -41,6 +41,9 @@ namespace Windower
 		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		~WindowerEngine();
 
+		bool Attach();
+		bool Detach();
+
 		// thread safety
 		inline bool UnlockEngineThread();
 		inline void LockEngineThread();
@@ -85,9 +88,6 @@ namespace Windower
 		const WindowerProfile& Settings() const { return m_Settings; }
 
 	private:
-		bool Attach();
-		bool Detach();
-
 		bool InitializePlugins();
 		void InitializeEngine();
 		void UpdateEngine();

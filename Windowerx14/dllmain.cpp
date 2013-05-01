@@ -33,6 +33,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 			Sleep(5000);
 #endif // _DEBUG
 			g_pEngine = new Windower::WindowerEngine(hModule_in, _T("config.ini"));
+			g_pEngine->Attach();
 		}
 	}
 	else if (dwReason_in == DLL_PROCESS_DETACH) 
@@ -40,7 +41,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 		if (g_pEngine != NULL)
 		{
 			// stop the engine thread
-			g_pEngine->ShutdownEngine();
+			g_pEngine->OnClose();
 			// cleanup
 			delete g_pEngine;
 			g_pEngine = NULL;

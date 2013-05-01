@@ -39,7 +39,7 @@ namespace Windower
 		SystemCore();
 		~SystemCore();
 
-		void RestoreWndProc();
+		void Detach();
 
 		/*! \brief Retrieves the handle to the game window
 			\return the handle to the game window

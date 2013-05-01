@@ -78,8 +78,6 @@ namespace Windower
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 		}
-		// install the hooks
-		Attach();
 	}
 
 	/*! \brief WindowerEngine destructor */
@@ -212,9 +210,11 @@ namespace Windower
 	*/
 	bool WindowerEngine::Detach()
 	{
+		if (m_pGraphicsCore != NULL)
+			m_pGraphicsCore->Detach();
 		// restore the window procedures
 		if (m_pSystemCore != NULL)
-			m_pSystemCore->RestoreWndProc();
+			m_pSystemCore->Detach();
 		// unregister the hooks and uninstall the plugins (in this order)
 		m_HookManager.Shutdown();
 
@@ -223,8 +223,14 @@ namespace Windower
 
 	void WindowerEngine::OnClose()
 	{
+		// >>> Critical section
+		LockEngineThread();
+
 		// terminate the engine thread
 		m_bShutdown = true;
+
+		UnlockEngineThread();
+		// Critical section <<<
 	}
 
 
@@ -276,30 +282,6 @@ namespace Windower
 		}
 	}
 
-	void WindowerEngine::ShutdownEngine()
-	{
-		// check if the main thread is still running
-		if (m_bShutdown == false)
-		{
-			// stop the engine thread
-			OnClose();
-			// wait for the main thread to terminate
-			if (m_pSystemCore != NULL)
-			{
-				HANDLE hThread = m_pSystemCore->GetMainThreadHandle();
-
-				if (hThread != NULL)
-				{
-					DWORD dwThreadExitCode = 0UL, dwWaitResult = WaitForSingleObject(hThread, 500);
-
-					if (dwWaitResult != WAIT_OBJECT_0 || GetExitCodeThread(hThread, &dwThreadExitCode) == FALSE || dwThreadExitCode == 0UL)
-						Detach();
-				}
-			}
-		}
-	}
-
-
 	//! \brief Initializes the engine
 	void WindowerEngine::InitializeEngine()
 	{
@@ -335,16 +317,11 @@ namespace Windower
 	bool WindowerEngine::Exit(std::string& Feedback_out)
 	{
 		Feedback_out = "Exiting the game...";
-// 
-// 		// stop the engine thread
-// 		OnClose();
-// 
-// 		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
 
+		// stop the engine thread
 		OnClose();
-		m_pGraphicsCore->Detach();
-		
-		return true;
+
+		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
 	}
 
 	DWORD WindowerEngine::MemoryScan(const std::string &Pattern_in,

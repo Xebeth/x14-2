@@ -144,13 +144,28 @@ namespace Windower
 		return pDirect3D;
 	}
 
-	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in)
+	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in)
 	{
 		m_pDirect3DDevice = pDevice_in;
 
 		// set the device implementation
 		if (pDevice_in != NULL && g_pDeviceWrapperImpl == NULL)
 		{
+			D3DPRESENT_PARAMETERS PresentParams;
+
+			if (pPresentParams_in != NULL)
+			{
+				PresentParams = *pPresentParams_in;
+			}
+			else if (m_VSync)
+			{
+				// only these matter, they are used to overwrite
+				// the parameters during IDirect3DDevice9::Reset()
+				PresentParams.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+				PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+				PresentParams.BackBufferCount = 2;
+			}
+
 			// create the FPS counter
 			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
 													  _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
@@ -159,7 +174,7 @@ namespace Windower
 			pFPSLabel->Draw();
 			pFPSLabel->SetVisibile(false);
 			// create the device wrapper implementation
-			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams_in);
+			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
 			// add it to the list of renderables
 			g_pDeviceWrapperImpl->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
 			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;

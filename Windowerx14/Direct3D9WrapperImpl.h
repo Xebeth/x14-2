@@ -95,7 +95,7 @@ public:
 	~Direct3D9WrapperImpl();
 	
 	void ForceVSync(D3DPRESENT_PARAMETERS &PresentationParameters_in_out) const;
-	void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in) const;
+	void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in) const;
 
 private:
 	void PatchVTable(bool bRestore_in);

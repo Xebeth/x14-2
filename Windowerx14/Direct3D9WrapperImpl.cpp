@@ -68,8 +68,8 @@ void Direct3D9WrapperImpl::ForceVSync(D3DPRESENT_PARAMETERS &PresentationParamet
 	}
 }
 
-void Direct3D9WrapperImpl::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in) const
+void Direct3D9WrapperImpl::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in) const
 {
 	if (m_pSubscriber != NULL)
-		m_pSubscriber->OnDeviceCreate(pDevice_in, PresentParams_in);
+		m_pSubscriber->OnDeviceCreate(pDevice_in, pPresentParams_in);
 }

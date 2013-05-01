@@ -35,7 +35,7 @@ namespace Windower
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
 
-		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in);
+		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in);
 
 		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
 		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
