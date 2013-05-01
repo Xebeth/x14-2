@@ -25,9 +25,6 @@ IPlugin PIMPL?
 
 @TODO:
 
-*	Code
-Rebase all the DLLs *AFTER* the whole game image
-
 *	UI/PR
 Rebranding to drop any mention of windower
 
