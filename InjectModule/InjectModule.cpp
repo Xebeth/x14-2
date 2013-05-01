@@ -6,6 +6,8 @@
 	purpose		:	DLL Injection
 **************************************************************************/
 #include "stdafx.h"
+#include <tlhelp32.h>
+
 #include "InjectModule.h"
 
 namespace InjectModule
@@ -35,55 +37,17 @@ namespace InjectModule
 		// Create the target process
 		//
 
-		if ((Result = CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out, CreateProcessFlags_in)) && pDllPath_in != NULL)
+		if (CreateSuspendedProcess(ExePath_in, ProcessInfo_out, pCmdLine_in_out, CreateProcessFlags_in)
+		 && InjectModule(ProcessInfo_out.hProcess, pDllPath_in))
 		{
-			////////////////////////////////////////////////////////////////////
-			// Inject the DLL by creating a thread in the target process
-			// 
-			SIZE_T DataSize = (_tcslen(pDllPath_in) + 1) * sizeof(TCHAR);
-			SIZE_T DataWritten = 0;
-			HANDLE hThread = NULL;
-			DWORD RetCode = 0UL;
-			// allocate enough space in the target process to hold the path to the DLL
-			LPVOID pReservedSpace = VirtualAllocEx(ProcessInfo_out.hProcess, NULL, DataSize,
-												   MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-			if (pReservedSpace != NULL)
-			{
-				// write the path to the DLL in the memory of the target process
-				if (WriteProcessMemory(ProcessInfo_out.hProcess, pReservedSpace, pDllPath_in, DataSize, &DataWritten))
-				{
-					// create a remote thread in the target process executing LoadLibrary
-					// with the path of the DLL as its parameter (this will attach the DLL)
-					hThread = CreateRemoteThread(ProcessInfo_out.hProcess, NULL, 0,
-												 (LPTHREAD_START_ROUTINE)LoadLibraryW,
-												 pReservedSpace, 0, NULL);
-
-					if (hThread != NULL)
-					{
-						// wait for the thread to terminate
-						RetCode = WaitForSingleObject(hThread, INFINITE);
-						CloseHandle(hThread);
-					}
-				}
-
-				if (RetCode == WAIT_OBJECT_0)
-				{
-					if (GetExitCodeThread(hThread, &RetCode) && FAILED(RetCode))
-					{
-						SetLastError(RetCode & 0x0FFFFFFF);
-					}
-				}
-
-				// free the memory allocated in the target process
-				VirtualFreeEx(ProcessInfo_out.hProcess, pReservedSpace, DataSize, MEM_COMMIT);
-			}
+			// resume the process execution
+			Result = (ResumeThread(ProcessInfo_out.hThread) != -1);	
 		}
-
-		////////////////////////////////////////////////////////////////////////////
-		// Resume the target process
-		// 
-		if (Result)
-			Result = (ResumeThread(ProcessInfo_out.hThread) != -1);
+		else
+		{
+			// terminate the process
+			Result = !TerminateProcess(ProcessInfo_out.hProcess, 0xFFFFFFFFU);
+		}
 
 		////////////////////////////////////////////////////////////////////////////
 		// Cleanup
@@ -165,5 +129,100 @@ namespace InjectModule
 		}
 
 		return hRemoteThread;
+	}
+
+	/*! \brief Injects a DLL by creating a thread in the target process
+		\param[in] hProcess_in : the handle of the process to inject into
+		\param[in] pDllPath_in : the path of the DLL to inject
+	*/
+	BOOL InjectModule(HANDLE hProcess_in, const TCHAR *pDllPath_in)
+	{
+		if (hProcess_in != NULL && pDllPath_in != NULL)
+		{
+			////////////////////////////////////////////////////////////////////
+			// Inject the DLL by creating a thread in the target process
+			// 
+			SIZE_T DataSize = (_tcslen(pDllPath_in) + 1) * sizeof(TCHAR);
+			SIZE_T DataWritten = 0;
+			HANDLE hThread = NULL;
+			DWORD RetCode = 0UL;
+			// allocate enough space in the target process to hold the path to the DLL
+			LPVOID pReservedSpace = VirtualAllocEx(hProcess_in, NULL, DataSize,
+												   MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+			if (pReservedSpace != NULL)
+			{
+				// write the path to the DLL in the memory of the target process
+				if (WriteProcessMemory(hProcess_in, pReservedSpace, pDllPath_in, DataSize, &DataWritten))
+				{
+					// create a remote thread in the target process executing LoadLibrary
+					// with the path of the DLL as its parameter (this will attach the DLL)
+					hThread = CreateRemoteThread(hProcess_in, NULL, 0,
+												 (LPTHREAD_START_ROUTINE)LoadLibraryW,
+												 pReservedSpace, 0, NULL);
+
+					if (hThread != NULL)
+					{
+						// wait for the thread to terminate
+						RetCode = WaitForSingleObject(hThread, INFINITE);
+						CloseHandle(hThread);
+					}
+				}
+
+				if (RetCode == WAIT_OBJECT_0)
+				{
+					if (GetExitCodeThread(hThread, &RetCode) && FAILED(RetCode))
+					{
+						SetLastError(RetCode & 0x0FFFFFFF);
+
+						return FALSE;
+					}
+				}
+
+				// free the memory allocated in the target process
+				VirtualFreeEx(hProcess_in, pReservedSpace, DataSize, MEM_COMMIT);
+
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+	/*! \brief Finds the handle of a process given an executable name
+		\param[in] pProcessExe_in : the name of the executable
+		\return the process handle if found; NULL otherwise
+	*/
+	HANDLE FindProcess(const TCHAR *pProcessExe_in)
+	{
+		HANDLE Result = NULL;
+
+		if (pProcessExe_in != NULL)
+		{
+			PROCESSENTRY32 uProcess;
+
+			ZeroMemory(&uProcess, sizeof(uProcess));
+			uProcess.dwSize = sizeof(uProcess); 
+
+			// create a snapshot of modules and iterate the list
+			HANDLE hModuleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+			BOOL bContinue = Process32First(hModuleSnapshot, &uProcess);
+
+			// walk through the process list
+			while(bContinue)
+			{
+				if(_tcsicmp(uProcess.szExeFile, pProcessExe_in) == 0)
+				{
+					Result = OpenProcess(PROCESS_ALL_ACCESS, FALSE, uProcess.th32ProcessID);
+					break;
+				}
+
+				bContinue = Process32Next(hModuleSnapshot, &uProcess);
+			}
+
+			CloseHandle(hModuleSnapshot);
+		}
+
+		return Result;
 	}
 }
