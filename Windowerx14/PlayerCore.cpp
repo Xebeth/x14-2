@@ -7,8 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "PlayerDataHook.h"
-
 #include "WindowerCore.h"
 #include "PlayerCore.h"
 
@@ -18,15 +16,25 @@
 
 namespace Windower
 {
+	PlayerCore::CallingContext * PlayerCore::m_pContext = NULL;
+
 	/*! \brief PlayerCore constructor
 		\param[in,out] Engine_in_out : Windower engine
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
 	PlayerCore::PlayerCore()
 		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL),
-		  m_pCharMgrInitTrampoline(NULL), m_pPlayerDataService(NULL), 
-		  m_pPlayerTarget(NULL), m_pGetTargetTrampoline(NULL),
-		  m_pDestroySingletonsTrampoline(NULL) {}
+		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL) {}
+
+	//! \brief PlayerCore destructor
+	PlayerCore::~PlayerCore()
+	{
+		if (m_pContext != NULL)
+		{
+			delete m_pContext;
+			m_pContext = NULL;
+		}
+	}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
@@ -35,15 +43,15 @@ namespace Windower
 	{
 		// register the character manager initialization hook
 		m_pHookManager->RegisterHook(INIT_CHARACTER_MGR_HOOK, SIGSCAN_GAME_PROCESSA, INIT_CHARACTER_MGR_OPCODES_SIGNATURE,
-									 INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, ::CharacterMgrInitHook,
+									 INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, &PlayerCore::CharacterMgrInitHook,
 									 INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE);
 		// register the selected target hook
 		m_pHookManager->RegisterHook(GET_SELECTED_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, GET_SELECTED_TARGET_OPCODES_SIGNATURE,
-									 GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, ::GetSelectedTargetHook,
+									 GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, &PlayerCore::GetSelectedTargetHook,
 									 GET_SELECTED_TARGET_OPCODES_HOOK_SIZE);
 		// register the destroy singletons hook
 		m_pHookManager->RegisterHook(DESTROY_SINGLETONS_HOOK, SIGSCAN_GAME_PROCESSA, DESTROY_SINGLETONS_OPCODES_SIGNATURE,
-									 DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET, ::DestroySingletonsHook,
+									 DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET, &PlayerCore::DestroySingletonsHook,
 									 DESTROY_SINGLETONS_OPCODES_HOOK_SIZE);
 	}
 
@@ -61,20 +69,27 @@ namespace Windower
 	*/
 	void PlayerCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
-		m_pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
-		m_pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
+		fnDestroySingletons pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
+		fnCharacterMgrInit pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
+		fnGetSelectedTarget pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
+
+		if (m_pContext == NULL)
+		{
+			m_pContext = new CallingContext(pDestroySingletonsTrampoline,
+											pCharMgrInitTrampoline,
+											pGetTargetTrampoline,
+											m_pPlayerDataService,
+											m_pPlayerTarget, m_pPlayerAddr);
+		}
 	}
 
 	int PlayerCore::DestroySingletonsHook(LPVOID pThis)
 	{
-		// clear any saved player data
-		Clear();
 		// shutdown the main thread
 		m_pEngine->OnClose();
 
-		if (m_pDestroySingletonsTrampoline != NULL)
-			return m_pDestroySingletonsTrampoline(pThis);
+		if (m_pContext != NULL && m_pContext->m_pDestroySingletonsTrampoline != NULL)
+			return m_pContext->m_pDestroySingletonsTrampoline(pThis);
 
 		return 0;
 	}
@@ -83,18 +98,18 @@ namespace Windower
 	{
 		int Result = 0;
 
-		if (m_pCharMgrInitTrampoline != NULL)
+		if (m_pContext != NULL && m_pContext->m_pCharMgrInitTrampoline != NULL)
 		{
 			// >>> Critical section
 			m_pEngine->LockEngineThread();
 
-			Result = m_pCharMgrInitTrampoline(pThis_in_out);
-			m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
+			Result = m_pContext->m_pCharMgrInitTrampoline(pThis_in_out);
+			m_pContext->m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
 
-			if (m_pPlayerDataService != NULL && m_pPlayerAddr != NULL)
+			if (m_pContext->m_pPlayerDataService != NULL && m_pContext->m_pPlayerAddr != NULL)
 			{
-				TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
-				m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
+				TargetData *pPlayerData = *(TargetData**)m_pContext->m_pPlayerAddr;
+				m_pContext->m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
 			}
 
 			m_pEngine->UnlockEngineThread();
@@ -106,26 +121,34 @@ namespace Windower
 
 	TargetData* PlayerCore::GetSelectedTargetHook(LPVOID pThis)
 	{
-		TargetData *pPreviousTarget = m_pPlayerTarget;
-
-		m_pPlayerTarget = m_pGetTargetTrampoline(pThis);
-
-		if (m_pPlayerTarget != pPreviousTarget && m_pPlayerDataService != NULL)
-			m_pPlayerDataService->OnTargetPtrChange(m_pPlayerTarget);
-
-		return m_pPlayerTarget;
-	}
-
-	void PlayerCore::Clear()
-	{
-		if (m_pPlayerDataService != NULL)
+		if (m_pContext != NULL)
 		{
-			m_pPlayerDataService->OnTargetPtrChange(NULL);
-			m_pPlayerDataService->OnPlayerPtrChange(NULL);
+			TargetData *pPreviousTarget = m_pContext->m_pPlayerTarget;
+
+			m_pContext->m_pPlayerTarget = m_pContext->m_pGetTargetTrampoline(pThis);
+
+			if (m_pContext->m_pPlayerTarget != pPreviousTarget && m_pContext->m_pPlayerDataService != NULL)
+				m_pContext->m_pPlayerDataService->OnTargetPtrChange(m_pContext->m_pPlayerTarget);
+
+			return m_pContext->m_pPlayerTarget;
 		}
 
-		m_pPlayerTarget = NULL;
-		m_pPlayerAddr = NULL;		
+		return NULL;
+	}
+
+	void PlayerCore::Detach()
+	{
+		if (m_pContext != NULL)
+		{
+			if (m_pContext->m_pPlayerDataService != NULL)
+			{
+				m_pContext->m_pPlayerDataService->OnTargetPtrChange(NULL);
+				m_pContext->m_pPlayerDataService->OnPlayerPtrChange(NULL);
+			}
+
+			m_pContext->m_pPlayerTarget = NULL;
+			m_pContext->m_pPlayerAddr = NULL;
+		}
 	}
 
 	bool PlayerCore::IsLoggedIn() const

@@ -158,7 +158,6 @@
     <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
     <ClCompile Include="ModuleService.cpp" />
     <ClCompile Include="PlayerCore.cpp" />
-    <ClCompile Include="PlayerDataHook.cpp" />
     <ClCompile Include="PlayerDataService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -201,7 +200,6 @@
     <ClInclude Include="IRenderable.h" />
     <ClInclude Include="ModuleService.h" />
     <ClInclude Include="PlayerCore.h" />
-    <ClInclude Include="PlayerDataHook.h" />
     <ClInclude Include="PlayerDataService.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringNode.h" />

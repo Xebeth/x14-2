@@ -29,16 +29,16 @@ namespace Windower
 
 	PluginEngine::~PluginEngine()
 	{
-		if (m_pPluginServices != NULL)
-		{
-			delete m_pPluginServices;
-			m_pPluginServices = NULL;
-		}
-
 		if (m_pPluginManager != NULL)
 		{
 			delete m_pPluginManager;
 			m_pPluginManager = NULL;
+		}
+
+		if (m_pPluginServices != NULL)
+		{
+			delete m_pPluginServices;
+			m_pPluginServices = NULL;
 		}
 	}
 

@@ -41,7 +41,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 		if (g_pEngine != NULL)
 		{
 			// stop the engine thread
-			g_pEngine->OnClose();
+			g_pEngine->Detach();
 			// cleanup
 			delete g_pEngine;
 			g_pEngine = NULL;

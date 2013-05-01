@@ -10,7 +10,6 @@
 #include "WindowerEngine.h"
 
 #include "WndHook.h"
-#include "PlayerDataHook.h"
 #include "Direct3D9Hook.h"
 
 #ifdef _DEBUG
@@ -210,6 +209,10 @@ namespace Windower
 	*/
 	bool WindowerEngine::Detach()
 	{
+		// clear all the player data
+		if (m_pPlayerCore != NULL)
+			m_pPlayerCore->Detach();
+		// restore the vtables of the Direct3D objects
 		if (m_pGraphicsCore != NULL)
 			m_pGraphicsCore->Detach();
 		// restore the window procedures

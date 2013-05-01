@@ -24,37 +24,73 @@
 
 #define PLAYER_DATA_OFFSET								0x1B8
 
+#define DESTROY_SINGLETONS_HOOK "DestroySingletons"
+
 namespace Windower
 {
 	typedef struct _TargetData TargetData;
 	class PlayerDataService;
 	class WindowerEngine;
+
+	// int __thiscall sub_86B2D0(int this) ; CharacterMgrInit
+	typedef int (WINAPI *fnCharacterMgrInit)(LPVOID pThis);
+	// int __thiscall sub_69C130(int this) ; GetSelectedTarget
+	typedef TargetData* (WINAPI *fnGetSelectedTarget)(LPVOID pThis);
+	// int __thiscall sub_7B4B60(int this) ; DestroySingletons
+	typedef int (WINAPI *fnDestroySingletons)(LPVOID pThis);
 	
 	class PlayerCore : public WindowerCore
 	{
+		class CallingContext
+		{
+		public:
+			CallingContext(fnDestroySingletons pfnDestroySingletons_in,
+						   fnCharacterMgrInit pfnCharMgrInit_in,
+						   fnGetSelectedTarget pfnGetTarget_in,
+						   PlayerDataService *&pPlayerDataService_in,
+						   TargetData *&pPlayerTarget_in, DWORD *&pPlayerAddr_in)
+				: m_pDestroySingletonsTrampoline(pfnDestroySingletons_in),
+				  m_pCharMgrInitTrampoline(pfnCharMgrInit_in),
+				  m_pGetTargetTrampoline(pfnGetTarget_in),
+				  m_pPlayerDataService(pPlayerDataService_in), 
+				  m_pPlayerTarget(pPlayerTarget_in), m_pPlayerAddr(pPlayerAddr_in) {}
+
+			fnDestroySingletons m_pDestroySingletonsTrampoline;
+			fnCharacterMgrInit m_pCharMgrInitTrampoline;
+			fnGetSelectedTarget m_pGetTargetTrampoline;
+
+			//! player data service
+			PlayerDataService *&m_pPlayerDataService;
+			//! player target data structure
+			TargetData *&m_pPlayerTarget;
+			//! address of the player data structure
+			DWORD *&m_pPlayerAddr;
+		};
+
 	public:
 		PlayerCore();
+		~PlayerCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterServices();
+		static void Detach();
 
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
-		TargetData* GetSelectedTargetHook(LPVOID pThis);
-		int CharacterMgrInitHook(LPVOID pThis_in_out);
-		int DestroySingletonsHook(LPVOID pThis);
+		static TargetData* WINAPI GetSelectedTargetHook(LPVOID pThis);
+		static int WINAPI CharacterMgrInitHook(LPVOID pThis_in_out);
+		static int WINAPI DestroySingletonsHook(LPVOID pThis);
 
 		bool IsLoggedIn() const;
 
 	private:
 		void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in);
-		void Clear();
-
-		fnDestroySingletons m_pDestroySingletonsTrampoline;
-		fnCharacterMgrInit m_pCharMgrInitTrampoline;
-		fnGetSelectedTarget m_pGetTargetTrampoline;
+		
+		//! calling context for the module hooks
+		static CallingContext *m_pContext;
+		//! player data service
 		PlayerDataService *m_pPlayerDataService;
 		//! player target data structure
 		TargetData *m_pPlayerTarget;

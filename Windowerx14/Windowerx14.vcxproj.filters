@@ -49,9 +49,6 @@
     <Filter Include="Windower\Modules\Test\Hooks">
       <UniqueIdentifier>{82c85d27-384a-423a-88ba-1289f916dae9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Modules\PlayerData\Hooks">
-      <UniqueIdentifier>{57b88b52-7371-417a-a3fa-1f8711bc45d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Graphics\Hooks">
       <UniqueIdentifier>{28edd536-40a6-4e87-b327-3edfc532f153}</UniqueIdentifier>
     </Filter>
@@ -120,9 +117,6 @@
     </ClCompile>
     <ClCompile Include="TestHook.cpp">
       <Filter>Windower\Modules\Test\Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerDataHook.cpp">
-      <Filter>Windower\Modules\PlayerData\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="Direct3D9Hook.cpp">
       <Filter>Windower\Modules\Graphics\Hooks</Filter>
@@ -212,9 +206,6 @@
     </ClInclude>
     <ClInclude Include="TestHook.h">
       <Filter>Windower\Modules\Test\Hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerDataHook.h">
-      <Filter>Windower\Modules\PlayerData\Hooks</Filter>
     </ClInclude>
     <ClInclude Include="Direct3D9Hook.h">
       <Filter>Windower\Modules\Graphics\Hooks</Filter>
