@@ -20,7 +20,7 @@ namespace Windower
 	class WindowerEngine;
 
 	//! \brief Core module used for Win32 API hooking
-	class SystemCore : public WindowerCore
+	class SystemCore : public WindowerCore, public EventHandler
 	{
 	public:
 		SystemCore();
@@ -30,7 +30,7 @@ namespace Windower
 		/*! \brief Retrieves the handle to the game window
 			\return the handle to the game window
 		*/
-		HWND GameHWND() const { return m_hGameWnd; }
+		HWND GameHWND() const { return m_hWnd; }
 		/*! \brief Retrieves the handle to the engine thread
 			\return the handle to the engine thread
 		*/
@@ -51,8 +51,6 @@ namespace Windower
 
 		//! hook to sub class over the game sub-classing
 		fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
-		//! the handle to the game window
-		HWND m_hGameWnd;
 		//! Engine thread handle
 		HANDLE m_hMainThread;
 		//! calling context for the module hooks

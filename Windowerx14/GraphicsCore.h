@@ -26,7 +26,7 @@ namespace Windower
 	class WindowerEngine;
 	class UiTextLabel;
 	
-	class GraphicsCore : public WindowerCore, public IDeviceCreateSubscriber
+	class GraphicsCore : public WindowerCore, public IEventInterface, public IDeviceCreateSubscriber
 	{
 		enum eStaticLabels
 		{
@@ -45,13 +45,12 @@ namespace Windower
 
 		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in);
 
-		bool OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
-		bool OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
-		bool OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in);
-		void SetWindowSize(WORD Width_in, WORD Height_in);
+		LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
+		LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
+		LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
+		LRESULT OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in);
+		LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in);
 		UiTextLabel* HitTest(WORD X_in, WORD Y_in);
-
-		bool IsMouseCaptured() const;
 
 		void SetRendering(bool bEnable_in);
 		bool RegisterServices();

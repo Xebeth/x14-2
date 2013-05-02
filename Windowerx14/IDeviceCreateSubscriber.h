@@ -10,7 +10,6 @@
 
 typedef struct _D3DPRESENT_PARAMETERS_ D3DPRESENT_PARAMETERS;
 typedef struct IDirect3DDevice9 IDirect3DDevice9;
-class IDirect3DDevice9Wrapper;
 
 class IDeviceCreateSubscriber
 {

@@ -12,6 +12,9 @@
 #include "IRenderable.h"
 #include "IDeviceCreateSubscriber.h"
 
+#include "IEventInterface.h"
+#include "EventHandler.h"
+
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
 #include "GameChatCore.h"
@@ -69,6 +72,8 @@ namespace Windower
 			m_pPlayerCore = new PlayerCore;
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
+			// add the graphics core as an event handler
+			m_pSystemCore->AddUIH(m_pGraphicsCore);
 		}
 	}
 

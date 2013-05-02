@@ -150,6 +150,7 @@
     <ClCompile Include="Direct3D9WrapperImpl.cpp" />
     <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FormatChatMsgService.cpp" />
     <ClCompile Include="GameChatCore.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="CommandParser.h" />
     <ClInclude Include="Direct3D9WrapperImpl.h" />
     <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
+    <ClInclude Include="EventHandler.h" />
     <ClInclude Include="IDeviceCreateSubscriber.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FormatChatMsgService.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
+    <ClInclude Include="IEventInterface.h" />
     <ClInclude Include="IRenderable.h" />
     <ClInclude Include="ModuleService.h" />
     <ClInclude Include="PlayerCore.h" />

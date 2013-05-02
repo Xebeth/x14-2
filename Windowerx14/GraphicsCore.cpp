@@ -13,6 +13,7 @@
 
 #include "Font.h"
 #include "IRenderable.h"
+#include "IEventInterface.h"
 #include "IDirect3D9Wrapper.h"
 #include "Direct3D9WrapperImpl.h"
 #include "IDeviceCreateSubscriber.h"
@@ -267,16 +268,18 @@ namespace Windower
 		return new TextLabelService(ServiceName_in, m_UiElements, GFX_TEXT_COUNT, InvokePermission_in);
 	}
 
-	void GraphicsCore::SetWindowSize(WORD Width_in, WORD Height_in)
+	LRESULT GraphicsCore::OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in)
 	{
-		m_Height = Height_in;
-		m_Width = Width_in;
+		m_Height = NewHeight_in;
+		m_Width = NewWidth_in;
 
 		if (m_pLabelRenderer != NULL)
-			m_pLabelRenderer->SetWindowSize(Width_in, Height_in);
+			m_pLabelRenderer->SetWindowSize(NewWidth_in, NewHeight_in);
+
+		return IEventInterface::EVENT_IGNORED;
 	}
 
-	bool GraphicsCore::OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT GraphicsCore::OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
 	{
 		if (m_pMovingLabel != NULL)
 		{
@@ -295,10 +298,10 @@ namespace Windower
 
 			m_pMovingLabel->SetPos(PosX, PosY);
 
-			return true;
+			return IEventInterface::EVENT_PROCESSED;
 		}
 
-		return false;
+		return IEventInterface::EVENT_IGNORED;
 	}
 
 	UiTextLabel* GraphicsCore::HitTest(WORD X_in, WORD Y_in)
@@ -321,16 +324,18 @@ namespace Windower
 		return pResult;
 	}
 
-	bool GraphicsCore::OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT GraphicsCore::OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
 	{
-		bool Result = (m_pMovingLabel != NULL);
+		LRESULT Result = (m_pMovingLabel != NULL)
+					   ? IEventInterface::EVENT_PROCESSED
+					   : IEventInterface::EVENT_IGNORED;
 
 		m_pMovingLabel = NULL;
 
 		return Result;
 	}
 
-	bool GraphicsCore::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT GraphicsCore::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
 	{
 		m_pMovingLabel = HitTest(X_in, Y_in);
 
@@ -344,14 +349,34 @@ namespace Windower
 			m_MouseOffsetX = LabelX - X_in;
 			m_MouseOffsetY = LabelY - Y_in;
 
-			return true;
+			return IEventInterface::EVENT_PROCESSED;
 		}
 
-		return false;
+		return IEventInterface::EVENT_IGNORED;
 	}
 
-	bool GraphicsCore::IsMouseCaptured() const
+	LRESULT GraphicsCore::OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in)
 	{
-		return (m_pMovingLabel != NULL);
+		switch (PressedChar_in)
+		{
+			case VK_F10:
+				ToggleRendering();
+				
+				return IEventInterface::EVENT_PROCESSED; // filtered
+			break;
+			case VK_F11:
+				SetRendering(false);
+				::ShowWindow(m_hWnd, SW_MINIMIZE);
+				
+				return IEventInterface::EVENT_PROCESSED; // filtered
+			break;
+			case VK_F12:
+				ToggleFPS();
+				
+				return IEventInterface::EVENT_PROCESSED; // filtered
+			break;
+		}
+
+		return IEventInterface::EVENT_IGNORED;
 	}
 }

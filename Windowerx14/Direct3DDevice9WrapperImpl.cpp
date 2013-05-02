@@ -28,6 +28,8 @@ Direct3DDevice9WrapperImpl::Direct3DDevice9WrapperImpl(IDirect3DDevice9 *pDevice
 
 Direct3DDevice9WrapperImpl::~Direct3DDevice9WrapperImpl()
 {
+	// disable rendering
+	m_bRender = false;
 	m_bDrawUi = false;
 	// restore the vtable
 	PatchVTable(true);

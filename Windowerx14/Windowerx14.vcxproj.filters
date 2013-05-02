@@ -52,6 +52,9 @@
     <Filter Include="Windower\Modules\Graphics\UI">
       <UniqueIdentifier>{bb2012f0-9053-4529-b916-e9a7f0166be2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Windower\Modules\System\Events">
+      <UniqueIdentifier>{884a1870-3e0b-4e2a-96c2-3072416304a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -129,6 +132,9 @@
     </ClCompile>
     <ClCompile Include="Direct3D9WrapperImpl.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandler.cpp">
+      <Filter>Windower\Modules\System\Events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="Direct3D9WrapperImpl.h">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="IEventInterface.h">
+      <Filter>Windower\Modules\System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandler.h">
+      <Filter>Windower\Modules\System\Events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

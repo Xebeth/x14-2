@@ -13,6 +13,9 @@
 #include "IRenderable.h"
 #include "IDeviceCreateSubscriber.h"
 
+#include "IEventInterface.h"
+#include "EventHandler.h"
+
 #include "WindowerCore.h"
 #include "GraphicsCore.h"
 #include "SystemCore.h"
@@ -26,8 +29,7 @@ namespace Windower
 		\param[in,out] pEngine : the windower engine
 	*/
 	SystemCore::SystemCore()
-		: WindowerCore(_T(SYSTEM_MODULE)),
-		  m_hGameWnd(NULL), m_hMainThread(NULL),
+		: WindowerCore(_T(SYSTEM_MODULE)), m_hMainThread(NULL),
 		  m_pSetWindowSubclassTrampoline(NULL)
 	{
 		// set the calling context for the hooks
@@ -50,7 +52,7 @@ namespace Windower
 	void SystemCore::Detach()
 	{
 		// remove the engine sub-classing procedure
-		RemoveWindowSubclass(m_hGameWnd, &SystemCore::SubclassProcHook, 0UL);
+		RemoveWindowSubclass(m_hWnd, &SystemCore::SubclassProcHook, 0UL);
 	}
 
 	/*! \brief Filters the message received by the game window
@@ -64,36 +66,30 @@ namespace Windower
 	{
 		switch (uMsg_in)
 		{
-/*
 			case WM_WINDOWPOSCHANGED:
-				if (m_pEngine != NULL)
-				{
-					WINDOWPOS *pWindowPos = reinterpret_cast<WINDOWPOS*>(lParam_in);
+			{
+				WINDOWPOS *pWindowPos = reinterpret_cast<WINDOWPOS*>(lParam_in);
 
-					m_pEngine->Graphics().SetWindowSize(pWindowPos->cx, pWindowPos->cy);
-				}
+				return OnSize(pWindowPos->cx, pWindowPos->cy, pWindowPos->flags);
+			}			
 			break;
 			case WM_LBUTTONDOWN:
-				if (m_pEngine != NULL && m_pEngine->Graphics().OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
-					return 1UL; // filtered
+				return OnLButtonDown(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
 			break;
 			case WM_LBUTTONUP:
-				if (m_pEngine != NULL && m_pEngine->Graphics().OnLButtonUp(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in))
-					return 1UL; // filtered
+				return OnLButtonUp(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
 			break;
 			case WM_MOUSEMOVE:
-				if (m_pEngine != NULL)
-					m_pEngine->Graphics().OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
+				return OnMouseMove(LOWORD(lParam_in), HIWORD(lParam_in), wParam_in);
 			break;
 			case WM_ACTIVATEAPP:
 			case WM_ACTIVATE:
-				if (m_pEngine != NULL)
-					m_pEngine->Graphics().SetRendering(true);
+				return OnActivate(LOWORD(wParam_in) != WA_INACTIVE, HIWORD(wParam_in) != 0U);
 			break;
-*/
 			case WM_KEYDOWN:
+				return OnKeyDown(wParam_in, LOWORD(lParam_in));
 			case WM_KEYUP:
-				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
+				return OnKeyUp(wParam_in, LOWORD(lParam_in));
 			break;
 		}
 
@@ -111,68 +107,9 @@ namespace Windower
 	LRESULT CALLBACK SystemCore::SubclassProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 	{
 		if (m_Context->FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
-			return 0UL;
+			return 1UL;
 		else
 			return ::DefSubclassProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
-	}
-
-	/*! \brief Filters key presses
-		\param[in] hWnd_in : handle to the window
-		\param[in] uMsg_in : message
-		\param[in] wParam_in : additional message information
-		\param[in] lParam_in : additional message information
-		\return 1UL if the message should be filtered; 0UL otherwise
-	*/
-	LRESULT SystemCore::FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in)
-	{
-		// Ctrl + <key> shortcuts
-		if (uMsg_in == WM_KEYUP && m_pEngine != NULL)
-		{
-			if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0x8000)
-			{
-				switch(wParam_in)
-				{
-#ifdef _DEBUG
-					case VK_F4:
-						m_pEngine->ShutdownEngine(true);
-
-						return 1UL;
-					break;
-#endif // _DEBUG
-/*
-					case VK_F10:
-						m_pEngine->Graphics().ToggleRendering();
-				
-						return 1UL; // filtered
-					break;
-					case VK_F11:
-						m_pEngine->Graphics().SetRendering(false);
-						::ShowWindow(hWnd_in, SW_MINIMIZE);
-				
-						return 1UL; // filtered
-					break;
-					case VK_F12:
-						m_pEngine->Graphics().ToggleFPS();
-				
-						return 1UL; // filtered
-					break;
-*/
-#ifdef _DEBUG
-					case 'X':
-					case 'x':
-						// remove hooks and unload plugins
-						m_pEngine->ShutdownEngine();
-						// force the game to close
-						PostMessage(hWnd_in, WM_QUIT, NULL, NULL);
-
-						return 1UL;
-					break;
-#endif // _DEBUG
-				}
-			}
-		}
-
-		return 0UL;
 	}
 
 	/*! \brief Register the hooks for this module
@@ -205,7 +142,7 @@ namespace Windower
 
 		if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
 		{
-			m_Context->m_hGameWnd = hWnd_in;
+			m_Context->m_hWnd = hWnd_in;
 
 			if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
 			{
