@@ -157,7 +157,7 @@ namespace ZipArchiveLib
 
 				for (DirEntryIt = CentralDirEntries.cbegin(); DirEntryIt != DirEndIt; ++DirEntryIt)
 				{
-					for (FileEntries_in_out.cbegin(); FileEntryIt != FileEndIt; )
+					for (FileEntryIt = FileEntries_in_out.cbegin(); FileEntryIt != FileEndIt; )
 					{
 						pCentralDirEntry = DirEntryIt->second;
 						pFileEntry = FileEntryIt->second;
