@@ -133,11 +133,8 @@ namespace Windower
 					if (pService != NULL && pService->AddSubscriber(pPlugin_in))
 					{
 						// Hooks must be installed before creating the calling context!
-						if (bInstall && UpdateServiceHooks(pService, true))
-						{
-							// Create the calling context for the hooks
-							pService->CreateContext();
-						}
+						if (bInstall)
+							UpdateServiceHooks(pService, true);
 						// callback
 						OnSubscribe(pService, pPlugin_in);
 
@@ -170,11 +167,8 @@ namespace Windower
 				if (pService->RemoveSubscriber(pPlugin_in))
 				{
 					// uninstall the hooks on the last subscriber
-					if (pService->GetSubscribers().empty() && UpdateServiceHooks(pService, false))
-					{
-						// destroy the context
-						pService->DestroyContext();
-					}
+					if (pService->GetSubscribers().empty())
+						UpdateServiceHooks(pService, false);
 					// callback
 					OnUnsubscribe(pService, pPlugin_in);
 

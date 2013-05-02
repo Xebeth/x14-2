@@ -8,4 +8,9 @@
 #include "stdafx.h"
 
 #pragma comment(lib, "Comctl32.lib")
-#pragma comment(lib, "d3dx9.lib")
+
+#ifdef _DEBUG
+	#pragma comment(lib, "d3dx9d.lib")
+#else
+	#pragma comment(lib, "d3dx9.lib")
+#endif // _DEBUG

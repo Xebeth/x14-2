@@ -41,39 +41,12 @@ namespace Windower
 	
 	class PlayerCore : public WindowerCore
 	{
-		class CallingContext
-		{
-		public:
-			CallingContext(fnDestroySingletons pfnDestroySingletons_in,
-						   fnCharacterMgrInit pfnCharMgrInit_in,
-						   fnGetSelectedTarget pfnGetTarget_in,
-						   PlayerDataService *&pPlayerDataService_in,
-						   TargetData *&pPlayerTarget_in, DWORD *&pPlayerAddr_in)
-				: m_pDestroySingletonsTrampoline(pfnDestroySingletons_in),
-				  m_pCharMgrInitTrampoline(pfnCharMgrInit_in),
-				  m_pGetTargetTrampoline(pfnGetTarget_in),
-				  m_pPlayerDataService(pPlayerDataService_in), 
-				  m_pPlayerTarget(pPlayerTarget_in), m_pPlayerAddr(pPlayerAddr_in) {}
-
-			fnDestroySingletons m_pDestroySingletonsTrampoline;
-			fnCharacterMgrInit m_pCharMgrInitTrampoline;
-			fnGetSelectedTarget m_pGetTargetTrampoline;
-
-			//! player data service
-			PlayerDataService *&m_pPlayerDataService;
-			//! player target data structure
-			TargetData *&m_pPlayerTarget;
-			//! address of the player data structure
-			DWORD *&m_pPlayerAddr;
-		};
-
 	public:
 		PlayerCore();
-		~PlayerCore();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool RegisterServices();
-		static void Detach();
+		void Detach();
 
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
@@ -88,14 +61,17 @@ namespace Windower
 	private:
 		void OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in);
 		
-		//! calling context for the module hooks
-		static CallingContext *m_pContext;
+		fnDestroySingletons m_pDestroySingletonsTrampoline;
+		fnCharacterMgrInit m_pCharMgrInitTrampoline;
+		fnGetSelectedTarget m_pGetTargetTrampoline;
 		//! player data service
 		PlayerDataService *m_pPlayerDataService;
 		//! player target data structure
 		TargetData *m_pPlayerTarget;
 		//! address of the player data structure
 		DWORD *m_pPlayerAddr;
+		//! calling context for the module hooks
+		static CallingContext<PlayerCore> m_Context;
 	};
 }
 

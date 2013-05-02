@@ -15,6 +15,11 @@ class IDirect3D9Wrapper;
 #define GRAPHICS_MODULE			"Graphics"
 #define TEXT_LABEL_SERVICE		"TextLabelService"
 
+typedef struct IDirect3D9 Direct3D9;
+typedef struct IDirect3DDevice9 IDirect3DDevice9;
+
+typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion_in);
+
 namespace Windower
 {
 	class TextLabelRenderer;
@@ -28,9 +33,12 @@ namespace Windower
 			GFX_TEXT_FPS = 0,	// text label for the FPS counter
 			GFX_TEXT_COUNT		// number of static text labels
 		};
+
 	public:
 		explicit GraphicsCore(bool VSync_in);
 		~GraphicsCore();
+
+		void Detach();
 
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
@@ -55,8 +63,7 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 		// Direct3D
-		IDirect3D9* Direct3DCreate9Hook(UINT SDKVersion_in);
-		void Detach();
+		static IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in);
 
 	protected:
 		TextLabelRenderer* GetLabelRenderer();
@@ -65,8 +72,6 @@ namespace Windower
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D device
 		IDirect3DDevice9 *m_pDirect3DDevice;
-		//! number of devices to skip
-		unsigned int m_SkipDeviceCount;
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;
 		//! graphical elements
@@ -80,6 +85,8 @@ namespace Windower
 		DWORD m_LabelWidth, m_LabelHeight;
 		//! pointer to the label being moved
 		UiTextLabel *m_pMovingLabel;
+		//! calling context for the service hooks
+		static CallingContext<GraphicsCore> m_Context;
 	};
 }
 

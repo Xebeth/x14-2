@@ -59,6 +59,19 @@ namespace Windower
 		virtual bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in) { return false; }
 
 	protected:
+		template <typename T> class CallingContext
+		{
+		public:
+			CallingContext() : m_pThis(NULL) {}
+
+			void Set(T *pThis_in) { m_pThis = pThis_in; }
+			T* operator->() const { return m_pThis; }
+			operator T*() { return m_pThis; }
+
+		private:
+			T *m_pThis;
+		};
+
 		bool UpdateServiceHooks(ModuleService *pService_in_out, bool Install_in) const;
 
 		BaseModuleService* RegisterService(const string_t& ServiceName_in, bool InvokePermission_in);

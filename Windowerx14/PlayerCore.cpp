@@ -16,7 +16,7 @@
 
 namespace Windower
 {
-	PlayerCore::CallingContext * PlayerCore::m_pContext = NULL;
+	WindowerCore::CallingContext<PlayerCore> PlayerCore::m_Context;
 
 	/*! \brief PlayerCore constructor
 		\param[in,out] Engine_in_out : Windower engine
@@ -24,16 +24,13 @@ namespace Windower
 	*/
 	PlayerCore::PlayerCore()
 		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL),
-		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL) {}
-
-	//! \brief PlayerCore destructor
-	PlayerCore::~PlayerCore()
+		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
+		  m_pDestroySingletonsTrampoline(NULL),
+		  m_pCharMgrInitTrampoline(NULL),
+		  m_pGetTargetTrampoline(NULL)
 	{
-		if (m_pContext != NULL)
-		{
-			delete m_pContext;
-			m_pContext = NULL;
-		}
+		// set the calling context for the hooks
+		m_Context.Set(this);
 	}
 
 	/*! \brief Register the hooks for this module
@@ -69,51 +66,40 @@ namespace Windower
 	*/
 	void PlayerCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		fnDestroySingletons pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
-		fnCharacterMgrInit pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
-		fnGetSelectedTarget pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
-
-		if (m_pContext == NULL)
-		{
-			m_pContext = new CallingContext(pDestroySingletonsTrampoline,
-											pCharMgrInitTrampoline,
-											pGetTargetTrampoline,
-											m_pPlayerDataService,
-											m_pPlayerTarget, m_pPlayerAddr);
-		}
+		m_pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
+		m_pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
+		m_pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
 	}
 
 	int PlayerCore::DestroySingletonsHook(LPVOID pThis)
 	{
+		int Result = 0;
+
 		// shutdown the main thread
-		m_pEngine->OnClose();
+		m_pEngine->Detach();
 
-		if (m_pContext != NULL && m_pContext->m_pDestroySingletonsTrampoline != NULL)
-			return m_pContext->m_pDestroySingletonsTrampoline(pThis);
+		if (m_Context->m_pDestroySingletonsTrampoline != NULL)
+			Result = m_Context->m_pDestroySingletonsTrampoline(pThis);
 
-		return 0;
+		m_pEngine->ShutdownEngine();
+
+		return Result;
 	}
 
 	int PlayerCore::CharacterMgrInitHook(LPVOID pThis_in_out)
 	{
 		int Result = 0;
 
-		if (m_pContext != NULL && m_pContext->m_pCharMgrInitTrampoline != NULL)
+		if (m_Context->m_pCharMgrInitTrampoline != NULL)
 		{
-			// >>> Critical section
-			m_pEngine->LockEngineThread();
+			Result = m_Context->m_pCharMgrInitTrampoline(pThis_in_out);
+			m_Context->m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
 
-			Result = m_pContext->m_pCharMgrInitTrampoline(pThis_in_out);
-			m_pContext->m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
-
-			if (m_pContext->m_pPlayerDataService != NULL && m_pContext->m_pPlayerAddr != NULL)
+			if (m_Context->m_pPlayerDataService != NULL && m_Context->m_pPlayerAddr != NULL)
 			{
-				TargetData *pPlayerData = *(TargetData**)m_pContext->m_pPlayerAddr;
-				m_pContext->m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
+				TargetData *pPlayerData = *(TargetData**)m_Context->m_pPlayerAddr;
+				m_Context->m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
 			}
-
-			m_pEngine->UnlockEngineThread();
-			// Critical section <<<
 		}
 
 		return Result;
@@ -121,34 +107,26 @@ namespace Windower
 
 	TargetData* PlayerCore::GetSelectedTargetHook(LPVOID pThis)
 	{
-		if (m_pContext != NULL)
-		{
-			TargetData *pPreviousTarget = m_pContext->m_pPlayerTarget;
+		TargetData *pPreviousTarget = m_Context->m_pPlayerTarget;
 
-			m_pContext->m_pPlayerTarget = m_pContext->m_pGetTargetTrampoline(pThis);
+		m_Context->m_pPlayerTarget = m_Context->m_pGetTargetTrampoline(pThis);
 
-			if (m_pContext->m_pPlayerTarget != pPreviousTarget && m_pContext->m_pPlayerDataService != NULL)
-				m_pContext->m_pPlayerDataService->OnTargetPtrChange(m_pContext->m_pPlayerTarget);
+		if (m_Context->m_pPlayerTarget != pPreviousTarget && m_Context->m_pPlayerDataService != NULL)
+			m_Context->m_pPlayerDataService->OnTargetPtrChange(m_Context->m_pPlayerTarget);
 
-			return m_pContext->m_pPlayerTarget;
-		}
-
-		return NULL;
+		return m_Context->m_pPlayerTarget;
 	}
 
 	void PlayerCore::Detach()
 	{
-		if (m_pContext != NULL)
+		if (m_Context->m_pPlayerDataService != NULL)
 		{
-			if (m_pContext->m_pPlayerDataService != NULL)
-			{
-				m_pContext->m_pPlayerDataService->OnTargetPtrChange(NULL);
-				m_pContext->m_pPlayerDataService->OnPlayerPtrChange(NULL);
-			}
-
-			m_pContext->m_pPlayerTarget = NULL;
-			m_pContext->m_pPlayerAddr = NULL;
+			m_Context->m_pPlayerDataService->OnTargetPtrChange(NULL);
+			m_Context->m_pPlayerDataService->OnPlayerPtrChange(NULL);
 		}
+
+		m_Context->m_pPlayerTarget = NULL;
+		m_Context->m_pPlayerAddr = NULL;
 	}
 
 	bool PlayerCore::IsLoggedIn() const

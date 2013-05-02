@@ -12,6 +12,9 @@
 #define FFXIV_WINDOW_CLASSA	"FFXIVGAME"
 #define SYSTEM_MODULE		"System"
 
+typedef LRESULT (CALLBACK *SUBCLASSPROC)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+typedef BOOL (WINAPI *fnSetWindowSubclass)(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
+
 namespace Windower
 {
 	class WindowerEngine;
@@ -19,25 +22,8 @@ namespace Windower
 	//! \brief Core module used for Win32 API hooking
 	class SystemCore : public WindowerCore
 	{
-		class CallingContext
-		{
-		public:
-			CallingContext(fnSetWindowSubclass pSetWindowSubclassTrampoline_in,
-						   HWND &hGameWnd_in, HANDLE &hMainThread_in)
-				  : m_pSetWindowSubclassTrampoline(pSetWindowSubclassTrampoline_in),
-				  m_hGameWnd(hGameWnd_in),m_hMainThread(hMainThread_in) {}
-
-			//! hook to sub class over the game sub-classing
-			fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
-			//! the handle to the game window
-			HWND &m_hGameWnd;
-			//! Engine thread handle
-			HANDLE &m_hMainThread;
-		};
-
 	public:
 		SystemCore();
-		~SystemCore();
 
 		void Detach();
 
@@ -59,16 +45,18 @@ namespace Windower
 		static BOOL WINAPI SetWindowSubclassHook(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
 
 	protected:
-		static LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
-		static LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
 
+		//! hook to sub class over the game sub-classing
+		fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
 		//! the handle to the game window
 		HWND m_hGameWnd;
 		//! Engine thread handle
 		HANDLE m_hMainThread;
 		//! calling context for the module hooks
-		static CallingContext *m_pContext;
+		static CallingContext<SystemCore> m_Context;
 	};
 }
 

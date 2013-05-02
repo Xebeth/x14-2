@@ -34,18 +34,6 @@ namespace Windower
 
 	class CmdLineCore : public WindowerCore, public ICommandHandler
 	{
-		class CallingContext
-		{
-		public:
-			CallingContext(fnProcessCmd pTrampoline_in, CommandParser *pParser_in)
-				: m_pTrampoline(pTrampoline_in), m_pParser(pParser_in) {}
-			~CallingContext() { m_pParser = NULL; m_pTrampoline = NULL; }
-
-			//! the command parser
-			CommandParser *m_pParser;
-			//! trampoline to the original ProcessCmd function
-			fnProcessCmd m_pTrampoline;
-		};
 	public:
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
@@ -75,7 +63,7 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
-		static bool FilterCommands(const StringNode *pCmd_in, std::string &Feedback_out);
+		bool FilterCommands(const StringNode *pCmd_in, std::string &Feedback_out);
 
 		bool ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out);
 		int ShowCommandHelp(WindowerCommand *pCommand_in);
@@ -88,10 +76,10 @@ namespace Windower
 		CommandParser *m_pCommandParser;
 		//! trampoline to the original ProcessCmd function
 		fnProcessCmd m_pProcessCmdTrampoline;
-		//! calling context for the service hooks
-		static CallingContext *m_pContext;
 		//! the object required for the command processing hook
-		static LPVOID m_pTextCmd;
+		LPVOID m_pTextCmd;
+		//! calling context for the service hooks
+		static CallingContext<CmdLineCore> m_Context;
 	};
 }
 

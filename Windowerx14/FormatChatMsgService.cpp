@@ -13,15 +13,14 @@
 
 namespace Windower
 {
-	FormatChatMsgService::CallingContext * FormatChatMsgService::m_pContext = NULL;
-	LPVOID FormatChatMsgService::m_pThis = NULL;
+	FormatChatMsgService::CallingContext<FormatChatMsgService> FormatChatMsgService::m_Context;
 
 	/*! \brief FormatChatMsgService constructor
 		\param[in] Name_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	FormatChatMsgService::FormatChatMsgService(const string_t& Name_in, bool InvokePermission_in)
-		: ModuleService(Name_in, InvokePermission_in)
+		: ModuleService(Name_in, InvokePermission_in), m_pChatMsg(NULL), m_pFormatChatMsgTrampoline(NULL)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -42,38 +41,33 @@ namespace Windower
 	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
 	{
-		m_pThis = pThis_in_out;
+		m_Context->m_pChatMsg = pThis_in_out;
 
-		if (m_pContext != NULL)
+		if (m_Context->m_pChatMsg != NULL)
 		{
-			if (m_pContext->m_pTrampoline != NULL)
+			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Context->m_Subscribers.cend();
+			DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
+			const char *pOriginalMsg = pMessage_in_out->pResBuf;				
+			char *pModifiedMsg = NULL;
+			IGameChatPlugin *pPlugin;
+			bool bResult = false;
+
+			for (PluginIt = m_Context->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 			{
-				PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_pContext->m_Subscribers.cend();
-				DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
-				const char *pOriginalMsg = pMessage_in_out->pResBuf;				
-				char *pModifiedMsg = NULL;
-				IGameChatPlugin *pPlugin;
-				bool bResult = false;
+				pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
 
-				for (PluginIt = m_pContext->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
+				if (pPlugin != NULL)
 				{
-					pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
+					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf,
+													  dwOriginalSize, pOriginalMsg, &pModifiedMsg, dwNewSize);
 
-					if (pPlugin != NULL)
-					{
-						dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf,
-														  dwOriginalSize, pOriginalMsg, &pModifiedMsg, dwNewSize);
-
-						if (pModifiedMsg != NULL && dwResult > dwNewSize)
-							dwNewSize = dwResult;
-					}
+					if (pModifiedMsg != NULL && dwResult > dwNewSize)
+						dwNewSize = dwResult;
 				}
-
-				return FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
-									 pMessage_in_out, pModifiedMsg, dwNewSize);
 			}
 
-			return false;
+			return m_Context->FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
+											pMessage_in_out, pModifiedMsg, dwNewSize);
 		}
 
 		return false;
@@ -90,8 +84,8 @@ namespace Windower
 		if (pModifiedMsg_in != NULL)
 			UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
 		// display the error message instead of the typed command
-		Result = ((fnFormatChatMessage)m_pContext->m_pTrampoline)(pThis_in_out, MessageType_in,
-																  pSender_in_out, pMessage_in_out, NULL);
+		Result = m_Context->m_pFormatChatMsgTrampoline(pThis_in_out, MessageType_in,
+													   pSender_in_out, pMessage_in_out, NULL);
 		// restore the original message and sender
 		pSender_in_out->dwSize = dwOriginalSenderSize;
 		pSender_in_out->pResBuf = pOriginalSender;
@@ -105,40 +99,18 @@ namespace Windower
 		return Result;
 	}
 
-	//! Destroys the calling context for the service
-	void FormatChatMsgService::DestroyContext()
-	{
-		if (m_pContext != NULL)
-		{
-			delete m_pContext;
-			m_pContext = NULL;
-		}
-	}
-
-	//! Creates the calling context for the service
-	void FormatChatMsgService::CreateContext()
-	{
-		if (m_pContext == NULL)
-		{
-			LPVOID pTrampoline = m_ServiceHooks[FORMAT_CHAT_MESSAGE_HOOK];
-
-			if (pTrampoline != NULL)
-				m_pContext = new CallingContext((fnFormatChatMessage)pTrampoline, m_Subscribers);
-		}
-	}
-
 	bool FormatChatMsgService::InjectMessage(const std::string &Msg_in,
 											 const std::string &Sender_in,
 											 UINT MessageType_in)
 	{
-		if (m_pContext != NULL && m_pThis != NULL)
+		if (m_Context->m_pChatMsg != NULL)
 		{
 			StringNode DummySender, DummyMsg;
 
 			InitStringNode(DummySender, Sender_in);
 			InitStringNode(DummyMsg, Msg_in);			
 
-			FormatChatMessageHook(m_pThis, MessageType_in, &DummySender, &DummyMsg, NULL);
+			FormatChatMessageHook(m_Context->m_pChatMsg, MessageType_in, &DummySender, &DummyMsg, NULL);
 
 			return true;
 		}

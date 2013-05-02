@@ -10,7 +10,6 @@
 #include <d3d9.h>
 
 #include "WindowerEngine.h"
-#include "Direct3D9Hook.h"
 
 #include "Font.h"
 #include "IRenderable.h"
@@ -37,15 +36,24 @@ Direct3D9WrapperImpl *g_pDirect3DWrapper = NULL;
 
 namespace Windower
 {
+
+	WindowerCore::CallingContext<GraphicsCore> GraphicsCore::m_Context;
+
+
 	/*! \brief GraphicsCore constructor
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use
 	*/
 	GraphicsCore::GraphicsCore(bool VSync_in)
-		: WindowerCore(_T(GRAPHICS_MODULE)), m_VSync(VSync_in), m_pLabelRenderer(NULL),
-		  m_pDirect3DCreate9Trampoline(NULL), m_SkipDeviceCount(1U), m_Width(0U), m_Height(0U),
-		  m_MouseOffsetX(0U), m_MouseOffsetY(0U), m_pMovingLabel(NULL), m_LabelHeight(0UL),
-		  m_LabelWidth (0UL), m_pDirect3DDevice(NULL) {}
+		: WindowerCore(_T(GRAPHICS_MODULE)), m_pLabelRenderer(NULL),
+		  m_pDirect3DCreate9Trampoline(NULL), m_Width(0U), m_Height(0U),
+		  m_pMovingLabel(NULL), m_pDirect3DDevice(NULL),
+		  m_MouseOffsetX(0U), m_MouseOffsetY(0U),
+		  m_LabelWidth (0UL), m_LabelHeight(0UL)
+	{
+		// set the calling context for the hooks
+		m_Context.Set(this);
+	}
 
 	//! \brief GraphicsCore destructor
 	GraphicsCore::~GraphicsCore()
@@ -126,19 +134,25 @@ namespace Windower
 	{
 		IDirect3D9* pDirect3D = NULL;
 
-		if (m_pDirect3DCreate9Trampoline != NULL)
+		if (m_Context->m_pDirect3DCreate9Trampoline != NULL)
 		{
-			pDirect3D = m_pDirect3DCreate9Trampoline(SDKVersion_in);
+			static DWORD CallCount = 1UL;
 
-			if (pDirect3D != NULL && m_SkipDeviceCount == 0)
+			pDirect3D = m_Context->m_pDirect3DCreate9Trampoline(SDKVersion_in);
+
+			if (pDirect3D != NULL && CallCount == 0UL)
 			{
 				// create the wrapper implementation
-				g_pDirect3DWrapper = new Direct3D9WrapperImpl(pDirect3D, m_VSync, this);
+				g_pDirect3DWrapper = new Direct3D9WrapperImpl(pDirect3D, m_Context->m_VSync, m_Context);
+
+				// remove the hook
+				if (m_pHookManager != NULL)
+					m_pHookManager->UnregisterHook("Direct3DCreate9");
 
 				return pDirect3D;
 			}
 			else
-				--m_SkipDeviceCount;
+				--CallCount;
 		}
 
 		return pDirect3D;
@@ -157,7 +171,7 @@ namespace Windower
 			{
 				PresentParams = *pPresentParams_in;
 			}
-			else if (m_VSync)
+			else if (m_Context->m_VSync)
 			{
 				// only these matter, they are used to overwrite
 				// the parameters during IDirect3DDevice9::Reset()
@@ -172,7 +186,9 @@ namespace Windower
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
 			pFPSLabel->Draw();
+#ifndef _DEBUG
 			pFPSLabel->SetVisibile(false);
+#endif // _DEBUG
 			// create the device wrapper implementation
 			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
 			// add it to the list of renderables
@@ -230,7 +246,7 @@ namespace Windower
 	void GraphicsCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 		// register the Direct3DCreate9 hook
-		HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, ::Direct3DCreate9Hook);
+		HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, &GraphicsCore::Direct3DCreate9Hook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -238,7 +254,7 @@ namespace Windower
 	*/
 	void GraphicsCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");		
+		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");
 	}
 
 	/*! \brief Creates a service object given its name

@@ -10,9 +10,6 @@
 
 #include "WindowerEngine.h"
 
-#include "WndHook.h"
-#include "Direct3D9Hook.h"
-
 #include "IRenderable.h"
 #include "IDeviceCreateSubscriber.h"
 
@@ -23,23 +20,18 @@
 namespace Windower
 {
 
-	SystemCore::CallingContext *SystemCore::m_pContext = NULL;
+	WindowerCore::CallingContext<SystemCore> SystemCore::m_Context;
 
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
 	SystemCore::SystemCore()
 		: WindowerCore(_T(SYSTEM_MODULE)),
-		  m_hGameWnd(NULL), m_hMainThread(NULL) {}
-	
-	//! \brief SystemCore constructor
-	SystemCore::~SystemCore()
+		  m_hGameWnd(NULL), m_hMainThread(NULL),
+		  m_pSetWindowSubclassTrampoline(NULL)
 	{
-		if (m_pContext != NULL)
-		{
-			delete m_pContext;
-			m_pContext = NULL;
-		}
+		// set the calling context for the hooks
+		m_Context.Set(this);
 	}
 
 	/*! \brief Starts the main thread of the windower engine
@@ -49,12 +41,7 @@ namespace Windower
 	DWORD WINAPI SystemCore::MainThreadStatic(LPVOID pParam_in_out)
 	{
 		if (m_pEngine != NULL)
-		{
-			DWORD Result = m_pEngine->MainThread();
-
-			// detach the DLL
-			::FreeLibraryAndExitThread((HMODULE)Result, 0UL);
-		}
+			return m_pEngine->MainThread();
 
 		return 0xFFFFFFFFUL;
 	}
@@ -77,6 +64,7 @@ namespace Windower
 	{
 		switch (uMsg_in)
 		{
+/*
 			case WM_WINDOWPOSCHANGED:
 				if (m_pEngine != NULL)
 				{
@@ -102,6 +90,7 @@ namespace Windower
 				if (m_pEngine != NULL)
 					m_pEngine->Graphics().SetRendering(true);
 			break;
+*/
 			case WM_KEYDOWN:
 			case WM_KEYUP:
 				return FilterKeyboard(hWnd_in, uMsg_in, wParam_in, lParam_in);
@@ -121,7 +110,7 @@ namespace Windower
 	*/
 	LRESULT CALLBACK SystemCore::SubclassProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 	{
-		if (FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
+		if (m_Context->FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
 			return 0UL;
 		else
 			return ::DefSubclassProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
@@ -145,11 +134,12 @@ namespace Windower
 				{
 #ifdef _DEBUG
 					case VK_F4:
-						m_pEngine->OnClose();
+						m_pEngine->ShutdownEngine(true);
 
 						return 1UL;
 					break;
 #endif // _DEBUG
+/*
 					case VK_F10:
 						m_pEngine->Graphics().ToggleRendering();
 				
@@ -166,10 +156,14 @@ namespace Windower
 				
 						return 1UL; // filtered
 					break;
+*/
 #ifdef _DEBUG
 					case 'X':
 					case 'x':
-						m_pEngine->Exit(std::string());
+						// remove hooks and unload plugins
+						m_pEngine->ShutdownEngine();
+						// force the game to close
+						PostMessage(hWnd_in, WM_QUIT, NULL, NULL);
 
 						return 1UL;
 					break;
@@ -195,14 +189,7 @@ namespace Windower
 	*/
 	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		fnSetWindowSubclass pSetWindowSubclassTrampoline = (fnSetWindowSubclass)HookManager_in.GetTrampolineFunc("SetWindowSubclass");
-
-		if (m_pContext == NULL)
-		{
-			// create the calling context
-			m_pContext = new CallingContext(pSetWindowSubclassTrampoline,
-											m_hGameWnd, m_hMainThread);
-		}	
+		m_pSetWindowSubclassTrampoline = (fnSetWindowSubclass)HookManager_in.GetTrampolineFunc("SetWindowSubclass");
 	}
 
 	/*! \brief Installs or updates a window subclass callback
@@ -216,27 +203,24 @@ namespace Windower
 	{
 		BOOL Result = FALSE;
 
-		if (m_pContext != NULL && m_pContext->m_pSetWindowSubclassTrampoline != NULL)
+		if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
 		{
-			m_pContext->m_hGameWnd = hWnd_in;
+			m_Context->m_hGameWnd = hWnd_in;
 
-			if (m_pContext->m_pSetWindowSubclassTrampoline != NULL)
+			if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
 			{
 				static DWORD CallCount = 2UL;
 
-				Result = m_pContext->m_pSetWindowSubclassTrampoline(hWnd_in, pfnSubclass_in, uIdSubclass_in, dwRefData_in);
+				Result = m_Context->m_pSetWindowSubclassTrampoline(hWnd_in, pfnSubclass_in, uIdSubclass_in, dwRefData_in);
 
-				if (--CallCount == 0UL && m_pContext->m_pSetWindowSubclassTrampoline(hWnd_in, &SystemCore::SubclassProcHook, 0UL, 0UL))
+				if (--CallCount == 0UL && m_Context->m_pSetWindowSubclassTrampoline(hWnd_in, &SystemCore::SubclassProcHook, 0UL, 0UL))
 				{
 					DWORD dwThreadID;
 
 					// remove the hook since it is no longer needed
 					m_pHookManager->UnregisterHook("SetWindowSubclass");
 					// create the engine thread
-					m_pContext->m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &dwThreadID);
-					// delete the context
-					delete m_pContext;
-					m_pContext = NULL;
+					m_Context->m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &dwThreadID);
 				}
 			}
 		}

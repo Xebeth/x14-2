@@ -21,8 +21,7 @@
 
 namespace Windower
 {
-	CmdLineCore::CallingContext * CmdLineCore::m_pContext = NULL;
-	LPVOID CmdLineCore::m_pTextCmd = NULL;
+	CmdLineCore::CallingContext<CmdLineCore> CmdLineCore::m_Context;
 
 	/*! \brief CmdLineCore constructor
 		\param[in,out] Engine_in_out : the windower engine
@@ -30,19 +29,17 @@ namespace Windower
 	*/
 	CmdLineCore::CmdLineCore()
 		: WindowerCore(_T(CMD_LINE_MODULE)), m_pCommandDispatcher(NULL),
-		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL) {}
+		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL), m_pTextCmd(NULL)
+	{
+		// set the calling context for the hooks
+		m_Context.Set(this);
+	}
 
 	//! \brief CmdLineCore destructor
 	CmdLineCore::~CmdLineCore()
 	{
 		// unregister the commands
 		UnregisterCommands();
-
-		if (m_pContext != NULL)
-		{
-			delete m_pContext;
-			m_pContext = NULL;
-		}
 
 		if (m_pCommandParser != NULL)
 		{
@@ -67,11 +64,11 @@ namespace Windower
 		bool Result = false;
 
 		// update the text command pointer
-		if (m_pContext != NULL && m_pContext->m_pTrampoline != NULL)
+		if (m_Context->m_pProcessCmdTrampoline != NULL)
 		{
 			std::string Feedback;
 
-			if (FilterCommands(pCmd_in_out, Feedback))
+			if (m_Context->FilterCommands(pCmd_in_out, Feedback))
 			{
 				// skip command processing
 				return FormatChatMsgService::InjectMessage(Feedback);
@@ -79,7 +76,7 @@ namespace Windower
 			else if (pThis_in_out != NULL)
 			{
 				// call the trampoline to process the command
-				Result = m_pContext->m_pTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
+				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
 			}
 		}
 
@@ -94,7 +91,7 @@ namespace Windower
 	bool CmdLineCore::FilterCommands(const StringNode *pCmd_in, std::string &Feedback_out)
 	{
 		if (pCmd_in != NULL && pCmd_in->pResBuf != NULL
-		 && m_pContext != NULL && m_pContext->m_pParser != NULL)
+		 && m_Context->m_pCommandParser != NULL)
 		{
 			// the message starts with 2 forward slashes => expect a command
 			if (pCmd_in->dwSize != 0 && strstr(pCmd_in->pResBuf, "//") == pCmd_in->pResBuf)
@@ -107,7 +104,8 @@ namespace Windower
 					WindowerCommand Command;
 					DWORD dwNewSize = 0UL;
 
-					if (m_pContext->m_pParser->ParseCommand(pCmd_in->pResBuf + 2, Command, &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
+					if (m_Context->m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command,
+																  &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
 					{
 						Command.Execute(Feedback_out);
 						Result = true;
@@ -164,9 +162,6 @@ namespace Windower
 			// create the command dispatcher and parser
 			m_pCommandDispatcher = new CommandDispatcher;
 			m_pCommandParser = new CommandParser(*m_pCommandDispatcher);
-			// create the calling context for the hook
-			if (m_pContext == NULL)
-				m_pContext = new CallingContext(m_pProcessCmdTrampoline, m_pCommandParser);
 			// register the built-in commands
 			RegisterCommands();
 		}
@@ -471,6 +466,6 @@ namespace Windower
 
 		InitStringNode(Cmd, Cmd_in);
 
-		return ProcessCmdHook(m_pTextCmd, &Cmd, NULL);
+		return ProcessCmdHook(m_Context->m_pTextCmd, &Cmd, NULL);
 	}
 }

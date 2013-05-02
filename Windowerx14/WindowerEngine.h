@@ -41,16 +41,15 @@ namespace Windower
 		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		~WindowerEngine();
 
+		void ShutdownEngine(bool UnloadDLL_in = false);
 		bool Attach();
 		bool Detach();
 
 		// thread safety
 		inline bool UnlockEngineThread();
 		inline void LockEngineThread();
-
-		void OnClose();
+		// main engine thread
 		DWORD MainThread();
-		void ShutdownEngine();
 
 		bool IsPlayerLoggedIn() const;
 
@@ -59,33 +58,6 @@ namespace Windower
 
 		// commands
 		bool Exit(std::string& Feedback_out);
-
-#ifdef _DEBUG
-		/*! \brief Retrieves the test core module
-			\return the test core module
-		*/
-		TestCore& Test() const { return *m_pTestCore; }
-#endif // _DEBUG
-		/*! \brief Retrieves the system core module
-			\return the system core module
-		*/
-		SystemCore& System() const { return *m_pSystemCore; }
-		/*! \brief Retrieves the graphics core module
-			\return the graphics core module
-		*/
-		GraphicsCore& Graphics() const { return *m_pGraphicsCore; }
-		/*! \brief Retrieves the game chat core module
-			\return the game chat core module
-		*/
-		GameChatCore& GameChat() const { return *m_pGameChatCore; }
-		/*! \brief Retrieves the player data core module
-			\return the player data module
-		*/
-		PlayerCore& Player() const { return *m_pPlayerCore; }
-		/*! \brief Retrieves the current settings
-			\return the settings
-		*/
-		const WindowerProfile& Settings() const { return m_Settings; }
 
 	private:
 		bool InitializePlugins();
@@ -124,6 +96,8 @@ namespace Windower
 		CRITICAL_SECTION m_PluginLock;
 		//! flag controlling the lifetime of the engine thread
 		volatile bool m_bShutdown;
+		// flag specifying if the engine has been detached
+		volatile bool m_bDetached;
 	};
 }
 

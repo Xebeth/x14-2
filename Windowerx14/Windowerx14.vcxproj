@@ -76,13 +76,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>__USE_UIAL;WIN32;_DEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
       <BaseAddress>0x50000000</BaseAddress>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -95,21 +95,22 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>__USE_UIAL;WIN32;NDEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
+      <BaseAddress>0x50000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -119,22 +120,23 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>__USE_UIAL;WIN32;NDEBUG;_WINDOWS;_USRDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX9/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../UIAL/;../PluginSDK/;../PluginFramework;../SigScan/;../HookManager/;../SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <BaseAddress>0x50000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -147,8 +149,6 @@
     <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="Direct3D9WrapperImpl.cpp" />
     <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
-    <ClCompile Include="WndHook.cpp" />
-    <ClCompile Include="Direct3D9Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="FormatChatMsgService.cpp" />
@@ -170,10 +170,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="TestHook.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="TextLabelRenderer.cpp" />
     <ClCompile Include="TextLabelService.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -189,8 +185,6 @@
     <ClInclude Include="Direct3D9WrapperImpl.h" />
     <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
     <ClInclude Include="IDeviceCreateSubscriber.h" />
-    <ClInclude Include="WndHook.h" />
-    <ClInclude Include="Direct3D9Hook.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FormatChatMsgService.h" />
     <ClInclude Include="GameChatCore.h" />
@@ -205,10 +199,6 @@
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="SystemCore.h" />
     <ClInclude Include="TestCore.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="TestHook.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">true</ExcludedFromBuild>
     </ClInclude>

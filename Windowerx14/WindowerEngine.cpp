@@ -9,13 +9,6 @@
 
 #include "WindowerEngine.h"
 
-#include "WndHook.h"
-#include "Direct3D9Hook.h"
-
-#ifdef _DEBUG
-	#include "TestHook.h"
-#endif // _DEBUG
-
 #include "IRenderable.h"
 #include "IDeviceCreateSubscriber.h"
 
@@ -43,10 +36,10 @@ namespace Windower
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in), m_dwPID(0UL),
-		  m_bShutdown(false), m_pPlayerCore(NULL), m_pGameChatCore(NULL),
-		  m_hGameWnd(NULL), m_pSystemCore(NULL), m_pUpdateTimer(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_hWindowerDLL(hModule_in)
+		: PluginEngine(hModule_in, pConfigFile_in), m_hGameWnd(NULL), m_dwPID(0UL),
+		  m_bDetached(false), m_bShutdown(false), m_hWindowerDLL(hModule_in),
+		  m_pGameChatCore(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
+		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
 	{
 		InitializeCriticalSection(&m_PluginLock);
 		// set the static members of modules
@@ -209,33 +202,42 @@ namespace Windower
 	*/
 	bool WindowerEngine::Detach()
 	{
-		// clear all the player data
-		if (m_pPlayerCore != NULL)
-			m_pPlayerCore->Detach();
-		// restore the vtables of the Direct3D objects
-		if (m_pGraphicsCore != NULL)
-			m_pGraphicsCore->Detach();
-		// restore the window procedures
-		if (m_pSystemCore != NULL)
-			m_pSystemCore->Detach();
-		// unregister the hooks and uninstall the plugins (in this order)
-		m_HookManager.Shutdown();
+		if (m_bDetached == false)
+		{
+			// clear all the player data
+			if (m_pPlayerCore != NULL)
+				m_pPlayerCore->Detach();
+			// stop the update timer
+			if (m_pUpdateTimer != NULL)
+				m_pUpdateTimer->Stop();
+			// restore the vtables of the Direct3D objects
+			if (m_pGraphicsCore != NULL)
+				m_pGraphicsCore->Detach();
+			// restore the window procedures
+			if (m_pSystemCore != NULL)
+				m_pSystemCore->Detach();
+			// unregister the hooks
+			m_HookManager.Shutdown();
+			// uninstall the plugins
+			PluginEngine::Detach();
+			
+			m_bDetached = true;
+		}
 
-		return PluginEngine::Detach();
+		return m_bDetached;
 	}
 
-	void WindowerEngine::OnClose()
+	void WindowerEngine::ShutdownEngine(bool UnloadDLL_in)
 	{
-		// >>> Critical section
-		LockEngineThread();
-
 		// terminate the engine thread
 		m_bShutdown = true;
 
-		UnlockEngineThread();
-		// Critical section <<<
-	}
+		if (m_pSystemCore != NULL)
+			WaitForSingleObject(m_pSystemCore->GetMainThreadHandle(), INFINITE);
 
+		if (UnloadDLL_in)
+			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, m_hWindowerDLL, 0, NULL);
+	}
 
 	/*! \brief The engine main thread
 		\return the exit code of the thread
@@ -243,14 +245,14 @@ namespace Windower
 	DWORD WindowerEngine::MainThread()
 	{
 		InitializeEngine();
-		
+
 		while (m_bShutdown == false)
 		{
 			// >>> Critical section
 			LockEngineThread();
 
 			UpdateEngine();
-			Sleep(0);
+			Sleep(50);
 
 			UnlockEngineThread();
 			// Critical section <<<
@@ -259,7 +261,7 @@ namespace Windower
 		// remove hooks and unload plugins
 		Detach();
 
-		return (DWORD)m_hWindowerDLL;
+		return 0UL;
 	}
 
 	//! \brief Updates the engine
@@ -322,7 +324,7 @@ namespace Windower
 		Feedback_out = "Exiting the game...";
 
 		// stop the engine thread
-		OnClose();
+		ShutdownEngine();
 
 		return (PostMessage(m_hGameWnd, WM_QUIT, 0UL, 0UL) != FALSE);
 	}

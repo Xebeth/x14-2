@@ -43,15 +43,6 @@
     <Filter Include="Windower\Modules\PlayerData\Services">
       <UniqueIdentifier>{5901f733-d38a-410a-84ba-9a80da84b39e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windower\Modules\System\Hooks">
-      <UniqueIdentifier>{13966882-dde3-4c7a-9336-63c78285badd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Modules\Test\Hooks">
-      <UniqueIdentifier>{82c85d27-384a-423a-88ba-1289f916dae9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windower\Modules\Graphics\Hooks">
-      <UniqueIdentifier>{28edd536-40a6-4e87-b327-3edfc532f153}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Graphics\Services">
       <UniqueIdentifier>{c64ba57a-5659-4661-885f-39d2f06d34bb}</UniqueIdentifier>
     </Filter>
@@ -115,12 +106,6 @@
     <ClCompile Include="PlayerDataService.cpp">
       <Filter>Windower\Modules\PlayerData\Services</Filter>
     </ClCompile>
-    <ClCompile Include="TestHook.cpp">
-      <Filter>Windower\Modules\Test\Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D9Hook.cpp">
-      <Filter>Windower\Modules\Graphics\Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="StringNode.cpp">
       <Filter>Windower\Modules\Chat</Filter>
     </ClCompile>
@@ -138,9 +123,6 @@
     </ClCompile>
     <ClCompile Include="TextLabelService.cpp">
       <Filter>Windower\Modules\Graphics\Services</Filter>
-    </ClCompile>
-    <ClCompile Include="WndHook.cpp">
-      <Filter>Windower\Modules\System\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="Direct3DDevice9WrapperImpl.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>
@@ -204,12 +186,6 @@
     <ClInclude Include="PlayerDataService.h">
       <Filter>Windower\Modules\PlayerData\Services</Filter>
     </ClInclude>
-    <ClInclude Include="TestHook.h">
-      <Filter>Windower\Modules\Test\Hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D9Hook.h">
-      <Filter>Windower\Modules\Graphics\Hooks</Filter>
-    </ClInclude>
     <ClInclude Include="TextLabelService.h">
       <Filter>Windower\Modules\Graphics\Services</Filter>
     </ClInclude>
@@ -230,9 +206,6 @@
     </ClInclude>
     <ClInclude Include="UiFPSCounter.h">
       <Filter>Windower\Modules\Graphics\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="WndHook.h">
-      <Filter>Windower\Modules\System\Hooks</Filter>
     </ClInclude>
     <ClInclude Include="Direct3DDevice9WrapperImpl.h">
       <Filter>Windower\Modules\Graphics\Wrappers</Filter>

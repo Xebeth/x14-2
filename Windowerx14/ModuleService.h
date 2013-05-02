@@ -18,19 +18,6 @@ namespace PluginFramework
 
 namespace Windower
 {
-	//! Calling context base class
-	class BaseContext : public NonCopyable
-	{
-	public:
-		BaseContext(LPVOID pTrampoline_in, PluginFramework::PluginSet &Subscribers_in)
-			: m_Subscribers(Subscribers_in), m_pTrampoline(pTrampoline_in) {}
-
-		//! pointer to the original function of the hook
-		LPVOID m_pTrampoline;
-		//! subscribers to the service
-		PluginFramework::PluginSet &m_Subscribers;
-	};
-
 	class BaseModuleService : public NonCopyable
 	{
 	public:
@@ -58,6 +45,19 @@ namespace Windower
 		virtual bool Invoke(PluginFramework::ServiceParam &Params_in) { return CanInvoke(); }
 
 	protected:
+		template <typename T> class CallingContext
+		{
+		public:
+			CallingContext() : m_pThis(NULL) {}
+
+			void Set(T *pThis_in) { m_pThis = pThis_in; }
+			T* operator->() const { return m_pThis; }
+			operator T*() { return m_pThis; }
+
+		private:
+			T *m_pThis;
+		};
+
 		//! the name of the service
 		string_t m_ServiceName;
 		//! flag specifying if the service can be invoked
@@ -89,11 +89,6 @@ namespace Windower
 			\return the hooks associated with the service
 		*/
 		const HookPointers& GetHooks() { return m_ServiceHooks; }
-
-		//! Creates the calling context for the service
-		virtual void CreateContext() {}
-		//! Destroys the calling context for the service
-		virtual void DestroyContext() {}
 
 	protected:
 		//! the service subscribers

@@ -30,30 +30,23 @@ namespace Windower
 
 	class FormatChatMsgService : public ModuleService
 	{
-		class CallingContext : public BaseContext
-		{
-		public:
-			CallingContext(fnFormatChatMessage pTrampoline_in, PluginFramework::PluginSet &Subscribers_in)
-				: BaseContext(pTrampoline_in, Subscribers_in) {}
-		};
 	public:
 		FormatChatMsgService(const string_t& Name_in, bool InvokePermission_in = false);
 
 		static bool WINAPI FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 												 StringNode* pMessage_in_out, const __time64_t *pTimestamp_in);
-		void DestroyContext();
-		void CreateContext();
-
 		static bool InjectMessage(const std::string &Msg_in, const std::string &Sender_in = "",
 								  UINT MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
 
 	private:
-		static bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-														StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in);
-		//! calling context for the service hooks
-		static CallingContext *m_pContext;
+		bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
+												 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in);
 		//! game pointer to this
-		static LPVOID m_pThis;
+		LPVOID m_pChatMsg;
+		//! trampoline for the format chat message function
+		fnFormatChatMessage m_pFormatChatMsgTrampoline;
+		//! calling context for the service hooks
+		static CallingContext<FormatChatMsgService> m_Context;
 	};
 }
 

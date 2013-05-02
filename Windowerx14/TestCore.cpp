@@ -7,8 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 
-#include "TestHook.h"
-
 #include "WindowerCore.h"
 #include "TestCore.h"
 
@@ -16,13 +14,16 @@
 
 namespace Windower
 {
+	WindowerCore::CallingContext<TestCore> TestCore::m_Context;
+
 	/*! \brief TestCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
-	TestCore::TestCore()
-		: WindowerCore(_T(TESTING_MODULE)),
-		  m_pSub5D1C70Trampoline(NULL),
-		  m_pSub5E9E30Trampoline(NULL) {}
+	TestCore::TestCore() : WindowerCore(_T(TESTING_MODULE))
+	{
+		// set the calling context for the hooks
+		m_Context.Set(this);
+	}
 
 	/*! \brief Register the hooks for this module
 		\param[in] HookManager_in : the hook manager
@@ -44,11 +45,11 @@ namespace Windower
 
 	int TestCore::Sub5D1C70Hook(LPVOID pThis, DWORD a2, char * a3, int a4, int a5)//a5 => StringNode
 	{
-		return m_pSub5D1C70Trampoline(pThis, a2, a3, a4, a5);
+		return m_Context->m_pSub5D1C70Trampoline(pThis, a2, a3, a4, a5);
 	}
 
 	int TestCore::Sub5E9E30Hook(LPVOID pThis, StringNode *a2)
 	{
-		return m_pSub5E9E30Trampoline(pThis, a2);
+		return m_Context->m_pSub5E9E30Trampoline(pThis, a2);
 	}
 }
