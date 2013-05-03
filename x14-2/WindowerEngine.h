@@ -44,6 +44,7 @@ namespace Windower
 		void ShutdownEngine(bool UnloadDLL_in = false);
 		bool Attach();
 		bool Detach();
+		void Inject();
 
 		// thread safety
 		inline bool UnlockEngineThread();

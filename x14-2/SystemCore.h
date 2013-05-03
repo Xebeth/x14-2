@@ -43,6 +43,7 @@ namespace Windower
 		// hooks
 		static LRESULT CALLBACK SubclassProcHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 		static BOOL WINAPI SetWindowSubclassHook(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
+		void SubclassWindow(HWND hWnd_in);
 
 	protected:
 		LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);

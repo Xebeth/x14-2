@@ -155,6 +155,10 @@ namespace Windower
 			else
 				--CallCount;
 		}
+		else
+		{
+			pDirect3D = Direct3DCreate9(SDKVersion_in);
+		}
 
 		return pDirect3D;
 	}

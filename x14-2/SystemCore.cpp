@@ -149,19 +149,29 @@ namespace Windower
 				static DWORD CallCount = 2UL;
 
 				Result = m_Context->m_pSetWindowSubclassTrampoline(hWnd_in, pfnSubclass_in, uIdSubclass_in, dwRefData_in);
+				// remove the hook since it is no longer needed
+				m_pHookManager->UnregisterHook("SetWindowSubclass");
 
-				if (--CallCount == 0UL && m_Context->m_pSetWindowSubclassTrampoline(hWnd_in, &SystemCore::SubclassProcHook, 0UL, 0UL))
-				{
-					DWORD dwThreadID;
-
-					// remove the hook since it is no longer needed
-					m_pHookManager->UnregisterHook("SetWindowSubclass");
-					// create the engine thread
-					m_Context->m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &dwThreadID);
-				}
+				if (--CallCount == 0UL)
+					m_Context->SubclassWindow(hWnd_in);
+			}
+			else
+			{
+				Result = SetWindowSubclass(hWnd_in, pfnSubclass_in, uIdSubclass_in, dwRefData_in);
 			}
 		}
 
 		return Result;
+	}
+
+	void SystemCore::SubclassWindow(HWND hWnd_in)
+	{
+		if (SetWindowSubclass(hWnd_in, &SystemCore::SubclassProcHook, 0UL, 0UL))
+		{
+			DWORD dwThreadID;
+
+			// create the engine thread
+			m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &dwThreadID);
+		}
 	}
 }

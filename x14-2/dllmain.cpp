@@ -50,3 +50,14 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 	return TRUE;
 }
+
+//! Injects the DLL into a running copy of the target process
+extern "C" __declspec(dllexport) void Inject(const TCHAR *pDLL_in)
+{
+	HMODULE hModule = ::LoadLibrary(pDLL_in);
+
+	if (g_pEngine != NULL)
+		g_pEngine->Inject();
+
+	::FreeLibrary(hModule);
+}

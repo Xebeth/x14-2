@@ -108,7 +108,7 @@ namespace SigScan
 					break;
 				}
 
-				Module32Next(hModuleSnapshot, &uModule);
+				bContinue = Module32Next(hModuleSnapshot, &uModule);
 			}
 
 			CloseHandle(hModuleSnapshot);

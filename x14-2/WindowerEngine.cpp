@@ -348,4 +348,16 @@ namespace Windower
 
 		return Result;
 	}
+
+	void WindowerEngine::Inject()
+	{
+		HWND hWnd = ::FindWindow(_T(FFXIV_WINDOW_CLASSA), NULL);
+
+		if (hWnd != NULL && m_pSystemCore != NULL)
+		{
+			// subclass the game window and start the engine thread
+			m_pSystemCore->SubclassWindow(hWnd);
+			// @TODO : find the Direct3D device
+		}
+	}
 }
