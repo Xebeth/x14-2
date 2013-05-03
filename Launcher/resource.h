@@ -5,6 +5,7 @@
 #define IDD_CONFIG_DIALOG               100
 #define IDD_UPDATE_DLG                  101
 #define IDR_MAINFRAME                   128
+#define IDI_CONFIG                      999
 #define IDC_PROFILES_COMBO              1000
 #define IDC_NEW_PROFILE                 1001
 #define IDC_VSYNC                       1002

@@ -163,7 +163,8 @@ namespace Windower
 			{
 				m_pSettingsManager->SetGamePath(GamePath.c_str());
 			}
-
+			// save the config
+			ShowConfig = !m_pSettingsManager->Save();
 		}
 		// check if a profile 
 		if (CmdInfo.GetProfileName(ProfileName).IsEmpty() == false)
