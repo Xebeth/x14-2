@@ -25,9 +25,6 @@ IPlugin PIMPL?
 
 @TODO:
 
-*	UI/PR
-Rebranding to drop any mention of windower
-
 *	Plugin framework
 Blacklist/Whitelist management (encrypted file download?)
 Plugin loading mechanism

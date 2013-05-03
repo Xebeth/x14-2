@@ -1,7 +1,7 @@
 #define AppName "x14-2"
 #define SourcePath "..\Release\"
 #define AppPublisher "North Edge"
-#define AppVersion GetFileVersion("..\Release\x14-2_core.dll")
+#define AppVersion GetFileVersion("..\Release\x14-2core.dll")
 #define AppURL "http://x14.north-edge.com/x14-2"
 #define AppExeName "Launcher.exe"
 
@@ -51,10 +51,10 @@ Name: "desktopicon";    Description: "{cm:CreateDesktopIcon}";      GroupDescrip
 Name: quicklaunchicon;  Description: "{cm:CreateQuickLaunchIcon}";  GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Components]
-Name: "x14Base";                      Description: "x14-2 base files"; Types: full compact custom; Flags: fixed
+Name: "x14Base";                      Description: "{#AppName} base files"; Types: full compact custom; Flags: fixed
 Name: "BootstrapPlugins";             Description: "Bootstrap plugins"; Types: full custom
 Name: "BootstrapPlugins/AutoLogin";   Description: "AutoLogin {#GetFileVersion("..\Release\Plugins\AutoLogin.dll")} — Auto fill the login form";          Types: full custom
-Name: "x14Plugins";                   Description: "x14-2 Plugins"; Types: full custom
+Name: "x14Plugins";                   Description: "{#AppName} Plugins"; Types: full custom
 Name: "x14Plugins/Distance";          Description: "Distance {#GetFileVersion("..\Release\Plugins\Distance.dll")} — Distance from player to target";      Types: full custom
 Name: "x14Plugins/ChatLog";           Description: "ChatLog {#GetFileVersion("..\Release\Plugins\ChatLog.dll")} — Log the game chat to a file";           Types: full custom
 Name: "x14Plugins/ExpWatch";          Description: "ExpWatch {#GetFileVersion("..\Release\Plugins\ExpWatch.dll")} — Keep track of experience earned";     Types: full custom
@@ -69,7 +69,7 @@ Source: "{#SourcePath}Plugins\ExpWatch.dll";    DestDir: "{app}\plugins"; Compon
 Source: "{#SourcePath}Plugins\TellDetect.dll";  DestDir: "{app}\plugins"; Components: x14Plugins/TellDetect; Flags: replacesameversion
 Source: "{#SourcePath}Plugins\Timestamp.dll";   DestDir: "{app}/plugins"; Components: x14Plugins/Timestamp;  Flags: replacesameversion
 
-Source: "{#SourcePath}x14-2_core.dll";          DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
+Source: "{#SourcePath}x14-2core.dll";           DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}bootstrap.dll";           DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}Launcher.exe";            DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}tell.wav";                DestDir: "{app}"; Components: x14Plugins/TellDetect

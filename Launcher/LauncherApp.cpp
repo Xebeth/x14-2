@@ -185,7 +185,7 @@ namespace Windower
 			{
 				// inject directly into the game
 				format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
-				format(DLL32Path, _T("%s\\x14-2_core.dll"), DirPath);
+				format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
 				// generate the command line
 				ShowConfig = !CreateCmdLine(CmdLine, GamePath, Settings.GetLanguage(), SID);
 			}
@@ -220,7 +220,7 @@ namespace Windower
 
 				// inject directly into the game
 				format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
-				format(DLL32Path, _T("%s\\x14-2_core.dll"), DirPath);
+				format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
 				// inject the DLL in the running game
 				InjectModule::InjectModule(hProcess, DLL32Path.c_str());
 
