@@ -8,6 +8,12 @@
     <Filter Include="Precompiled headers">
       <UniqueIdentifier>{378c0806-17f0-419e-93cd-e16e9155eea7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{a049b221-6207-41c8-9c89-f7b5da9178c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Updater">
+      <UniqueIdentifier>{f4404958-2588-4931-af17-7e250fbcf127}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -17,20 +23,50 @@
       <Filter>Precompiled headers</Filter>
     </ClInclude>
     <ClInclude Include="LauncherApp.h" />
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigDlg.h">
+      <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowerUpdater.h">
+      <Filter>Updater</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdaterDlg.h">
+      <Filter>Updater</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Precompiled headers</Filter>
     </ClCompile>
     <ClCompile Include="LauncherApp.cpp" />
+    <ClCompile Include="ConfigDlg.cpp">
+      <Filter>Config</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowerUpdater.cpp">
+      <Filter>Updater</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdaterDlg.cpp">
+      <Filter>Updater</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="Config.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\x14.ico">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="res\Config.rc2">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Common\config.ico">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

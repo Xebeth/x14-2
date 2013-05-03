@@ -12,6 +12,7 @@
 #include <stdhdr.h>
 
 #include <ModuleInjection.h>
-#include <Updaterx14.h>
+#include <PluginSDK.h>
+#include <Updater.h>
 
 #endif//__LAUNCHER_AFX_H__
