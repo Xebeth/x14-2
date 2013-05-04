@@ -57,6 +57,7 @@ public:
 	afx_msg void OnAutoUpdateChange();
 	afx_msg void OnDeleteProfile();
 	afx_msg void OnVSyncChange();
+	afx_msg void OnCreateLink();
 	afx_msg void OnPathBrowse();
 	afx_msg void OnPathChange();
 	afx_msg void OnNewProfile();

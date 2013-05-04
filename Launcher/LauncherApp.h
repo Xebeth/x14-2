@@ -68,6 +68,9 @@ public:
 	BOOL InitInstance();
 
 	static CString& ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CString &LinkTarget_out);
+	static bool CreateLink(const string_t &SavePath_in, const string_t &LinkTarget_in,
+						   const string_t &WorkingDir_in, const TCHAR *pArgs_in = NULL,
+						   const TCHAR *pDesc_in = NULL, int IconIndex_in = 0);
 
 protected:
 	class DummyServices : public PluginFramework::IPluginServices

@@ -84,50 +84,95 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 	}
 }
 
-CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CString &LinkTarget_out)
+bool LauncherApp::CreateLink(const string_t &SavePath_in, const string_t &LinkTarget_in,
+							 const string_t &WorkingDir_in, const TCHAR *pArgs_in,
+							 const TCHAR *pDesc_in, int IconIndex_in)
 {
-	IShellLink *psl;
-	HRESULT hres;
+	IShellLink* pShellLink = NULL;
+	HRESULT hResult = S_FALSE;
 
 	::CoInitialize(NULL);
 
-	// Get a pointer to the IShellLink interface. It is assumed that CoInitialize
-	// has already been called. 
-	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl); 
-	if (SUCCEEDED(hres)) 
+	// get a pointer to the IShellLink interface
+	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
+
+	if (SUCCEEDED(hResult)) 
+	{ 
+		IPersistFile* pPersistentFile; 
+
+		// Set the path to the shortcut target and add the description
+		pShellLink->SetIconLocation(LinkTarget_in.c_str(), IconIndex_in);
+		pShellLink->SetWorkingDirectory(WorkingDir_in.c_str());		
+		pShellLink->SetPath(LinkTarget_in.c_str());
+
+		if (pArgs_in != NULL)
+			pShellLink->SetArguments(pArgs_in);
+		
+		if (pDesc_in != NULL)
+			pShellLink->SetDescription(pDesc_in); 
+
+		// get a pointer to the IPersistFile interface
+		hResult = pShellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&pPersistentFile); 
+
+		if (SUCCEEDED(hResult) && pPersistentFile != NULL) 
+		{ 
+			// Save the link by calling IPersistFile::Save
+			hResult = pPersistentFile->Save(SavePath_in.c_str(), TRUE); 
+			pPersistentFile->Release(); 
+		} 
+
+		pShellLink->Release(); 
+	} 
+
+	::CoUninitialize();
+
+	return SUCCEEDED(hResult);
+}
+
+CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CString &LinkTarget_out)
+{
+	IShellLink *pShellLink = NULL;
+	HRESULT hResult = S_FALSE;
+
+	::CoInitialize(NULL);
+
+	// get a pointer to the IShellLink interface
+	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
+
+	if (SUCCEEDED(hResult) && pShellLink != NULL) 
 	{
-		IPersistFile* ppf; 
+		IPersistFile* pPersistentFile = NULL; 
 
-		// Get a pointer to the IPersistFile interface. 
-		hres = psl->QueryInterface(IID_IPersistFile, (void**)&ppf); 
+		// get a pointer to the IPersistFile interface
+		hResult = pShellLink->QueryInterface(IID_IPersistFile, (void**)&pPersistentFile); 
 
-		if (SUCCEEDED(hres)) 
+		if (SUCCEEDED(hResult) && pPersistentFile != NULL) 
 		{
 			// Load the shortcut. 
-			hres = ppf->Load(pLinkPath_in, STGM_READ); 
+			hResult = pPersistentFile->Load(pLinkPath_in, STGM_READ); 
 
-			if (SUCCEEDED(hres)) 
+			if (SUCCEEDED(hResult)) 
 			{ 
 				// Resolve the link. 
-				hres = psl->Resolve(hWnd_in, 0); 
+				hResult = pShellLink->Resolve(hWnd_in, 0); 
 
-				if (SUCCEEDED(hres)) 
+				if (SUCCEEDED(hResult)) 
 				{ 
 					WIN32_FIND_DATA wfd;
 
 					// Get the path to the link target. 
-					hres = psl->GetPath(LinkTarget_out.GetBuffer(MAX_PATH), MAX_PATH, (WIN32_FIND_DATA*)&wfd, NULL); 
+					hResult = pShellLink->GetPath(LinkTarget_out.GetBuffer(MAX_PATH), MAX_PATH, (WIN32_FIND_DATA*)&wfd, NULL); 
 					// unlock the buffer
 					LinkTarget_out.ReleaseBuffer(-1);
 				} 
 			} 
 
 			// Release the pointer to the IPersistFile interface. 
-			ppf->Release(); 
+			pPersistentFile->Release(); 
 		} 
 
 		// Release the pointer to the IShellLink interface. 
-		psl->Release(); 
+		pShellLink->Release(); 
 	} 
 
 	::CoUninitialize();
