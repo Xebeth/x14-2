@@ -15,5 +15,6 @@
 #include <VisualManager.h>
 #include <PluginSDK.h>
 #include <Updater.h>
+#include <Realloc.h>
 
 #endif//__LAUNCHER_AFX_H__

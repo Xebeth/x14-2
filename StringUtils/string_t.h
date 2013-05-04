@@ -22,13 +22,13 @@ typedef std::basic_istream<TCHAR> istream_t;
 	#define STRING_T_NPOS string_t::npos
 #endif
 
-template<typename T> size_t get_format_length(const T* pFormat_in, va_list ArgList_in);
-template<> size_t get_format_length(const wchar_t* pFormat_in, va_list ArgList_in);
-template<> size_t get_format_length(const char* pFormat_in, va_list ArgList_in);
+template<typename T> typename std::basic_string<T>::size_type get_format_length(const T* pFormat_in, va_list ArgList_in);
+template<> std::basic_string<wchar_t>::size_type get_format_length(const wchar_t* pFormat_in, va_list ArgList_in);
+template<> std::basic_string<char>::size_type get_format_length(const char* pFormat_in, va_list ArgList_in);
 
-template<typename T> size_t format_arglist(T** pBuffer_in_out, size_t BufferSize_in, const T* pFormat_in, va_list ArgList_in);
-template<> size_t format_arglist(wchar_t** pBuffer_in_out, size_t BufferSize_in, const wchar_t* pFormat_in, va_list ArgList_in);
-template<> size_t format_arglist(char** pBuffer_in_out, size_t BufferSize_in, const char* pFormat_in, va_list ArgList_in);
+template<typename T> typename std::basic_string<T>::size_type format_arglist(T** pBuffer_in_out, typename std::basic_string<T>::size_type BufferSize_in, const T* pFormat_in, va_list ArgList_in);
+template<> std::basic_string<wchar_t>::size_type format_arglist(wchar_t** pBuffer_in_out, std::basic_string<wchar_t>::size_type BufferSize_in, const wchar_t* pFormat_in, va_list ArgList_in);
+template<> std::basic_string<char>::size_type format_arglist(char** pBuffer_in_out, std::basic_string<char>::size_type BufferSize_in, const char* pFormat_in, va_list ArgList_in);
 
 /*! \brief Formats a string a returns a reference to it using an argument list and format
 	\param[out] String_out : the string to be formatted
@@ -40,7 +40,7 @@ template<typename T> std::basic_string<T>& format(std::basic_string<T> &String_o
 {
 	if (pFormat_in != NULL)
 	{
-		size_t DataSize, StrLength = get_format_length(pFormat_in, ArgList_in);
+		std::basic_string<T>::size_type DataSize, StrLength = get_format_length(pFormat_in, ArgList_in);
 
 		DataSize = StrLength * sizeof(T);
 		// abort if _vsctprintf failed
@@ -128,8 +128,8 @@ template<typename T> std::basic_string<T>& append_format(std::basic_string<T> &S
 	\param[in] Find_in : the string to find
 	\param[in] Replace_in : the string to replace with
 */
-template<typename T> std::basic_string<T>& replace(std::basic_string<T> &String_in_out, const std::basic_string<T> &Find_in, 
-												   const std::basic_string<T> &Replace_in, size_t StrPos_in = 0)
+template<typename T> typename std::basic_string<T>& replace(std::basic_string<T> &String_in_out, const std::basic_string<T> &Find_in, 
+															const std::basic_string<T> &Replace_in, typename std::basic_string<T>::size_type StrPos_in = 0UL)
 {
 	std::basic_string<T>::size_type ReplaceLength = Replace_in.length();
 	std::basic_string<T>::size_type FindLength = Find_in.length();
@@ -174,6 +174,49 @@ template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in
 	return String_in_out;
 }
 
+/*! \brief Normalizes a path by settings all the slashes forward and adding a final slash if needed
+	\param[in,out] Path_in_out : the path to normalize
+*/
+template<typename T> void normalize_path(std::basic_string<T> &Path_in_out, bool bForward_in = true)
+{
+	if (Path_in_out.empty() == false)
+	{
+		const T cForward = '/', cBack = '\\';
+		std::basic_string<T> ReplaceStr;
+		std::basic_string<T> FindStr;
+		
+		const T cReplace = (bForward_in ? cForward : cBack);
+		const T cFind = (bForward_in ? cBack : cForward);
+
+		ReplaceStr += cReplace;
+		FindStr += cFind;
+
+		replace(Path_in_out, FindStr, ReplaceStr);
+
+		if (Path_in_out.back() != cReplace)
+			Path_in_out += cReplace;
+	}
+}
+
+/*! \brief Initializes a string with a path and normalizes it
+	\param[in] pPath_in : the string containing the raw path
+	\param[out] Path_out : the normalized path
+	\return the length of the normalized path
+*/
+template<typename T> typename std::basic_string<T>::size_type initialize_path(const T* pPath_in, std::basic_string<T> &Path_out, bool bForward_in = true)
+{
+	if (pPath_in != NULL)
+	{
+		Path_out.assign(pPath_in);
+		normalize_path(Path_out, bForward_in);
+		Path_out.shrink_to_fit();
+
+		return Path_out.size();
+	}
+
+	return 0UL;
+}
+
 /*! \brief Tokenize a string given a delimiter and separator
 	\param[in] String_in : the string to tokenize
 	\param[out] Tokens_out : the tokens parsed from the string
@@ -181,8 +224,8 @@ template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in
 	\param[in] Delimiter_in : the delimiter used to parse the string
 	\return the number of tokens found
 */
-template<typename T> size_t tokenize(const std::basic_string<T> &String_in, std::list< std::basic_string<T> > &Tokens_out,
-									 const T* Separator_in, const T* Delimiter_in)
+template<typename T> typename std::basic_string<T>::size_type tokenize(const std::basic_string<T> &String_in, std::list< std::basic_string<T> > &Tokens_out,
+																	   const T* Separator_in, const T* Delimiter_in)
 {
 	std::basic_string<T>::size_type DelimiterPos = 0, SeparatorPos = 0, NotSeparatorPos = 0, LastPos;
 

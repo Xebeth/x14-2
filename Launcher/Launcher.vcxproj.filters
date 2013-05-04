@@ -38,6 +38,9 @@
     <ClInclude Include="UpdaterDlg.h">
       <Filter>Updater</Filter>
     </ClInclude>
+    <ClInclude Include="EditLinkTarget.h">
+      <Filter>Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -52,6 +55,9 @@
     </ClCompile>
     <ClCompile Include="UpdaterDlg.cpp">
       <Filter>Updater</Filter>
+    </ClCompile>
+    <ClCompile Include="EditLinkTarget.cpp">
+      <Filter>Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
