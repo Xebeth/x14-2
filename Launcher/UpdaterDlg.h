@@ -18,8 +18,9 @@ namespace Windower
 	class SettingsManager;
 	class WindowerUpdater;
 
-	class UpdaterDlg : public CDialog, public Updater::IThreadProgress
+	class UpdaterDlg : public CDialogEx, public Updater::IThreadProgress
 	{
+		enum { IDD = IDD_UPDATE_DLG };
 	public:
 		enum eUpdateListColumns
 		{

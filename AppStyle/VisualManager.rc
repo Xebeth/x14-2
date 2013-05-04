@@ -1,0 +1,19 @@
+#ifdef APSTUDIO_INVOKED
+	#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+
+#include "Globals.rc2"
+#include "MainWnd.rc2"
+#include "Dialog.rc2"
+#include "Popup.rc2"
+#include "Bars.rc2"
+#include "TabDialog.rc2"
+#include "Header.rc2"
+#include "Combo.rc2"
+#include "Edit.rc2"
+#include "Menu.rc2"
+#include "Tabs.rc2"
+
+/////////////////////////////////////////////////////////////////////////////

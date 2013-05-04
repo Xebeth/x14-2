@@ -13,7 +13,7 @@
 
 namespace Windower
 {
-	BEGIN_MESSAGE_MAP(UpdaterDlg, CDialog)
+	BEGIN_MESSAGE_MAP(UpdaterDlg, CDialogEx)
 		ON_WM_PAINT()
 		ON_WM_QUERYDRAGICON()
 
@@ -21,7 +21,7 @@ namespace Windower
 	END_MESSAGE_MAP()
 
 	UpdaterDlg::UpdaterDlg(Windower::SettingsManager *pSettingsManager, CWnd* pParent)
-		: CDialog(IDD_UPDATE_DLG, pParent), m_pSettingsManager(pSettingsManager), m_bStarted(false)
+		: CDialogEx(IDD_UPDATE_DLG, pParent), m_pSettingsManager(pSettingsManager), m_bStarted(false)
 	{
 		m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetWorkingDir() + _T("config.ini"));
 		m_pPluginManager = new PluginFramework::PluginManager(m_pServices);
@@ -59,9 +59,12 @@ namespace Windower
 		SetIcon(m_hIcon, TRUE);			// Set big icon
 		SetIcon(m_hIcon, FALSE);		// Set small icon
 
-		CDialog::OnInitDialog();
+		CDialogEx::OnInitDialog();
 
 		m_pProgressCtrl = static_cast<CProgressCtrl*>(GetDlgItem(IDC_DL_PROGRESS));
+
+		// force the dialog to use a fixed DPI resolution
+		VisualDialog::SetFixedDPI(m_hWnd, IDD, DLG_FIXED_DPI);
 
 		return TRUE;  // return TRUE  unless you set the focus to a control
 	}
@@ -91,7 +94,7 @@ namespace Windower
 		}
 		else
 		{
-			CDialog::OnPaint();
+			CDialogEx::OnPaint();
 		}
 	}
 

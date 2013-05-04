@@ -1,0 +1,26 @@
+//
+// MENU.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+/*
+#ifdef APSTUDIO_INVOKED
+	#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+*/
+/////////////////////////////////////////////////////////////////////////////
+//
+// Style
+//
+
+DEFAULT_IDX_MENU STYLE_XML "../AppStyle/Menu.xml"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+DEFAULT_IDB_MENU_ITEM_MARKER_C	PNG  DISCARDABLE	"../AppStyle/PopupBar/Item_Marker_C.png"
+DEFAULT_IDB_MENU_BTN			PNG  DISCARDABLE	"../AppStyle/PopupBar/MenuHighlight.png"
+DEFAULT_IDB_MENU_BTN_DISABLED	PNG  DISCARDABLE	"../AppStyle/PopupBar/MenuHighlightDisabled.png"
+DEFAULT_IDB_MENU_BTN_SCROLL_T	PNG  DISCARDABLE	"../AppStyle/PopupBar/MenuScrollBtn.png"
+DEFAULT_IDB_MENU_ITEM_BACK		PNG  DISCARDABLE	"../AppStyle/PopupBar/Item_Back.png"
+// DEFAULT_IDB_MENU_ITEM_MARKER_R	PNG  DISCARDABLE	"../AppStyle/PopupBar/Item_Marker_R.png" -- already defined in Bars.rc2

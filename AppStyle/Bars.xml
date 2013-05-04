@@ -1,0 +1,184 @@
+<STYLE>
+	<VERSION>
+    <NUMBER>1</NUMBER>
+    <ID_PREFIX>DEFAULT_</ID_PREFIX>
+	</VERSION>
+	<DESCRIPTION>
+		<NAME>DEFAULT toolbar / menubar style</NAME>
+	</DESCRIPTION>
+	<BARS>
+		<DEFAULT>
+			<Bkgnd>231, 235, 246</Bkgnd>
+			<GradientLight>102, 102, 102</GradientLight>
+			<GradientDark>102, 102, 102</GradientDark>
+			<TextNormal>255, 255, 255</TextNormal>
+			<TextHighlighted>11, 80, 154</TextHighlighted>
+			<TextDisabled>127, 127, 127</TextDisabled>
+		</DEFAULT>
+		<TOOLBAR>
+			<GradientLight>220, 220, 220</GradientLight>
+			<GradientDark>220, 220, 220</GradientDark>
+			<GradientVertLight>220, 220, 220</GradientVertLight>
+			<GradientVertDark>220, 220, 220</GradientVertDark>
+			<CustomizeButtonGradientLight>231, 235, 246</CustomizeButtonGradientLight>
+			<CustomizeButtonGradientDark>191, 198, 227</CustomizeButtonGradientDark>
+			<BottomLineColor>5, 82, 152</BottomLineColor>
+      <TitleTextColor>30, 89, 168</TitleTextColor>
+      <TitleLineColor>30, 89, 168</TitleLineColor>
+			<GRIPPER>
+				<SIZE>4, 4</SIZE>
+				<TRANSPARENT>255, 0, 255</TRANSPARENT>
+			</GRIPPER>
+			<TEAR>
+				<SIZE>35, 3</SIZE>
+				<TRANSPARENT>255, 0, 255</TRANSPARENT>
+			</TEAR>
+			<BUTTON>
+				<SIZE>22, 22</SIZE>
+				<CORNERS>2, 2, 2, 2</CORNERS>
+			</BUTTON>
+			<BORDER>
+				<SIZE>7, 7</SIZE>
+				<CORNERS>3, 3, 3, 3</CORNERS>
+				<SIDES>1, 1, 1, 1</SIDES>
+			</BORDER>
+			<TextNormal>0, 20, 110</TextNormal>
+			<TextHighlighted>0, 20, 110</TextHighlighted>
+			<TextDisabled>159, 141, 154</TextDisabled>
+		</TOOLBAR>
+		<MENUBAR>
+			<GradientLight>80, 124, 173</GradientLight>
+			<GradientDark>0, 50, 100</GradientDark>
+			<GradientLight2>4, 71, 124</GradientLight2>
+			<GradientDark2>0, 50, 100</GradientDark2>
+			<GradientVertLight>80, 124, 173</GradientVertLight>
+			<GradientVertDark>0, 50, 100</GradientVertDark>
+			<TextNormal>255, 255, 255</TextNormal>
+			<TextHighlighted>255, 255, 255</TextHighlighted>
+			<TextDisabled>170, 170, 170</TextDisabled>
+			<BUTTON>
+				<SIZE>22, 20</SIZE>
+				<CORNERS>2, 2, 2, 2</CORNERS>
+				<TRANSPARENT>255, 0, 255</TRANSPARENT>
+			</BUTTON>
+		</MENUBAR>
+		<POPUPBAR>
+			<ROUND_BORDER>3, 3</ROUND_BORDER>
+			<BORDER>
+				<SIZE>7, 7</SIZE>
+				<CORNERS>3, 3, 3, 3</CORNERS>
+				<SIDES>2, 2, 2, 2</SIDES>
+				<TRANSPARENT>255, 0, 255</TRANSPARENT>
+			</BORDER>
+			<RESIZEBAR>
+				<BACK>
+					<SIZE>3, 11</SIZE>
+					<CORNERS>1, 2, 1, 1</CORNERS>
+				</BACK>
+				<ICON_HV>
+					<SIZE>9, 8</SIZE>
+					<TRANSPARENT>255, 0, 255</TRANSPARENT>
+				</ICON_HV>
+				<ICON_HVT>
+					<SIZE>9, 8</SIZE>
+					<TRANSPARENT>255, 0, 255</TRANSPARENT>
+				</ICON_HVT>
+				<ICON_V>
+					<SIZE>15, 3</SIZE>
+					<TRANSPARENT>255, 0, 255</TRANSPARENT>
+				</ICON_V>
+			</RESIZEBAR>
+		</POPUPBAR>
+		<STATUSBAR>
+			<BACK>
+				<SIZE>35, 23</SIZE>
+				<CORNERS>5, 8, 5, 5</CORNERS>
+				<SIDES>1, 8, 1, 3</SIDES>
+			</BACK>
+			<BACK_EXT>
+				<SIZE>35, 23</SIZE>
+				<CORNERS>2, 8, 5, 5</CORNERS>
+				<SIDES>2, 8, 1, 3</SIDES>
+			</BACK_EXT>
+			<PANEBORDER>
+				<SIZE>2, 20</SIZE>
+			</PANEBORDER>
+			<SIZEBOX>
+				<SIZE>11, 11</SIZE>
+			</SIZEBOX>
+			<TextNormal>255, 255, 255</TextNormal>
+			<TextDisabled>102, 102, 102</TextDisabled>
+		</STATUSBAR>
+		<CAPTIONBAR>
+			<GradientLight>243, 243, 247</GradientLight>
+			<GradientDark>215, 215, 229</GradientDark>
+			<TextNormal>0, 0, 0</TextNormal>
+		</CAPTIONBAR>
+		<SCROLLBAR>
+			<HORZ>
+				<BACK_1>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>1, 1, 1, 1</CORNERS>
+				</BACK_1>
+				<ITEM_1>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>3, 3, 3, 3</CORNERS>
+				</ITEM_1>
+				<THUMB_BACK_1>
+					<SIZE>21, 17</SIZE>
+					<CORNERS>2, 2, 2, 2</CORNERS>
+				</THUMB_BACK_1>
+				<THUMB_ICON_1>
+					<SIZE>8, 7</SIZE>
+				</THUMB_ICON_1>
+				<BACK_2>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>1, 1</CORNERS>
+				</BACK_2>
+				<ITEM_2>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>3, 3, 3, 3</CORNERS>
+				</ITEM_2>
+				<THUMB_BACK_2>
+					<SIZE>21, 17</SIZE>
+					<CORNERS>2, 2, 2, 2</CORNERS>
+				</THUMB_BACK_2>
+				<THUMB_ICON_2>
+					<SIZE>8, 7</SIZE>
+				</THUMB_ICON_2>
+			</HORZ>
+			<VERT>
+				<BACK_1>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>1, 1, 1, 1</CORNERS>
+				</BACK_1>
+				<ITEM_1>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>3, 3, 3, 3</CORNERS>
+				</ITEM_1>
+				<THUMB_BACK_1>
+					<SIZE>17, 21</SIZE>
+					<CORNERS>2, 2, 2, 2</CORNERS>
+				</THUMB_BACK_1>
+				<THUMB_ICON_1>
+					<SIZE>7, 8</SIZE>
+				</THUMB_ICON_1>
+				<BACK_2>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>1, 1</CORNERS>
+				</BACK_2>
+				<ITEM_2>
+					<SIZE>17, 17</SIZE>
+					<CORNERS>3, 3, 3, 3</CORNERS>
+				</ITEM_2>
+				<THUMB_BACK_2>
+					<SIZE>17, 21</SIZE>
+					<CORNERS>2, 2, 2, 2</CORNERS>
+				</THUMB_BACK_2>
+				<THUMB_ICON_2>
+					<SIZE>7, 8</SIZE>
+				</THUMB_ICON_2>
+			</VERT>
+		</SCROLLBAR>
+	</BARS>
+</STYLE>

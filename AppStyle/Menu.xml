@@ -1,0 +1,46 @@
+<STYLE>
+  <VERSION>
+    <NUMBER>1</NUMBER>
+    <ID_PREFIX>DEFAULT_</ID_PREFIX>
+  </VERSION>
+  <DESCRIPTION>
+    <NAME>DEFAULT menu style</NAME>
+  </DESCRIPTION>
+  <MENU>
+    <Light>245, 245, 245</Light>
+    <Rarely>206, 212, 225</Rarely>
+    <Border>125, 123, 123</Border>
+    <Separator1>225, 225, 225</Separator1>
+    <Separator2>231, 235, 246</Separator2>
+    <ItemBorder>190, 202, 223</ItemBorder>
+    <ItemBack>
+      <SIZE>20, 20</SIZE>
+      <CORNERS>2, 2, 2, 2</CORNERS>
+    </ItemBack>
+    <ItemCheck>
+      <SIZE>10, 14</SIZE>
+    </ItemCheck>
+    <ItemRadio>
+      <SIZE>10, 14</SIZE>
+    </ItemRadio>
+    <Highlighted>
+      <SIZE>55, 22</SIZE>
+      <CORNERS>5, 5, 5, 5</CORNERS>
+      <SIDES>1, 5, 1, 5</SIDES>
+    </Highlighted>
+    <HighlightedDisabled>
+      <SIZE>55, 22</SIZE>
+      <CORNERS>5, 5, 5, 5</CORNERS>
+      <SIDES>1, 5, 1, 5</SIDES>
+    </HighlightedDisabled>
+    <ScrollBtn_T>
+      <SIZE>30, 12</SIZE>
+      <CORNERS>2, 2, 2, 2</CORNERS>
+    </ScrollBtn_T>
+    <TextNormal>0, 21, 110</TextNormal>
+    <TextHighlighted>0, 21, 110</TextHighlighted>
+    <TextDisabled>167, 167, 167</TextDisabled>
+    <ImagesColor>0, 21, 110</ImagesColor>
+    <BorderSize>2</BorderSize>
+  </MENU>
+</STYLE>

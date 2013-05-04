@@ -23,6 +23,8 @@ namespace Windower
 
 		GetCurrentDirectory(_MAX_PATH, DirPath);
 		m_pSettingsManager = new SettingsManager(DirPath, _T("config.ini"));
+		m_pDummyServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetConfigFile());
+		m_pPluginManager = new PluginFramework::PluginManager(m_pDummyServices);
 	}
 
 	LauncherApp::~LauncherApp()
@@ -32,6 +34,20 @@ namespace Windower
 			delete m_pSettingsManager;
 			m_pSettingsManager = NULL;
 		}
+
+		if (m_pPluginManager != NULL)
+		{
+			delete m_pPluginManager;
+			m_pPluginManager = NULL;
+		}
+
+		if (m_pDummyServices != NULL)
+		{
+			delete m_pDummyServices;
+			m_pDummyServices = NULL;
+		}
+
+		VisualManager::DestroyInstance();
 	}
 
 	/*! \brief Override parse parameter function called by ParseCommandLine()
@@ -109,12 +125,13 @@ namespace Windower
 	}
 	BOOL LauncherApp::InitInstance()
 	{
-		string_t DLL32Path, ExePath, CmdLine, GamePath;
-		bool ShowConfig = true, Launch = true;
+		bool ShowConfig = true, Launch = false, PluginsInit = false;
+		string_t DLL32Path, ExePath, CmdLine, GamePath;		
 		TCHAR DirPath[_MAX_PATH] = { '\0' };
 		INITCOMMONCONTROLSEX InitCtrls;
 		UpdaterDlg *pUpdaterDlg = NULL;	
 		ConfigDlg *pConfigDlg = NULL;
+		CMFCToolTipInfo ttParams;
 		WindowerProfile Settings;
 		CString SID, ProfileName;
 		LauncherCmdLine CmdInfo;
@@ -127,6 +144,13 @@ namespace Windower
 		// in your application.
 		InitCtrls.dwICC = ICC_WIN95_CLASSES;
 		InitCommonControlsEx(&InitCtrls);
+		// disable Aero to prevent bugs with dialogs client area => see VisualManager::IsOwnerDrawCaption()
+		// this forces AFX_GLOBAL_DATA.DwmIsCompositionEnabled() to return FALSE
+		afxGlobalData.bDisableAero = TRUE;
+		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(VisualManager));
+		// tooltip support
+		ttParams.m_bVislManagerTheme = TRUE;
+		GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL, RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
 		CWinApp::InitInstance();
 
@@ -139,6 +163,12 @@ namespace Windower
 		// what "valid" is for the configuration...
 		if (m_pSettingsManager->IsAutoUpdated())
 		{
+			if (m_pPluginManager != NULL)
+			{
+				m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
+				PluginsInit = true;
+			}
+
 			pUpdaterDlg = new UpdaterDlg(m_pSettingsManager);
 
 			pUpdaterDlg->DoModal();
@@ -187,24 +217,28 @@ namespace Windower
 				format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
 				format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
 				// generate the command line
-				ShowConfig = !CreateCmdLine(CmdLine, GamePath, Settings.GetLanguage(), SID);
+				Launch = CreateCmdLine(CmdLine, GamePath, Settings.GetLanguage(), SID);
 			}
 			else
 			{
 				// default injection chain through boot
 				format(ExePath, _T("%sboot\\ffxivboot.exe"), GamePath.c_str());
 				format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
+				Launch = true;
 			}
 		}
 
-		if (ShowConfig)
+		if (m_pSettingsManager != NULL && m_pPluginManager != NULL && (ShowConfig || Launch == false))
 		{
-			m_pMainWnd = pConfigDlg = new ConfigDlg(m_pSettingsManager);
+			if (PluginsInit == false)
+				m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
+
+			m_pMainWnd = pConfigDlg = new ConfigDlg(*m_pPluginManager, *m_pSettingsManager);
 			Launch = (pConfigDlg->DoModal() == IDOK);
 
 			if (pConfigDlg != NULL)
 			{
-				delete pUpdaterDlg;
+				delete pConfigDlg;
 				m_pMainWnd = pConfigDlg = NULL;
 			}
 		}

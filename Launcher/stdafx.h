@@ -12,6 +12,7 @@
 #include <stdhdr.h>
 
 #include <ModuleInjection.h>
+#include <VisualManager.h>
 #include <PluginSDK.h>
 #include <Updater.h>
 

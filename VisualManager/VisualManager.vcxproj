@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release + Debug Info|Win32">
+      <Configuration>Release + Debug Info</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{03D09922-EAC7-45B8-BE8B-472B55434A07}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VisualManager</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Solution Directories.props" />
+    <Import Project="..\vld.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Solution Directories.props" />
+    <Import Project="..\vld.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Solution Directories.props" />
+    <Import Project="..\vld.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TargetName>$(ProjectName).x86d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TargetName>$(ProjectName).x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TargetName>$(ProjectName).x86</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_VISUAL_MANAGER_SDK_INCLUDE_;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/zlib/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_VISUAL_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/zlib/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_VISUAL_MANAGER_SDK_INCLUDE_;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/zlib/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="ImageListButton.h" />
+    <ClInclude Include="TabHeader.h" />
+    <ClInclude Include="TabPage.h" />
+    <ClInclude Include="VisualManager.h" />
+    <ClInclude Include="VisualDialog.h" />
+    <ClInclude Include="VisualDialogImpl.h" />
+    <ClInclude Include="OverlayTabCtrl.h" />
+    <ClInclude Include="setdpi.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VisualMgr.h" />
+    <ClInclude Include="VisualTab.h" />
+    <ClInclude Include="VisualTabCtrl.h" />
+    <ClInclude Include="VisualTabDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ImageListButton.cpp" />
+    <ClCompile Include="TabHeader.cpp" />
+    <ClCompile Include="TabPage.cpp" />
+    <ClCompile Include="VisualDialog.cpp" />
+    <ClCompile Include="VisualDialogImpl.cpp" />
+    <ClCompile Include="OverlayTabCtrl.cpp" />
+    <ClCompile Include="setdpi.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-MT|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-MD|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-MD|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-MD-dbg|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VisualMgr.cpp" />
+    <ClCompile Include="VisualTab.cpp" />
+    <ClCompile Include="VisualTabCtrl.cpp" />
+    <ClCompile Include="VisualTabDialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\AppStyle\AppCaption\SysBtn_Back.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Close.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Close_S.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Maximize.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Maximize_S.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Minimize.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Minimize_S.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Restore.png" />
+    <None Include="..\AppStyle\AppCaption\SysBtn_Restore_S.png" />
+    <None Include="..\AppStyle\Bars.rc2" />
+    <None Include="..\AppStyle\Bars.xml" />
+    <None Include="..\AppStyle\Dialog.rc2" />
+    <None Include="..\AppStyle\Dialog.xml" />
+    <None Include="..\AppStyle\Globals.rc2" />
+    <None Include="..\AppStyle\Globals.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\AppStyle\MainWnd.rc2" />
+    <None Include="..\AppStyle\MainWnd.xml" />
+    <None Include="..\AppStyle\MainWnd\Border.png" />
+    <None Include="..\AppStyle\MainWnd\BorderCaption.png" />
+    <None Include="..\AppStyle\MainWnd\BorderMDIChild.png" />
+    <None Include="..\AppStyle\MenuBar\Btn.png" />
+    <None Include="..\AppStyle\Popup.rc2" />
+    <None Include="..\AppStyle\Popup.xml" />
+    <None Include="..\AppStyle\PopupBar\Border.png" />
+    <None Include="..\AppStyle\PopupBar\Gripper.png" />
+    <None Include="..\AppStyle\PopupBar\Item_Back.png" />
+    <None Include="..\AppStyle\PopupBar\Item_Marker_C.png" />
+    <None Include="..\AppStyle\PopupBar\Item_Marker_R.png" />
+    <None Include="..\AppStyle\PopupBar\MenuHighlight.png" />
+    <None Include="..\AppStyle\PopupBar\MenuHighlightDisabled.png" />
+    <None Include="..\AppStyle\PopupBar\MenuScrollBtn.png" />
+    <None Include="..\AppStyle\PopupBar\ResizeBar.png" />
+    <None Include="..\AppStyle\PopupBar\ResizeBar_HV.png" />
+    <None Include="..\AppStyle\PopupBar\ResizeBar_HVT.png" />
+    <None Include="..\AppStyle\PopupBar\ResizeBar_V.png" />
+    <None Include="..\AppStyle\PopupBar\Tear.png" />
+    <None Include="..\AppStyle\StatusBar\Back.png" />
+    <None Include="..\AppStyle\StatusBar\Back_Ext.png" />
+    <None Include="..\AppStyle\StatusBar\PaneBorder.png" />
+    <None Include="..\AppStyle\StatusBar\SizeGrip.png" />
+    <None Include="..\AppStyle\ToolBar\Border.png" />
+    <None Include="..\AppStyle\ToolBar\Btn.png" />
+    <None Include="AppStyle\Combo.rc2" />
+    <None Include="AppStyle\Combo.xml" />
+    <None Include="AppStyle\Edit.rc2" />
+    <None Include="AppStyle\Edit.xml" />
+    <None Include="AppStyle\Header.rc2" />
+    <None Include="AppStyle\Header.xml" />
+    <None Include="AppStyle\Menu.rc2" />
+    <None Include="AppStyle\Menu.xml" />
+    <None Include="AppStyle\TabDialog.rc2" />
+    <None Include="AppStyle\TabDialog.xml" />
+    <None Include="AppStyle\Tabs.rc2" />
+    <None Include="AppStyle\Tabs.xml" />
+    <None Include="AppStyle\Tab\3D.png" />
+    <None Include="AppStyle\Tab\Flat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\AppStyle\VisualManager.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

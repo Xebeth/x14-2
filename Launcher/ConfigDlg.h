@@ -19,10 +19,15 @@ namespace PluginFramework
 namespace Windower
 {
 	//! \brief Main dialog
-	class ConfigDlg : public CDialog
+	class ConfigDlg : public CDialogEx
 	{
 		enum { IDD = IDD_CONFIG_DIALOG };
 	public:
+		enum eIconIndex
+		{
+			ICON_CREATE_LINK = 0U,
+			ICON_COUNT
+		};
 
 		enum ePluginListColumns
 		{
@@ -36,7 +41,8 @@ namespace Windower
 			LIST_COL_COUNT
 		};
 
-		ConfigDlg(SettingsManager *pSettingsManager, CWnd* pParent = NULL);
+		ConfigDlg(PluginFramework::PluginManager &PluginManager_in,
+				  SettingsManager &SettingsManager_in, CWnd* pParent_in = NULL);
 		~ConfigDlg();
 
 		void InsertPlugin(CListCtrl *pListCtrl_in_out, const PluginFramework::PluginInfo &PluginInfo_in);
@@ -57,23 +63,9 @@ namespace Windower
 		afx_msg void OnSave();
 
 	protected:
-		class DummyServices : public PluginFramework::IPluginServices
-		{
-		public:
-			explicit DummyServices(const PluginFramework::VersionInfo &Version_in, const string_t& WorkingDir_in)
-				: PluginFramework::IPluginServices(Version_in), m_WorkingDir(WorkingDir_in) {}
-		private:
-			bool InvokeService(const string_t&, const string_t&, PluginFramework::ServiceParam &) const { return true; }
-			bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-			bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-			const TCHAR* GetConfigFile() const { return m_WorkingDir.c_str(); }
-
-			string_t m_WorkingDir;
-		};
+		void DoDataExchange(CDataExchange* pDX_in);
 		// Generated message map functions
 		BOOL OnInitDialog();
-		afx_msg void OnPaint();
-		afx_msg HCURSOR OnQueryDragIcon();
 		DECLARE_MESSAGE_MAP()
 
 		void GenerateNewName(CString &NewName_in_out);
@@ -83,10 +75,11 @@ namespace Windower
 		void OnCancel();
 		void OnOK();
 
-		PluginFramework::PluginManager *m_pPluginManager;
-		SettingsManager *m_pSettingsManager;
+		PluginFramework::PluginManager &m_PluginManager;
 		WindowerProfile *m_pCurrentSettings;
-		DummyServices *m_pServices;
+		SettingsManager &m_SettingsManager;
+		CImageListButton *m_pLinkButton;
+		CImageList m_ImageList;
 		int m_CurrentSel;
 		HICON m_hIcon;
 	};

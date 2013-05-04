@@ -1,0 +1,14 @@
+//
+// HEADER.RC2 - resources Microsoft Visual C++ does not edit directly
+//
+/*
+#ifdef APSTUDIO_INVOKED
+	#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+*/
+/////////////////////////////////////////////////////////////////////////////
+//
+// Style
+//
+
+DEFAULT_IDX_HEADER STYLE_XML "../AppStyle/Header.xml"

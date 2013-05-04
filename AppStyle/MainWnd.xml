@@ -1,0 +1,53 @@
+<STYLE>
+  <VERSION>
+    <NUMBER>1</NUMBER>
+    <ID_PREFIX>DEFAULT_</ID_PREFIX>
+  </VERSION>
+  <DESCRIPTION>
+    <NAME>DEFAULT main window style</NAME>
+  </DESCRIPTION>
+  <MAINWND>
+    <CAPTION>
+      <ActiveStart>5, 83, 154</ActiveStart>
+      <ActiveFinish>5, 83, 154</ActiveFinish>
+      <InactiveStart>55, 108, 173</InactiveStart>
+      <InactiveFinish>55, 108, 173</InactiveFinish>
+      <ActiveText>234, 236, 246</ActiveText>
+      <InactiveText>197, 198, 200</InactiveText>
+      <ActiveTitleText>255, 255, 255</ActiveTitleText>
+      <InactiveTitleText>197, 198, 200</InactiveTitleText>
+      <TextCenter>FALSE</TextCenter>
+      <BORDER>
+        <SIZE>0, 31</SIZE>
+        <CORNERS>14, 22, 14, 1</CORNERS>
+        <SIDES>14, 2, 14, 1</SIDES>
+      </BORDER>
+      <BUTTONS>
+        <NORMAL>
+          <ConstSize>21, 21</ConstSize>
+          <IconSize>21, 21</IconSize>
+          <SIZE>21, 21</SIZE>
+          <CORNERS>4, 4, 4, 4</CORNERS>
+        </NORMAL>
+        <SMALL>
+          <ConstSize>16, 16</ConstSize>
+          <IconSize>16, 14</IconSize>
+          <SIZE>21, 21</SIZE>
+          <CORNERS>4, 4, 4, 4</CORNERS>
+        </SMALL>
+      </BUTTONS>
+    </CAPTION>
+    <ROUND_BORDER>9, 9</ROUND_BORDER>
+    <BORDER>
+      <SIZE>35, 23</SIZE>
+      <CORNERS>17, 0, 17, 22</CORNERS>
+      <SIDES>17, 0, 17, 17</SIDES>
+    </BORDER>
+    <BORDER_MDICHILD>
+      <SIZE>35, 23</SIZE>
+      <CORNERS>17, 0, 17, 22</CORNERS>
+      <SIDES>17, 0, 17, 17</SIDES>
+    </BORDER_MDICHILD>
+    <MainClientArea>181, 189, 211</MainClientArea>
+  </MAINWND>
+</STYLE>

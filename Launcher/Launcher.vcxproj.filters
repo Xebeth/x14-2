@@ -14,6 +14,9 @@
     <Filter Include="Updater">
       <UniqueIdentifier>{f4404958-2588-4931-af17-7e250fbcf127}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\images">
+      <UniqueIdentifier>{72ef56c1-4744-4661-a7f7-8b2e0d7359c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -60,14 +63,17 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Common\x14.ico">
-      <Filter>Resources</Filter>
-    </None>
     <None Include="res\Config.rc2">
       <Filter>Resources</Filter>
     </None>
     <None Include="..\Common\config.ico">
-      <Filter>Resources</Filter>
+      <Filter>Resources\images</Filter>
+    </None>
+    <None Include="..\Common\x14.ico">
+      <Filter>Resources\images</Filter>
+    </None>
+    <None Include="res\dlg_config.png">
+      <Filter>Resources\images</Filter>
     </None>
   </ItemGroup>
 </Project>

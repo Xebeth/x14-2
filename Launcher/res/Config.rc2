@@ -4,6 +4,18 @@
 
 #include "version.h"
 
+#include "../AppStyle/Globals.rc2"
+#include "../AppStyle/MainWnd.rc2"
+#include "../AppStyle/Dialog.rc2"
+#include "../AppStyle/Popup.rc2"
+#include "../AppStyle/Bars.rc2"
+#include "../AppStyle/TabDialog.rc2"
+#include "../AppStyle/Header.rc2"
+#include "../AppStyle/Combo.rc2"
+#include "../AppStyle/Edit.rc2"
+#include "../AppStyle/Menu.rc2"
+#include "../AppStyle/Tabs.rc2"
+
 #if defined MODULE_MAJOR_VERSION   && defined MODULE_MINOR_VERSION && \
 	defined MODULE_RELEASE_VERSION && defined MODULE_TEST_VERSION
 	#include <verrsrc.h>

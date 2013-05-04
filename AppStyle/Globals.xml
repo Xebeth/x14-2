@@ -1,0 +1,45 @@
+<STYLE>
+	<VERSION>
+		<NUMBER>1</NUMBER>
+		<ID_PREFIX>DEFAULT_</ID_PREFIX>
+	</VERSION>
+	<DESCRIPTION>
+		<NAME>DEFAULT global values</NAME>
+	</DESCRIPTION>
+	<GLOBALS>
+		<BarText>0, 21, 110</BarText>
+		<BarFace>220, 220, 220</BarFace>
+		<CaptionText>255, 255, 255</CaptionText>
+		<ActiveCaption>170, 172, 171</ActiveCaption>
+		<InactiveCaption>181, 193, 222</InactiveCaption>
+		<PaneInactiveCaptionBorder>0, 50, 100</PaneInactiveCaptionBorder>
+		<PaneActiveCaptionBorder>220, 220, 220</PaneActiveCaptionBorder>
+		<InactiveCaptionText>255, 255, 255</InactiveCaptionText>
+		<FloatToolBarBorder>141, 149, 173</FloatToolBarBorder>
+		<BarShadow>177, 187, 198</BarShadow>
+		<BarDkShadow>106, 112, 128</BarDkShadow>
+		<BarLight>218, 223, 234</BarLight>
+		<AutoPremultiply>TRUE</AutoPremultiply>
+		<HighlightGradientDark>247, 192, 91</HighlightGradientDark>
+		<HighlightGradientLight>255, 255, 220</HighlightGradientLight>
+		<HighlightDnGradientDark>247, 218, 124</HighlightDnGradientDark>
+		<HighlightDnGradientLight>232, 127, 8</HighlightDnGradientLight>
+		<HighlightCheckedGradientDark>238, 149, 21</HighlightCheckedGradientDark>
+		<HighlightCheckedGradientLight>251, 230, 148</HighlightCheckedGradientLight>
+		<PressedButtonBorder></PressedButtonBorder>
+		<Highlight>180, 201, 233</Highlight>
+		<HighlightText>0, 0, 0</HighlightText>
+		<DefaultButtonBorder>64, 64, 64</DefaultButtonBorder>
+		<ButtonBorder>120, 120, 120</ButtonBorder>
+		<ButtonGradientLight>255, 255, 255</ButtonGradientLight>
+		<ButtonGradientDark>220, 220, 220</ButtonGradientDark>
+		<TOOLTIP>
+			<DRAW_SEPARATOR>FALSE</DRAW_SEPARATOR>
+			<ROUNDED_CORNERS>FALSE</ROUNDED_CORNERS>
+			<COLOR_FILL>255, 255, 255</COLOR_FILL>
+			<COLOR_FILLGRADIENT>206, 212, 225</COLOR_FILLGRADIENT>
+			<COLOR_TEXT>76, 76, 76</COLOR_TEXT>
+			<COLOR_BORDER>118, 118, 118</COLOR_BORDER>
+		</TOOLTIP>
+	</GLOBALS>
+</STYLE>

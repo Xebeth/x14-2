@@ -1,0 +1,20 @@
+<STYLE>
+	<VERSION>
+		<NUMBER>1</NUMBER>
+		<ID_PREFIX>DEFAULT_</ID_PREFIX>
+	</VERSION>
+	<DESCRIPTION>
+		<NAME>DEFAULT dialog style</NAME>
+	</DESCRIPTION>
+	<DIALOG>
+		<InactiveCaptionLight>55, 108, 173</InactiveCaptionLight>
+		<InactiveCaptionDark>55, 108, 173</InactiveCaptionDark>
+		<ActiveCaptionLight>5, 83, 154</ActiveCaptionLight>
+		<ActiveCaptionDark>5, 83, 154</ActiveCaptionDark>
+		<InactiveCaptionText>127, 127, 127</InactiveCaptionText>
+		<ActiveCaptionText>254, 254, 254</ActiveCaptionText>
+		<CaptionBorder>64, 64, 64</CaptionBorder>
+		<Background>220, 220, 220</Background>
+		<Frame>64, 64, 64</Frame>
+	</DIALOG>
+</STYLE>
