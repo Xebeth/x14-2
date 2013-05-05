@@ -29,13 +29,8 @@ namespace PluginFramework
 	//! \brief PluginManager destructor
 	PluginManager::~PluginManager()
 	{
-		if (m_LoadedPlugins.empty() == false)
-		{
-			LoadedPlugins::const_iterator PluginIt, EndIt = m_LoadedPlugins.cend();
-
-			for (PluginIt = m_LoadedPlugins.cbegin(); PluginIt != EndIt; ++PluginIt)
-				UnloadPlugin(PluginIt->first);
-		}
+		while (m_LoadedPlugins.empty() == false)
+			UnloadPlugin(m_LoadedPlugins.rbegin()->first);
 	}
 
 	/*! \brief Lists the available plugins in the specified directory
