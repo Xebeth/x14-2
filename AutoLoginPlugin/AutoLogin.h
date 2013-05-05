@@ -17,9 +17,9 @@ typedef HRESULT (STDAPICALLTYPE *LPFNOBJECTFROMLRESULT)(LRESULT lResult, REFIID 
 DWORD WINAPI AutoLoginThread(LPVOID pUserData_in);
 
 // forward declarations
-namespace Bootstrap
+namespace Windower
 {
-	class AutoLoginSettings;
+	class PluginSettings;
 }
 
 class HTMLFormIterator;
@@ -30,13 +30,25 @@ struct IHTMLFormElement;
 struct IHTMLDocument2;
 struct IHTMLElement;
 
+#define AUTO_SUBMIT_KEY _T("AutoSubmit")
+#define PASSWORD_KEY	_T("Password")
+#define USERNAME_KEY	_T("Username")
+#define LANGUAGE_KEY	_T("Language")	
+#define KEY_HASH_KEY	_T("KeyHash")
+
+typedef struct _ThreadData
+{
+	Windower::PluginSettings *m_pSettings;
+	HWND m_hParentWnd;
+} ThreadData;
+
 /*! \brief Monitors the forms during the login process
 		   and automatically fills the password field
 */
 class AutoLogin
 {
 public:
-	explicit AutoLogin(Bootstrap::AutoLoginSettings &Settings_in);
+	AutoLogin(Windower::PluginSettings &Settings_in, HWND hParentWnd_in);
 	~AutoLogin();
 
 	void MonitorForms();
@@ -62,7 +74,7 @@ protected:
 	IHTMLDocument2 *m_pPageDoc;
 
 	//! the settings of the AutoLogin plugin
-	Bootstrap::AutoLoginSettings &m_Settings;
+	Windower::PluginSettings &m_Settings;
 	//! an iterator of HTML forms
 	HTMLFormIterator *m_pFormIterator;
 	//! the state of the document

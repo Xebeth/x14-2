@@ -9,21 +9,27 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-#include <SettingsManager.h>
+#include "version.h"
+#include <afxdlgs.h>
 
+#include <PluginPropertyPage.h>
+
+#include "AutoLogin.h"
 #include "AutoLoginConfigDlg.h"
 #include "AutoLoginPlugin.h"
-#include "AutoLoginSettings.h"
-#include "AutoLogin.h"
-#include "version.h"
 
 namespace Bootstrap
 {
 	//! \brief AutoLoginPlugin constructor
 	AutoLoginPlugin::AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in)
-		: PluginFramework::IPlugin(pServices_in), m_pSettings(NULL)
+		: Windower::ConfigurablePlugin(pServices_in)
 	{
-		m_pSettings = new AutoLoginSettings(PluginFramework::IPlugin::GetConfigFile(), NULL);
+		// clear the thread data structure
+		memset(&m_ThreadData, 0, sizeof(m_ThreadData));
+		// create the settings
+		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
+		// set the sound file path from the settings
+		OnSettingsChanged();
 	}
 
 	//! \brief AutoLoginPlugin destructor
@@ -42,11 +48,12 @@ namespace Bootstrap
 	*/
 	bool AutoLoginPlugin::CreateAutoLoginThread(HWND ParentHwnd_in)
 	{
-		if (ParentHwnd_in != NULL)
+		if (ParentHwnd_in != NULL && m_pSettings != NULL)
 		{
-			m_pSettings->SetParentWnd(ParentHwnd_in);
+			m_ThreadData.m_hParentWnd = ParentHwnd_in;
+			m_ThreadData.m_pSettings = m_pSettings;
 
-			return (::CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)m_pSettings, 0, NULL) != NULL);
+			return (::CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)&m_ThreadData, 0, NULL) != NULL);
 		}
 
 		return false;
@@ -93,18 +100,12 @@ namespace Bootstrap
 		PluginInfo_out.SetName(_T("AutoLogin"));		
 	}
 	
-	/*! \brief Opens the configuration screen of the plugin
-		\param[in] pInstance_in : the instance of the plugin to configure
-		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
-		\return true if the user validated the configuration screen; false otherwise
-	*/
-	bool AutoLoginPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
+	Windower::PluginPropertyPage* AutoLoginPlugin::GetPropertyPage()
 	{
-		AutoLoginConfigDlg ConfigDlg(PluginFramework::IPlugin::GetConfigFile(),
-									 reinterpret_cast<const TCHAR*>(pUserData_in));
-
-		return (ConfigDlg.DoModal() == IDOK);
+		return new AutoLoginConfigDlg(m_pSettings);
 	}
+
+	void AutoLoginPlugin::OnSettingsChanged() {}
 
 	/*! \brief Adds the plugin as a subscriber to the ie server handle service
 		\return true if the subscription succeeded; false otherwise
@@ -132,5 +133,5 @@ using Bootstrap::AutoLoginPlugin;
 extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
 	return PluginFramework::IPlugin::Initialize(RegisterParams_out, AutoLoginPlugin::Create, AutoLoginPlugin::Destroy,
-												AutoLoginPlugin::Query, AutoLoginPlugin::Configure);
+												AutoLoginPlugin::Query, Windower::ConfigurablePlugin::Configure);
 }

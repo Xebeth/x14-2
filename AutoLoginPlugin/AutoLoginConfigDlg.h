@@ -8,37 +8,33 @@
 #ifndef __AUTOLOGIN_CONFIG_DLG_H__
 #define __AUTOLOGIN_CONFIG_DLG_H__
 
-namespace Bootstrap
+namespace Windower
 {
-	class AutoLoginSettings;
+	class PluginSettings;
 }
 
 //! \brief Main dialog
-class AutoLoginConfigDlg : public CDialog
+class AutoLoginConfigDlg : public Windower::PluginPropertyPage
 {
 	enum { IDD = IDD_CONFIG_DIALOG };
 public:
-	AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
-	~AutoLoginConfigDlg();
+	explicit AutoLoginConfigDlg(Windower::PluginSettings *pSettings_in);
+
+	bool Save();
 
 protected:
-	HICON m_hIcon;
-	Bootstrap::AutoLoginSettings *m_pSettings;
+	// Generated message map functions
+	virtual BOOL OnInitDialog();
+	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnPasswordChange();
+	afx_msg void OnUsernameChange();
+	afx_msg void OnAutoSubmitCheck();
+
 	string_t m_EncryptionKey;
 	string_t m_PasswordHash;
 	string_t m_Username;
 	bool m_AutoSubmit;
-
-	// Generated message map functions
-	virtual BOOL OnInitDialog();
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnPasswordChange();
-	afx_msg void OnUsernameChange();
-	afx_msg void OnAutoSubmitCheck();
 };
 
 #endif//__AUTOLOGIN_CONFIG_DLG_H__

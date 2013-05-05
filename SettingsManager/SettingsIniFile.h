@@ -35,9 +35,10 @@ namespace Settings
 		// Settings accessors
 		LONG GetLong(const string_t &SectionName_in, const string_t &Key_in, LONG DefaultValue = 0L) const;
 		ULONG GetUnsignedLong(const string_t &SectionName_in, const string_t &Key_in, ULONG DefaultValue = 0UL) const;
-		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
-		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
 		const TCHAR* GetString(const string_t &SectionName_in, const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
+
+		void SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
+		void SetLong(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);		
 		void SetString(const string_t &SectionName_in, const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
 
 		bool DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const;
@@ -48,6 +49,8 @@ namespace Settings
 		string_t GetSettingsPath() const;
 
 	protected:
+		//! the current section
+		string_t m_CurrentSection;
 		//! the path of the INI file
 		string_t m_SourceFile;
 		//! the INI object

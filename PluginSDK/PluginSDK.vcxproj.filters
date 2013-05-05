@@ -22,6 +22,9 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{6e524299-0ae7-479a-beb7-aeb08c09b6c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Plugins\Config">
+      <UniqueIdentifier>{9606c727-55b2-4110-a3bf-37671f093bea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -62,6 +65,15 @@
     </ClCompile>
     <ClCompile Include="BaseEngine.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurablePlugin.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginPropertyPage.cpp">
+      <Filter>Plugins\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +122,15 @@
     </ClInclude>
     <ClInclude Include="IUiElement.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurablePlugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginPropertyPage.h">
+      <Filter>Plugins\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

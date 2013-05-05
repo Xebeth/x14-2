@@ -25,18 +25,21 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -124,13 +127,16 @@
     <ClInclude Include="BaseEngine.h" />
     <ClInclude Include="CommandHandler.h" />
     <ClInclude Include="CommandParameter.h" />
+    <ClInclude Include="ConfigurablePlugin.h" />
     <ClInclude Include="ICommandHandler.h" />
     <ClInclude Include="ICoreModule.h" />
     <ClInclude Include="IGameChatPlugin.h" />
     <ClInclude Include="IPlayerDataPlugin.h" />
     <ClInclude Include="IUiElement.h" />
     <ClInclude Include="PluginEngine.h" />
+    <ClInclude Include="PluginPropertyPage.h" />
     <ClInclude Include="PluginSDK.h" />
+    <ClInclude Include="PluginSettings.h" />
     <ClInclude Include="PluginsServices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="WindowerCommand.h" />
@@ -142,11 +148,14 @@
     <ClCompile Include="BaseEngine.cpp" />
     <ClCompile Include="CommandHandler.cpp" />
     <ClCompile Include="CommandParameter.cpp" />
+    <ClCompile Include="ConfigurablePlugin.cpp" />
     <ClCompile Include="ICommandHandler.cpp" />
     <ClCompile Include="ICoreModule.cpp" />
     <ClCompile Include="IGameChatPlugin.cpp" />
     <ClCompile Include="IPlayerDataPlugin.cpp" />
     <ClCompile Include="PluginEngine.cpp" />
+    <ClCompile Include="PluginPropertyPage.cpp" />
+    <ClCompile Include="PluginSettings.cpp" />
     <ClCompile Include="PluginsServices.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

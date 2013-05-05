@@ -15,12 +15,16 @@
 // available services for the module
 #define IE_SERVER_HWND_SERVICE	"IEServerHWND"
 
+namespace Windower
+{
+	class PluginPropertyPage;
+	class PluginSettings;
+}
+
 namespace Bootstrap
 {
-	class AutoLoginSettings;
-
 	//! \brief Auto login plugin
-	class AutoLoginPlugin : public PluginFramework::IPlugin
+	class AutoLoginPlugin : public Windower::ConfigurablePlugin
 	{
 		//! IDs of the commands registered with the plugin
 		enum CommandMap
@@ -35,19 +39,18 @@ namespace Bootstrap
 
 		bool CreateAutoLoginThread(HWND ParentHwnd_in);
 
-		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);		
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		AutoLoginSettings& GetSettings();
-
 		bool Unsubscribe();
 		bool Subscribe();
-		
+
 	protected:
-		//! AutoLogin plugin settings
-		AutoLoginSettings *m_pSettings;
+		Windower::PluginPropertyPage* GetPropertyPage();
+		void OnSettingsChanged();
+
+		ThreadData m_ThreadData;
 	};
 }
 

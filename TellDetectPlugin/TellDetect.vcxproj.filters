@@ -8,9 +8,6 @@
       <Filter>Precompiled headers</Filter>
     </ClInclude>
     <ClInclude Include="TellDetectPlugin.h" />
-    <ClInclude Include="TellDetectSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
     <ClInclude Include="TellDetectConfigDlg.h">
       <Filter>Config</Filter>
     </ClInclude>
@@ -24,9 +21,6 @@
     </Filter>
     <Filter Include="Precompiled headers">
       <UniqueIdentifier>{876235ba-7e4b-40e3-aacb-ae6788960f6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Settings">
-      <UniqueIdentifier>{f936ee2f-423c-4ad6-a235-2d1ee7cfb182}</UniqueIdentifier>
     </Filter>
     <Filter Include="Config">
       <UniqueIdentifier>{0b65bfe8-6929-4baa-8dcf-84541a3cdf49}</UniqueIdentifier>
@@ -45,9 +39,6 @@
       <Filter>Precompiled headers</Filter>
     </ClCompile>
     <ClCompile Include="TellDetectPlugin.cpp" />
-    <ClCompile Include="TellDetectSettings.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
     <ClCompile Include="TellDetectConfigDlg.cpp">
       <Filter>Config</Filter>
     </ClCompile>

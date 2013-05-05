@@ -228,6 +228,8 @@ namespace PluginFramework
 		virtual void OnCreate();
 		//! Callback function invoked when a new instance of the plugin is about to be destroyed
 		virtual void OnDestroy();
+		//! Callback function invoked when a new instance of the plugin is about to be configured
+		virtual void OnConfigure();
 
 		//! the plugin information (version, name, author, etc.)
 		PluginInfo m_PluginInfo;

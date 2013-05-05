@@ -7,9 +7,11 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
+#include <afxdlgs.h>
+
+#include <PluginPropertyPage.h>
 
 #include "TellDetectConfigDlg.h"
-#include "TellDetectSettings.h"
 #include "TellDetectPlugin.h"
 #include "version.h"
 
@@ -17,10 +19,12 @@ namespace Windower
 {
 	//! \brief TellDetectPlugin constructor
 	TellDetectPlugin::TellDetectPlugin(PluginFramework::IPluginServices *pServices_in)
-		: IGameChatPlugin(pServices_in), m_pSettings(new TellDetectSettings(IPlugin::GetConfigFile(), NULL))
+		: IGameChatPlugin(pServices_in)
 	{
-		if (m_pSettings != NULL)
-			m_SoundFile = m_pSettings->GetFilename();
+		// create the settings
+		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
+		// set the sound file path from the settings
+		OnSettingsChanged();
 	}
 
 	TellDetectPlugin::~TellDetectPlugin()
@@ -66,16 +70,15 @@ namespace Windower
 		PluginInfo_out.SetAuthor(_T("Xebeth`"));
 	}
 	
-	/*! \brief Opens the configuration screen of the plugin
-		\param[in] pInstance_in : the instance of the plugin to configure
-		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
-		\return true if the user validated the configuration screen; false otherwise
+	/*! \brief Retrieves the property page used to configure the plugin
+		\return a pointer to the property page of the plugin
 	*/
-	bool TellDetectPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
+	Windower::PluginPropertyPage* TellDetectPlugin::GetPropertyPage()
 	{
-		TellDetectConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
+		if (m_pSettings != NULL)
+			return new TellDetectConfigDlg(m_pSettings);
 
-		return (ConfigDlg.DoModal() == IDOK);
+		return NULL;
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -95,6 +98,12 @@ namespace Windower
 
 		return MsgSize_in;
 	}
+
+	//! \brief Callback function invoked when the settings have changed
+	void TellDetectPlugin::OnSettingsChanged()
+	{
+		m_SoundFile = m_pSettings->GetString(TELL_SOUND_KEY, TELL_SOUND_DEFAULT);
+	}
 }
 
 using Windower::TellDetectPlugin;
@@ -106,5 +115,5 @@ using Windower::TellDetectPlugin;
 extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
 	return PluginFramework::IPlugin::Initialize(RegisterParams_out, TellDetectPlugin::Create, TellDetectPlugin::Destroy,
-												TellDetectPlugin::Query, TellDetectPlugin::Configure);
+												TellDetectPlugin::Query, Windower::ConfigurablePlugin::Configure);
 }

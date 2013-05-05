@@ -6,7 +6,10 @@
 	purpose		:	Windower plugin base class
 **************************************************************************/
 #include "stdafx.h"
+#include <afxdlgs.h>
 
+#include "ConfigurablePlugin.h"
+#include "PluginPropertyPage.h"
 #include "WindowerPlugin.h"
 
 namespace Windower
@@ -15,7 +18,7 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	WindowerPlugin::WindowerPlugin(PluginFramework::IPluginServices *pServices_in)
-		: PluginFramework::IPlugin(pServices_in) {}
+		: ConfigurablePlugin(pServices_in) {}
 
 	/*! \brief Update method to be overloaded by plugins
 				This method will be called in the main loop of the windower engine
@@ -26,7 +29,7 @@ namespace Windower
 	//! Callback function invoked when a new instance of the plugin has been created
 	void WindowerPlugin::OnCreate()
 	{
-		PluginFramework::IPlugin::OnCreate();
+		ConfigurablePlugin::OnCreate();
 		RegisterCommands();
 	}
 
@@ -34,7 +37,7 @@ namespace Windower
 	void WindowerPlugin::OnDestroy()
 	{
 		UnregisterCommands();
-		PluginFramework::IPlugin::OnDestroy();
+		ConfigurablePlugin::OnDestroy();
 	}
 
 	/*! \brief Registers the commands of the plugin with the command dispatcher
@@ -46,4 +49,15 @@ namespace Windower
 		\return true if all the commands were unregistered successfully; false otherwise
 	*/
 	bool WindowerPlugin::UnregisterCommands() { return true; }
+
+	/*! \brief Retrieves the property page used to configure the plugin
+		\return a pointer to the property page of the plugin
+	*/
+	PluginPropertyPage* WindowerPlugin::GetPropertyPage()
+	{
+		return NULL;
+	}
+
+	//! \brief Callback function invoked when the settings have changed
+	void WindowerPlugin::OnSettingsChanged() {}
 }

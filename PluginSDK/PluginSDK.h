@@ -24,6 +24,7 @@
 #include <CommandHandler.h>
 #include <WindowerCommand.h>
 
+#include <ConfigurablePlugin.h>
 #include <WindowerPlugin.h>
 #include <IGameChatPlugin.h>
 #include <IPlayerDataPlugin.h>
@@ -31,6 +32,7 @@
 #include <BaseEngine.h>
 #include <PluginEngine.h>
 
+#include <PluginSettings.h>
 #include <WindowerSettings.h>
 #include <WindowerSettingsManager.h>
 

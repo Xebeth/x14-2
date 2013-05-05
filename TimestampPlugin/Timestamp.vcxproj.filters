@@ -14,9 +14,6 @@
     <ClInclude Include="TimestampConfigDlg.h">
       <Filter>Config</Filter>
     </ClInclude>
-    <ClInclude Include="TimestampSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -27,9 +24,6 @@
     </Filter>
     <Filter Include="Config">
       <UniqueIdentifier>{32db4c0f-d18b-4f64-86a1-64a78a2407ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Settings">
-      <UniqueIdentifier>{53130a8a-1f54-4e1c-a9e2-379de7052f79}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +42,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="TimestampConfigDlg.cpp">
       <Filter>Config</Filter>
-    </ClCompile>
-    <ClCompile Include="TimestampSettings.cpp">
-      <Filter>Settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

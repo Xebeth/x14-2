@@ -10,36 +10,29 @@
 
 #define OPEN_DIALOG_FLAGS (OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_ENABLESIZING)
 
-namespace Windower
-{
-	class TellDetectSettings;
-}
+#define TELL_SOUND_KEY		_T("TellSound")
+#define TELL_SOUND_DEFAULT	_T("tell.wav")
 
 //! \brief Main dialog
-class TellDetectConfigDlg : public CDialog
+class TellDetectConfigDlg : public Windower::PluginPropertyPage
 {
 	enum { IDD = IDD_TELLDETECT_CONFIG };
 public:
-	TellDetectConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
-	~TellDetectConfigDlg();
+	explicit TellDetectConfigDlg(Windower::PluginSettings *pSettings_in);
+
+	bool Save();
 
 protected:
-	HICON m_hIcon;
-	CString m_Filename;
-	HMODULE m_hModule;
-
-	Windower::TellDetectSettings *m_pSettings;
-
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	DECLARE_MESSAGE_MAP()
 
-	afx_msg void OnPaint();
 	afx_msg void OnBrowse();
 	afx_msg void OnPlayChime();
-	afx_msg void OnBnClickedOk();
-	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnChimeChange();	
 
-	DECLARE_MESSAGE_MAP()	
+	CString m_SndFile;
+	HMODULE m_hModule;
 };
 
 #endif//__TELL_DETECT_CONFIG_DLG_H__

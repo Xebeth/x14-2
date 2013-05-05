@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include <SettingsManager.h>
 
-#include "TimestampSettings.h"
 #include "TimestampPlugin.h"
 #include "ChatLogPlugin.h"
 #include "version.h"
@@ -186,7 +185,6 @@ namespace Windower
 	}
 }
 
-using Windower::TimestampPlugin;
 using Windower::ChatLogPlugin;
 
 /*! \brief Function exposed by the plugin DLL to initialize the plugin object
@@ -197,5 +195,5 @@ extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterP
 {
 	return PluginFramework::IPlugin::Initialize(RegisterParams_out, ChatLogPlugin::Create,
 												ChatLogPlugin::Destroy, ChatLogPlugin::Query,
-												TimestampPlugin::Configure);
+												Windower::ConfigurablePlugin::Configure);
 }

@@ -7,18 +7,14 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-#include <vector>
+#include <afxdlgs.h>
 
-#include <CryptUtils.h>
-#include <SettingsManager.h>
-#include "AutoLoginSettings.h"
+#include <PluginPropertyPage.h>
 
+#include "AutoLogin.h"
 #include "AutoLoginConfigDlg.h"
 
-BEGIN_MESSAGE_MAP(AutoLoginConfigDlg, CDialog)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDOK, &AutoLoginConfigDlg::OnBnClickedOk)
+BEGIN_MESSAGE_MAP(AutoLoginConfigDlg, Windower::PluginPropertyPage)
 	ON_BN_CLICKED(IDC_AUTOSUBMIT_CHK, &AutoLoginConfigDlg::OnAutoSubmitCheck)
 	ON_EN_CHANGE(IDC_PASSWORD, &AutoLoginConfigDlg::OnPasswordChange)
 	ON_EN_CHANGE(IDC_USERNAME, &AutoLoginConfigDlg::OnUsernameChange)
@@ -27,25 +23,12 @@ END_MESSAGE_MAP()
 /*! \brief AutoLoginConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-AutoLoginConfigDlg::AutoLoginConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParentWnd_in)
-	: CDialog(AutoLoginConfigDlg::IDD, pParentWnd_in),
-	  m_pSettings(new Bootstrap::AutoLoginSettings(pConfigFile_in, pProfileName_in)), m_AutoSubmit(false)
+AutoLoginConfigDlg::AutoLoginConfigDlg(Windower::PluginSettings *pSettings_in)
+	: Windower::PluginPropertyPage(pSettings_in, AutoLoginConfigDlg::IDD, IDI_CONFIG)	  
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDI_CONFIG);
-
 	// generate the encryption key
 	if (m_pSettings != NULL)
 		CryptUtils::GenerateMachineID(m_EncryptionKey, m_pSettings->GetSettingsDrive().c_str());
-}
-
-//! \brief AutoLoginConfigDlg destructor
-AutoLoginConfigDlg::~AutoLoginConfigDlg()
-{
-	if (m_pSettings != NULL)
-	{
-		delete m_pSettings;
-		m_pSettings = NULL;
-	}
 }
 
 /*! \brief Member function called in response to the WM_INITDIALOG message
@@ -53,88 +36,49 @@ AutoLoginConfigDlg::~AutoLoginConfigDlg()
 */
 BOOL AutoLoginConfigDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	Windower::PluginPropertyPage::OnInitDialog();
 
-	SetIcon(m_hIcon, TRUE);
-	SetIcon(m_hIcon, FALSE);
+	// retrieve the encryption key hash
+	long KeyHash = CryptUtils::Hash(m_EncryptionKey);
+	CString StrKeyHash;
 
-	if (m_pSettings->Load())
+	// set the edit text with the encryption key hash
+	StrKeyHash.Format(_T("0x%08x"), KeyHash);
+	SetDlgItemText(IDC_ENCRYPTION_KEY_HASH, StrKeyHash);
+
+	if (m_pSettings != NULL)
 	{
-		// retrieve the encryption key hash
-		long KeyHash = CryptUtils::Hash(m_EncryptionKey);
-		CString StrKeyHash;
+		CButton *pAutoSubmitChk = static_cast<CButton*>(GetDlgItem(IDC_AUTOSUBMIT_CHK));
 
-		// set the edit text with the encryption key hash
-		StrKeyHash.Format(_T("0x%08x"), KeyHash);
-		SetDlgItemText(IDC_ENCRYPTION_KEY_HASH, StrKeyHash);
+		m_PasswordHash = m_pSettings->GetString(PASSWORD_KEY);
+		SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
 
-		if (m_pSettings != NULL)
-		{
-			m_PasswordHash = m_pSettings->GetPassword();
-			SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash.c_str());
+		m_Username = m_pSettings->GetString(USERNAME_KEY);
+		SetDlgItemText(IDC_USERNAME, m_Username.c_str());
 
-			m_Username = m_pSettings->GetUsername();
-			SetDlgItemText(IDC_USERNAME, m_Username.c_str());
+		m_AutoSubmit = (m_pSettings->GetLong(AUTO_SUBMIT_KEY) == 1UL) ? true : false;
 
-			m_AutoSubmit = m_pSettings->GetAutoSubmit();
-
-			CButton *pAutoSubmitChk = static_cast<CButton*>(GetDlgItem(IDC_AUTOSUBMIT_CHK));
-
-			if (pAutoSubmitChk != NULL)
-				pAutoSubmitChk->SetCheck(m_AutoSubmit ? BST_CHECKED : BST_UNCHECKED);
-		}
+		if (pAutoSubmitChk != NULL)
+			pAutoSubmitChk->SetCheck(m_AutoSubmit ? BST_CHECKED : BST_UNCHECKED);
 	}
 
 	return TRUE;
 }
 
-/*! \brief Member function called when Windows or an application makes
-		   a request to repaint a portion of the window
-*/
-void AutoLoginConfigDlg::OnPaint()
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialog::OnPaint();
-	}
-}
-
-/*! \brief Member function called by a minimized window that does not have an icon defined for its class
-	\return a cursor or icon handle
-*/
-HCURSOR AutoLoginConfigDlg::OnQueryDragIcon()
-{
-	return static_cast<HCURSOR>(m_hIcon);
-}
-
 //! \brief Message handler called when the user presses the OK button
-void AutoLoginConfigDlg::OnBnClickedOk()
+bool AutoLoginConfigDlg::Save()
 {
-	m_pSettings->SetUsername(m_Username);
-	m_pSettings->SetPassword(m_PasswordHash);
-	m_pSettings->SetAutoSubmit(m_AutoSubmit);
-	m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));	
+	if (m_pSettings != NULL)
+	{
+		m_pSettings->SetString(USERNAME_KEY,	m_Username);
+		m_pSettings->SetString(PASSWORD_KEY,	m_PasswordHash);	
+		m_pSettings->SetLong(AUTO_SUBMIT_KEY,	m_AutoSubmit ? 1L : 0L);
+		m_pSettings->SetLong(KEY_HASH_KEY,		CryptUtils::Hash(m_EncryptionKey));	
 
-	m_pSettings->Save();
+		return m_pSettings->Save();
+	}
 
-	OnOK();
+	return false;
 }
 
 //! \brief Message handler called when the password edit content changes

@@ -21,6 +21,7 @@ namespace PluginFramework
 	IPlugin::IPlugin(IPluginServices *pServices_in)
 		: m_pRegisterParams(NULL)
 	{
+		// static member
 		m_pServices = pServices_in;
 	}
 
@@ -79,6 +80,7 @@ namespace PluginFramework
 	{ Subscribe(); }
 	void IPlugin::OnDestroy()
 	{ Unsubscribe(); }
+	void IPlugin::OnConfigure() {}
 
 	void IPlugin::Query(PluginFramework::PluginInfo& PluginInfo_out)
 	{

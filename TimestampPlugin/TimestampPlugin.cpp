@@ -7,14 +7,12 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-#include <PluginFramework.h>
-#include <SettingsManager.h>
-#include <PluginSDK.h>
+#include "version.h"
+#include <afxdlgs.h>
+
+#include <PluginPropertyPage.h>
 
 #include "TimestampPlugin.h"
-#include "version.h"
-
-#include "TimestampSettings.h"
 #include "TimestampConfigDlg.h"
 
 namespace Windower
@@ -23,19 +21,12 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	TimestampPlugin::TimestampPlugin(PluginFramework::IPluginServices *pServices_in) 
-		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
-		  m_pSettings(new TimestampSettings(IPlugin::GetConfigFile(), NULL))
+		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin")
 	{
-		// retrieve the format from the settings
-		if (m_pSettings != NULL)
-			convert_ansi(m_pSettings->GetFormat(), m_TimestampFormat);
-		else
-			m_TimestampFormat = "[HH:mm:ss]";
-		// add a space if there is none after the timestamp
-		if (m_TimestampFormat.back() != ' ')
-			m_TimestampFormat += ' ';
-		
-		m_TimestampLength = m_TimestampFormat.length();
+		// create the settings
+		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
+		// set the sound file path from the settings
+		OnSettingsChanged();
 	}
 
 	//! \brief TimestampPlugin destructor
@@ -83,16 +74,27 @@ namespace Windower
 		PluginInfo_out.SetName(_T("Timestamp"));
 	}
 
-	/*! \brief Opens the configuration screen of the plugin
-		\param[in] pInstance_in : the instance of the plugin to configure
-		\param[in] pUserData_in : a pointer to the user data to pass to the plugin
-		\return true if the user validated the configuration screen; false otherwise
+	/*! \brief Retrieves the property page used to configure the plugin
+		\return a pointer to the property page of the plugin
 	*/
-	bool TimestampPlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
+	PluginPropertyPage* TimestampPlugin::GetPropertyPage()
 	{
-		TimestampConfigDlg ConfigDlg(IPlugin::GetConfigFile(), reinterpret_cast<const TCHAR*>(pUserData_in));
+		return new TimestampConfigDlg(m_pSettings);
+	}
 
-		return (ConfigDlg.DoModal() == IDOK);
+	//! \brief Callback function invoked when the settings have changed
+	void TimestampPlugin::OnSettingsChanged()
+	{
+		// retrieve the format from the settings
+		if (m_pSettings != NULL)
+			convert_ansi(m_pSettings->GetString(TIMESTAMP_KEY, TIMESTAMP_DEFAULT), m_TimestampFormat);
+		else
+			m_TimestampFormat = "[HH:mm:ss]";
+		// add a space if there is none after the timestamp
+		if (m_TimestampFormat.back() != ' ')
+			m_TimestampFormat += ' ';
+
+		m_TimestampLength = m_TimestampFormat.length();
 	}
 	
 	/*! \brief Registers the commands of the plugin with the command dispatcher
@@ -188,20 +190,20 @@ namespace Windower
 		if (Format_in.empty() == false)
 		{
 			m_TimestampFormat = Format_in;
+			// add a space if there is none after the timestamp
+			if (m_TimestampFormat.back() != ' ')
+				m_TimestampFormat += ' ';
+			m_TimestampLength = m_TimestampFormat.length();
 
 			if (m_pSettings != NULL)
 			{
 				string_t Format;
 
 				convert_utf8(m_TimestampFormat, Format);
-				m_pSettings->SetFormat(Format);
+				m_pSettings->SetString(TIMESTAMP_KEY, Format);
 
 				Result = m_pSettings->Save();
 			}
-			// add a space if there is none after the timestamp
-			if (m_TimestampFormat.back() != ' ')
-				m_TimestampFormat += ' ';
-			m_TimestampLength = m_TimestampFormat.length();
 		}
 
 		return Result;
@@ -218,6 +220,6 @@ namespace Windower
 	extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 	{
 		return PluginFramework::IPlugin::Initialize(RegisterParams_out, TimestampPlugin::Create, TimestampPlugin::Destroy,
-													TimestampPlugin::Query, TimestampPlugin::Configure);
+													TimestampPlugin::Query, Windower::ConfigurablePlugin::Configure);
 	}
 #endif // NO_EXPORT

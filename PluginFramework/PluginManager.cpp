@@ -379,7 +379,11 @@ namespace PluginFramework
 		IPlugin *pPlugin = LoadPlugin(PluginName_in);
 
 		if (pPlugin != NULL)
+		{
+			pPlugin->OnConfigure();
+
 			return pPlugin->Configure(pUserData_in);
+		}
 
 		return false;
 	}

@@ -11,9 +11,6 @@
     <ClInclude Include="..\TimestampPlugin\TimestampConfigDlg.h">
       <Filter>Timestamp</Filter>
     </ClInclude>
-    <ClInclude Include="..\TimestampPlugin\TimestampSettings.h">
-      <Filter>Timestamp</Filter>
-    </ClInclude>
     <ClInclude Include="..\TimestampPlugin\TimestampPlugin.h">
       <Filter>Timestamp</Filter>
     </ClInclude>
@@ -48,9 +45,6 @@
       <Filter>Precompiled headers</Filter>
     </ClCompile>
     <ClCompile Include="ChatLogPlugin.cpp" />
-    <ClCompile Include="..\TimestampPlugin\TimestampSettings.cpp">
-      <Filter>Timestamp</Filter>
-    </ClCompile>
     <ClCompile Include="..\TimestampPlugin\TimestampConfigDlg.cpp">
       <Filter>Timestamp</Filter>
     </ClCompile>

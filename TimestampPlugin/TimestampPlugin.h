@@ -10,7 +10,8 @@
 
 namespace Windower
 {
-	class TimestampSettings;
+	class PluginPropertyPage;
+	class TimestampSettings;	
 
 	class TimestampPlugin : public Windower::IGameChatPlugin, public CommandHandler
 	{
@@ -25,27 +26,27 @@ namespace Windower
 		explicit TimestampPlugin(PluginFramework::IPluginServices *pServices_in);
 		~TimestampPlugin();
 
-		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);		
 
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
-
+		
 		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
 							const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in);
 
 	protected:
-		virtual bool UnregisterCommands();
-		virtual bool RegisterCommands();
+		PluginPropertyPage* GetPropertyPage();
+		void OnSettingsChanged();
 
-		//! Timestamp plugin settings
-		TimestampSettings *m_pSettings;
+		bool UnregisterCommands();
+		bool RegisterCommands();
+
 		//! the format of the timestamp plugin
-		std::string		m_TimestampFormat;
+		std::string	m_TimestampFormat;
 		//! the length of the formatted timestamp
-		unsigned int	m_TimestampLength;
+		unsigned int m_TimestampLength;
 	};
 }
 

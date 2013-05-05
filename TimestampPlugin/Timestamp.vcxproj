@@ -91,7 +91,6 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
       <BaseAddress>0x50600000</BaseAddress>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -158,19 +157,17 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release + Debug Info|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TimestampConfigDlg.cpp" />
     <ClCompile Include="TimestampPlugin.cpp" />
-    <ClCompile Include="TimestampSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TimestampConfigDlg.h" />
     <ClInclude Include="TimestampPlugin.h" />
-    <ClInclude Include="TimestampSettings.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>

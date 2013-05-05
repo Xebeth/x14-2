@@ -10,13 +10,14 @@
 
 namespace Windower
 {
+	class PluginPropertyPage;
+
 	class TellDetectPlugin : public Windower::IGameChatPlugin
 	{
 	public:
 		explicit TellDetectPlugin(PluginFramework::IPluginServices *pServices_in);
 		~TellDetectPlugin();
 
-		static bool Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in);
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
@@ -25,8 +26,9 @@ namespace Windower
 							const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in);
 
 	protected:
-		//! Timestamp plugin settings
-		TellDetectSettings *m_pSettings;
+		PluginPropertyPage* GetPropertyPage();
+		void OnSettingsChanged();
+
 		//! Path to the sound file
 		string_t m_SoundFile;
 	};

@@ -147,6 +147,7 @@
     <ClInclude Include="UpdaterDlg.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerUpdater.h" />
+    <ClInclude Include="WizardDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfigDlg.cpp" />
@@ -159,6 +160,7 @@
     </ClCompile>
     <ClCompile Include="UpdaterDlg.cpp" />
     <ClCompile Include="WindowerUpdater.cpp" />
+    <ClCompile Include="WizardDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\config.ico" />

@@ -7,14 +7,15 @@
 					and automatically fills the password field
 **************************************************************************/
 #include "stdafx.h"
-#include <SettingsManager.h>
 #include <MsHTML.h>
 #include <ExDisp.h>
+#include <afxdlgs.h>
+
+#include <PluginPropertyPage.h>
 
 #include "CryptUtils.h"
 #include "AutoLogin.h"
 
-#include "AutoLoginSettings.h"
 #include "HTMLFormIterator.h"
 
 /*! \brief global function used to start the working thread
@@ -25,7 +26,8 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 {
 	if (pUserData_in != NULL)
 	{
-		AutoLogin Login(*(reinterpret_cast<Bootstrap::AutoLoginSettings*>(pUserData_in)));
+		ThreadData *pThreadData = reinterpret_cast<ThreadData*>(pUserData_in);
+		AutoLogin Login(*pThreadData->m_pSettings, pThreadData->m_hParentWnd);
 
 		Login.MonitorForms();
 
@@ -38,12 +40,11 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 /*! \brief AutoLogin constructor
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
-AutoLogin::AutoLogin(Bootstrap::AutoLoginSettings &Settings_in)
-	: m_hParentWnd(NULL), m_hIEServer(NULL), m_Settings(Settings_in), m_bLoop(true),
+AutoLogin::AutoLogin(Windower::PluginSettings &Settings_in, HWND hParentWnd_in)
+	: m_hParentWnd(hParentWnd_in), m_hIEServer(NULL), m_Settings(Settings_in), m_bLoop(true),
 	  m_PasswordSet(false), m_AutoSubmitted(false),  m_UserSet(false),
 	  m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL)
 {
-	m_hParentWnd = Settings_in.GetParentWnd();
 	// initialize COM
 	::CoInitialize(NULL);
 }
@@ -104,7 +105,7 @@ bool AutoLogin::AutoCompleteForm()
 
 		if (pCurrentForm != NULL)
 		{
-			string_t Username = m_Settings.GetUsername();
+			string_t Username = m_Settings.GetString(USERNAME_KEY);
 			IHTMLInputElement *pInputElement = NULL;
 		
 			// the user input hasn't been found yet
@@ -148,12 +149,12 @@ bool AutoLogin::AutoCompleteForm()
 						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
-						if (m_Settings.GetKeyHash() == KeyHash)
+						if (m_Settings.GetLong(KEY_HASH_KEY) == KeyHash)
 						{
 							string_t CryptedPassword;
 
 							// retrieve the password from the settings
-							CryptUtils::HexToString(m_Settings.GetPassword(), CryptedPassword);
+							CryptUtils::HexToString(m_Settings.GetString(PASSWORD_KEY), CryptedPassword);
 
 							if (CryptedPassword.empty() == false)
 							{
@@ -176,7 +177,7 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
 				{
-					if (m_Settings.GetAutoSubmit())
+					if (m_Settings.GetLong(AUTO_SUBMIT_KEY) == 1L)
 					{
 						// auto-submit the form
 						pElement = FindChildById(pCurrentForm, _T("btLogin"));

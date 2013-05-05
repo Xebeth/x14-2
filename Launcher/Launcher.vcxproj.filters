@@ -41,6 +41,7 @@
     <ClInclude Include="EditLinkTarget.h">
       <Filter>Config</Filter>
     </ClInclude>
+    <ClInclude Include="WizardDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -59,6 +60,7 @@
     <ClCompile Include="EditLinkTarget.cpp">
       <Filter>Config</Filter>
     </ClCompile>
+    <ClCompile Include="WizardDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">

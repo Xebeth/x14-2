@@ -50,7 +50,7 @@ namespace Settings
 		if (m_pIni != NULL)
 			return m_pIni->LoadFile(m_SourceFile.c_str()) == SI_OK;
 
-		return false;
+		return Save();
 	}
 
 	/*! \brief Forces the file to be reloaded
@@ -101,8 +101,13 @@ namespace Settings
 	*/
 	bool SettingsIniFile::DeleteSection(const string_t &SectionName_in)
 	{
-		if (m_pIni != NULL)
-			return m_pIni->Delete(SectionName_in.c_str(), NULL);
+		if (m_pIni != NULL && m_pIni->Delete(SectionName_in.c_str(), NULL))
+		{
+			if (SectionName_in.compare(m_CurrentSection) == 0)
+				m_CurrentSection.clear();
+
+			return true;
+		}
 
 		return false;
 	}
@@ -221,7 +226,8 @@ namespace Settings
 		return (m_pIni != NULL) ? m_pIni->DeleteKey(SectionName_in.c_str(), KeyName_in.c_str()) : false;
 	}
 
-	/*! \brief 
+	/*! \brief Retrieves the path of the settings file
+		\return the path of the settings file
 	*/
 	string_t SettingsIniFile::GetSettingsPath() const
 	{
@@ -234,7 +240,8 @@ namespace Settings
 		return Path;
 	}
 
-	/*! \brief 
+	/*! \brief Retrieves the drive of the settings file
+		\return the drive of the settings file
 	*/
 	string_t SettingsIniFile::GetSettingsDrive() const
 	{

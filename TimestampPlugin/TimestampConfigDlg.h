@@ -8,28 +8,24 @@
 #ifndef __TIMESTAMP_CONFIG_DLG_H__
 #define __TIMESTAMP_CONFIG_DLG_H__
 
+#define TIMESTAMP_KEY		_T("TimestampFormat")
+#define TIMESTAMP_DEFAULT	_T("[HH:mm:ss]")
 
 //! \brief Main dialog
-class TimestampConfigDlg : public CDialog
+class TimestampConfigDlg : public Windower::PluginPropertyPage
 {
 	enum { IDD = IDD_TIMESTAMP_CONFIG };
 public:
-	TimestampConfigDlg(const TCHAR *pConfigFile_in, const TCHAR *pProfileName_in, CWnd* pParent = NULL);
-	~TimestampConfigDlg();
+	explicit TimestampConfigDlg(Windower::PluginSettings *pSettings_in);
+
+	bool Save();
 
 protected:
-	HICON m_hIcon;
-	Windower::TimestampSettings *m_pSettings;
-
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
-
-	afx_msg void OnPaint();
-	afx_msg void OnBnClickedOk();
 	afx_msg void OnFormatChange();
-	afx_msg HCURSOR OnQueryDragIcon();
 
-	DECLARE_MESSAGE_MAP()	
+	DECLARE_MESSAGE_MAP()
 };
 
 #endif//__TIMESTAMP_CONFIG_DLG_H__

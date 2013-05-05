@@ -10,6 +10,7 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
-#include <PluginFramework.h>
+
+#include <PluginSDK.h>
 
 #endif//__AUTO_LOGIN_PLUGIN_AFX_H__

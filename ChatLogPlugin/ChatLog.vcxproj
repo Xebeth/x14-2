@@ -156,7 +156,6 @@
   <ItemGroup>
     <ClCompile Include="..\TimestampPlugin\TimestampConfigDlg.cpp" />
     <ClCompile Include="..\TimestampPlugin\TimestampPlugin.cpp" />
-    <ClCompile Include="..\TimestampPlugin\TimestampSettings.cpp" />
     <ClCompile Include="ChatLogPlugin.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -169,7 +168,6 @@
     <ClInclude Include="..\TimestampPlugin\resource.h" />
     <ClInclude Include="..\TimestampPlugin\TimestampConfigDlg.h" />
     <ClInclude Include="..\TimestampPlugin\TimestampPlugin.h" />
-    <ClInclude Include="..\TimestampPlugin\TimestampSettings.h" />
     <ClInclude Include="ChatLogPlugin.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="version.h" />
