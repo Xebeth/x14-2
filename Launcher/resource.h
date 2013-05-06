@@ -2,11 +2,15 @@
 // Microsoft Visual C++ generated include file.
 // Used by Config.rc
 //
-#define IDD_CONFIG_DIALOG               100
-#define IDD_UPDATE_DLG                  101
-#define IDR_MAINFRAME                   128
-#define IDL_CONFIG						500
-#define IDI_CONFIG                      999
+#define IDR_MAINFRAME                   100
+#define IDI_CONFIG                      101
+#define IDD_CONFIG_DIALOG               102
+#define IDD_UPDATE_DLG                  103
+#define IDD_WIZARD_START                104
+#define IDD_WIZARD_FINISH               105
+#define IDL_CONFIG                      106
+#define IDB_WATERMARK					107
+#define IDB_BANNER_ICON					108
 #define IDC_PROFILES_COMBO              1000
 #define IDC_NEW_PROFILE                 1001
 #define IDC_VSYNC                       1002
@@ -22,14 +26,18 @@
 #define IDC_STATUS_TXT                  1012
 #define IDC_DL_SIZE                     1013
 #define IDC_CREATE_LINK                 1014
+#define IDC_START_SUMMARY               1015
+#define IDC_PROFILE_NAME                1018
+#define IDC_UPDATE_YES                  1019
+#define IDC_UPDATE_NO                   1020
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        109
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
-#define _APS_NEXT_SYMED_VALUE           102
+#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

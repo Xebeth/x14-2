@@ -20,11 +20,12 @@ class TellDetectConfigDlg : public Windower::PluginPropertyPage
 public:
 	explicit TellDetectConfigDlg(Windower::PluginSettings *pSettings_in);
 
-	bool Save();
+	bool IsPageValid(string_t *pFeedback_out) const;
+	bool InitializePage();
+	bool Commit();
+	void Revert();
 
 protected:
-	// Generated message map functions
-	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
 
 	afx_msg void OnBrowse();
@@ -32,7 +33,6 @@ protected:
 	afx_msg void OnChimeChange();	
 
 	CString m_SndFile;
-	HMODULE m_hModule;
 };
 
 #endif//__TELL_DETECT_CONFIG_DLG_H__

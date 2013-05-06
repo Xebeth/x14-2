@@ -20,11 +20,12 @@ class AutoLoginConfigDlg : public Windower::PluginPropertyPage
 public:
 	explicit AutoLoginConfigDlg(Windower::PluginSettings *pSettings_in);
 
-	bool Save();
+	bool IsPageValid(string_t *pFeedback_out) const;
+	bool InitializePage();
+	bool Commit();
+	void Revert();
 
 protected:
-	// Generated message map functions
-	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
 
 	afx_msg void OnPasswordChange();
@@ -32,8 +33,8 @@ protected:
 	afx_msg void OnAutoSubmitCheck();
 
 	string_t m_EncryptionKey;
-	string_t m_PasswordHash;
-	string_t m_Username;
+	CString m_PasswordHash;
+	CString m_Username;
 	bool m_AutoSubmit;
 };
 

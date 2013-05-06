@@ -11,8 +11,8 @@
 
 #include "EditLinkTarget.h"
 #include "LauncherApp.h"
-#include "UpdaterDlg.h"
 #include "ConfigDlg.h"
+#include "WizardDlg.h"
 
 LauncherApp g_pApp;
 
@@ -67,7 +67,7 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 				m_LastFlag = FLAG_SID;
 		}
 		// flags with no argument
-		else if (_tcsicmp(lpszParam, _T("firstrun")) == 0)
+		if (_tcsicmp(lpszParam, _T("firstrun")) == 0)
 			m_bFirstRun = true;
 	}
 	else
@@ -220,13 +220,15 @@ bool LauncherApp::CreateCmdLine(string_t &CmdLine_out, const string_t &GamePath_
 }
 BOOL LauncherApp::InitInstance()
 {
-	bool ShowConfig = true, Launch = false, PluginsInit = false;
-	string_t DLL32Path, ExePath, CmdLine, GamePath;
-	TCHAR DirPath[_MAX_PATH] = { '\0' };
-	Windower::WindowerProfile Settings;
+	if (m_pPluginManager == NULL || m_pSettingsManager == NULL)
+		return FALSE;
+
+	string_t DLL32Path, ExePath, CmdLine, GamePath;	
+	Windower::WindowerProfile CurrentProfile;
+	bool ShowConfig = true, Launch = false;
+	TCHAR DirPath[_MAX_PATH] = { '\0' };	
+	UINT Tasks = WizardDlg::TASK_NONE;
 	INITCOMMONCONTROLSEX InitCtrls;
-	UpdaterDlg *pUpdaterDlg = NULL;	
-	ConfigDlg *pConfigDlg = NULL;
 	CMFCToolTipInfo ttParams;
 	CString SID, ProfileName;
 	LauncherCmdLine CmdInfo;
@@ -249,49 +251,24 @@ BOOL LauncherApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	GamePath = m_pSettingsManager->GetGamePath();
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 	ParseCommandLine(CmdInfo);
-
-#ifdef _DEBUG
-	// check for updates first since it could change 
-	// what "valid" is for the configuration...
-	if (m_pSettingsManager->IsAutoUpdated())
+	
+	if (CmdInfo.IsFirstRun() || m_pSettingsManager->IsConfigLoaded() == false)
 	{
-		if (m_pPluginManager != NULL)
-		{
-			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
-			PluginsInit = true;
-		}
-
-		pUpdaterDlg = new UpdaterDlg(m_pSettingsManager);
-
-		pUpdaterDlg->DoModal();
-
-		if (pUpdaterDlg != NULL)
-		{
-			delete pUpdaterDlg;
-			pUpdaterDlg = NULL;
-		}
+		// for the first time use, perform all the tasks
+		Tasks = WizardDlg::ALL_TASKS_MASK;
 	}
-#endif // _DEBUG
-
-	// check if the game path is configured or if it is a fresh start
-	if (m_pSettingsManager->IsGamePathValid() == false || CmdInfo.IsFirstRun())
+	else
 	{
-		MessageBox(NULL, _T("The configuration file is missing or invalid.\n"),
-							_T("Error!"), MB_OK | MB_ICONWARNING);
-
-		// @TODO Configuration wizard
-		while (m_pSettingsManager->IsGamePathValid() == false
-			&& m_pSettingsManager->SelectDirectory(GamePath))
-		{
-			m_pSettingsManager->SetGamePath(GamePath.c_str());
-		}
-		// save the config
-		ShowConfig = !m_pSettingsManager->Save();
+		// check for updates
+		if (m_pSettingsManager->IsAutoUpdated())
+			Tasks |= WizardDlg::TASK_CHECK_UPDATES;
+		// check the game path
+		if (m_pSettingsManager->IsGamePathValid() == false)
+			Tasks |= WizardDlg::TASK_CONFIGURE_PATH;
 	}
-	// check if a profile 
+	// check if a profile was specified on the command line
 	if (CmdInfo.GetProfileName(ProfileName).IsEmpty() == false)
 	{
 		// if it exits, set it as default
@@ -302,9 +279,30 @@ BOOL LauncherApp::InitInstance()
 		}
 	}
 
-	// load the default profile
-	if (m_pSettingsManager->LoadDefaultProfile(Settings))
+	if (Tasks != WizardDlg::TASK_NONE)
 	{
+		Windower::PluginSettings Settings(m_pSettingsManager->GetConfigFile(),
+										  m_pSettingsManager->GetDefaultProfile());
+		WizardDlg ConfigurationWizard(*m_pPluginManager, Settings);
+
+		if ((Tasks & (WizardDlg::TASK_CHECK_UPDATES | WizardDlg::TASK_CONFIGURE_PLUGINS)) != WizardDlg::TASK_NONE)
+			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
+
+		if (ConfigurationWizard.CreatePages(Tasks) > 0U)
+			Launch = (ConfigurationWizard.DoModal() == IDOK);
+
+		if (Launch)
+			m_pSettingsManager->SetDefaultProfile(ConfigurationWizard.GetProfileName());
+#ifdef _DEBUG
+		return FALSE;
+#endif // _DEBUG
+	}
+
+	// load the default profile
+	if (m_pSettingsManager->LoadDefaultProfile(CurrentProfile))
+	{
+		// retrieve the game path
+		GamePath = m_pSettingsManager->GetGamePath();
 		// check if an SID has been provided
 		if (CmdInfo.GetSID(SID).IsEmpty() == false)
 		{
@@ -312,7 +310,7 @@ BOOL LauncherApp::InitInstance()
 			format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
 			format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
 			// generate the command line
-			Launch = CreateCmdLine(CmdLine, GamePath, Settings.GetLanguage(), SID);
+			Launch = CreateCmdLine(CmdLine, GamePath, CurrentProfile.GetLanguage(), SID);
 		}
 		else
 		{
@@ -323,19 +321,17 @@ BOOL LauncherApp::InitInstance()
 		}
 	}
 
-	if (m_pSettingsManager != NULL && m_pPluginManager != NULL && (ShowConfig || Launch == false))
+	if (ShowConfig || Launch == false)
 	{
-		if (PluginsInit == false)
+		ConfigDlg ConfigurationDlg(*m_pPluginManager, *m_pSettingsManager);
+
+		if ((Tasks & (WizardDlg::TASK_CHECK_UPDATES | WizardDlg::TASK_CONFIGURE_PLUGINS)) == WizardDlg::TASK_NONE)
 			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
 
-		m_pMainWnd = pConfigDlg = new ConfigDlg(*m_pPluginManager, *m_pSettingsManager);
-		Launch = (pConfigDlg->DoModal() == IDOK);
-
-		if (pConfigDlg != NULL)
-		{
-			delete pConfigDlg;
-			m_pMainWnd = pConfigDlg = NULL;
-		}
+		m_pMainWnd = &ConfigurationDlg;
+		// show the configuration dialog
+		Launch = (ConfigurationDlg.DoModal() == IDOK);
+		m_pMainWnd = NULL;
 	}
 
 	if (Launch)
@@ -363,12 +359,14 @@ BOOL LauncherApp::InitInstance()
 
 			// create the game process
 			InjectModule::CreateProcessEx(ExePath, ProcessInfo, CmdLine.c_str(),
-											CreationFlags, DLL32Path.c_str());
+										  CreationFlags, DLL32Path.c_str());
 			// cleanup
 			CloseHandle(ProcessInfo.hProcess);
 			CloseHandle(ProcessInfo.hThread);
 		}
 	}
+
+	VisualManager::DestroyInstance();
 
 	return FALSE;
 }

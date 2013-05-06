@@ -16,7 +16,6 @@ namespace Windower
 	{
 	public:
 		explicit TellDetectPlugin(PluginFramework::IPluginServices *pServices_in);
-		~TellDetectPlugin();
 
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);

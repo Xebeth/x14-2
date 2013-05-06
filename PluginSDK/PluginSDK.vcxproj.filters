@@ -69,11 +69,11 @@
     <ClCompile Include="ConfigurablePlugin.cpp">
       <Filter>Plugins</Filter>
     </ClCompile>
-    <ClCompile Include="PluginSettings.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
     <ClCompile Include="PluginPropertyPage.cpp">
       <Filter>Plugins\Config</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginSettings.cpp">
+      <Filter>Settings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -126,11 +126,11 @@
     <ClInclude Include="ConfigurablePlugin.h">
       <Filter>Plugins</Filter>
     </ClInclude>
-    <ClInclude Include="PluginSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
     <ClInclude Include="PluginPropertyPage.h">
       <Filter>Plugins\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginSettings.h">
+      <Filter>Settings</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

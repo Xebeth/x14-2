@@ -17,6 +17,9 @@
     <Filter Include="Resources\images">
       <UniqueIdentifier>{72ef56c1-4744-4661-a7f7-8b2e0d7359c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Wizard">
+      <UniqueIdentifier>{04ef90ca-001c-4691-addb-1391a645f91f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="version.h">
@@ -41,7 +44,18 @@
     <ClInclude Include="EditLinkTarget.h">
       <Filter>Config</Filter>
     </ClInclude>
-    <ClInclude Include="WizardDlg.h" />
+    <ClInclude Include="WizardDlg.h">
+      <Filter>Wizard</Filter>
+    </ClInclude>
+    <ClInclude Include="WizardStartPage.h">
+      <Filter>Wizard</Filter>
+    </ClInclude>
+    <ClInclude Include="WizardFinishPage.h">
+      <Filter>Wizard</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseWizardPage.h">
+      <Filter>Wizard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -60,7 +74,18 @@
     <ClCompile Include="EditLinkTarget.cpp">
       <Filter>Config</Filter>
     </ClCompile>
-    <ClCompile Include="WizardDlg.cpp" />
+    <ClCompile Include="WizardDlg.cpp">
+      <Filter>Wizard</Filter>
+    </ClCompile>
+    <ClCompile Include="WizardStartPage.cpp">
+      <Filter>Wizard</Filter>
+    </ClCompile>
+    <ClCompile Include="WizardFinishPage.cpp">
+      <Filter>Wizard</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseWizardPage.cpp">
+      <Filter>Wizard</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc">

@@ -12,9 +12,6 @@
 	#error Please include the global header file 'PluginSDK.h'
 #endif
 
-#define PROFILE_PREFIX_LENGTH 8
-#define PROFILE_PREFIX _T("Profile:")
-
 namespace Windower
 {
 	//! a set of active plugin names

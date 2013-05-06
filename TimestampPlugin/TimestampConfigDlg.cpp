@@ -23,15 +23,13 @@ END_MESSAGE_MAP()
 TimestampConfigDlg::TimestampConfigDlg(Windower::PluginSettings *pSettings_in)
 	: Windower::PluginPropertyPage(pSettings_in, TimestampConfigDlg::IDD, IDI_TIMESTAMP) {}
 
-/*! \brief Member function called in response to the WM_INITDIALOG message
-	\return TRUE to set the focus to the first control in the dialog; FALSE if the focus was set manually
+/*! \brief Initializes the controls of the page from the settings
+	\return true if the initialization succeeded; false otherwise
 */
-BOOL TimestampConfigDlg::OnInitDialog()
+bool TimestampConfigDlg::InitializePage()
 {
 	CEdit *pFormatEdit = static_cast<CEdit*>(GetDlgItem(IDC_TIMESTAMP_FORMAT));
 	CString FormatHelp;
-
-	Windower::PluginPropertyPage::OnInitDialog();
 
 	pFormatEdit->SetLimitText(50);
 
@@ -50,40 +48,56 @@ BOOL TimestampConfigDlg::OnInitDialog()
 				 _T("appear in the same location and unchanged in the output string.");
 
 	SetDlgItemText(IDC_FORMAT_HELP, FormatHelp);
-
-	if (m_pSettings != NULL)
-		SetDlgItemText(IDC_TIMESTAMP_FORMAT, m_pSettings->GetString(TIMESTAMP_KEY, TIMESTAMP_DEFAULT));
+	SetDlgItemText(IDC_TIMESTAMP_FORMAT, m_TimestampFormat.c_str());
 
 	OnFormatChange();
 
-	return TRUE;
+	return true;
+}
+
+void TimestampConfigDlg::Revert()
+{
+	m_TimestampFormat = GetString(TIMESTAMP_KEY, TIMESTAMP_DEFAULT);
 }
 
 //! \brief Message handler called when the user presses the OK button
-bool TimestampConfigDlg::Save()
+bool TimestampConfigDlg::Commit()
 {
-	if (m_pSettings != NULL)
+	if (IsPageValid(NULL))
 	{
-		CString Format;
+		SetString(TIMESTAMP_KEY, m_TimestampFormat);
 
-		GetDlgItemText(IDC_TIMESTAMP_FORMAT, Format);
-		m_pSettings->SetString(TIMESTAMP_KEY, Format.GetBuffer());
-
-		return m_pSettings->Save();
+		return true;
 	}
 
 	return false;
 }
 
+bool TimestampConfigDlg::IsPageValid(string_t *pFeedback_out) const
+{
+	if (m_TimestampFormat.empty())
+	{
+		if (pFeedback_out != NULL)
+			*pFeedback_out += _T("\n    - The format string is empty.");
+
+		return false;
+	}
+
+	return true;
+}
+
 //! \brief Message handler called when the format edit changes
 void TimestampConfigDlg::OnFormatChange()
 {
+	TCHAR PreviewText[51] = { '\0' };
 	CString Format;
 
 	GetDlgItemText(IDC_TIMESTAMP_FORMAT, Format);
-	TCHAR PreviewText[51] = { '\0' };
+	m_TimestampFormat = Format.GetBuffer();
 
 	// update the text preview
 	if (GetTimeFormat(LOCALE_INVARIANT, NULL, NULL, Format, PreviewText, 32) != 0)
 		SetDlgItemText(IDC_PREVIEW_TEXT, PreviewText);
+	// update the wizard buttons
+	UpdateWizardButtons();
 }

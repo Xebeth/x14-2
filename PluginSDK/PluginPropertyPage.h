@@ -17,13 +17,69 @@ namespace Windower
 	public:
 		PluginPropertyPage(PluginSettings *pSettings_in, UINT TemplateResID_in, UINT IconResID_in);
 
-		virtual bool Save() =0;
+		const string_t& GetFeedback() const;
+
+		DWORD RemoveFlag(DWORD Flag_in);
+		void SetFlags(DWORD Flags_in);
+		DWORD AddFlag(DWORD Flag_in);
+
+		bool IsFlagSet(DWORD Flag_in) const;
+		UINT GetTemplateID() const;		
+		DWORD GetFlags() const;
+
+		/*! \brief Checks if the page configuration is valid
+			\param[out] pFeedback_out : any error message explain why the page is invalid
+			\return true if the page configuration is valid; false otherwise
+		*/
+		virtual bool IsPageValid(string_t *pFeedback_out) const =0;
+		/*! \brief Commits the changes made to the settings
+			\return true if the settings were saved; false otherwise
+		*/
+		virtual bool Commit() =0;
+		//! \brief Reverts the settings
+		virtual void Revert() =0;
+
+		// Settings accessors
+		LONG GetLong(const string_t &Key_in, LONG DefaultValue = 0L) const;
+		ULONG GetUnsignedLong(const string_t &Key_in, ULONG DefaultValue = 0UL) const;
+		const TCHAR* GetString(const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
+
+		void SetHex(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
+		void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);		
+		void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
+
+		bool DeleteKey(const string_t &KeyName_in) const;
+		bool KeyExists(const string_t &KeyName_in) const;
+
+		string_t GetSettingsDrive() const;
+
+		bool SetCurrentSection(const string_t &CurrentSection_in);
+		const TCHAR* GetProfileName() const;
 
 	protected:
-		PluginSettings *m_pSettings;
+
+		virtual void UpdateWizardButtons();
+		virtual BOOL OnSetActive();
+
+		/*! \brief Initializes the controls of the page from the settings
+			\return true if the initialization succeeded; false otherwise
+		*/
+		virtual bool InitializePage() =0;
+
+		//! general purpose flags
+		DWORD m_PageFlags;
+		//! Feedback from the page validation
+		string_t m_Feedback;
+		//! handle of the page icon
 		HICON m_hIcon;
 
-		virtual BOOL OnInitDialog();
+	private:
+		BOOL OnInitDialog();
+
+		//! plugin settings
+		PluginSettings *m_pSettings;
+		//! resource ID of the dialog template
+		UINT m_TemplateResID;
 	};
 }
 

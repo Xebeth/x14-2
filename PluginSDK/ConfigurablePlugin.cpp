@@ -18,26 +18,47 @@ namespace Windower
 	class PluginPropertySheet : public CPropertySheet
 	{
 		DECLARE_DYNCREATE(PluginPropertySheet)
+		friend class ConfigurablePlugin;
 	public:
-		PluginPropertySheet(const TCHAR *pTitle_in, Settings::SettingsIniFile *pSettings_in)
-			: CPropertySheet(pTitle_in), m_pSettings(pSettings_in) {}
-		PluginPropertySheet() : m_pSettings(NULL), m_bSettingsChanged(false) {}
+		PluginPropertySheet(const TCHAR *pTitle_in, PluginSettings *pSettings_in)
+			: CPropertySheet(pTitle_in), m_pSettings(pSettings_in)
+		{ m_psh.dwFlags |= (PSH_NOAPPLYNOW); }
+		PluginPropertySheet() : m_pSettings(NULL), m_bSettingsChanged(false)
+		{ m_psh.dwFlags |= (PSH_NOAPPLYNOW); }
 
 		virtual bool Save()
 		{
-			PluginPropertyPage *pPage = NULL;
-			int PageCount = GetPageCount();
+			bool Result = false;
 
-			for (int PageIndex = 0; PageIndex < PageCount; ++PageIndex)
+			if (m_pSettings != NULL)
 			{
-				pPage = reinterpret_cast<PluginPropertyPage*>(GetPage(PageIndex));
+				PluginPropertyPage *pPage = NULL;
+				int PageCount = GetPageCount();
+				string_t Feedback;
 
-				if (pPage != NULL)
-					m_bSettingsChanged |= pPage->Save();
+				Result = true;
+
+				for (int PageIndex = 0; PageIndex < PageCount; ++PageIndex)
+				{
+					pPage = reinterpret_cast<PluginPropertyPage*>(GetPage(PageIndex));
+
+					if (pPage != NULL)
+					{
+						// check if the page is valid then save
+						if (pPage->IsPageValid(&Feedback))
+							m_bSettingsChanged |= pPage->Commit();
+						else
+							Result = false;
+						// update the feedback
+						if (Feedback.empty() == false)
+							m_Feedback += Feedback;
+					}
+				}
+
+				return Result;
 			}
-			
 
-			return m_bSettingsChanged;
+			return false;
 		}
 
 		bool SettingsChanged() const { return m_bSettingsChanged; }
@@ -64,14 +85,29 @@ namespace Windower
 
 		virtual void OnSave()
 		{
-			Default();
-			Save();
+			m_Feedback.clear();
+
+			if (Save() == false)
+			{
+				string_t ErrorMsg = _T("The following error(s) were reported:");
+
+				if (m_Feedback.empty() == false)
+				{
+					ErrorMsg += m_Feedback;
+
+					MessageBox(ErrorMsg.c_str(), _T("The configuration has not be saved!"), MB_OK | MB_ICONERROR);
+				}
+			}
+			else
+				Default();
 		}
 
 		//! settings of the plugin
-		Settings::SettingsIniFile *m_pSettings;
+		PluginSettings *m_pSettings;
 		//! flag specifying if the settings have changed
 		bool m_bSettingsChanged;
+		//! feedback from page validation
+		string_t m_Feedback;
 	};
 
 	IMPLEMENT_DYNCREATE(PluginPropertySheet, CPropertySheet)
@@ -81,7 +117,7 @@ namespace Windower
 
 	ConfigurablePlugin::ConfigurablePlugin(PluginFramework::IPluginServices *pServices_in)
 		: PluginFramework::IPlugin(pServices_in), m_pConfigDlg(NULL),
-		  m_pConfigPage(NULL), m_pSettings(NULL) {}
+		  m_pConfigPage(NULL), m_pSettings(NULL), m_ExternalSettings(false) {}
 
 	//! \brief ConfigurablePlugin destructor
 	ConfigurablePlugin::~ConfigurablePlugin()
@@ -98,7 +134,13 @@ namespace Windower
 			m_pConfigDlg = NULL;
 		}
 
-		m_pSettings = NULL;
+		if (m_pSettings != NULL)
+		{
+			if (m_ExternalSettings == false)
+				delete m_pSettings;
+
+			m_pSettings = NULL;
+		}
 	}
 
 	bool ConfigurablePlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
@@ -108,35 +150,51 @@ namespace Windower
 			ConfigurablePlugin *pConfigPlugin = static_cast<ConfigurablePlugin*>(pInstance_in);
 			const TCHAR *pProfileName = reinterpret_cast<const TCHAR*>(pUserData_in);
 
-			// set the default section of the settings
-			if (pConfigPlugin->m_pSettings != NULL && pProfileName != NULL)
-				pConfigPlugin->m_pSettings->SetCurrentSection(pProfileName);
-			// create the property page if needed
-			if (pConfigPlugin->m_pConfigPage == NULL)
-				pConfigPlugin->m_pConfigPage = pConfigPlugin->GetPropertyPage();
-			// create the property sheet if needed
-			if (pConfigPlugin->m_pConfigDlg == NULL && pConfigPlugin->m_pConfigPage != NULL)
+			if (pConfigPlugin->m_pSettings != NULL)
 			{
-				pConfigPlugin->m_pConfigDlg = new PluginPropertySheet(_T("Plugin configuration"),
-																	   pConfigPlugin->m_pSettings);
-				// set up the property sheet
-				pConfigPlugin->m_pConfigDlg->m_psh.dwFlags |= (PSH_NOAPPLYNOW);
-				pConfigPlugin->m_pConfigDlg->AddPage(pConfigPlugin->m_pConfigPage);				
-			}
-			// display the property sheet
-			if (pConfigPlugin->m_pConfigDlg != NULL)
-			{
-				pConfigPlugin->m_pConfigDlg->DoModal();
-
-				if (pConfigPlugin->m_pConfigDlg->SettingsChanged())
+				// set the default section of the settings
+				if (pProfileName != NULL)
+					pConfigPlugin->m_pSettings->SetCurrentSection(pProfileName);
+				// create the property page if needed
+				if (pConfigPlugin->m_pConfigPage == NULL)
+					pConfigPlugin->m_pConfigPage = pConfigPlugin->GetPropertyPage();
+				// create the property sheet if needed
+				if (pConfigPlugin->m_pConfigDlg == NULL && pConfigPlugin->m_pConfigPage != NULL)
 				{
-					pConfigPlugin->OnSettingsChanged();
+					pConfigPlugin->m_pConfigDlg = new PluginPropertySheet(_T("Plugin configuration"),
+																		  pConfigPlugin->m_pSettings);
+					// set up the property sheet
+					pConfigPlugin->m_pConfigDlg->AddPage(pConfigPlugin->m_pConfigPage);				
+				}
+				// display the property sheet
+				if (pConfigPlugin->m_pConfigDlg != NULL)
+				{
+					pConfigPlugin->m_pConfigDlg->DoModal();
 
-					return true;
+					if (pConfigPlugin->m_pConfigDlg->SettingsChanged())
+					{
+						pConfigPlugin->OnSettingsChanged();
+
+						return pConfigPlugin->m_pSettings->Save();
+					}
 				}
 			}
 		}	
 
 		return false;
+	}
+
+	void ConfigurablePlugin::SetSettings(PluginSettings *pSettings_in)
+	{
+		if (pSettings_in != NULL)
+		{
+			if (m_pSettings != NULL)
+			{
+				delete m_pSettings;
+				m_pSettings = NULL;
+			}
+			m_ExternalSettings = true;
+			m_pSettings = pSettings_in;
+		}
 	}
 }

@@ -19,6 +19,8 @@ namespace Windower
 	public:
 		PluginSettings(const string_t &SourceFile_in, const TCHAR *pProfileName_in);
 
+		const TCHAR* GetProfileName() const;
+
 		void SetCurrentSection(const string_t &CurrentSection_in);
 		const string_t& GetCurrentSection() const;
 

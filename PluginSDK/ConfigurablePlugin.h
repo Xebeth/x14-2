@@ -37,6 +37,8 @@ namespace Windower
 		//! \brief Callback function invoked when the settings have changed
 		virtual void OnSettingsChanged() =0;
 
+		void SetSettings(PluginSettings *pSettings_in);
+
 	protected:
 		//! configuration page
 		PluginPropertyPage *m_pConfigPage;
@@ -44,6 +46,8 @@ namespace Windower
 		PluginPropertySheet *m_pConfigDlg;
 		//! settings of the plugin
 		PluginSettings *m_pSettings;
+		//! flag specifying if the plugin owns the settings object
+		bool m_ExternalSettings;
 	};
 }
 

@@ -21,6 +21,8 @@ namespace Settings
 		explicit SettingsIniFile(const string_t &SourceFile_in);
 		virtual ~SettingsIniFile();
 
+		bool IsConfigLoaded() const;
+
 		// Data source functions
 		virtual void SetSource(const string_t &SourceFile_in);
 		virtual bool Load();
@@ -49,8 +51,8 @@ namespace Settings
 		string_t GetSettingsPath() const;
 
 	protected:
-		//! the current section
-		string_t m_CurrentSection;
+		//! flag specifying if the configuration file is loaded
+		bool m_bIsLoaded;
 		//! the path of the INI file
 		string_t m_SourceFile;
 		//! the INI object

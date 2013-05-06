@@ -29,17 +29,6 @@ namespace Windower
 		OnSettingsChanged();
 	}
 
-	//! \brief TimestampPlugin destructor
-	TimestampPlugin::~TimestampPlugin()
-	{
-		if (m_pSettings != NULL)
-		{
-			delete m_pSettings;
-			m_pSettings = NULL;
-		}
-	}
-
-
 	/*! \brief Creates an instance of TimestampPlugin
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TimestampPlugin instance

@@ -17,6 +17,9 @@
 
 #define _WINDOWER_PLUGIN_SDK_INCLUDE_
 
+#define PROFILE_PREFIX_LENGTH 8
+#define PROFILE_PREFIX _T("Profile:")
+
 #include <ICoreModule.h>
 
 #include <CommandParameter.h>

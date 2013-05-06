@@ -18,7 +18,7 @@ namespace Windower
 	class SettingsManager;
 	class WindowerUpdater;
 }
-class UpdaterDlg : public CDialogEx, public Updater::IThreadProgress
+class UpdaterDlg : public BaseWizardPage, public Updater::IThreadProgress
 {
 	enum { IDD = IDD_UPDATE_DLG };
 public:
@@ -36,48 +36,28 @@ public:
 		LIST_COL_COUNT
 	};
 
-	UpdaterDlg(Windower::SettingsManager *pSettingsManager, CWnd* pParent = NULL);
+	explicit UpdaterDlg(Windower::PluginSettings *pSettings_in);
 	~UpdaterDlg();
 
-	virtual void OnProgress(unsigned long Completed_in,
-		unsigned long Total_in,
-		const TCHAR *pFeedbackMsg_in);
-	virtual void PumpMessages();
-	virtual void OnFinish();
-	virtual void OnCancel();
-	virtual void OnStart();
+	void OnProgress(unsigned long Completed_in,
+					unsigned long Total_in,
+					const TCHAR *pFeedbackMsg_in);
+	void PumpMessages();
+	void OnFinish();
+	void OnCancel();
+	void OnStart();
+
+	bool InitializePage();
 
 protected:
-	DECLARE_MESSAGE_MAP()
-	virtual BOOL OnInitDialog();
-
-	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnStartClick();
-	afx_msg void OnPaint();		
+	DECLARE_MESSAGE_MAP()
 
-	class DummyServices : public PluginFramework::IPluginServices
-	{
-	public:
-		explicit DummyServices(const PluginFramework::VersionInfo &Version_in, const string_t& WorkingDir_in)
-			: PluginFramework::IPluginServices(Version_in), m_WorkingDir(WorkingDir_in) {}
-	private:
-		virtual bool InvokeService(const string_t&, const string_t&, PluginFramework::ServiceParam &) const { return true; }
-		virtual bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-		virtual bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-		virtual const TCHAR* GetConfigFile() const { return m_WorkingDir.c_str(); }
-
-		string_t m_WorkingDir;
-	};
-
-	PluginFramework::PluginManager *m_pPluginManager;
-	Windower::SettingsManager *m_pSettingsManager;
 	Windower::WindowerUpdater *m_pUpdater;
 	CProgressCtrl *m_pProgressCtrl;	
-	DummyServices *m_pServices;
 	CString m_ProgressText;
 	CString m_StatusText;	
 	bool m_bStarted;
-	HICON m_hIcon;
 };
 
 

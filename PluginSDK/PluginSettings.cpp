@@ -117,7 +117,7 @@ namespace Windower
 		return __super::DeleteKey(m_CurrentSection.c_str(), KeyName_in.c_str());
 	}
 
-		/*! \brief Sets the name of the current section
+	/*! \brief Sets the name of the current section
 		\param[in] CurrentSection_in : the name of the new current section
 	*/
 	void PluginSettings::SetCurrentSection(const string_t &CurrentSection_in)
@@ -128,4 +128,15 @@ namespace Windower
 	*/
 	const string_t& PluginSettings::GetCurrentSection() const
 	{ return m_CurrentSection; }
+
+	/*! \brief Retrieves the name of the profile
+		\return the name of the profile if set; 'Default' otherwise
+	*/
+	const TCHAR* PluginSettings::GetProfileName() const
+	{
+		if (m_CurrentSection.empty() || m_CurrentSection.find(PROFILE_PREFIX) == string_t::npos)
+			return _T("Default");
+		else
+			return (m_CurrentSection.c_str() + PROFILE_PREFIX_LENGTH);
+	}
 }

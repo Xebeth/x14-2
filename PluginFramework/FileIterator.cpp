@@ -15,7 +15,7 @@
 FileIterator::FileIterator(const string_t &Directory_in, const TCHAR *pWildcard_in)
 			: m_Directory(Directory_in), m_hFile(INVALID_HANDLE_VALUE)
 {
-	NormalizePath(m_Directory);
+	normalize_path(m_Directory);
 
 	if (pWildcard_in == NULL)
 		m_Wildcard = _T("*.*");
@@ -104,27 +104,4 @@ bool FileIterator::IsValid()
 {
 	// skip directories
 	return (m_hFile != INVALID_HANDLE_VALUE && (m_FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0);
-}
-
-/*! \brief Checks the directory for a trailing backslash and adds it if necessary
-	\param[in] Directory_in : the directory name to normalize
-*/
-void FileIterator::NormalizePath(string_t &Directory_in)
-{
-	if (Directory_in.empty() == false)
-	{
-		// find the last backslash in the directory
-		size_t TrailingBackslashPos = Directory_in.rfind('\\');
-
-		if (TrailingBackslashPos != string_t::npos)
-		{
-			size_t StrLength = Directory_in.length();
-
-			if (TrailingBackslashPos + 1 < StrLength)
-			{
-				// the last backslash is not at the end of the string
-				Directory_in += '\\';
-			}
-		}
-	}
 }

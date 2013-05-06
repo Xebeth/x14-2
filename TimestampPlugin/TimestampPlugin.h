@@ -24,7 +24,6 @@ namespace Windower
 
 	public:
 		explicit TimestampPlugin(PluginFramework::IPluginServices *pServices_in);
-		~TimestampPlugin();
 
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);

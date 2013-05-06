@@ -60,7 +60,7 @@ END
 // Dialog
 //
 
-IDD_CONFIG_DIALOG DIALOGEX 0, 0, 285, 316
+IDD_CONFIG_DIALOG DIALOGEX 0, 0, 285, 315
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TRANSPARENT | WS_EX_APPWINDOW
 CAPTION "x14-2 configuration"
@@ -87,17 +87,37 @@ BEGIN
     LTEXT           "Updates:",IDC_STATIC,104,69,63,8
 END
 
-IDD_UPDATE_DLG DIALOGEX 0, 0, 401, 280
+IDD_UPDATE_DLG DIALOGEX 0, 0, 328, 185
 STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Updaterx14"
+CAPTION "##Updater Page"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "Start",IDC_START,334,131,50,14
-    CONTROL         "",IDC_DL_PROGRESS,"msctls_progress32",WS_BORDER,17,113,367,14
-    DEFPUSHBUTTON   "OK",IDOK,344,259,50,14
-    LTEXT           "",IDC_STATUS_TXT,17,103,367,8,0,WS_EX_TRANSPARENT
-    LTEXT           "",IDC_DL_SIZE,17,129,289,8,0,WS_EX_TRANSPARENT
+    CONTROL         "",IDC_DL_PROGRESS,"msctls_progress32",WS_BORDER,7,74,314,14
+    LTEXT           "",IDC_STATUS_TXT,7,63,314,8,0,WS_EX_TRANSPARENT
+    LTEXT           "",IDC_DL_SIZE,7,95,258,8,0,WS_EX_TRANSPARENT
+    DEFPUSHBUTTON   "Start",IDC_START,271,92,50,14
+END
+
+IDD_WIZARD_START DIALOGEX 0, 0, 328, 185
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "##Start page"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_PROFILE_NAME,97,7,224,14,ES_AUTOHSCROLL
+    CONTROL         "Yes",IDC_UPDATE_YES,"Button",BS_AUTORADIOBUTTON | WS_GROUP,98,31,21,10
+    CONTROL         "No",IDC_UPDATE_NO,"Button",BS_AUTORADIOBUTTON,127,31,21,10
+    CONTROL         "",IDC_START_SUMMARY,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,7,62,314,116,WS_EX_LEFTSCROLLBAR
+    LTEXT           "Name the default profile :",IDC_STATIC,7,9,83,8
+    LTEXT           "Check for updates :",IDC_STATIC,7,31,77,8
+    LTEXT           "The configuration wizard will perform the following tasks:",IDC_STATIC,7,50,314,10
+END
+
+IDD_WIZARD_FINISH DIALOGEX 0, 0, 328, 185
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "##Finish Page"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
 END
 
 
@@ -117,6 +137,14 @@ IDI_CONFIG              ICON                    "../Common/config.ico"
 //
 
 IDL_CONFIG              PNG                     "res/dlg_config.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_WATERMARK           BITMAP                  "../Installer/x14-banner.bmp"
+IDB_BANNER_ICON         BITMAP                  "../Installer/x14-logo.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -147,9 +175,22 @@ BEGIN
     IDD_UPDATE_DLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 394
+        RIGHTMARGIN, 321
         TOPMARGIN, 7
-        BOTTOMMARGIN, 273
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_WIZARD_START, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 321
+        VERTGUIDE, 97
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_WIZARD_FINISH, DIALOG
+    BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED

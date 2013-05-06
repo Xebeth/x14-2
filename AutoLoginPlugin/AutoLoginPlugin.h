@@ -35,7 +35,6 @@ namespace Bootstrap
 
 	public:
 		explicit AutoLoginPlugin(PluginFramework::IPluginServices *pServices_in);
-		virtual ~AutoLoginPlugin();
 
 		bool CreateAutoLoginThread(HWND ParentHwnd_in);
 

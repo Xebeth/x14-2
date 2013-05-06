@@ -27,15 +27,6 @@ namespace Windower
 		OnSettingsChanged();
 	}
 
-	TellDetectPlugin::~TellDetectPlugin()
-	{
-		if (m_pSettings != NULL)
-		{
-			delete m_pSettings;
-			m_pSettings = NULL;
-		}
-	}
-
 	/*! \brief Creates an instance of TellDetectPlugin
 		\param[in] pServices_in : a pointer to the plugin services
 		\return a pointer to the new TellDetectPlugin instance

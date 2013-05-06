@@ -33,8 +33,6 @@ protected:
 	string_t m_Directory;
 	string_t m_Wildcard;
 	HANDLE m_hFile;
-
-	void NormalizePath(string_t &Directory_in);
 };
 
 #endif//__FILE_ITERATOR_H__

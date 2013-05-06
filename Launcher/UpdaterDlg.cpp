@@ -7,42 +7,30 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
+#include <afxdlgs.h>
 
+#include <PluginPropertyPage.h>
+
+#include "BaseWizardPage.h"
 #include "UpdaterDlg.h"
 #include "WindowerUpdater.h"
+#include "WizardDlg.h"
 
-BEGIN_MESSAGE_MAP(UpdaterDlg, CDialogEx)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-
+BEGIN_MESSAGE_MAP(UpdaterDlg, BaseWizardPage)
 	ON_BN_CLICKED(IDC_START, &UpdaterDlg::OnStartClick)
 END_MESSAGE_MAP()
 
-UpdaterDlg::UpdaterDlg(Windower::SettingsManager *pSettingsManager, CWnd* pParent)
-	: CDialogEx(IDD_UPDATE_DLG, pParent), m_pSettingsManager(pSettingsManager), m_bStarted(false)
+UpdaterDlg::UpdaterDlg(Windower::PluginSettings *pSettings_in)
+	: BaseWizardPage(pSettings_in, IDD_UPDATE_DLG, IDR_MAINFRAME),
+	  m_bStarted(false), m_pUpdater(NULL)
 {
-	m_pServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetWorkingDir() + _T("config.ini"));
-	m_pPluginManager = new PluginFramework::PluginManager(m_pServices);
-
 	m_pUpdater = new Windower::WindowerUpdater(_T("http://woodart.free.fr/_tmp/config.zip"), this);
-
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_PageFlags = WizardDlg::TASK_CHECK_UPDATES;
+	m_psp.dwFlags |= PSP_HIDEHEADER;
 }
 
 UpdaterDlg::~UpdaterDlg()
 {
-	if (m_pPluginManager != NULL)
-	{
-		delete m_pPluginManager;
-		m_pPluginManager = NULL;
-	}
-
-	if (m_pServices != NULL)
-	{
-		delete m_pServices;
-		m_pServices = NULL;
-	}
-
 	if (m_pUpdater != NULL)
 	{
 		delete m_pUpdater;
@@ -50,57 +38,11 @@ UpdaterDlg::~UpdaterDlg()
 	}
 }
 
-BOOL UpdaterDlg::OnInitDialog()
+bool UpdaterDlg::InitializePage()
 {
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
-
-	CDialogEx::OnInitDialog();
-
 	m_pProgressCtrl = static_cast<CProgressCtrl*>(GetDlgItem(IDC_DL_PROGRESS));
 
-	// force the dialog to use a fixed DPI resolution
-	VisualDialog::SetFixedDPI(m_hWnd, IDD, DLG_FIXED_DPI);
-
-	return TRUE;  // return TRUE  unless you set the focus to a control
-}
-
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void UpdaterDlg::OnPaint()
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialogEx::OnPaint();
-	}
-}
-
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR UpdaterDlg::OnQueryDragIcon()
-{
-	return static_cast<HCURSOR>(m_hIcon);
+	return true;
 }
 
 void UpdaterDlg::OnProgress(unsigned long Completed_in, unsigned long Total_in, const TCHAR *pFeedbackMsg_in)

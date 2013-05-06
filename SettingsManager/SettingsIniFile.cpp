@@ -17,11 +17,10 @@ namespace Settings
 		\param[in] SourceFile_in : the path of the INI file
 	*/
 	SettingsIniFile::SettingsIniFile(const string_t &SourceFile_in)
+		: m_SourceFile(SourceFile_in), m_bIsLoaded(false)
 	{
 		m_pIni = new CSimpleIni(true, false, false);
-		m_pIni->SetSpaces(false);
-
-		m_SourceFile = SourceFile_in;
+		m_pIni->SetSpaces(false);		
 	}
 
 	//! \brief SettingsIniFile destructor
@@ -48,9 +47,9 @@ namespace Settings
 	bool SettingsIniFile::Load()
 	{
 		if (m_pIni != NULL)
-			return m_pIni->LoadFile(m_SourceFile.c_str()) == SI_OK;
+			m_bIsLoaded = m_pIni->LoadFile(m_SourceFile.c_str()) == SI_OK;
 
-		return Save();
+		return m_bIsLoaded;
 	}
 
 	/*! \brief Forces the file to be reloaded
@@ -85,14 +84,7 @@ namespace Settings
 	*/
 	bool SettingsIniFile::CreateSection(const string_t &SectionName_in)
 	{
-		if (m_pIni != NULL)
-		{
-			m_pIni->SetValue(SectionName_in.c_str(), NULL, NULL);
-
-			return true;
-		}
-
-		return false;
+		return (m_pIni != NULL && m_pIni->SetValue(SectionName_in.c_str(), NULL, NULL));
 	}
 
 	/*! \brief Deletes a section from the INI file
@@ -101,15 +93,7 @@ namespace Settings
 	*/
 	bool SettingsIniFile::DeleteSection(const string_t &SectionName_in)
 	{
-		if (m_pIni != NULL && m_pIni->Delete(SectionName_in.c_str(), NULL))
-		{
-			if (SectionName_in.compare(m_CurrentSection) == 0)
-				m_CurrentSection.clear();
-
-			return true;
-		}
-
-		return false;
+		return (m_pIni != NULL && m_pIni->Delete(SectionName_in.c_str(), NULL));
 	}
 
 	/*! \brief Retrieves the long value corresponding to the specified key and section
@@ -253,4 +237,10 @@ namespace Settings
 
 		return Path;
 	}
+
+	/*! \brief Checks if the configuration file is loaded
+		\return true if the configuration file is loaded; false otherwise
+	*/
+	bool SettingsIniFile::IsConfigLoaded() const
+	{ return m_bIsLoaded; }
 }

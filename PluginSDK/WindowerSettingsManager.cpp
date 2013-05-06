@@ -17,16 +17,15 @@ namespace Windower
 		\param[in] pIniFile_in : the path of the configuration file
 	*/
 	SettingsManager::SettingsManager(const TCHAR *pWorkingDir_in, const TCHAR *pIniFile_in)
-		: m_WorkingDir(pWorkingDir_in)
+		: m_bAutoUpdate(false), m_bIsLoaded(false)
 	{
 		bool bEmpty = true;
 
 		if (pIniFile_in != NULL && pWorkingDir_in != NULL)
 		{
-			if (m_WorkingDir.back() != '\\')
-				m_WorkingDir += '\\';
-
+			initialize_path(pWorkingDir_in, m_WorkingDir);
 			m_ConfigPath = m_WorkingDir + pIniFile_in;
+
 			m_pSettingsFile = new Settings::SettingsIniFile(m_ConfigPath);
 
 			if (m_pSettingsFile->Load())
@@ -34,7 +33,7 @@ namespace Windower
 
 			if (bEmpty)
 			{
-				CreateDefaultProfile(INI_DEFAULT_CURRENT_PROFILE);
+				CreateDefault(INI_DEFAULT_CURRENT_PROFILE);
 				Save();
 			}
 		}
@@ -228,14 +227,14 @@ namespace Windower
 			WindowerSettings::const_iterator SettingsIt;
 			SectionsConstIterator SectionIter, EndIt;
 			CSimpleIni::TNamesDepend Sections;			
-			bool Exists, Result = false;
 			WindowerProfile *pSettings;
+			bool Exists;
 
 			// verify the configuration
 			VerifyConfig();
 			// get the general parameters
 			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE));
-			SetAutoUpdate(m_pSettingsFile->GetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE) != 0L);
+			SetAutoUpdate(m_pSettingsFile->GetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE) == 1L);
 			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
@@ -256,7 +255,7 @@ namespace Windower
 					if (LoadProfile(SectionIter->pItem, *pSettings))
 					{
 						m_Profiles[SectionIter->pItem] = pSettings;
-						Result = true;
+						m_bIsLoaded = true;
 					}
 					else
 					{
@@ -268,26 +267,26 @@ namespace Windower
 				}
 			}
 
-			return Result;
+			return m_bIsLoaded;
 		}
 
 		return false;
 	}
 
-	/*! \brief Creates the default profile
+	/*! \brief Creates the default data
 		\return true if successful; false otherwise
 	*/
-	bool SettingsManager::CreateDefaultProfile(const TCHAR *pProfileName_in)
+	bool SettingsManager::CreateDefault(const TCHAR *pProfileName_in)
 	{
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
-			WindowerProfile Settings(pProfileName_in, INI_DEFAULT_LNG, INI_DEFAULT_VSYNC);
-
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, pProfileName_in);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH);
+			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE);
 
 			SetDefaultProfile(pProfileName_in);
 
-			return (DuplicateProfile(pProfileName_in, Settings) != NULL);
+			return true;
 		}
 
 		return false;
@@ -546,7 +545,7 @@ namespace Windower
 			}
 
 			if (m_pSettingsFile->SectionExists(DefaultProfile) == false)
-				bSave |= CreateDefaultProfile(DefaultProfile.c_str());
+				bSave |= CreateDefault(DefaultProfile.c_str());
 
 			if (bSave)
 				Save();
@@ -560,4 +559,12 @@ namespace Windower
 
 	void SettingsManager::SetDefaultProfile(const TCHAR *pProfileName_in)
 	{ m_DefaultProfile = pProfileName_in; }
+
+	/*! \brief Checks if the configuration file is loaded
+		\return true if the configuration file is loaded; false otherwise
+	*/
+	bool SettingsManager::IsConfigLoaded() const
+	{
+		return (m_bIsLoaded && m_pSettingsFile != NULL && m_pSettingsFile->IsConfigLoaded());
+	}
 }

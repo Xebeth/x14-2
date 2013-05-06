@@ -139,6 +139,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BaseWizardPage.h" />
     <ClInclude Include="ConfigDlg.h" />
     <ClInclude Include="EditLinkTarget.h" />
     <ClInclude Include="LauncherApp.h" />
@@ -148,8 +149,11 @@
     <ClInclude Include="version.h" />
     <ClInclude Include="WindowerUpdater.h" />
     <ClInclude Include="WizardDlg.h" />
+    <ClInclude Include="WizardFinishPage.h" />
+    <ClInclude Include="WizardStartPage.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseWizardPage.cpp" />
     <ClCompile Include="ConfigDlg.cpp" />
     <ClCompile Include="EditLinkTarget.cpp" />
     <ClCompile Include="LauncherApp.cpp" />
@@ -161,6 +165,8 @@
     <ClCompile Include="UpdaterDlg.cpp" />
     <ClCompile Include="WindowerUpdater.cpp" />
     <ClCompile Include="WizardDlg.cpp" />
+    <ClCompile Include="WizardFinishPage.cpp" />
+    <ClCompile Include="WizardStartPage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\config.ico" />

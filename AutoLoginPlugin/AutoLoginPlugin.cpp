@@ -31,16 +31,6 @@ namespace Bootstrap
 		// set the sound file path from the settings
 		OnSettingsChanged();
 	}
-
-	//! \brief AutoLoginPlugin destructor
-	AutoLoginPlugin::~AutoLoginPlugin()
-	{
-		if (m_pSettings != NULL)
-		{
-			delete m_pSettings;
-			m_pSettings = NULL;
-		}
-	}
 	
 	/*! \brief Creates the thread used to monitor the forms during the login process
 		\param[in] ParentHwnd_in : the handle of the IE server window

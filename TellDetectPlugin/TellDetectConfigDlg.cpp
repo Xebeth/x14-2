@@ -19,39 +19,35 @@ BEGIN_MESSAGE_MAP(TellDetectConfigDlg, Windower::PluginPropertyPage)
 	ON_EN_CHANGE(IDC_TELL_CHIME, &TellDetectConfigDlg::OnChimeChange)
 END_MESSAGE_MAP()
 
-extern HINSTANCE g_hInstance;
-
 /*! \brief TellDetectConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
 TellDetectConfigDlg::TellDetectConfigDlg(Windower::PluginSettings *pSettings_in)
-	: Windower::PluginPropertyPage(pSettings_in, TellDetectConfigDlg::IDD, IDI_TELLDETECT),
-	  m_hModule(GetModuleHandle(NULL)) {}
+	: Windower::PluginPropertyPage(pSettings_in, TellDetectConfigDlg::IDD, IDI_TELLDETECT) {}
 
-/*! \brief Member function called in response to the WM_INITDIALOG message
-	\return TRUE to set the focus to the first control in the dialog; FALSE if the focus was set manually
+/*! \brief Initializes the controls of the page from the settings
+	\return true if the initialization succeeded; false otherwise
 */
-BOOL TellDetectConfigDlg::OnInitDialog()
+bool TellDetectConfigDlg::InitializePage()
 {
-	Windower::PluginPropertyPage::OnInitDialog();
+	SetDlgItemText(IDC_TELL_CHIME, m_SndFile);
 
-	if (m_pSettings != NULL)
-	{
-		m_SndFile = m_pSettings->GetString(TELL_SOUND_KEY, TELL_SOUND_DEFAULT);
-		SetDlgItemText(IDC_TELL_CHIME, m_SndFile);
-	}
+	return true;
+}
 
-	return TRUE;
+void TellDetectConfigDlg::Revert()
+{
+	m_SndFile = GetString(TELL_SOUND_KEY, TELL_SOUND_DEFAULT);
 }
 
 //! \brief Message handler called when the user presses the OK button
-bool TellDetectConfigDlg::Save()
+bool TellDetectConfigDlg::Commit()
 {
-	if (m_pSettings != NULL)
+	if (IsPageValid(NULL))
 	{
-		m_pSettings->SetString(TELL_SOUND_KEY, m_SndFile.GetBuffer());
+		SetString(TELL_SOUND_KEY, m_SndFile.GetBuffer());
 
-		return m_pSettings->Save();
+		return true;
 	}
 
 	return false;
@@ -65,7 +61,7 @@ void TellDetectConfigDlg::OnPlayChime()
 	if (m_SndFile.IsEmpty() == false && pPlayButton->IsWindowEnabled())
 	{
 		pPlayButton->EnableWindow(FALSE);
-		PlaySound(m_SndFile, m_hModule, SND_FILENAME | SND_NODEFAULT);
+		PlaySound(m_SndFile, NULL, SND_FILENAME | SND_NODEFAULT);
 		pPlayButton->EnableWindow(TRUE);
 	}
 }
@@ -88,6 +84,24 @@ void TellDetectConfigDlg::OnChimeChange()
 
 	GetDlgItemText(IDC_TELL_CHIME, NewSndFile);
 
-	if (m_pSettings != NULL && NewSndFile.Compare(m_SndFile) != 0)
+	if (NewSndFile.Compare(m_SndFile) != 0)
 		m_SndFile = NewSndFile;
+
+	// update the play button
+	GetDlgItem(IDC_PLAY_SOUND)->EnableWindow(m_SndFile.IsEmpty() == false);
+	// update the wizard buttons
+	UpdateWizardButtons();
+}
+
+bool TellDetectConfigDlg::IsPageValid(string_t *pFeedback_out) const
+{
+	if (m_SndFile.IsEmpty())
+	{
+		if (pFeedback_out != NULL)
+			*pFeedback_out += _T("\n    - The sound file path is empty.");
+
+		return false;
+	}
+
+	return true;
 }

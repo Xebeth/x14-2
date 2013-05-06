@@ -18,14 +18,17 @@ class TimestampConfigDlg : public Windower::PluginPropertyPage
 public:
 	explicit TimestampConfigDlg(Windower::PluginSettings *pSettings_in);
 
-	bool Save();
+	bool IsPageValid(string_t *pFeedback_out) const;
+	bool InitializePage();
+	bool Commit();
+	void Revert();
 
 protected:
-	// Generated message map functions
-	virtual BOOL OnInitDialog();
 	afx_msg void OnFormatChange();
 
 	DECLARE_MESSAGE_MAP()
+
+	string_t m_TimestampFormat;
 };
 
 #endif//__TIMESTAMP_CONFIG_DLG_H__
