@@ -16,7 +16,7 @@ namespace Windower
 {
 	class PluginPropertySheet;
 	class PluginPropertyPage;
-	class PluginSettings;
+	class WindowerProfile;
 
 	//! \brief Plugin with configuration screen
 	class ConfigurablePlugin : public PluginFramework::IPlugin
@@ -35,9 +35,7 @@ namespace Windower
 		*/
 		virtual PluginPropertyPage* GetPropertyPage() =0;
 		//! \brief Callback function invoked when the settings have changed
-		virtual void OnSettingsChanged() =0;
-
-		void SetSettings(PluginSettings *pSettings_in);
+		virtual void OnSettingsChanged() {};
 
 	protected:
 		//! configuration page
@@ -45,9 +43,7 @@ namespace Windower
 		//! configuration dialog
 		PluginPropertySheet *m_pConfigDlg;
 		//! settings of the plugin
-		PluginSettings *m_pSettings;
-		//! flag specifying if the plugin owns the settings object
-		bool m_ExternalSettings;
+		WindowerProfile *m_pSettings;
 	};
 }
 

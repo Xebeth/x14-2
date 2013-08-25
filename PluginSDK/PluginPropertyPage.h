@@ -10,12 +10,17 @@
 
 namespace Windower
 {
-	class PluginSettings;
+	class SettingsManager;
+	class WindowerProfile;
 
 	class PluginPropertyPage : public CPropertyPage
 	{
 	public:
-		PluginPropertyPage(PluginSettings *pSettings_in, UINT TemplateResID_in, UINT IconResID_in);
+		PluginPropertyPage(WindowerProfile *pSettings_in,
+						   const string_t &PluginName_in,
+						   UINT TemplateResID_in,
+						   UINT IconResID_in);
+		virtual ~PluginPropertyPage();
 
 		const string_t& GetFeedback() const;
 
@@ -48,13 +53,9 @@ namespace Windower
 		void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);		
 		void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
 
-		bool DeleteKey(const string_t &KeyName_in) const;
-		bool KeyExists(const string_t &KeyName_in) const;
-
-		string_t GetSettingsDrive() const;
-
-		bool SetCurrentSection(const string_t &CurrentSection_in);
-		const TCHAR* GetProfileName() const;
+		void SetSettings(WindowerProfile *pSettings_in);
+		const string_t& GetPluginName() const
+		{ return m_PluginName; }
 
 	protected:
 
@@ -66,6 +67,10 @@ namespace Windower
 		*/
 		virtual bool InitializePage() =0;
 
+		//! name of the plugin
+		string_t m_PluginName;
+		//! settings
+		WindowerProfile *m_pSettings;
 		//! general purpose flags
 		DWORD m_PageFlags;
 		//! Feedback from the page validation
@@ -76,8 +81,6 @@ namespace Windower
 	private:
 		BOOL OnInitDialog();
 
-		//! plugin settings
-		PluginSettings *m_pSettings;
 		//! resource ID of the dialog template
 		UINT m_TemplateResID;
 	};

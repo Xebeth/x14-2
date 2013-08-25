@@ -25,11 +25,7 @@ namespace Bootstrap
 		: Windower::ConfigurablePlugin(pServices_in)
 	{
 		// clear the thread data structure
-		memset(&m_ThreadData, 0, sizeof(m_ThreadData));
-		// create the settings
-		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
-		// set the sound file path from the settings
-		OnSettingsChanged();
+		memset(&m_ThreadData, 0, sizeof(m_ThreadData));		
 	}
 	
 	/*! \brief Creates the thread used to monitor the forms during the login process
@@ -92,7 +88,7 @@ namespace Bootstrap
 	
 	Windower::PluginPropertyPage* AutoLoginPlugin::GetPropertyPage()
 	{
-		return new AutoLoginConfigDlg(m_pSettings);
+		return new AutoLoginConfigDlg(m_pSettings, m_PluginInfo.GetName());
 	}
 
 	void AutoLoginPlugin::OnSettingsChanged() {}

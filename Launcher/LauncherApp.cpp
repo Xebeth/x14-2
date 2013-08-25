@@ -16,15 +16,8 @@
 
 LauncherApp g_pApp;
 
-LauncherApp::LauncherApp()
-{
-	TCHAR DirPath[_MAX_PATH] = { '\0' };
-
-	GetCurrentDirectory(_MAX_PATH, DirPath);
-	m_pSettingsManager = new Windower::SettingsManager(DirPath, _T("config.ini"));
-	m_pDummyServices = new DummyServices(__PLUGIN_FRAMEWORK_VERSION__, m_pSettingsManager->GetConfigFile());
-	m_pPluginManager = new PluginFramework::PluginManager(m_pDummyServices);
-}
+LauncherApp::LauncherApp() : m_pSettingsManager(NULL),
+	m_pPluginManager(NULL), m_pPluginServices(NULL) {}
 
 LauncherApp::~LauncherApp()
 {
@@ -40,10 +33,10 @@ LauncherApp::~LauncherApp()
 		m_pPluginManager = NULL;
 	}
 
-	if (m_pDummyServices != NULL)
+	if (m_pPluginServices != NULL)
 	{
-		delete m_pDummyServices;
-		m_pDummyServices = NULL;
+		delete m_pPluginServices;
+		m_pPluginServices = NULL;
 	}
 
 	VisualManager::DestroyInstance();
@@ -220,39 +213,24 @@ bool LauncherApp::CreateCmdLine(string_t &CmdLine_out, const string_t &GamePath_
 }
 BOOL LauncherApp::InitInstance()
 {
-	if (m_pPluginManager == NULL || m_pSettingsManager == NULL)
-		return FALSE;
-
 	string_t DLL32Path, ExePath, CmdLine, GamePath;	
 	Windower::WindowerProfile CurrentProfile;
 	bool ShowConfig = true, Launch = false;
 	TCHAR DirPath[_MAX_PATH] = { '\0' };	
 	UINT Tasks = WizardDlg::TASK_NONE;
-	INITCOMMONCONTROLSEX InitCtrls;
-	CMFCToolTipInfo ttParams;
 	CString SID, ProfileName;
 	LauncherCmdLine CmdInfo;
 
-	// InitCommonControlsEx() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
-	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
-	InitCtrls.dwICC = ICC_WIN95_CLASSES;
-	InitCommonControlsEx(&InitCtrls);
-	// disable Aero to prevent bugs with dialogs client area => see VisualManager::IsOwnerDrawCaption()
-	// this forces AFX_GLOBAL_DATA.DwmIsCompositionEnabled() to return FALSE
-	afxGlobalData.bDisableAero = TRUE;
-	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(VisualManager));
-	// tooltip support
-	ttParams.m_bVislManagerTheme = TRUE;
-	GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL, RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
-
-	CWinApp::InitInstance();
+	InitMFC();
 
 	GetCurrentDirectory(_MAX_PATH, DirPath);
 	ParseCommandLine(CmdInfo);
+
+	m_pSettingsManager = new Windower::SettingsManager(DirPath, _T("config.ini"));
+	m_pPluginServices = new Windower::PluginServices(__PLUGIN_FRAMEWORK_VERSION__,
+													 m_Modules,
+													 m_pSettingsManager);
+	m_pPluginManager = new PluginFramework::PluginManager(m_pPluginServices);
 	
 	if (CmdInfo.IsFirstRun() || m_pSettingsManager->IsConfigLoaded() == false)
 	{
@@ -281,21 +259,19 @@ BOOL LauncherApp::InitInstance()
 
 	if (Tasks != WizardDlg::TASK_NONE)
 	{
-		Windower::PluginSettings Settings(m_pSettingsManager->GetConfigFile(),
-										  m_pSettingsManager->GetDefaultProfile());
-		WizardDlg ConfigurationWizard(*m_pPluginManager, Settings);
+		WizardDlg ConfigurationWizard(*m_pPluginManager, *m_pSettingsManager);
 
 		if ((Tasks & (WizardDlg::TASK_CHECK_UPDATES | WizardDlg::TASK_CONFIGURE_PLUGINS)) != WizardDlg::TASK_NONE)
 			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
 
 		if (ConfigurationWizard.CreatePages(Tasks) > 0U)
-			Launch = (ConfigurationWizard.DoModal() == IDOK);
+			ShowConfig = (ConfigurationWizard.DoModal() == IDOK);
 
 		if (Launch)
+		{
 			m_pSettingsManager->SetDefaultProfile(ConfigurationWizard.GetProfileName());
-#ifdef _DEBUG
-		return FALSE;
-#endif // _DEBUG
+			m_pSettingsManager->Save();
+		}
 	}
 
 	// load the default profile
@@ -357,6 +333,8 @@ BOOL LauncherApp::InitInstance()
 			DWORD CreationFlags(CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT);
 			PROCESS_INFORMATION ProcessInfo;
 
+			// initialize the structure
+			memset(&ProcessInfo, 0, sizeof(ProcessInfo));
 			// create the game process
 			InjectModule::CreateProcessEx(ExePath, ProcessInfo, CmdLine.c_str(),
 										  CreationFlags, DLL32Path.c_str());
@@ -369,4 +347,30 @@ BOOL LauncherApp::InitInstance()
 	VisualManager::DestroyInstance();
 
 	return FALSE;
+}
+
+/*! \brief 
+*/
+void LauncherApp::InitMFC()
+{
+	INITCOMMONCONTROLSEX InitCtrls;
+	CMFCToolTipInfo ttParams;
+
+	// InitCommonControlsEx() is required on Windows XP if an application
+	// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	// visual styles.  Otherwise, any window creation will fail.
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// Set this to include all the common control classes you want to use
+	// in your application.
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+	// disable Aero to prevent bugs with dialogs client area => see VisualManager::IsOwnerDrawCaption()
+	// this forces AFX_GLOBAL_DATA.DwmIsCompositionEnabled() to return FALSE
+	afxGlobalData.bDisableAero = TRUE;
+	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(VisualManager));
+	// tooltip support
+	ttParams.m_bVislManagerTheme = TRUE;
+	GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL, RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+
+	CWinApp::InitInstance();
 }

@@ -22,9 +22,11 @@ namespace Windower
 		: IGameChatPlugin(pServices_in)
 	{
 		// create the settings
-		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
-		// set the sound file path from the settings
-		OnSettingsChanged();
+		if(pServices_in->LoadSettings(m_pSettings))
+		{
+			// set the sound file path from the settings
+			OnSettingsChanged();
+		}
 	}
 
 	/*! \brief Creates an instance of TellDetectPlugin
@@ -67,7 +69,7 @@ namespace Windower
 	Windower::PluginPropertyPage* TellDetectPlugin::GetPropertyPage()
 	{
 		if (m_pSettings != NULL)
-			return new TellDetectConfigDlg(m_pSettings);
+			return new TellDetectConfigDlg(m_pSettings, m_PluginInfo.GetName());
 
 		return NULL;
 	}
@@ -93,7 +95,7 @@ namespace Windower
 	//! \brief Callback function invoked when the settings have changed
 	void TellDetectPlugin::OnSettingsChanged()
 	{
-		m_SoundFile = m_pSettings->GetString(TELL_SOUND_KEY, TELL_SOUND_DEFAULT);
+		m_SoundFile = m_pSettings->GetTellSound();
 	}
 }
 

@@ -1,4 +1,4 @@
-/**************************************************************************
+﻿/**************************************************************************
 	created		:	2011-10-30
 	filename	: 	WindowerSettings.h
 	author		:	Xebeth`
@@ -12,35 +12,72 @@
 	#error Please include the global header file 'PluginSDK.h'
 #endif
 
+enum eIniKeys
+{
+	// general settings
+	INI_KEY_PLUGINS,
+	INI_KEY_VSYNC,	
+	INI_KEY_LNG,
+	// auto-login plugin
+	INI_KEY_AUTO_SUBMIT,
+	INI_KEY_PASSWORD,
+	INI_KEY_USERNAME,	
+	INI_KEY_HASH,
+	// timestamp plugin
+	INI_KEY_TIMESTAMP,
+	// tell detect plugin
+	INI_KEY_TELL_SOUND,
+	// number of keys
+	INI_KEY_COUNT
+};
+
 namespace Windower
 {
 	//! a set of active plugin names
 	typedef std::set<string_t> ActivePlugins;
 
 	//! \brief Windower settings
-	class WindowerProfile
+	class WindowerProfile : public PluginFramework::IUserSettings
 	{
 	public:
 		//! \brief WindowerProfile default constructor
-		WindowerProfile() : m_VSync(FALSE), m_Language(1L) {}
+		WindowerProfile();
+
 		/*! \brief WindowerProfile copy constructor
 			\param[in] Settings_in : the settings to copy
 		*/
 		WindowerProfile(const WindowerProfile &Settings_in)
+		{ Copy(Settings_in); }
+
+		void Copy(const WindowerProfile &Settings_in);
+
+		static const TCHAR* Key(eIniKeys Key_in)
+		{ return m_sKeyName[Key_in]; }
+
+		static const TCHAR* Comment(eIniKeys Key_in)
+		{ return m_sKeyComment[Key_in]; }
+
+		template<typename T> static T Default(eIniKeys Key_in);
+
+		template<> static ULONG Default(eIniKeys Key_in)
 		{
-			Copy(Settings_in);
+			TCHAR InvalidChars[64] = { '\0' };
+			TCHAR *Chars = &InvalidChars[0];
+
+			return _tcstoul(m_sKeyDefault[Key_in], &Chars, 10);
 		}
 
-		/*! \brief Copies the specified settings
-			\param[in] Settings_in : the settings to copy
-		*/
-		void Copy(const WindowerProfile &Settings_in)
+		template<> static LONG Default(eIniKeys Key_in)
 		{
-			m_Name = Settings_in.m_Name;
-			m_VSync = Settings_in.m_VSync;
-			m_Language = Settings_in.m_Language;
+			TCHAR InvalidChars[64] = { '\0' };
+			TCHAR *Chars = &InvalidChars[0];
 
-			m_ActivePlugins = Settings_in.m_ActivePlugins;
+			return _tcstol(m_sKeyDefault[Key_in], &Chars, 10); 
+		}
+
+		template<> static const TCHAR* Default(eIniKeys Key_in)
+		{
+			return m_sKeyDefault[Key_in];
 		}
 
 		/*! \brief WindowerProfile constructor
@@ -87,30 +124,79 @@ namespace Windower
 			return (PluginIt != m_ActivePlugins.cend());
 		}
 
-		void ActivatePlugin(const string_t& PluginName_in, bool Activate_in = true)
-		{
-			if (Activate_in == false)
-			{
-				ActivePlugins::const_iterator PluginIt = m_ActivePlugins.find(PluginName_in);
-
-				if (PluginIt != m_ActivePlugins.cend())
-					m_ActivePlugins.erase(PluginIt);
-			}
-			else
-				m_ActivePlugins.insert(PluginName_in);
-		}
+		void UpdatePluginList(const string_t& PluginName_in, bool Activate_in = true);
 
 		const ActivePlugins& GetActivePlugins() const { return m_ActivePlugins; }
 
+		const string_t& GetProfileName() const { return m_Name; }
+
+		void SetCryptedPassword(const string_t &Password_in) { m_Password = Password_in; }
+		void SetTellSound(const string_t &TellSound_in) { m_TellSound = TellSound_in; }
+		void SetTimestampFormat(const string_t &Format_in) { m_Timestamp = Format_in; }		
+		void SetUsername(const string_t &Username_in) { m_Username = Username_in; }		
+		void SetAutoSubmit(bool AutoSubmit_in) { m_AutoSubmit = AutoSubmit_in;}
+		void SetKeyHash(ULONG Hash_in) { m_KeyHash = Hash_in; }
+
+		const TCHAR* GetPluginList() const;
+		
+		ULONG GetKeyHash() const
+		{ return m_KeyHash; }
+
+		bool IsAutoSubmitted() const
+		{ return m_AutoSubmit; }
+
+		const TCHAR* GetUsername() const
+		{ return m_Username.c_str(); }
+
+		const TCHAR* GetCryptedPassword() const
+		{ return m_Password.c_str(); }
+
+		const TCHAR* GetTimestampFormat() const
+		{ return m_Timestamp.c_str(); }
+
+		const TCHAR* GetTellSound() const
+		{ return m_TellSound.c_str(); }
+
+		// implementation of IUserSettings
+		virtual const TCHAR* GetString(const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
+		virtual ULONG GetUnsignedLong(const string_t &Key_in, ULONG DefaultValue = 0UL) const;
+		virtual LONG GetLong(const string_t &Key_in, LONG DefaultValue = 0L) const;
+
+		virtual void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
+		virtual void SetUnsignedLong(const string_t &Key_in, ULONG NewValue_in, const TCHAR *pComment_in = NULL);
+		virtual void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
+		void SetPluginList( const string_t &PluginList_in );
 	protected:
+		static const TCHAR* m_sKeyDefault[INI_KEY_COUNT];
+		static const TCHAR* m_sKeyComment[INI_KEY_COUNT];
+		static const TCHAR* m_sKeyName[INI_KEY_COUNT];
+
+		typedef stdext::hash_map<string_t, eIniKeys> KeyMapping;
+
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;
+		//! flag specifying if the login form is submitted automatically
+		bool m_AutoSubmit;
 		//! language ID
 		long m_Language;
 		//! the name of the profile
 		string_t m_Name;
+		//! hash of the encryption key
+		ULONG m_KeyHash;
+		//! the username used to log in
+		string_t m_Username;
+		//! the encrypted password used to log in
+		string_t m_Password;
+		//! the format of the timestamp
+		string_t m_Timestamp;
+		//! the path to the sound file played when a tell is detected
+		string_t m_TellSound;
 		//! set of active plugins
 		ActivePlugins m_ActivePlugins;
+		//! key mapping
+		KeyMapping m_KeyMapping;
+		//! string containing the list of plugins
+		mutable string_t m_PluginList;
 	};
 }
 

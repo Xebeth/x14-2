@@ -23,7 +23,8 @@ namespace PluginFramework
 {
 	class IPluginServices;
 	class RegisterParams;
-	class ServiceParam;
+	class IUserSettings;
+	class ServiceParam;	
 	class VersionInfo;
 	class IPlugin;
 }
@@ -198,7 +199,8 @@ namespace PluginFramework
 								  const string_t &ServiceName_in,
 								  ServiceParam &Params_in);
 
-		static const TCHAR* GetConfigFile();
+		static bool SaveSettings(const IUserSettings *pSettings_in);
+		static bool LoadSettings(IUserSettings* pSettings_out);
 
 	protected:
 		/*! \brief Removes a plugin subscription from the service in the specified module

@@ -16,7 +16,7 @@ namespace PluginFramework
 namespace Windower
 {
 	class WindowerUpdater;
-	class PluginSettings;
+	class WindowerProfile;
 }
 
 class WizardFinishPage;
@@ -39,7 +39,7 @@ public:
 	};
 
 	WizardDlg(PluginFramework::PluginManager &PluginManager_in,
-			  Windower::PluginSettings &Settings_in);
+			  Windower::SettingsManager &SettingsManager_in);
 	~WizardDlg();
 
 	const TCHAR* GetProfileName() const;
@@ -53,7 +53,8 @@ protected:
 	afx_msg void OnWizFinish();	
 
 	PluginFramework::PluginManager &m_PluginManager;
-	Windower::PluginSettings &m_Settings;
+	Windower::SettingsManager &m_SettingsManager;
+	Windower::WindowerProfile *m_pSettings;
 
 	WizardFinishPage *m_pFinishPage;
 	WizardStartPage *m_pStartPage;

@@ -10,15 +10,13 @@
 
 #define OPEN_DIALOG_FLAGS (OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_ENABLESIZING)
 
-#define TELL_SOUND_KEY		_T("TellSound")
-#define TELL_SOUND_DEFAULT	_T("tell.wav")
-
 //! \brief Main dialog
 class TellDetectConfigDlg : public Windower::PluginPropertyPage
 {
 	enum { IDD = IDD_TELLDETECT_CONFIG };
 public:
-	explicit TellDetectConfigDlg(Windower::PluginSettings *pSettings_in);
+	explicit TellDetectConfigDlg(Windower::WindowerProfile *pSettings_in,
+								 const string_t &PluginName_in);
 
 	bool IsPageValid(string_t *pFeedback_out) const;
 	bool InitializePage();

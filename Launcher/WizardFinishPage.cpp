@@ -22,8 +22,8 @@ END_MESSAGE_MAP()
 /*! \brief TellDetectConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-WizardFinishPage::WizardFinishPage(Windower::PluginSettings *pSettings_in)
-	: BaseWizardPage(pSettings_in, WizardFinishPage::IDD, IDR_MAINFRAME)
+WizardFinishPage::WizardFinishPage(Windower::WindowerProfile *pSettings_in)
+	: BaseWizardPage(pSettings_in, _T(""), WizardFinishPage::IDD, IDR_MAINFRAME)
 {
 	m_PageFlags = WizardDlg::TASK_FINISH_SUMMARY;
 }

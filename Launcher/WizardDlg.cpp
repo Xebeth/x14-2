@@ -25,18 +25,27 @@ BEGIN_MESSAGE_MAP(WizardDlg, CPropertySheet)
 END_MESSAGE_MAP()
 
 WizardDlg::WizardDlg(PluginFramework::PluginManager &PluginManager_in,
-					 Windower::PluginSettings &Settings_in)
+					 Windower::SettingsManager &SettingsManager_in)
 	: CPropertySheet(_T("x14-2 configuration wizard")),
 	  m_pStartPage(NULL), m_pFinishPage(NULL), m_pUpdaterPage(NULL),
-	  m_Settings(Settings_in), m_PluginManager(PluginManager_in)	
+	  m_SettingsManager(SettingsManager_in), m_PluginManager(PluginManager_in),
+	  m_pSettings(new Windower::WindowerProfile())
 {
 	m_psh.hInstance = AfxGetInstanceHandle();
+
+	SettingsManager_in.LoadSettings(m_pSettings);
 }
 
 WizardDlg::~WizardDlg()
 {
 	UINT PageCount = GetPageCount();
 	CPropertyPage *pPage = NULL;
+
+	if (m_pSettings != NULL)
+	{
+		delete m_pSettings;
+		m_pSettings = NULL;
+	}
 
 	for (UINT PageIndex = 0U; PageIndex < PageCount; ++PageIndex)
 	{
@@ -63,19 +72,21 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 		// add the start page if needed
 		if ((Tasks_in & TASK_START_SUMMARY) == TASK_START_SUMMARY)
 		{
-			m_pStartPage = new WizardStartPage(&m_Settings);
+			m_pStartPage = new WizardStartPage(m_SettingsManager, m_pSettings);
 			AddPage(m_pStartPage);
 			AfxInitRichEdit();
 			++Result;
 		}
+/*
 		// add the updater page if needed		
 		if ((Tasks_in & TASK_CHECK_UPDATES) == TASK_CHECK_UPDATES)
 		{
 			StartSummary += _T("  - Check for updates\n");
-			m_pUpdaterPage = new UpdaterDlg(&m_Settings);
+			m_pUpdaterPage = new UpdaterDlg(m_pSettings);
 			AddPage(m_pUpdaterPage);
 			++Result;
 		}
+*/
 		// add the plugin pages
 		if ((Tasks_in & TASK_CONFIGURE_PLUGINS) == TASK_CONFIGURE_PLUGINS)
 		{
@@ -94,7 +105,6 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 				if (pPlugin != NULL && pPlugin->IsConfigurable())
 				{
 					pConfigPlugin = static_cast<Windower::ConfigurablePlugin*>(pPlugin);
-					pConfigPlugin->SetSettings(&m_Settings);
 					pPluginPage = pConfigPlugin->GetPropertyPage();
 
 					if (pPluginPage != NULL)
@@ -104,6 +114,7 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 							PluginsSummary.AppendFormat(_T("      - %s\n"), PluginIt->first.c_str());
 							pPluginPage->SetFlags(TASK_CONFIGURE_PLUGINS);
 							pPluginPage->m_psp.dwFlags |= PSP_HIDEHEADER;
+							pPluginPage->SetSettings(m_pSettings);
 							AddPage(pPluginPage);
 							++Result;
 						}
@@ -119,7 +130,7 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 		// add the finish page if needed
 		if ((Tasks_in & TASK_FINISH_SUMMARY) == TASK_FINISH_SUMMARY)
 		{
-			m_pFinishPage = new WizardFinishPage(&m_Settings);
+			m_pFinishPage = new WizardFinishPage(m_pSettings);
 			AddPage(m_pFinishPage);
 			++Result;
 		}
@@ -139,6 +150,14 @@ void WizardDlg::OnWizNext()
 	{
 		if (pPage->IsPageValid(NULL))
 		{
+			if (m_pSettings != NULL)
+			{
+				const string_t &Name = pPage->GetPluginName();
+
+				if (Name.empty() == false)
+					m_pSettings->UpdatePluginList(Name);
+			}
+
 			pPage->Commit();
 			Default();
 		}
@@ -174,9 +193,16 @@ void WizardDlg::ResetPages()
 
 void WizardDlg::OnWizFinish()
 {
-	m_Settings.Save();
-	Default();
+	m_SettingsManager.SaveSettings(m_pSettings);
+
+	if (!UpdateData(TRUE))
+	{
+		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
+		// the UpdateData routine will set focus to correct item
+		return;
+	}
+	EndDialog(IDOK);
 }
 
 const TCHAR* WizardDlg::GetProfileName() const
-{ return m_Settings.GetCurrentSection().c_str(); }
+{ return m_pSettings ? m_pSettings->GetName() : NULL; }

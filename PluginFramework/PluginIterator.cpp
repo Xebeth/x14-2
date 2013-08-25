@@ -26,7 +26,7 @@ namespace PluginFramework
 	PluginIterator::PluginIterator(const string_t &Directory_in, PluginManager &Manager_in, 
 								   DWORD CompatibilityFlags_in, const TCHAR *pWildcard_in)
 		: FileIterator(Directory_in, pWildcard_in), m_PluginManager(Manager_in),
-		  m_CompatibilityFlags(CompatibilityFlags_in) {}
+		  m_CompatibilityFlags(CompatibilityFlags_in), m_pQueryFunc(NULL) {}
 
 	/*! \brief Checks if a plugin is valid through the challenge/response mechanism of the manager
 		\return true if the plugin is valid; false otherwise

@@ -18,7 +18,7 @@
 namespace Windower
 {
 	class PluginPropertyPage;
-	class PluginSettings;
+	class WindowerProfile;
 }
 
 namespace Bootstrap

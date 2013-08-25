@@ -101,7 +101,7 @@ namespace Bootstrap
 			if (m_Engine.UpdateCmdLineFromSettings(CmdLine))
 				pCmdLine = _tcsdup(CmdLine.c_str());
 
-			_stprintf_s(DLL32Path, _MAX_PATH, _T("%swindowerx14.dll"), WorkingDir.c_str());
+			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.dll"), WorkingDir.c_str());
 			Result = TRUE;
 		}
 		else

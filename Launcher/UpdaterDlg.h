@@ -36,7 +36,7 @@ public:
 		LIST_COL_COUNT
 	};
 
-	explicit UpdaterDlg(Windower::PluginSettings *pSettings_in);
+	explicit UpdaterDlg(Windower::WindowerProfile *pSettings_in);
 	~UpdaterDlg();
 
 	void OnProgress(unsigned long Completed_in,

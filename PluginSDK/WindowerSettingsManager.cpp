@@ -131,24 +131,15 @@ namespace Windower
 				{
 					pName = pProfile->GetName();
 
-					m_pSettingsFile->SetLong(pName, INI_KEY_VSYNC, pProfile->GetVSync());
-					m_pSettingsFile->SetLong(pName, INI_KEY_LNG, pProfile->GetLanguage(), INI_COMMENT_LNG);
-
-					string_t PluginList;
-					const ActivePlugins &Plugins = pProfile->GetActivePlugins();
-					ActivePlugins::size_type Count = Plugins.size(), Index = 0;									
-					ActivePlugins::const_iterator PluginIt, PluginEndIt = Plugins.cend();					
-
-					for (PluginIt = Plugins.cbegin(); PluginIt != PluginEndIt; ++PluginIt, ++Index)
-					{
-						if (Index > 0 && Index < Count)
-							PluginList += '|';
-
-						PluginList += *PluginIt;
-					}
-
-					if (PluginList.empty() == false)
-						m_pSettingsFile->SetString(pName, INI_KEY_PLUGINS, PluginList);
+					SetString(pName, INI_KEY_TIMESTAMP, pProfile->GetTimestampFormat());
+					SetString(pName, INI_KEY_PASSWORD, pProfile->GetCryptedPassword());
+					SetBool(pName, INI_KEY_AUTO_SUBMIT, pProfile->IsAutoSubmitted());
+					SetString(pName, INI_KEY_TELL_SOUND, pProfile->GetTellSound());
+					SetString(pName, INI_KEY_PLUGINS, pProfile->GetPluginList());
+					SetString(pName, INI_KEY_USERNAME, pProfile->GetUsername());
+					SetLong(pName, INI_KEY_LNG, pProfile->GetLanguage());
+					SetBool(pName, INI_KEY_VSYNC, pProfile->GetVSync());
+					SetHex(pName, INI_KEY_HASH, pProfile->GetKeyHash());
 				}
 			}
 
@@ -177,22 +168,20 @@ namespace Windower
 		\param[out] Settings_out : the settings being loaded
 		\return true if the profile exits and was loaded successfully; false otherwise
 	*/
-	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out)
+	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out) const
 	{
 		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
-			Settings_out.SetVSync(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_VSYNC, INI_DEFAULT_VSYNC) == 1L);
-			Settings_out.SetLanguage(m_pSettingsFile->GetLong(pProfileName_in, INI_KEY_LNG, INI_DEFAULT_LNG));
+			Settings_out.SetTimestampFormat(GetString(pProfileName_in, INI_KEY_TIMESTAMP));
+			Settings_out.SetCryptedPassword(GetString(pProfileName_in, INI_KEY_PASSWORD));
+			Settings_out.SetTellSound(GetString(pProfileName_in, INI_KEY_TELL_SOUND));
+			Settings_out.SetAutoSubmit(GetBool(pProfileName_in, INI_KEY_AUTO_SUBMIT));
+			Settings_out.SetPluginList(GetString(pProfileName_in, INI_KEY_PLUGINS));
+			Settings_out.SetKeyHash(GetUnsignedLong(pProfileName_in, INI_KEY_HASH));
+			Settings_out.SetUsername(GetString(pProfileName_in, INI_KEY_USERNAME));
+			Settings_out.SetLanguage(GetLong(pProfileName_in, INI_KEY_LNG));
+			Settings_out.SetVSync(GetBool(pProfileName_in, INI_KEY_VSYNC));			
 			Settings_out.SetName(pProfileName_in);
-
-			string_t Plugins = m_pSettingsFile->GetString(pProfileName_in, INI_KEY_PLUGINS, INI_DEFAULT_PLUGINS);
-			std::list<string_t>::const_iterator PluginIt, EndIt;
-			std::list<string_t> PluginList;
-
-			tokenize<wchar_t>(Plugins, PluginList, _T("|"), _T("\0"));
-
-			for (PluginIt = PluginList.cbegin(), EndIt = PluginList.cend(); PluginIt != EndIt; ++PluginIt)
-				Settings_out.ActivatePlugin(*PluginIt);
 
 			return true;
 		}
@@ -204,7 +193,7 @@ namespace Windower
 		\param[in] Settings_out : the settings receiving the default profile
 		\return true if the default profile was loaded successfully; false otherwise
 	*/
-	bool SettingsManager::LoadDefaultProfile(WindowerProfile &Settings_out)
+	bool SettingsManager::LoadDefaultProfile(WindowerProfile &Settings_out) const
 	{
 		return LoadProfile(GetDefaultProfile(), Settings_out);
 	}
@@ -233,9 +222,9 @@ namespace Windower
 			// verify the configuration
 			VerifyConfig();
 			// get the general parameters
-			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE));
+			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_KEY_CURRENT_PROFILE));
 			SetAutoUpdate(m_pSettingsFile->GetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE) == 1L);
-			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));			
+			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_KEY_GAME_PATH));			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
 			EndIt = Sections.cend();
@@ -280,11 +269,17 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
 		{
+			WindowerProfile *pSettings = new WindowerProfile();
+
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, pProfileName_in);
-			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_KEY_GAME_PATH);
 			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE);
 
-			SetDefaultProfile(pProfileName_in);
+			m_pSettingsFile->CreateSection(pProfileName_in);
+			SetDefaultProfile(pProfileName_in);			
+
+			if (LoadProfile(pProfileName_in, *pSettings))
+				m_Profiles[pProfileName_in] = pSettings;
 
 			return true;
 		}
@@ -292,7 +287,7 @@ namespace Windower
 		return false;
 	}
 
-	WindowerSettings::const_iterator SettingsManager::GetSettingsPos(const TCHAR *pProfileName_in)
+	WindowerSettings::const_iterator SettingsManager::GetSettingsPos(const TCHAR *pProfileName_in) const
 	{
 		return m_Profiles.find(pProfileName_in);
 	}
@@ -301,8 +296,11 @@ namespace Windower
 		\param[in] pProfileName_in : the name of the profile
 		\return a pointer to the profile if found; NULL otherwise
 	*/
-	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName_in)
+	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName_in) const
 	{
+		if (pProfileName_in == NULL)
+			pProfileName_in = GetDefaultProfile();
+
 		WindowerSettings::const_iterator ProfileIt = GetSettingsPos(pProfileName_in);
 
 		if (ProfileIt != m_Profiles.cend())
@@ -321,10 +319,7 @@ namespace Windower
 		WindowerProfile *pProfile = GetSettings(pDstProfile_in);
 
 		if (pProfile != NULL)
-		{
-			pProfile->SetVSync(Src_in.GetVSync());
-			pProfile->SetName(Src_in.GetName());
-		}
+			pProfile->Copy(Src_in);
 
 		return (pProfile != NULL);
 	}
@@ -504,8 +499,8 @@ namespace Windower
 			// 1. Check that the general section exists
 			if (m_pSettingsFile->SectionExists(INI_SECTION_GENERAL) == false)
 			{
-				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE);
-				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH);
+				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_KEY_CURRENT_PROFILE);
+				m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_KEY_GAME_PATH);
 				bSave = true;
 			}
 
@@ -531,13 +526,13 @@ namespace Windower
 			}
 
 			// 3. Check if the default profile exists
-			string_t DefaultProfile = m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_DEFAULT_CURRENT_PROFILE);
+			string_t DefaultProfile = m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_KEY_CURRENT_PROFILE);
 
 			if (DefaultProfile.empty())
 			{
 				// set the first profile as default
 				if (pFirstProfile == NULL)
-					pFirstProfile = INI_DEFAULT_CURRENT_PROFILE;
+					pFirstProfile = INI_KEY_CURRENT_PROFILE;
 
 				SetDefaultProfile(pFirstProfile);
 				DefaultProfile = pFirstProfile;				
@@ -551,7 +546,7 @@ namespace Windower
 				Save();
 
 			// 4. Check if the game path is correct
-			return CheckGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_DEFAULT_GAME_PATH));
+			return CheckGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_KEY_GAME_PATH));
 		}
 
 		return false;
@@ -566,5 +561,95 @@ namespace Windower
 	bool SettingsManager::IsConfigLoaded() const
 	{
 		return (m_bIsLoaded && m_pSettingsFile != NULL && m_pSettingsFile->IsConfigLoaded());
+	}
+
+	bool SettingsManager::SaveSettings(const WindowerProfile *pSettings_in)
+	{
+		if (pSettings_in != NULL)
+		{
+			WindowerProfile *pProfile = GetSettings(pSettings_in->GetName());
+
+			if (pProfile != NULL)
+			{
+				pProfile->Copy(*pSettings_in);
+
+				return Save();
+			}
+		}
+
+		return false;
+	}
+
+	bool SettingsManager::LoadSettings(WindowerProfile* pSettings_out) const
+	{
+		if (pSettings_out != NULL)
+		{
+			WindowerProfile *pProfile = GetSettings(GetDefaultProfile());
+
+			if (pProfile != NULL)
+			{
+				pSettings_out->Copy(*pProfile);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	ULONG SettingsManager::GetUnsignedLong(const TCHAR *pProfileName_in, eIniKeys Key_in) const
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->GetUnsignedLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<ULONG>(Key_in));
+		
+		return WindowerProfile::Default<ULONG>(Key_in);
+	}
+
+	const TCHAR* SettingsManager::GetString(const TCHAR *pProfileName_in, eIniKeys Key_in) const
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->GetString(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<const TCHAR*>(Key_in));
+
+		return WindowerProfile::Default<const TCHAR*>(Key_in);
+	}
+
+	LONG SettingsManager::GetLong(const TCHAR *pProfileName_in, eIniKeys Key_in) const
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->GetLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<LONG>(Key_in));
+
+		return WindowerProfile::Default<LONG>(Key_in);
+	}
+
+	bool SettingsManager::GetBool(const TCHAR *pProfileName_in, eIniKeys Key_in) const
+	{
+		if (m_pSettingsFile != NULL)
+			return (m_pSettingsFile->GetLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<LONG>(Key_in)) == 1L);
+
+		return (WindowerProfile::Default<ULONG>(Key_in) == 1L);
+	}
+
+	void SettingsManager::SetString(const TCHAR *pProfileName_in, eIniKeys Key_in, const TCHAR *pValue_in)
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->SetString(pProfileName_in, WindowerProfile::Key(Key_in), pValue_in, WindowerProfile::Comment(Key_in));
+	}
+
+	void SettingsManager::SetHex(const TCHAR *pProfileName_in, eIniKeys Key_in, ULONG Value_in)
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->SetHex(pProfileName_in, WindowerProfile::Key(Key_in), Value_in, WindowerProfile::Comment(Key_in));
+	}
+
+	void SettingsManager::SetLong(const TCHAR *pProfileName_in, eIniKeys Key_in, const LONG Value_in)
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->SetLong(pProfileName_in, WindowerProfile::Key(Key_in), Value_in, WindowerProfile::Comment(Key_in));
+	}
+
+	void SettingsManager::SetBool(const TCHAR *pProfileName_in, eIniKeys Key_in, bool Value_in)
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->SetLong(pProfileName_in, WindowerProfile::Key(Key_in), Value_in ? 1L : 0L, WindowerProfile::Comment(Key_in));
 	}
 }

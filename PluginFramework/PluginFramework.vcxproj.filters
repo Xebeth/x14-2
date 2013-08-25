@@ -16,6 +16,9 @@
     <Filter Include="Plugin Manager">
       <UniqueIdentifier>{9ee280d1-f040-4a94-90bd-e78c66e54fc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{a792e6e0-f2ec-4855-8b98-3c51be4c2582}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IPlugin.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="IServiceSubscriber.h">
       <Filter>Plugin Services</Filter>
+    </ClInclude>
+    <ClInclude Include="IUserSettings.h">
+      <Filter>Settings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

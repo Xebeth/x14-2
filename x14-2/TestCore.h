@@ -12,10 +12,8 @@
 
 typedef struct _StringNode StringNode;
 
-// int __thiscall sub_5E9E30(int this, int a2)
-typedef int (WINAPI *fnSub5E9E30)(LPVOID pThis, StringNode * a2);
-// int __thiscall sub_5D1C70(int this, int a2, int a3, int a4, int a5)
-typedef int (WINAPI *fnSub5D1C70)(LPVOID pThis, DWORD a2, char *a3, int a4, int a5);
+// int __thiscall sub_B5FD90(int this, char *DstBuf, size_t SizeInBytes)
+typedef int (WINAPI *fnSubB5FD90)(LPVOID pThis, char *pDstBuf, size_t SizeInBytes);
 
 namespace Windower
 {
@@ -27,16 +25,14 @@ namespace Windower
 	public:
 		TestCore();
 
-		static int WINAPI Sub5D1C70Hook(LPVOID pThis, DWORD a2, char * a3, int a4, int a5);
-		static int WINAPI Sub5E9E30Hook(LPVOID pThis, StringNode *a2);
-		
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
-		fnSub5D1C70 m_pSub5D1C70Trampoline;
-		fnSub5E9E30 m_pSub5E9E30Trampoline;
+		static int WINAPI SubB5FD90Hook(LPVOID pThis, char *pDstBuf, size_t SizeInBytes);
+
+		fnSubB5FD90 m_pSubB5FD90Trampoline;
 		//! calling context for the module hooks
 		static CallingContext<TestCore> m_Context;
 	};

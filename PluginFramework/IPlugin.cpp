@@ -112,8 +112,11 @@ namespace PluginFramework
 		return (m_pServices != NULL && m_pServices->InvokeService(ModuleName_in, ServiceName_in, Params_in));
 	}
 
-	const TCHAR* IPlugin::GetConfigFile()
-	{ return m_pServices->GetConfigFile(); }
+	bool IPlugin::SaveSettings(const IUserSettings *pSettings_in)
+	{ return m_pServices ? m_pServices->SaveSettings(pSettings_in) : false; }
+
+	bool IPlugin::LoadSettings(IUserSettings* pSettings_out)
+	{ return m_pServices ? m_pServices->LoadSettings(pSettings_out) : false; }
 
 	const VersionInfo& IPlugin::GetFrameworkVersion() const
 	{ return m_PluginInfo.m_FrameworkVersion; }

@@ -21,7 +21,7 @@
 
 #include <IPluginServices.h>
 #include <FrameworkVersion.h>
-
+#include <IUserSettings.h>
 #include <PluginManager.h>
 
 #ifdef _DEBUG

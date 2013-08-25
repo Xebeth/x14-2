@@ -14,6 +14,7 @@
 
 namespace PluginFramework
 {
+	class IUserSettings;
 	class IPlugin;
 
 	//! \brief Plugin services parameters structure
@@ -74,11 +75,9 @@ namespace PluginFramework
 		virtual bool UnsubscribeService(const string_t &ModuleName_in,
 										const string_t &ServiceName_in,
 										IPlugin* pPlugin_in) const =0;
-		/*! \brief Retrieves the configuration file path
-			\return the configuration file path
-		*/
-		virtual const TCHAR* GetConfigFile() const =0;
 
+		virtual bool LoadSettings(IUserSettings* pSettings_out) const =0;
+		virtual bool SaveSettings(const IUserSettings *pSettings_in) =0;
 
 		/*! \brief Retrieves the framework version of the plugin services
 			\return the framework version of the plugin services

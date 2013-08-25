@@ -9,8 +9,8 @@
 #define IDD_WIZARD_START                104
 #define IDD_WIZARD_FINISH               105
 #define IDL_CONFIG                      106
-#define IDB_WATERMARK					107
-#define IDB_BANNER_ICON					108
+#define IDB_WATERMARK                   107
+#define IDB_BANNER_ICON                 108
 #define IDC_PROFILES_COMBO              1000
 #define IDC_NEW_PROFILE                 1001
 #define IDC_VSYNC                       1002
@@ -20,6 +20,7 @@
 #define IDC_SAVE                        1006
 #define IDC_GAME_PATH                   1007
 #define IDC_LNG_COMBO                   1008
+#define IDC_GAME_PATH2                  1008
 #define IDC_AUTOUPDATE                  1009
 #define IDC_DL_PROGRESS                 1010
 #define IDC_START                       1011

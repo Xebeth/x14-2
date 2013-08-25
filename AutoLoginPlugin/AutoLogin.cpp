@@ -18,6 +18,8 @@
 
 #include "HTMLFormIterator.h"
 
+// #define _DUMP_HTML
+
 /*! \brief global function used to start the working thread
 	\param[in] pUserData_in : thread user data holding a pointer to the settings
 	\return the thread exit code (0 on success; -1 otherwise)
@@ -27,11 +29,15 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	if (pUserData_in != NULL)
 	{
 		ThreadData *pThreadData = reinterpret_cast<ThreadData*>(pUserData_in);
-		AutoLogin Login(*pThreadData->m_pSettings, pThreadData->m_hParentWnd);
 
-		Login.MonitorForms();
+		if (pThreadData->m_pSettings != NULL && ::IsWindow(pThreadData->m_hParentWnd))
+		{
+			AutoLogin Login(*pThreadData->m_pSettings, pThreadData->m_hParentWnd);
 
-		return 0L;
+			Login.MonitorForms();
+
+			return 0L;
+		}
 	}
 
 	return -1;
@@ -40,7 +46,7 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 /*! \brief AutoLogin constructor
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
-AutoLogin::AutoLogin(Windower::PluginSettings &Settings_in, HWND hParentWnd_in)
+AutoLogin::AutoLogin(Windower::WindowerProfile &Settings_in, HWND hParentWnd_in)
 	: m_hParentWnd(hParentWnd_in), m_hIEServer(NULL), m_Settings(Settings_in), m_bLoop(true),
 	  m_PasswordSet(false), m_AutoSubmitted(false),  m_UserSet(false),
 	  m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL)
@@ -64,7 +70,7 @@ void AutoLogin::MonitorForms()
 
 	if (m_hIEServer != NULL)
 	{
-		while (m_bLoop)
+		while (m_bLoop || IsStatus(m_pIFrameDoc, _T("complete")) == false)
 		{
 			if (GetHTMLDocument(5000) && IsStatus(m_pIFrameDoc, _T("complete")))
 			{
@@ -105,14 +111,14 @@ bool AutoLogin::AutoCompleteForm()
 
 		if (pCurrentForm != NULL)
 		{
-			string_t Username = m_Settings.GetString(USERNAME_KEY);
+			string_t Username = m_Settings.GetUsername();
 			IHTMLInputElement *pInputElement = NULL;
-		
+
 			// the user input hasn't been found yet
 			if (Username.empty() == false && m_UserSet == false)
 			{
 				// look for it in the current form
-				pElement = FindChildById(pCurrentForm, _T("sqexid1"));
+				pElement = FindChildById(pCurrentForm, _T("sqexid"));
 
 				if (pElement != NULL)
 				{
@@ -124,7 +130,11 @@ bool AutoLogin::AutoCompleteForm()
 						pInputElement = NULL;
 					}
 					else
-						m_bLoop = false;
+					{
+						m_bLoop = m_AutoSubmitted = false;
+						m_pIFrameDoc->Release();
+						m_pIFrameDoc = NULL;
+					}
 
 					pElement->Release();
 					pElement = NULL;
@@ -135,7 +145,7 @@ bool AutoLogin::AutoCompleteForm()
 			if (m_UserSet && m_PasswordSet == false)
 			{
 				// look for it in the current form
-				pElement = FindChildById(pCurrentForm, _T("passwd"));
+				pElement = FindChildById(pCurrentForm, _T("password"));
 
 				if (pElement != NULL)
 				{
@@ -145,16 +155,16 @@ bool AutoLogin::AutoCompleteForm()
 						long KeyHash;
 
 						// retrieve the key used to encrypt the password
-						CryptUtils::GenerateMachineID(Key, m_Settings.GetSettingsDrive().c_str());
+						CryptUtils::GenerateMachineID(Key, _T("C:\\"));
 						KeyHash = CryptUtils::Hash(Key);
 
 						// check if the key hashes match
-						if (m_Settings.GetLong(KEY_HASH_KEY) == KeyHash)
+						if (m_Settings.GetKeyHash() == KeyHash)
 						{
 							string_t CryptedPassword;
 
 							// retrieve the password from the settings
-							CryptUtils::HexToString(m_Settings.GetString(PASSWORD_KEY), CryptedPassword);
+							CryptUtils::HexToString(m_Settings.GetCryptedPassword(), CryptedPassword);
 
 							if (CryptedPassword.empty() == false)
 							{
@@ -165,11 +175,15 @@ bool AutoLogin::AutoCompleteForm()
 							}
 						}
 
-						pInputElement->Release();
+ 						pInputElement->Release();
 						pInputElement = NULL;
 					}
 					else
-						m_bLoop = false;
+					{
+						m_bLoop = m_AutoSubmitted = false;
+						m_pIFrameDoc->Release();
+						m_pIFrameDoc = NULL;
+					}
 
 					pElement->Release();
 					pElement = NULL;
@@ -177,7 +191,7 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
 				{
-					if (m_Settings.GetLong(AUTO_SUBMIT_KEY) == 1L)
+					if (m_Settings.IsAutoSubmitted())
 					{
 						// auto-submit the form
 						pElement = FindChildById(pCurrentForm, _T("btLogin"));
@@ -189,12 +203,16 @@ bool AutoLogin::AutoCompleteForm()
 							m_AutoSubmitted = true;
 						}
 						else
-							m_bLoop = false;
+						{
+							m_bLoop = m_AutoSubmitted = false;
+							m_pIFrameDoc->Release();
+							m_pIFrameDoc = NULL;
+						}
 					}
 					else
 					{
 						// look for the one-time password field in the current form
-						pElement = FindChildById(pCurrentForm, _T("inputOTP"));
+						pElement = FindChildById(pCurrentForm, _T("otppw"));
 
 						if (pElement != NULL)
 						{
@@ -207,7 +225,11 @@ bool AutoLogin::AutoCompleteForm()
 								m_AutoSubmitted = true;
 							}
 							else
-								m_bLoop = false;
+							{
+								m_bLoop = m_AutoSubmitted = false;
+								m_pIFrameDoc->Release();
+								m_pIFrameDoc = NULL;
+							}
 
 							pElement->Release();
 						}
@@ -481,13 +503,23 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 		{
 			// wait for the document to load
 			WaitUntilDocumentComplete(m_pPageDoc, Timeout_in);
-/*
+
+#if defined _DEBUG && defined _DUMP_HTML
+			IPersistFile* pFile = NULL;
+
+			if(SUCCEEDED(m_pPageDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+			{
+				LPCOLESTR file = L"c:\\ffxivlogin.htm";
+				pFile->Save(file, TRUE);
+			}
+#endif // _DEBUG
+
 			// try to change the language combo => seems to have no effect (event not triggered?)
 			IHTMLElement *pBody = NULL, *pElement = NULL;
 
 			if (m_pIFrameDoc == NULL && SUCCEEDED(m_pPageDoc->get_body(&pBody)) && pBody != NULL)
 			{
-				pElement = FindChildById(pBody, _T("langSelectPulldown"));
+				pElement = FindChildById(pBody, _T("langSelect"));
 
 				if (pElement != NULL)
 				{
@@ -505,7 +537,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 				// cleanup
 				pBody->Release();
 			}
-*/
+
 			// find the login iframe
 			IHTMLDocument2 *pDoc = GetIFrameDocument(Timeout_in);
 
@@ -521,6 +553,16 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 					ResetForms();
 					// wait for the iframe to load
 					WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
+
+#if defined _DEBUG && defined _DUMP_HTML
+					IPersistFile* pFile = NULL;
+
+					if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
+					{
+						LPCOLESTR file = L"c:\\ffxivlogin-frame.htm";
+						pFile->Save(file, TRUE);
+					}
+#endif // _DEBUG
 				}
 				else
 					pDoc->Release();

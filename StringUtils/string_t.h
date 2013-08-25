@@ -181,20 +181,16 @@ template<typename T> void normalize_path(std::basic_string<T> &Path_in_out, bool
 {
 	if (Path_in_out.empty() == false)
 	{
+		std::basic_string<T> FindStr, ReplaceStr;
 		const T cForward = '/', cBack = '\\';
-		std::basic_string<T> ReplaceStr;
-		std::basic_string<T> FindStr;
 		
-		const T cReplace = (bForward_in ? cForward : cBack);
-		const T cFind = (bForward_in ? cBack : cForward);
-
-		ReplaceStr += cReplace;
-		FindStr += cFind;
+		ReplaceStr += (bForward_in ? cForward : cBack);
+		FindStr += (bForward_in ? cBack : cForward);
 
 		replace(Path_in_out, FindStr, ReplaceStr);
 
-		if (Path_in_out.back() != cReplace)
-			Path_in_out += cReplace;
+		if (Path_in_out.back() != ReplaceStr[0])
+			Path_in_out += ReplaceStr[0];
 	}
 }
 

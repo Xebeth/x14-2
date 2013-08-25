@@ -72,7 +72,7 @@
     <ClCompile Include="PluginPropertyPage.cpp">
       <Filter>Plugins\Config</Filter>
     </ClCompile>
-    <ClCompile Include="PluginSettings.cpp">
+    <ClCompile Include="WindowerSettings.cpp">
       <Filter>Settings</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="PluginPropertyPage.h">
       <Filter>Plugins\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginSettings.h">
-      <Filter>Settings</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

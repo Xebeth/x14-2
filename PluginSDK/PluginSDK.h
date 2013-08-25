@@ -34,8 +34,8 @@
 
 #include <BaseEngine.h>
 #include <PluginEngine.h>
+#include <PluginsServices.h>
 
-#include <PluginSettings.h>
 #include <WindowerSettings.h>
 #include <WindowerSettingsManager.h>
 

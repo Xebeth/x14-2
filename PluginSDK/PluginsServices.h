@@ -10,11 +10,13 @@
 
 namespace PluginFramework
 {
+	class IUserSettings;
 	class VersionInfo;
 }
 
 namespace Windower
 {
+	class SettingsManager;
 	class ICoreModule;
 
 	//! a hash map of core modules
@@ -24,7 +26,9 @@ namespace Windower
 	class PluginServices : public PluginFramework::IPluginServices
 	{
 	public:
-		PluginServices(const PluginFramework::VersionInfo &Version_in, const CoreModules &Modules_in, const string_t &ConfigFile_in);
+		PluginServices(const PluginFramework::VersionInfo &Version_in,
+					   const CoreModules &Modules_in,
+					   SettingsManager *pManager_in);
 
 		virtual bool InvokeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 								   PluginFramework::ServiceParam &Params_in) const;
@@ -32,16 +36,15 @@ namespace Windower
 								      PluginFramework::IPlugin* pPlugin_in) const;
 		virtual bool UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 										PluginFramework::IPlugin* pPlugin_in) const;
-		/*! \brief Retrieves the configuration file path
-			\return the configuration file path
-		*/
-		virtual const TCHAR* GetConfigFile() const { return m_ConfigFile.c_str(); }
+
+		bool LoadSettings(PluginFramework::IUserSettings* pSettings_out) const;
+		bool SaveSettings(const PluginFramework::IUserSettings *pSettings_in);
 
 	protected:
 		//! hash map of modules available to the plugins
 		const CoreModules &m_Modules;
-		//! Full path to the configuration file
-		string_t m_ConfigFile;
+		//! settings manager
+		SettingsManager *m_pSettingsManager;
 	};
 }
 

@@ -47,10 +47,8 @@ namespace Windower
 		InitializeCriticalSection(&m_PluginLock);
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
-		// create the settings manager
-		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the system core module
-		m_pSystemCore = new SystemCore;
+		// m_pSystemCore = new SystemCore;
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
@@ -64,6 +62,7 @@ namespace Windower
 		// check the settings and load the default profile
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
+/*
 			// create the game chat module
 			m_pGameChatCore = new GameChatCore;
 			// create the command line module
@@ -74,18 +73,13 @@ namespace Windower
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
 			m_pSystemCore->AddUIH(m_pGraphicsCore);
+*/
 		}
 	}
 
 	/*! \brief WindowerEngine destructor */
 	WindowerEngine::~WindowerEngine()
 	{
-		if (m_pSettingsManager != NULL)
-		{
-			delete m_pSettingsManager;
-			m_pSettingsManager = NULL;
-		}
-
 		if (m_pGameChatCore != NULL)
 		{
 			delete m_pGameChatCore;

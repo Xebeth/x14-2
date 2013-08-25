@@ -16,7 +16,6 @@ namespace Windower
 {
 	class CommandDispatcher;
 	class WindowerCommand;
-	class SettingsManager;
 	class PluginServices;
 	class InjectVersion;
 	class CommandParser;
@@ -65,8 +64,6 @@ namespace Windower
 		void InitializeEngine();
 		void UpdateEngine();
 
-		//! the settings manager
-		SettingsManager *m_pSettingsManager;
 		//! the current settings
 		WindowerProfile m_Settings;
 		//! the hook engine

@@ -136,7 +136,6 @@
     <ClInclude Include="PluginEngine.h" />
     <ClInclude Include="PluginPropertyPage.h" />
     <ClInclude Include="PluginSDK.h" />
-    <ClInclude Include="PluginSettings.h" />
     <ClInclude Include="PluginsServices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="WindowerCommand.h" />
@@ -155,7 +154,6 @@
     <ClCompile Include="IPlayerDataPlugin.cpp" />
     <ClCompile Include="PluginEngine.cpp" />
     <ClCompile Include="PluginPropertyPage.cpp" />
-    <ClCompile Include="PluginSettings.cpp" />
     <ClCompile Include="PluginsServices.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -164,6 +162,7 @@
     </ClCompile>
     <ClCompile Include="WindowerCommand.cpp" />
     <ClCompile Include="WindowerPlugin.cpp" />
+    <ClCompile Include="WindowerSettings.cpp" />
     <ClCompile Include="WindowerSettingsManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

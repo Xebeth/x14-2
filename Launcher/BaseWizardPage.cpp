@@ -14,8 +14,11 @@
 #include "BaseWizardPage.h"
 #include "WizardDlg.h"
 
-BaseWizardPage::BaseWizardPage(Windower::PluginSettings *pSettings_in, UINT TemplateResID_in, UINT IconResID_in)
-	: Windower::PluginPropertyPage(pSettings_in, TemplateResID_in, IconResID_in) {}
+BaseWizardPage::BaseWizardPage(Windower::WindowerProfile *pSettings_in,
+							   const string_t &PluginName_in,
+							   UINT TemplateResID_in, UINT IconResID_in)
+	: Windower::PluginPropertyPage(pSettings_in, PluginName_in,
+								   TemplateResID_in, IconResID_in) {}
 
 BOOL BaseWizardPage::OnSetActive()
 {

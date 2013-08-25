@@ -22,7 +22,7 @@ namespace Windower
 	ChatLogPlugin::ChatLogPlugin(PluginFramework::IPluginServices *pServices_in)
 		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(NULL), m_pTimestamp(NULL)
 	{
-		m_LogPath = m_pSettings->GetSettingsPath() + _T("logs");
+		m_LogPath = _T("logs");
 		CreateDirectory(m_LogPath.c_str(), NULL);
 		convert_utf8(m_TimestampFormat, m_TimestampFormatW);
 	}

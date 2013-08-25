@@ -15,6 +15,7 @@
 namespace PluginFramework
 {
 	class PluginManager;
+	class IUserSettings;
 	class VersionInfo;
 }
 
@@ -29,6 +30,7 @@ enum eCompatibilityFlags
 
 namespace Windower
 {
+	class SettingsManager;
 	class PluginServices;
 	class ICoreModule;
 
@@ -83,7 +85,9 @@ namespace Windower
 		//! plugin engine version
 		static const PluginFramework::VersionInfo m_FrameworkVersion;
 		//! the plugin services
-		static PluginServices *m_pPluginServices;
+		PluginServices *m_pPluginServices;
+		//! settings
+		SettingsManager *m_pSettingsManager;
 		//! the plugin manager
 		PluginFramework::PluginManager *m_pPluginManager;
 		//! a hash map of plugin instances (name => instance)

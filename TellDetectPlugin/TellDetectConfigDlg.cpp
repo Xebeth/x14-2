@@ -22,8 +22,8 @@ END_MESSAGE_MAP()
 /*! \brief TellDetectConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-TellDetectConfigDlg::TellDetectConfigDlg(Windower::PluginSettings *pSettings_in)
-	: Windower::PluginPropertyPage(pSettings_in, TellDetectConfigDlg::IDD, IDI_TELLDETECT) {}
+TellDetectConfigDlg::TellDetectConfigDlg(Windower::WindowerProfile *pSettings_in, const string_t &PluginName_in)
+	: Windower::PluginPropertyPage(pSettings_in, PluginName_in, TellDetectConfigDlg::IDD, IDI_TELLDETECT) {}
 
 /*! \brief Initializes the controls of the page from the settings
 	\return true if the initialization succeeded; false otherwise
@@ -37,15 +37,16 @@ bool TellDetectConfigDlg::InitializePage()
 
 void TellDetectConfigDlg::Revert()
 {
-	m_SndFile = GetString(TELL_SOUND_KEY, TELL_SOUND_DEFAULT);
+	if (m_pSettings != NULL)
+		m_SndFile = m_pSettings->GetTellSound();
 }
 
 //! \brief Message handler called when the user presses the OK button
 bool TellDetectConfigDlg::Commit()
 {
-	if (IsPageValid(NULL))
+	if (IsPageValid(NULL) && m_pSettings != NULL)
 	{
-		SetString(TELL_SOUND_KEY, m_SndFile.GetBuffer());
+		m_pSettings->SetTellSound(m_SndFile.GetBuffer());
 
 		return true;
 	}

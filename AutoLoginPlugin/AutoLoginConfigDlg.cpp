@@ -23,8 +23,8 @@ END_MESSAGE_MAP()
 /*! \brief AutoLoginConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-AutoLoginConfigDlg::AutoLoginConfigDlg(Windower::PluginSettings *pSettings_in)
-	: Windower::PluginPropertyPage(pSettings_in, AutoLoginConfigDlg::IDD, IDI_CONFIG) {}
+AutoLoginConfigDlg::AutoLoginConfigDlg(Windower::WindowerProfile *pSettings_in, const string_t &PluginName_in)
+	: Windower::PluginPropertyPage(pSettings_in, PluginName_in, AutoLoginConfigDlg::IDD, IDI_CONFIG) {}
 
 /*! \brief Initializes the controls of the page from the settings
 	\return true if the initialization succeeded; false otherwise
@@ -52,22 +52,26 @@ bool AutoLoginConfigDlg::InitializePage()
 
 void AutoLoginConfigDlg::Revert()
 {
-	CryptUtils::GenerateMachineID(m_EncryptionKey, GetSettingsDrive().c_str());
-	m_AutoSubmit = (GetLong(AUTO_SUBMIT_KEY) == 1L);
-	m_PasswordHash = GetString(PASSWORD_KEY);
-	m_Username = GetString(USERNAME_KEY);
+	CryptUtils::GenerateMachineID(m_EncryptionKey, _T("C:\\"));
+
+	if (m_pSettings != NULL)
+	{
+		m_PasswordHash = m_pSettings->GetCryptedPassword();
+		m_AutoSubmit = m_pSettings->IsAutoSubmitted();
+		m_Username = m_pSettings->GetUsername();
+	}
 }
 
 //! \brief Message handler called when the user presses the OK button
 bool AutoLoginConfigDlg::Commit()
 {
-	if (IsPageValid(NULL))
+	if (IsPageValid(NULL) && m_pSettings != NULL)
 	{
-		SetString(USERNAME_KEY,	m_Username.GetBuffer());
-		SetLong(AUTO_SUBMIT_KEY, m_AutoSubmit ? 1L : 0L);
-		SetString(PASSWORD_KEY,	m_PasswordHash.GetBuffer());
-		SetHex(KEY_HASH_KEY, CryptUtils::Hash(m_EncryptionKey));	
-
+		m_pSettings->SetCryptedPassword(m_PasswordHash.GetBuffer());
+		m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));
+		m_pSettings->SetUsername(m_Username.GetBuffer());
+		m_pSettings->SetAutoSubmit(m_AutoSubmit);
+		
 		return true;
 	}
 
@@ -93,6 +97,8 @@ void AutoLoginConfigDlg::OnPasswordChange()
 		m_PasswordHash = PasswordHash.c_str();
 
 		SetDlgItemText(IDC_PASSWORD_HASH, m_PasswordHash);
+		// update the wizard buttons
+		UpdateWizardButtons();
 	}
 }
 

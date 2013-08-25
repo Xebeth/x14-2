@@ -11,24 +11,34 @@
 #include "PluginEngine.h"
 
 #include "PluginsServices.h"
+#include "WindowerSettings.h"
+#include "WindowerSettingsManager.h"
 
 namespace Windower
 {
 	const PluginFramework::VersionInfo PluginEngine::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
-	PluginServices *PluginEngine::m_pPluginServices = NULL;
 
 	PluginEngine::PluginEngine(HMODULE hModule_in, const wchar_t *pConfigFile_in)
+		: m_pPluginManager(NULL), m_pPluginServices(NULL), m_pSettingsManager()
 	{
 		// set the working directory
 		SetWorkingDir(hModule_in);
+		// create the settings manager
+		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the plugin services
-		m_pPluginServices = new PluginServices(m_FrameworkVersion, m_Modules, m_WorkingDir + pConfigFile_in);
+		m_pPluginServices = new PluginServices(m_FrameworkVersion, m_Modules, m_pSettingsManager);
 		// create the plugin manager
 		m_pPluginManager = new PluginFramework::PluginManager(m_pPluginServices);
 	}
 
 	PluginEngine::~PluginEngine()
 	{
+		if (m_pSettingsManager != NULL)
+		{
+			delete m_pSettingsManager;
+			m_pSettingsManager = NULL;
+		}
+
 		if (m_pPluginManager != NULL)
 		{
 			delete m_pPluginManager;

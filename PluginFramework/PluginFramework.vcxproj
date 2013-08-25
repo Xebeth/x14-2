@@ -133,6 +133,7 @@
     <ClInclude Include="IPlugin.h" />
     <ClInclude Include="IPluginServices.h" />
     <ClInclude Include="IServiceSubscriber.h" />
+    <ClInclude Include="IUserSettings.h" />
     <ClInclude Include="PluginFramework.h" />
     <ClInclude Include="PluginInfo.h" />
     <ClInclude Include="PluginIterator.h" />

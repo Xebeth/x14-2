@@ -140,7 +140,7 @@ namespace Settings
 		\param[in] Key_in : the name of the key
 		\param[in] NewValue_in : the new value for the key
 	*/
-	void SettingsIniFile::SetHex(const string_t &SectionName_in, const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in)
+	void SettingsIniFile::SetHex(const string_t &SectionName_in, const string_t &Key_in, ULONG NewValue_in, const TCHAR *pComment_in)
 	{
 		if (m_pIni != NULL)
 			m_pIni->SetLongValue(SectionName_in.c_str(), Key_in.c_str(), NewValue_in, pComment_in, true);
@@ -208,34 +208,6 @@ namespace Settings
 	bool SettingsIniFile::DeleteKey(const string_t &SectionName_in, const string_t &KeyName_in) const
 	{
 		return (m_pIni != NULL) ? m_pIni->DeleteKey(SectionName_in.c_str(), KeyName_in.c_str()) : false;
-	}
-
-	/*! \brief Retrieves the path of the settings file
-		\return the path of the settings file
-	*/
-	string_t SettingsIniFile::GetSettingsPath() const
-	{
-		string_t::size_type Pos = m_SourceFile.find_last_of('\\');
-		string_t Path;
-
-		if (Pos != STRING_T_NPOS)
-			Path = m_SourceFile.substr(0, Pos + 1);
-
-		return Path;
-	}
-
-	/*! \brief Retrieves the drive of the settings file
-		\return the drive of the settings file
-	*/
-	string_t SettingsIniFile::GetSettingsDrive() const
-	{
-		string_t::size_type Pos = m_SourceFile.find_first_of('\\');
-		string_t Path;
-
-		if (Pos != STRING_T_NPOS)
-			Path = m_SourceFile.substr(0, Pos + 1);
-
-		return Path;
 	}
 
 	/*! \brief Checks if the configuration file is loaded

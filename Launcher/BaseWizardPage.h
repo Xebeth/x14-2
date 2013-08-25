@@ -10,13 +10,15 @@
 
 namespace Windower
 {
-	PluginSettings;
+	WindowerProfile;
 }
 
 class BaseWizardPage : public Windower::PluginPropertyPage
 {
 public:
-	BaseWizardPage(Windower::PluginSettings *pSettings_in, UINT TemplateResID_in, UINT IconResID_in);
+	BaseWizardPage(Windower::WindowerProfile *pSettings_in,
+				   const string_t &PluginName_in,
+				   UINT TemplateResID_in, UINT IconResID_in);
 
 	virtual BOOL OnSetActive();
 

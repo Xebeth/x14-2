@@ -12,7 +12,7 @@ class WizardFinishPage : public BaseWizardPage
 {
 	enum { IDD = IDD_WIZARD_FINISH };
 public:
-	explicit WizardFinishPage(Windower::PluginSettings *pSettings_in);
+	explicit WizardFinishPage(Windower::WindowerProfile *pSettings_in);
 
 protected:
 	DECLARE_MESSAGE_MAP()	

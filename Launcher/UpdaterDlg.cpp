@@ -20,8 +20,8 @@ BEGIN_MESSAGE_MAP(UpdaterDlg, BaseWizardPage)
 	ON_BN_CLICKED(IDC_START, &UpdaterDlg::OnStartClick)
 END_MESSAGE_MAP()
 
-UpdaterDlg::UpdaterDlg(Windower::PluginSettings *pSettings_in)
-	: BaseWizardPage(pSettings_in, IDD_UPDATE_DLG, IDR_MAINFRAME),
+UpdaterDlg::UpdaterDlg(Windower::WindowerProfile *pSettings_in)
+	: BaseWizardPage(pSettings_in, _T(""), IDD_UPDATE_DLG, IDR_MAINFRAME),
 	  m_bStarted(false), m_pUpdater(NULL)
 {
 	m_pUpdater = new Windower::WindowerUpdater(_T("http://woodart.free.fr/_tmp/config.zip"), this);
@@ -42,7 +42,7 @@ bool UpdaterDlg::InitializePage()
 {
 	m_pProgressCtrl = static_cast<CProgressCtrl*>(GetDlgItem(IDC_DL_PROGRESS));
 
-	return true;
+	return __super::InitializePage();
 }
 
 void UpdaterDlg::OnProgress(unsigned long Completed_in, unsigned long Total_in, const TCHAR *pFeedbackMsg_in)

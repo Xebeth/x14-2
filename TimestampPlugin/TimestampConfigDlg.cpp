@@ -20,8 +20,8 @@ END_MESSAGE_MAP()
 /*! \brief TimestampConfigDlg default constructor
 	\param[in] : the parent window of the dialog
  */
-TimestampConfigDlg::TimestampConfigDlg(Windower::PluginSettings *pSettings_in)
-	: Windower::PluginPropertyPage(pSettings_in, TimestampConfigDlg::IDD, IDI_TIMESTAMP) {}
+TimestampConfigDlg::TimestampConfigDlg(Windower::WindowerProfile *pSettings_in, const string_t &PluginName_in)
+	: Windower::PluginPropertyPage(pSettings_in, PluginName_in, TimestampConfigDlg::IDD, IDI_TIMESTAMP) {}
 
 /*! \brief Initializes the controls of the page from the settings
 	\return true if the initialization succeeded; false otherwise
@@ -57,15 +57,16 @@ bool TimestampConfigDlg::InitializePage()
 
 void TimestampConfigDlg::Revert()
 {
-	m_TimestampFormat = GetString(TIMESTAMP_KEY, TIMESTAMP_DEFAULT);
+	if (m_pSettings != NULL)
+		m_TimestampFormat = m_pSettings->GetTimestampFormat();
 }
 
 //! \brief Message handler called when the user presses the OK button
 bool TimestampConfigDlg::Commit()
 {
-	if (IsPageValid(NULL))
+	if (IsPageValid(NULL) && m_pSettings != NULL)
 	{
-		SetString(TIMESTAMP_KEY, m_TimestampFormat);
+		m_pSettings->SetTimestampFormat(m_TimestampFormat);
 
 		return true;
 	}

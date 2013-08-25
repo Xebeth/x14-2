@@ -30,8 +30,7 @@ namespace Windower
 	*/
 	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-//		HookManager_in.RegisterHook("On5D1C70", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005D1C70, ::Sub5D1C70Hook, 9);
-// 		HookManager_in.RegisterHook("On5E9E30", SIGSCAN_GAME_PROCESSA, (LPVOID)0x005E9E30, ::Sub5E9E30Hook, 8);
+//		HookManager_in.RegisterHook("OnB5FD90", SIGSCAN_GAME_PROCESSA, (LPVOID)0x00B5FD90, &TestCore::SubB5FD90Hook, 11);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -39,17 +38,11 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pSub5D1C70Trampoline = (fnSub5D1C70)HookManager_in.GetTrampolineFunc("On5D1C70");
-		m_pSub5E9E30Trampoline = (fnSub5E9E30)HookManager_in.GetTrampolineFunc("On5E9E30");
+		m_pSubB5FD90Trampoline = (fnSubB5FD90)HookManager_in.GetTrampolineFunc("OnB5FD90");
 	}
 
-	int TestCore::Sub5D1C70Hook(LPVOID pThis, DWORD a2, char * a3, int a4, int a5)//a5 => StringNode
+	int TestCore::SubB5FD90Hook(LPVOID pThis, char *pDstBuf, size_t SizeInBytes)
 	{
-		return m_Context->m_pSub5D1C70Trampoline(pThis, a2, a3, a4, a5);
-	}
-
-	int TestCore::Sub5E9E30Hook(LPVOID pThis, StringNode *a2)
-	{
-		return m_Context->m_pSub5E9E30Trampoline(pThis, a2);
+		return m_Context->m_pSubB5FD90Trampoline(pThis, pDstBuf, SizeInBytes);
 	}
 }

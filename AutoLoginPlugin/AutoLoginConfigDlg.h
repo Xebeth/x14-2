@@ -10,7 +10,7 @@
 
 namespace Windower
 {
-	class PluginSettings;
+	class WindowerProfile;
 }
 
 //! \brief Main dialog
@@ -18,7 +18,8 @@ class AutoLoginConfigDlg : public Windower::PluginPropertyPage
 {
 	enum { IDD = IDD_CONFIG_DIALOG };
 public:
-	explicit AutoLoginConfigDlg(Windower::PluginSettings *pSettings_in);
+	explicit AutoLoginConfigDlg(Windower::WindowerProfile *pSettings_in,
+								const string_t &PluginName_in);
 
 	bool IsPageValid(string_t *pFeedback_out) const;
 	bool InitializePage();

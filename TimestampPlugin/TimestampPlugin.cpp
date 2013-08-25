@@ -24,9 +24,11 @@ namespace Windower
 		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin")
 	{
 		// create the settings
-		m_pSettings = new Windower::PluginSettings(IPlugin::GetConfigFile(), NULL);
-		// set the sound file path from the settings
-		OnSettingsChanged();
+		if (pServices_in->LoadSettings(m_pSettings))
+		{
+			// set the sound file path from the settings
+			OnSettingsChanged();
+		}
 	}
 
 	/*! \brief Creates an instance of TimestampPlugin
@@ -68,7 +70,7 @@ namespace Windower
 	*/
 	PluginPropertyPage* TimestampPlugin::GetPropertyPage()
 	{
-		return new TimestampConfigDlg(m_pSettings);
+		return new TimestampConfigDlg(m_pSettings, m_PluginInfo.GetName());
 	}
 
 	//! \brief Callback function invoked when the settings have changed
@@ -76,9 +78,9 @@ namespace Windower
 	{
 		// retrieve the format from the settings
 		if (m_pSettings != NULL)
-			convert_ansi(m_pSettings->GetString(TIMESTAMP_KEY, TIMESTAMP_DEFAULT), m_TimestampFormat);
+			convert_ansi(m_pSettings->GetTimestampFormat(), m_TimestampFormat);
 		else
-			m_TimestampFormat = "[HH:mm:ss]";
+			m_TimestampFormat = "[HH:mm:ss] ";
 		// add a space if there is none after the timestamp
 		if (m_TimestampFormat.back() != ' ')
 			m_TimestampFormat += ' ';
@@ -189,9 +191,9 @@ namespace Windower
 				string_t Format;
 
 				convert_utf8(m_TimestampFormat, Format);
-				m_pSettings->SetString(TIMESTAMP_KEY, Format);
+				m_pSettings->SetTimestampFormat(Format);
 
-				Result = m_pSettings->Save();
+				Result = IPlugin::SaveSettings(m_pSettings);
 			}
 		}
 

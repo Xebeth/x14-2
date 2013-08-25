@@ -10,7 +10,7 @@
 
 #include "PluginPropertyPage.h"
 #include "ConfigurablePlugin.h"
-#include "PluginSettings.h"
+#include "WindowerSettings.h"
 
 namespace Windower
 {
@@ -20,7 +20,7 @@ namespace Windower
 		DECLARE_DYNCREATE(PluginPropertySheet)
 		friend class ConfigurablePlugin;
 	public:
-		PluginPropertySheet(const TCHAR *pTitle_in, PluginSettings *pSettings_in)
+		PluginPropertySheet(const TCHAR *pTitle_in, WindowerProfile *pSettings_in)
 			: CPropertySheet(pTitle_in), m_pSettings(pSettings_in)
 		{ m_psh.dwFlags |= (PSH_NOAPPLYNOW); }
 		PluginPropertySheet() : m_pSettings(NULL), m_bSettingsChanged(false)
@@ -103,7 +103,7 @@ namespace Windower
 		}
 
 		//! settings of the plugin
-		PluginSettings *m_pSettings;
+		WindowerProfile *m_pSettings;
 		//! flag specifying if the settings have changed
 		bool m_bSettingsChanged;
 		//! feedback from page validation
@@ -117,7 +117,15 @@ namespace Windower
 
 	ConfigurablePlugin::ConfigurablePlugin(PluginFramework::IPluginServices *pServices_in)
 		: PluginFramework::IPlugin(pServices_in), m_pConfigDlg(NULL),
-		  m_pConfigPage(NULL), m_pSettings(NULL), m_ExternalSettings(false) {}
+		  m_pConfigPage(NULL), m_pSettings(new WindowerProfile())
+	{
+		// create the settings
+		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
+		{
+			// set the sound file path from the settings
+			OnSettingsChanged();
+		}
+	}
 
 	//! \brief ConfigurablePlugin destructor
 	ConfigurablePlugin::~ConfigurablePlugin()
@@ -133,14 +141,12 @@ namespace Windower
 			delete m_pConfigDlg;
 			m_pConfigDlg = NULL;
 		}
-
+		
 		if (m_pSettings != NULL)
 		{
-			if (m_ExternalSettings == false)
-				delete m_pSettings;
-
+			delete m_pSettings;
 			m_pSettings = NULL;
-		}
+		}		
 	}
 
 	bool ConfigurablePlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
@@ -148,13 +154,9 @@ namespace Windower
 		if (pInstance_in != NULL)
 		{
 			ConfigurablePlugin *pConfigPlugin = static_cast<ConfigurablePlugin*>(pInstance_in);
-			const TCHAR *pProfileName = reinterpret_cast<const TCHAR*>(pUserData_in);
 
 			if (pConfigPlugin->m_pSettings != NULL)
 			{
-				// set the default section of the settings
-				if (pProfileName != NULL)
-					pConfigPlugin->m_pSettings->SetCurrentSection(pProfileName);
 				// create the property page if needed
 				if (pConfigPlugin->m_pConfigPage == NULL)
 					pConfigPlugin->m_pConfigPage = pConfigPlugin->GetPropertyPage();
@@ -175,26 +177,12 @@ namespace Windower
 					{
 						pConfigPlugin->OnSettingsChanged();
 
-						return pConfigPlugin->m_pSettings->Save();
+						return IPlugin::SaveSettings(pConfigPlugin->m_pSettings);
 					}
 				}
 			}
 		}	
 
 		return false;
-	}
-
-	void ConfigurablePlugin::SetSettings(PluginSettings *pSettings_in)
-	{
-		if (pSettings_in != NULL)
-		{
-			if (m_pSettings != NULL)
-			{
-				delete m_pSettings;
-				m_pSettings = NULL;
-			}
-			m_ExternalSettings = true;
-			m_pSettings = pSettings_in;
-		}
 	}
 }

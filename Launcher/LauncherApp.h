@@ -13,7 +13,14 @@
 namespace Windower
 {
 	class SettingsManager;
+	class PluginServices;
 }
+
+namespace PluginFramework
+{
+	class IUserSettings;
+}
+
 class LauncherCmdLine : public CCommandLineInfo
 {
 	enum eCommandFlags
@@ -73,26 +80,15 @@ public:
 						   const TCHAR *pDesc_in = NULL, int IconIndex_in = 0);
 
 protected:
-	class DummyServices : public PluginFramework::IPluginServices
-	{
-	public:
-		DummyServices(const PluginFramework::VersionInfo &Version_in, const string_t& WorkingDir_in)
-			: PluginFramework::IPluginServices(Version_in), m_WorkingDir(WorkingDir_in) {}
-	private:
-		bool InvokeService(const string_t&, const string_t&, PluginFramework::ServiceParam &) const { return true; }
-		bool UnsubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-		bool SubscribeService(const string_t&, const string_t&, PluginFramework::IPlugin*) const { return true; }
-		const TCHAR* GetConfigFile() const { return m_WorkingDir.c_str(); }
-
-		string_t m_WorkingDir;
-	};
-
 	bool CreateCmdLine(string_t &CmdLine_out, const string_t &GamePath_in,
 						long LanguageID_in, const TCHAR *pSID_in) const;
 
 	PluginFramework::PluginManager *m_pPluginManager;
 	Windower::SettingsManager *m_pSettingsManager;
-	DummyServices *m_pDummyServices;
+	Windower::PluginServices *m_pPluginServices;
+	Windower::CoreModules m_Modules;
+private:
+	void InitMFC();
 };
 
 extern LauncherApp g_pApp;

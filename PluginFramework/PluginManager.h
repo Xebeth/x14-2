@@ -47,7 +47,7 @@ namespace PluginFramework
 			\return the list of registered plugins
 		*/
 		const RegisteredPlugins& GetRegisteredPlugins() const { return m_RegisteredPlugins; }
-
+		
 		bool BlacklistPlugin(const string_t &UUID_in);
 		bool WhitelistPlugin(const string_t &UUID_in);
 
