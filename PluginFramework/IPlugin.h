@@ -201,6 +201,7 @@ namespace PluginFramework
 
 		static bool SaveSettings(const IUserSettings *pSettings_in);
 		static bool LoadSettings(IUserSettings* pSettings_out);
+		static const TCHAR* GetWorkingDir();
 
 	protected:
 		/*! \brief Removes a plugin subscription from the service in the specified module

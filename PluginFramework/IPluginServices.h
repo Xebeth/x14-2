@@ -78,6 +78,7 @@ namespace PluginFramework
 
 		virtual bool LoadSettings(IUserSettings* pSettings_out) const =0;
 		virtual bool SaveSettings(const IUserSettings *pSettings_in) =0;
+		virtual const TCHAR* GetWorkingDir() const =0;
 
 		/*! \brief Retrieves the framework version of the plugin services
 			\return the framework version of the plugin services

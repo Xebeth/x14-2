@@ -118,6 +118,9 @@ namespace PluginFramework
 	bool IPlugin::LoadSettings(IUserSettings* pSettings_out)
 	{ return m_pServices ? m_pServices->LoadSettings(pSettings_out) : false; }
 
+	const TCHAR* IPlugin::GetWorkingDir()
+	{ return m_pServices ? m_pServices->GetWorkingDir() : NULL; }
+
 	const VersionInfo& IPlugin::GetFrameworkVersion() const
 	{ return m_PluginInfo.m_FrameworkVersion; }
 

@@ -97,4 +97,12 @@ namespace Windower
 
 		return false;
 	}
+
+	const TCHAR* PluginServices::GetWorkingDir() const
+	{
+		if (m_pSettingsManager != NULL)
+			return m_pSettingsManager->GetWorkingDir().c_str();
+
+		return NULL;
+	}
 }

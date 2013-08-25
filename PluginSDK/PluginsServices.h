@@ -39,6 +39,7 @@ namespace Windower
 
 		bool LoadSettings(PluginFramework::IUserSettings* pSettings_out) const;
 		bool SaveSettings(const PluginFramework::IUserSettings *pSettings_in);
+		const TCHAR* GetWorkingDir() const;
 
 	protected:
 		//! hash map of modules available to the plugins
