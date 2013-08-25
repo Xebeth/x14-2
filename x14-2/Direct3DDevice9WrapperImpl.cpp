@@ -102,10 +102,7 @@ bool Direct3DDevice9WrapperImpl::RemoveRenderable(unsigned long ID_in)
 
 void Direct3DDevice9WrapperImpl::Draw()
 {
-	m_bSceneStarted = true;
-	m_bDrawUi = !m_bDrawUi;
-
-	if (m_bDrawUi)
+	if (m_bDrawUi && m_bRender && m_bSceneStarted)
 	{
 		RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
 		IRenderable *pRenderable = NULL;
@@ -120,6 +117,8 @@ void Direct3DDevice9WrapperImpl::Draw()
 				pRenderable->Draw();
 			}
 		}
+
+		m_bDrawUi = false;
 	}
 }
 

@@ -39,8 +39,7 @@ namespace Windower
 {
 
 	WindowerCore::CallingContext<GraphicsCore> GraphicsCore::m_Context;
-
-
+	
 	/*! \brief GraphicsCore constructor
 		\param[in,out] Engine_in_out : the windower engine
 		\param[in] VSync_in : flag specifying if vertical synchronization is in use

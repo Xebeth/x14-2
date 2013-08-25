@@ -20,9 +20,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::BeginScene()
 	if (g_pDeviceWrapperImpl->m_bRender && g_pDeviceWrapperImpl->m_bSceneStarted == false)
 	{
 		Result = CALL_D3DDEVICE_VTABLE(g_pDeviceWrapperImpl, pfnBeginScene)();
-
-		if (Result == D3D_OK)
-			g_pDeviceWrapperImpl->Draw();
+		g_pDeviceWrapperImpl->m_bSceneStarted = (Result == S_OK);		
 	}
 
 	return Result;
@@ -37,8 +35,11 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::EndScene()
 
 	if (g_pDeviceWrapperImpl->m_bRender && g_pDeviceWrapperImpl->m_bSceneStarted)
 	{
+		if (Result == D3D_OK)
+			g_pDeviceWrapperImpl->Draw();
+
 		Result = CALL_D3DDEVICE_VTABLE(g_pDeviceWrapperImpl, pfnEndScene)();
-		g_pDeviceWrapperImpl->m_bSceneStarted = false;
+		g_pDeviceWrapperImpl->m_bSceneStarted = (Result != S_OK);
 	}
 	
 	return Result;
@@ -49,7 +50,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::SetRenderState(D3DRENDERSTATETYPE Sta
 	if (g_pDeviceWrapperImpl == NULL)
 		return E_NOTIMPL;
 		
-	g_pDeviceWrapperImpl->m_bDrawUi = g_pDeviceWrapperImpl->m_bDrawUi ? true : (State == D3DRS_SCISSORTESTENABLE && Value == 0);
+	g_pDeviceWrapperImpl->m_bDrawUi |= (State == D3DRS_ZENABLE && Value == 1 && g_pDeviceWrapperImpl->m_bSceneStarted);
 
 	return CALL_D3DDEVICE_VTABLE(g_pDeviceWrapperImpl, pfnSetRenderState)(State, Value);
 }

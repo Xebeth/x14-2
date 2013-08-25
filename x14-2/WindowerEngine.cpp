@@ -48,7 +48,7 @@ namespace Windower
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
 		// create the system core module
-		// m_pSystemCore = new SystemCore;
+		m_pSystemCore = new SystemCore;
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
@@ -70,10 +70,10 @@ namespace Windower
 			// create the player data module
 			m_pPlayerCore = new PlayerCore;
 			// create the graphics module
+*/
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
 			m_pSystemCore->AddUIH(m_pGraphicsCore);
-*/
 		}
 	}
 
