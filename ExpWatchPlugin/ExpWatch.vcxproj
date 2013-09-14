@@ -89,8 +89,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x50400000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <BaseAddress>
+      </BaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>

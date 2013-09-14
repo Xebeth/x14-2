@@ -92,8 +92,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x50600000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <BaseAddress>
+      </BaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>
