@@ -159,27 +159,27 @@ namespace Windower
 			case PARSER_RESULT_INVALID_FLOAT_PARAMETER:
 				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
-					format(Feedback, "\xe2\x87\x92 Parameter '%s' : invalid float value \u00AB%s\u00BB.",
+					format(Feedback, "\xee\x81\xaf Parameter '%s' : invalid float value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);
 				}
 				else
-					Feedback = "\xe2\x87\x92 Invalid float parameter.";
+					Feedback = "\xee\x81\xaf Invalid float parameter.";
 			break;
 			case PARSER_RESULT_INVALID_INT_PARAMETER:
 				if (pParamName_in != NULL && pParamValue_in != NULL)
 				{
-					format(Feedback, "\xe2\x87\x92 Parameter '%s' : invalid integer value \u00AB%s\u00BB.",
+					format(Feedback, "\xee\x81\xaf Parameter '%s' : invalid integer value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);
 				}
 				else
-					Feedback = "\xe2\x87\x92 Invalid float parameter";
+					Feedback = "\xee\x81\xaf Invalid float parameter";
 			break;
 			case PARSER_RESULT_TOO_MANY_PARAMETERS:
-				format(Feedback, "\xe2\x87\x92 Too many parameter(s) (%u) : expecting at most %u.",
+				format(Feedback, "\xee\x81\xaf Too many parameter(s) (%u) : expecting at most %u.",
 					   ParamCount_in, Command_in_out.GetMaxParams());
 			break;
 			case PARSER_RESULT_TOO_FEW_PARAMETERS:
-				format(Feedback, "\xe2\x87\x92 Too few parameter(s) (%u) : expecting at least %u.",
+				format(Feedback, "\xee\x81\xaf Too few parameter(s) (%u) : expecting at least %u.",
 					   ParamCount_in, Command_in_out.GetMinParams());
 			break;
 		}

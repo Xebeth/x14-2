@@ -26,7 +26,7 @@ namespace Windower
 		m_LogPath = format(_T("%s%s"), IPlugin::GetWorkingDir(), _T("logs"));
 		CreateDirectory(m_LogPath.c_str(), NULL);
 		// convert the timestamp
-		convert_utf8(m_TimestampFormat, m_TimestampFormatW);				
+		convert_utf8(m_TimestampFormat, m_TimestampFormatW);
 	}
 
 	//! \brief ChatLogPlugin destructor

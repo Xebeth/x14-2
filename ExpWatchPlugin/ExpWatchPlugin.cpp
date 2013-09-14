@@ -132,7 +132,7 @@ namespace Windower
 						DWORD dwNewSize, MsgSize;
 
 						// add the exp rate to the text
-						format(m_ExpRateMsg, " \xe2\x87\x92 exp. rate : %.2f/h", m_AvgExpPerHour);
+						format(m_ExpRateMsg, " \xee\x81\xaf exp. rate : %.2f/h", m_AvgExpPerHour);
 						MsgSize = m_ExpRateMsg.length();
 						// add 11 characters for the timestamp
 						dwNewSize = ModifiedSize_in + MsgSize;
@@ -259,10 +259,10 @@ namespace Windower
 			UpdateStats();
 
 			append_format(*pFeedback_in_out, "ExpWatch statistics on experience points earned:\n"
-											 "\tTotal experience points: %.0f for %ld kills in %02d:%02d\n"
-											 "\tExperience bonus from chains: %.0f\n"
-											 "\tAverage experience per hour: %.2f\n"
-											 "\tAverage experience per kill: %.2f",
+											 "   Total experience points: %.0f for %ld kills in %02d:%02d\n"
+											 "   Experience bonus from chains: %.0f\n"
+											 "   Average experience per hour: %.2f\n"
+											 "   Average experience per kill: %.2f",
 											 m_TotalExp, m_KillCounter, m_iHours, m_iMinutes,
 											 m_BonusExp, m_AvgExpPerHour, m_AvgExpPerKill);
 		}

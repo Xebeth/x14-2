@@ -62,7 +62,7 @@ namespace Windower
 			std::string ParamDesc, ValueDesc;
 			char *pParamFormat = NULL;
 
-			append_format(Help_out, "\xe2\x87\x92 %s", m_Name.c_str());
+			append_format(Help_out, "\xee\x81\xaf %s", m_Name.c_str());
 
 			if (m_Description.empty() == false)
 				Help_out.append(" : " + m_Description);
@@ -82,9 +82,9 @@ namespace Windower
 					if (ValueDesc.empty() == false || ShowValues_in)
 					{
 						if (ParamCount < m_MinParamsCount - 1)
-							pParamFormat = "\t  - [%s <%s>] : %s";
+							pParamFormat = "     - [%s <%s>] : %s";
 						else
-							pParamFormat = "\t  - %s <%s> : %s";
+							pParamFormat = "     - %s <%s> : %s";
 
 						format(ParamDesc, pParamFormat, ParamIt->second->GetName().c_str(),
 							   CommandParamTypes[ParamIt->second->GetType()], ValueDesc.c_str());
@@ -92,16 +92,16 @@ namespace Windower
 					else
 					{
 						if (ParamCount < m_MinParamsCount - 1)
-							pParamFormat = "\t  - [%s <%s>]";
+							pParamFormat = "     - [%s <%s>]";
 						else
-							pParamFormat = "\t  - %s <%s>";
+							pParamFormat = "     - %s <%s>";
 
 						format(ParamDesc, pParamFormat, ParamIt->second->GetName().c_str(),
 							   CommandParamTypes[ParamIt->second->GetType()]);
 					}
 
 					if (ParamDesc.empty() == false)
-						Help_out.append("\tParameters:\n" + ParamDesc);
+						Help_out.append("   Parameters:\n" + ParamDesc);
 
 					if (++ParamCount < ParamSize)
 						Help_out += '\n';
@@ -110,7 +110,7 @@ namespace Windower
 		}
 		else if (m_Description.empty() == false)
 		{
-			append_format(Help_out, "\xe2\x87\x92 %s : %s", m_Name.c_str(), m_Description.c_str());
+			append_format(Help_out, "\xee\x81\xaf %s : %s", m_Name.c_str(), m_Description.c_str());
 		}
 		else
 		{

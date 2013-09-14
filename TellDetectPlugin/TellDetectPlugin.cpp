@@ -22,7 +22,7 @@ namespace Windower
 		: IGameChatPlugin(pServices_in)
 	{
 		// create the settings
-		if(pServices_in->LoadSettings(m_pSettings))
+		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();

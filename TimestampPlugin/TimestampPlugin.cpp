@@ -21,10 +21,12 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	TimestampPlugin::TimestampPlugin(PluginFramework::IPluginServices *pServices_in) 
-		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin")
+		: IGameChatPlugin(pServices_in), CommandHandler(0xAF8B3EE1, "TimestampPlugin"),
+		  m_TimestampLength(0UL)
+
 	{
 		// create the settings
-		if (pServices_in->LoadSettings(m_pSettings))
+		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -98,7 +100,7 @@ namespace Windower
 
 		if (pCommand != NULL && pCommand->AddStringParam("format", false, m_TimestampFormat.c_str(),
 														 "format of the timestamp\n"
-														 "\t\t\xe2\x87\x92 see the remarks at http://tinyurl.com/gettimeformatex ") == false)
+														 "      \xee\x81\xaf see the remarks at http://tinyurl.com/gettimeformatex ") == false)
 		{
 			delete pCommand;
 			pCommand = NULL;

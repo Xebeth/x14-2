@@ -29,6 +29,8 @@ namespace Windower
 		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("AF8B3EE1-B092-45C7-80AA-A2BF2213DA2B")));	// Timestamp
 		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("BC725A17-4E60-4EE2-9E48-EF33D7CBB7E9")));	// TellDetect
 		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("6FA271DC-DB0A-4B71-80D3-FE0B5DBF3BBF")));	// ExpWatch
+
+		m_Context.Set(this);
 	}
 
 	/*! \brief Formats a message received by the game chat log
@@ -43,7 +45,7 @@ namespace Windower
 	{
 		m_Context->m_pChatMsg = pThis_in_out;
 
-		if (m_Context->m_pChatMsg != NULL)
+		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
 		{
 			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Context->m_Subscribers.cend();
 			DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
@@ -76,11 +78,14 @@ namespace Windower
 	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in)
 	{
-		DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
+		DWORD dwOriginalSenderSize = pSender_in_out->dwSize, dwOldProtect;
 		char *pOriginalSender = pSender_in_out->pResBuf;
 		StringNode OriginalMsg = *pMessage_in_out;
 		bool Result = false;
 
+		// force the page to be executable
+//		VirtualProtect(m_Context->m_pFormatChatMsgTrampoline, 9, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+		// update the message
 		if (pModifiedMsg_in != NULL)
 			UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
 		// display the error message instead of the typed command
@@ -116,5 +121,13 @@ namespace Windower
 		}
 
 		return false;
+	}
+
+	void FormatChatMsgService::OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in)
+	{
+		if (HookName_in.compare(FORMAT_CHAT_MESSAGE_HOOK) == 0)
+		{
+			m_Context->m_pFormatChatMsgTrampoline = (fnFormatChatMessage)pPointer_in;
+		}
 	}
 }
