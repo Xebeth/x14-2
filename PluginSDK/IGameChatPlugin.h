@@ -25,7 +25,7 @@ namespace Windower
 		CHAT_MESSAGE_TYPE_LINKSHELL_MESSAGE			= 0x0011,	//!< linkshell
 		CHAT_MESSAGE_TYPE_INVALID_MESSAGE			= 0x0021,	//!< invalid
 		CHAT_MESSAGE_TYPE_ECHO_MESSAGE				= 0x0038,	//!< echo
-		CHAT_MESSAGE_TYPE_SANCTUARY					= 0x0039,	//!< sanctuary?
+		CHAT_MESSAGE_TYPE_NOTICE					= 0x0039,	//!< help message (/?) and sanctuary, etc.
 		CHAT_MESSAGE_TYPE_ERROR_MESSAGE				= 0x003C,	//!< error
 		CHAT_MESSAGE_TYPE_BATTLE_MESSAGE			= 0x0067,	//!< battle
 

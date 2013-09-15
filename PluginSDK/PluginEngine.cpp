@@ -161,12 +161,12 @@ namespace Windower
 
 				if (m_pPluginManager->IsPluginLoaded(PluginIt->second.GetName()))
 				{
-					append_format(LoadedList, "\xe2\x87\x92 %s", Info.c_str());
+					append_format(LoadedList, "\xee\x81\xaf %s", Info.c_str());
 					++LoadedCount;
 				}
 				else
 				{
-					append_format(AvailableList, "\xe2\x87\x92 %s", Info.c_str());
+					append_format(AvailableList, "\xee\x81\xaf %s", Info.c_str());
 					++AvailableCount;
 				}
 			}

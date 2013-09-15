@@ -62,15 +62,15 @@ namespace Windower
 		// check the settings and load the default profile
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
-/*
 			// create the game chat module
 			m_pGameChatCore = new GameChatCore;
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore;
+/*
 			// create the player data module
 			m_pPlayerCore = new PlayerCore;
-			// create the graphics module
 */
+			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
 			m_pSystemCore->AddUIH(m_pGraphicsCore);

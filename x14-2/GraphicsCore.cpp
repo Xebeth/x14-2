@@ -134,6 +134,9 @@ namespace Windower
 	{
 		IDirect3D9* pDirect3D = NULL;
 
+		if (m_Context->m_pDirect3DCreate9Trampoline == NULL)
+			m_Context->m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)m_pHookManager->GetTrampolineFunc("Direct3DCreate9");
+
 		if (m_Context->m_pDirect3DCreate9Trampoline != NULL)
 		{
 			static DWORD CallCount = 1UL;
@@ -162,9 +165,10 @@ namespace Windower
 		return pDirect3D;
 	}
 
-	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in)
+	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in)
 	{
 		m_pDirect3DDevice = pDevice_in;
+		m_hWnd = hWnd_in;
 
 		// set the device implementation
 		if (pDevice_in != NULL && g_pDeviceWrapperImpl == NULL)
@@ -190,9 +194,7 @@ namespace Windower
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
 			pFPSLabel->Draw();
-#ifndef _DEBUG
 			pFPSLabel->SetVisibile(false);
-#endif // _DEBUG
 			// create the device wrapper implementation
 			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
 			// add it to the list of renderables
@@ -362,14 +364,14 @@ namespace Windower
 	{
 		switch (PressedChar_in)
 		{
-			case VK_F10:
-				ToggleRendering();
-				
-				return IEventInterface::EVENT_PROCESSED; // filtered
-			break;
 			case VK_F11:
-				SetRendering(false);
-				::ShowWindow(m_hWnd, SW_MINIMIZE);
+				if (KeyFlags_in == 0)
+				{
+					SetRendering(false);
+					::ShowWindow(m_hWnd, SW_MINIMIZE);
+				}
+				else
+					ToggleRendering();
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
 			break;

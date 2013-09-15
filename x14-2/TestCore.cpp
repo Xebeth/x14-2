@@ -11,6 +11,7 @@
 #include "TestCore.h"
 
 #include "WindowerEngine.h"
+#include "StringNode.h"
 
 namespace Windower
 {
@@ -30,7 +31,9 @@ namespace Windower
 	*/
 	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-//		HookManager_in.RegisterHook("OnB5FD90", SIGSCAN_GAME_PROCESSA, (LPVOID)0x00B5FD90, &TestCore::SubB5FD90Hook, 11);
+		LONG BaseImage = (LONG)GetModuleHandle(NULL);
+
+		//HookManager_in.RegisterHook("OnAD1390", SIGSCAN_GAME_PROCESSA, (LPVOID)(0x00AD1390 + BaseImage - 0x00400000), &TestCore::SubAD1390Hook, 9);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -38,11 +41,18 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pSubB5FD90Trampoline = (fnSubB5FD90)HookManager_in.GetTrampolineFunc("OnB5FD90");
+		m_pSubAD1390Trampoline = (fnSubAD1390)HookManager_in.GetTrampolineFunc("OnAD1390");
 	}
 
-	int TestCore::SubB5FD90Hook(LPVOID pThis, char *pDstBuf, size_t SizeInBytes)
+	int WINAPI TestCore::SubAD1390Hook(LPVOID pThis_in_out, Windower::StringNode* pCmd_in_out, LPVOID pUnknown_in)
 	{
-		return m_Context->m_pSubB5FD90Trampoline(pThis, pDstBuf, SizeInBytes);
+		MEMORY_BASIC_INFORMATION memInfo;
+
+		ZeroMemory(&memInfo, sizeof(memInfo));
+
+		if (VirtualQuery(m_Context->m_pSubAD1390Trampoline, &memInfo, sizeof(memInfo)) && (memInfo.Protect & PAGE_EXECUTE) == 0)
+			VirtualProtect(m_Context->m_pSubAD1390Trampoline, 9, memInfo.Protect | PAGE_EXECUTE, &memInfo.Protect);
+
+		return m_Context->m_pSubAD1390Trampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
 	}
 }

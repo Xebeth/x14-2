@@ -14,6 +14,7 @@
 
 typedef LRESULT (CALLBACK *SUBCLASSPROC)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 typedef BOOL (WINAPI *fnSetWindowSubclass)(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
+typedef ATOM (WINAPI *fnRegisterClassExA)(const WNDCLASSEXA *pWndClass_in);
 
 namespace Windower
 {
@@ -43,15 +44,21 @@ namespace Windower
 		// hooks
 		static LRESULT CALLBACK SubclassProcHook(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 		static BOOL WINAPI SetWindowSubclassHook(HWND hWnd_in, SUBCLASSPROC pfnSubclass_in, UINT_PTR uIdSubclass_in, DWORD_PTR dwRefData_in);
+		static LRESULT WINAPI WndProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		static ATOM WINAPI RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in);
 		void SubclassWindow(HWND hWnd_in);
 
 	protected:
 		LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
-		LRESULT FilterKeyboard(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
+		LRESULT FilterSubClassMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
 
+		//! the original WndProc of the game
+		static WNDPROC m_pGameWndProc;
 		//! hook to sub class over the game sub-classing
 		fnSetWindowSubclass m_pSetWindowSubclassTrampoline;
+		//! hook to replace the window procedure
+		fnRegisterClassExA m_pRegisterClassExATrampoline;
 		//! Engine thread handle
 		HANDLE m_hMainThread;
 		//! calling context for the module hooks

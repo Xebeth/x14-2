@@ -91,6 +91,8 @@ namespace Windower
 		const HookPointers& GetHooks() { return m_ServiceHooks; }
 
 	protected:
+		virtual void OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in) {}
+
 		//! the service subscribers
 		PluginFramework::PluginSet m_Subscribers;
 		//! a set of compatible plugins

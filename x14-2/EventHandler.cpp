@@ -271,6 +271,21 @@ namespace Windower
 		return UIHReturnValue;
 	}
 
+	LRESULT EventHandler::OnPaint()
+	{
+		LRESULT UIHReturnValue = IEventInterface::EVENT_IGNORED;
+		UIHConstIterator UIHIt, UIHEnd = m_UserInputHandlerArray.end();
+
+		// The OnKillFocus event can't be limited to one UIH. So send it to all
+		for( UIHIt = m_UserInputHandlerArray.begin() ; UIHIt != UIHEnd ; ++UIHIt )
+		{
+			// Call the member function pointer on the current object pointer
+			UIHReturnValue |= (*UIHIt)->OnPaint();
+		}
+
+		return UIHReturnValue;
+	}
+
 	/*! \copydoc IEventInterface::OnKillFocus(void)
 	*/
 	LRESULT EventHandler::OnKillFocus(void)

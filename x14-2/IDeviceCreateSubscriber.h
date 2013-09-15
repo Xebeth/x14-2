@@ -14,7 +14,7 @@ typedef struct IDirect3DDevice9 IDirect3DDevice9;
 class IDeviceCreateSubscriber
 {
 public:
-	virtual void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in) =0;
+	virtual void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in) =0;
 };
 
 #endif//__I_DEVICE_CREATE_SUBSCRIBER_H__

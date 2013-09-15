@@ -59,9 +59,9 @@ namespace Windower
 		\param[in,out] pCmd_in_out : a string node containing the command typed
 		\param[in] pUnknown_in : unknown object (contains pThis_in_out at offset 0x41950)
 	*/
-	bool WINAPI CmdLineCore::ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in)
+	int WINAPI CmdLineCore::ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in)
 	{
-		bool Result = false;
+		int Result = 0;
 
 		// update the text command pointer
 		if (m_Context->m_pProcessCmdTrampoline != NULL)
@@ -71,7 +71,7 @@ namespace Windower
 			if (m_Context->FilterCommands(pCmd_in_out, Feedback))
 			{
 				// skip command processing
-				return FormatChatMsgService::InjectMessage(Feedback);
+				return FormatChatMsgService::InjectMessage(Feedback, "x14-2", CHAT_MESSAGE_TYPE_NOTICE);
 			}
 			else if (pThis_in_out != NULL)
 			{
@@ -460,7 +460,7 @@ namespace Windower
 		 return false;
 	}
 
-	bool CmdLineCore::InjectCommand(const std::string &Cmd_in)
+	int CmdLineCore::InjectCommand(const std::string &Cmd_in)
 	{
 		StringNode Cmd;
 

@@ -24,7 +24,7 @@ HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE Devic
 	HRESULT Result = CALL_D3D_VTABLE(g_pDirect3DWrapper, pfnCreateDevice)(Adapter, DeviceType, hFocusWindow, BehaviorFlags,
 																		  pPresentationParameters, ppReturnedDeviceInterface);
 	// notify the listener of the device creation
-	g_pDirect3DWrapper->OnDeviceCreate(*ppReturnedDeviceInterface, pPresentationParameters);
+	g_pDirect3DWrapper->OnDeviceCreate(*ppReturnedDeviceInterface, pPresentationParameters, hFocusWindow);
 
 	return Result;
 }

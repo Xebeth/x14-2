@@ -41,12 +41,14 @@ namespace Windower
 		virtual LRESULT OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in);
 		/* Window resizes. */
 		virtual LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in);
-		/* Window focus get killed. */
+		/* Window focus gets killed. */
 		virtual LRESULT OnKillFocus(void);
 		/* Window gets focus. */
 		virtual LRESULT OnSetFocus(void);
-		/* Window is (de)activate */
+		/* Window is (de)activated */
 		virtual LRESULT OnActivate(bool bActive_in, bool bMinimized_in);
+		/* Window is painted */
+		virtual LRESULT OnPaint();
 
 		/*!	\brief Add the specified UIH at the end of the UIH array
 			\param[in] pNewUIH_in_out Handler to add into inside handler array.

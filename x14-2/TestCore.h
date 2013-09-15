@@ -10,10 +10,13 @@
 
 #define TESTING_MODULE "Testing"
 
-typedef struct _StringNode StringNode;
+namespace Windower
+{
+	typedef struct _StringNode StringNode;
+}
 
-// int __thiscall sub_B5FD90(int this, char *DstBuf, size_t SizeInBytes)
-typedef int (WINAPI *fnSubB5FD90)(LPVOID pThis, char *pDstBuf, size_t SizeInBytes);
+// unsigned int __thiscall sub_AD1390(int this, const void *a2, size_t a3)
+typedef int (WINAPI *fnSubAD1390)(LPVOID pThis_in_out, Windower::StringNode* pCmd_in_out, LPVOID pUnknown_in);
 
 namespace Windower
 {
@@ -30,9 +33,9 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
-		static int WINAPI SubB5FD90Hook(LPVOID pThis, char *pDstBuf, size_t SizeInBytes);
+		static int WINAPI SubAD1390Hook(LPVOID pThis_in_out, Windower::StringNode* pCmd_in_out, LPVOID pUnknown_in);
 
-		fnSubB5FD90 m_pSubB5FD90Trampoline;
+		fnSubAD1390 m_pSubAD1390Trampoline;
 		//! calling context for the module hooks
 		static CallingContext<TestCore> m_Context;
 	};

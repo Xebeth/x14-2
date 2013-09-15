@@ -137,6 +137,8 @@ namespace Windower
 		 */
 		virtual LRESULT OnActivate(bool bActive_in, bool bMinimized_in) { return EVENT_IGNORED; }
 
+		virtual LRESULT OnPaint() { return EVENT_IGNORED; }
+
 		//!	\brief Member function pointer for mouse events
 		typedef LRESULT (IEventInterface::*MouseEventMemFn)(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
 

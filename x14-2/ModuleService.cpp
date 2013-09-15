@@ -74,6 +74,7 @@ namespace Windower
 		if (Create_in || m_ServiceHooks.find(HookName_in) != m_ServiceHooks.cend())
 		{
 			m_ServiceHooks[HookName_in] = pPointer_in;
+			OnPointerChange(HookName_in, pPointer_in);
 
 			return true;
 		}

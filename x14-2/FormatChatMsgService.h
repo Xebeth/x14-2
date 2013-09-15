@@ -12,9 +12,11 @@
 														 //5356578BF98DB71402000050					2013-03-16
 														 //5356578BF98DB71402000050					2013-03-22
 														 //538B5D0856578BF953897C242CE8F235FCFF		2013-04-05
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"##53??????56578B????89??????E8"
-#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-12
-#define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 12
+														 //A1????????33C589????8B????56570FB7????	2013-09-04
+														 //8BF18B4D10898D88FDFFFF578BCE
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"##33C589????8B????56570FB7"
+#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-14
+#define FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE			 9
 
 #define GAME_CHAT_MODULE			"GameChat"
 // available services for the module
@@ -39,6 +41,8 @@ namespace Windower
 								  UINT MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
 
 	private:
+		void OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in);
+
 		bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 												 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in);
 		//! game pointer to this

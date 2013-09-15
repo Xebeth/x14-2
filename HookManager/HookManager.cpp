@@ -352,8 +352,12 @@ namespace HookEngineLib
 
 				if (pDetour->SetDetour(pSrc_in, pDst_in, OpCodesSize_in))
 				{
+					DWORD dwDummyAccess;
+
 					pTrampoline = pDetour->GetTrampoline();
 					m_AsmData[pSrc_in] = pDetour;
+
+					VirtualProtect(pTrampoline, OpCodesSize_in, PAGE_EXECUTE_READWRITE, &dwDummyAccess);
 				}
 				
 				VirtualProtect(pSrc_in, OpCodesSize_in, dwPageAccess, &dwPageAccess);
