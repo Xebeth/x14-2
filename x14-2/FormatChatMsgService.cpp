@@ -78,7 +78,7 @@ namespace Windower
 	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in)
 	{
-		DWORD dwOriginalSenderSize = pSender_in_out->dwSize, dwOldProtect;
+		DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
 		char *pOriginalSender = pSender_in_out->pResBuf;
 		StringNode OriginalMsg = *pMessage_in_out;
 		bool Result = false;

@@ -19,6 +19,7 @@
 #include "IDeviceCreateSubscriber.h"
 #include "IDirect3DDevice9Wrapper.h"
 #include "Direct3DDevice9WrapperImpl.h"
+#include "Direct3DSwapChain9WrapperImpl.h"
 
 #include "TextLabelRenderer.h"
 #include "UiTextLabel.h"
@@ -32,6 +33,7 @@
 
 using namespace UIAL;
 
+Direct3DSwapChain9WrapperImpl *g_pDirect3DSwapChainWrapper = NULL;
 Direct3DDevice9WrapperImpl *g_pDeviceWrapperImpl = NULL;
 Direct3D9WrapperImpl *g_pDirect3DWrapper = NULL;
 
@@ -189,12 +191,14 @@ namespace Windower
 			}
 
 			// create the FPS counter
-			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -10L, 24L, 60UL, 16UL,
+			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -16L, 0L, 60UL, 16UL,
 													  _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
 			pFPSLabel->Draw();
+#ifndef _DEBUG
 			pFPSLabel->SetVisibile(false);
+#endif // _DEBUG
 			// create the device wrapper implementation
 			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
 			// add it to the list of renderables
@@ -366,10 +370,7 @@ namespace Windower
 		{
 			case VK_F11:
 				if (KeyFlags_in == 0)
-				{
-					SetRendering(false);
 					::ShowWindow(m_hWnd, SW_MINIMIZE);
-				}
 				else
 					ToggleRendering();
 				
@@ -380,6 +381,18 @@ namespace Windower
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
 			break;
+		}
+
+		return IEventInterface::EVENT_IGNORED;
+	}
+
+	LRESULT GraphicsCore::OnActivate(bool bActive_in, bool bMinimized_in)
+	{
+		if (g_pDeviceWrapperImpl != NULL)
+		{
+			g_pDeviceWrapperImpl->SetRendering(bActive_in);
+
+			return IEventInterface::EVENT_PROCESSED; // filtered
 		}
 
 		return IEventInterface::EVENT_IGNORED;

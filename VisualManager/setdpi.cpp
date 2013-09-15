@@ -428,12 +428,8 @@ void CSetDPI::Attach(HINSTANCE hInst,HWND _hwnd,int _IDD,double dpi, bool relati
 			break;
 
 		TCHAR Text[255];
-		CString DbgTxt;
-
+		
 		::GetWindowText(wnd, Text, 255);
-		DbgTxt.Format(_T("Adjusting control '%s' (0x%08X | %i) to %i DPI\n"), Text, wnd, item->id, (int)dpi);
-
-		OutputDebugString(DbgTxt);
 		
 		MoveWindow(wnd,(int)(item->x*x_n/x_d+0.5),
 					   (int)(item->y*y_n/y_d+0.5),

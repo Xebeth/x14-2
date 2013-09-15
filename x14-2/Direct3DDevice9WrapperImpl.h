@@ -393,6 +393,7 @@ namespace D3DDevice9_vTable
 
 class Direct3DDevice9WrapperImpl
 {
+	friend class IDirect3DSwapChain9Wrapper;
 	friend class IDirect3DDevice9Wrapper;
 public:
 	Direct3DDevice9WrapperImpl(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in);
@@ -402,14 +403,17 @@ public:
 	bool RemoveRenderable(unsigned long ID_in);
 
 	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }
+	bool IsFullscreen() const { return m_bFullscreen; }
 	void ToggleRendering()	{ m_bRender = !m_bRender; }
-	bool IsRendering() const { return m_bRender; }
+	bool IsRendering() const { return m_bRender; }	
+
+	void Draw();
 	
 private:
 	void OnDeviceLost(D3DPRESENT_PARAMETERS &PresentationParameters_in_out);
 	void PatchVTable(bool bRestore_in);
-	void OnDeviceReset();	
-	void Draw();
+	void OnDeviceReset();
+	void SetHooks();
 
 	D3DDevice9_vTable::Entries m_OriginalVTable;
 	D3DDevice9_vTable::Entries *m_pHookVTable;
@@ -417,10 +421,8 @@ private:
 	IDirect3DDevice9 *m_pDirect3DDevice;
 	IDirect3DDevice9Wrapper m_Wrapper;
 	RenderableMap m_UiElements;	
-	bool m_bSceneStarted;
 	bool m_bFullscreen;
 	bool m_bRender;
-	bool m_bDrawUi;
 };
 
 #endif//__DIRECT3DDEVICE9_WRAPPER_IMPL_H__

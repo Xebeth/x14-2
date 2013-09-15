@@ -50,6 +50,8 @@ namespace Windower
 		LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
 		LRESULT OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in);
 		LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in);
+		LRESULT OnActivate(bool bActive_in, bool bMinimized_in);
+
 		UiTextLabel* HitTest(WORD X_in, WORD Y_in);
 
 		void SetRendering(bool bEnable_in);

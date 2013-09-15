@@ -186,11 +186,8 @@ namespace Windower
 	*/
 	LRESULT CALLBACK SystemCore::SubclassProcHook(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in,  UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 	{
-		if (m_Context->FilterSubClassMessages(hWnd_in, uMsg_in, wParam_in, lParam_in)
-		 || m_Context->FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
-		{
+		if (m_Context->FilterSubClassMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
 			return 1UL;
-		}
 
 		return ::DefSubclassProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
 	}

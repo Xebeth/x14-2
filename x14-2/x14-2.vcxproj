@@ -151,6 +151,7 @@
     <ClCompile Include="CommandParser.cpp" />
     <ClCompile Include="Direct3D9WrapperImpl.cpp" />
     <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
+    <ClCompile Include="Direct3DSwapChain9WrapperImpl.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Font.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="GraphicsCore.cpp" />
     <ClCompile Include="IDirect3D9Wrapper.cpp" />
     <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
+    <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp" />
     <ClCompile Include="ModuleService.cpp" />
     <ClCompile Include="PlayerCore.cpp" />
     <ClCompile Include="PlayerDataService.cpp" />
@@ -185,6 +187,7 @@
     <ClInclude Include="CmdLineCore.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
+    <ClInclude Include="Direct3DSwapChain9WrapperImpl.h" />
     <ClInclude Include="Direct3D9WrapperImpl.h" />
     <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
     <ClInclude Include="EventHandler.h" />
@@ -195,6 +198,7 @@
     <ClInclude Include="GraphicsCore.h" />
     <ClInclude Include="IDirect3D9Wrapper.h" />
     <ClInclude Include="IDirect3DDevice9Wrapper.h" />
+    <ClInclude Include="IDirect3DSwapChain9Wrapper.h" />
     <ClInclude Include="IEventInterface.h" />
     <ClInclude Include="IRenderable.h" />
     <ClInclude Include="ModuleService.h" />
