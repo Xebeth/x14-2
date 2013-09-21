@@ -131,6 +131,8 @@ namespace Windower
 				{
 					pName = pProfile->GetName();
 
+					SetLong(pName, INI_KEY_BLACKLIST_THRESHOLD, pProfile->GetBlacklistThreshold());
+					SetLong(pName, INI_KEY_BLACKLIST_COUNT, pProfile->GetBlacklistCount());
 					SetString(pName, INI_KEY_TIMESTAMP, pProfile->GetTimestampFormat());
 					SetString(pName, INI_KEY_PASSWORD, pProfile->GetCryptedPassword());
 					SetBool(pName, INI_KEY_AUTO_SUBMIT, pProfile->IsAutoSubmitted());
@@ -155,7 +157,18 @@ namespace Windower
 
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, m_DefaultProfile);
 			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, m_bAutoUpdate ? 1L : 0L);
-			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, m_GamePath);
+			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, normalize_path(m_GamePath));
+
+			if  (m_ScoredWords.empty() == false)
+			{
+				ScoredWords::const_iterator WordIt, WordEndIt = m_ScoredWords.cbegin();
+
+				for (WordIt = --m_ScoredWords.cend(); WordIt != WordEndIt; --WordIt)
+					WordIt = UpdateScoredWord(WordIt);
+
+				if (WordIt == WordEndIt)
+					UpdateScoredWord(WordIt);
+			}
 
 			return m_pSettingsFile->Save();
 		}
@@ -168,10 +181,12 @@ namespace Windower
 		\param[out] Settings_out : the settings being loaded
 		\return true if the profile exits and was loaded successfully; false otherwise
 	*/
-	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out) const
+	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out)
 	{
 		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
+			Settings_out.SetBlacklistThreshold(GetLong(pProfileName_in, INI_KEY_BLACKLIST_THRESHOLD));
+			Settings_out.SetBlacklistCount(GetLong(pProfileName_in, INI_KEY_BLACKLIST_COUNT));
 			Settings_out.SetTimestampFormat(GetString(pProfileName_in, INI_KEY_TIMESTAMP));
 			Settings_out.SetCryptedPassword(GetString(pProfileName_in, INI_KEY_PASSWORD));
 			Settings_out.SetTellSound(GetString(pProfileName_in, INI_KEY_TELL_SOUND));
@@ -179,8 +194,10 @@ namespace Windower
 			Settings_out.SetPluginList(GetString(pProfileName_in, INI_KEY_PLUGINS));
 			Settings_out.SetKeyHash(GetUnsignedLong(pProfileName_in, INI_KEY_HASH));
 			Settings_out.SetUsername(GetString(pProfileName_in, INI_KEY_USERNAME));
+			Settings_out.SetVSync(GetBool(pProfileName_in, INI_KEY_VSYNC));
 			Settings_out.SetLanguage(GetLong(pProfileName_in, INI_KEY_LNG));
-			Settings_out.SetVSync(GetBool(pProfileName_in, INI_KEY_VSYNC));			
+			Settings_out.SetVSync(GetBool(pProfileName_in, INI_KEY_VSYNC));
+			Settings_out.SetScoredWords(&m_ScoredWords);
 			Settings_out.SetName(pProfileName_in);
 
 			return true;
@@ -193,7 +210,7 @@ namespace Windower
 		\param[in] Settings_out : the settings receiving the default profile
 		\return true if the default profile was loaded successfully; false otherwise
 	*/
-	bool SettingsManager::LoadDefaultProfile(WindowerProfile &Settings_out) const
+	bool SettingsManager::LoadDefaultProfile(WindowerProfile &Settings_out)
 	{
 		return LoadProfile(GetDefaultProfile(), Settings_out);
 	}
@@ -214,26 +231,40 @@ namespace Windower
 		if (m_pSettingsFile != NULL)
 		{
 			WindowerSettings::const_iterator SettingsIt;
-			SectionsConstIterator SectionIter, EndIt;
-			CSimpleIni::TNamesDepend Sections;			
+			CSimpleIni::TNamesDepend Sections;
 			WindowerProfile *pSettings;
 			bool Exists;
 
-			// verify the configuration
-			VerifyConfig();
 			// get the general parameters
 			SetDefaultProfile(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, INI_KEY_CURRENT_PROFILE));
 			SetAutoUpdate(m_pSettingsFile->GetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, INI_DEFAULT_AUTO_UPDATE) == 1L);
 			SetGamePath(m_pSettingsFile->GetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, INI_KEY_GAME_PATH));			
 			// load the sections
 			m_pSettingsFile->GetSections(Sections);
+
+			SectionsConstIterator SectionIt, EndIt;
+			CSimpleIni::TNamesDepend Values;
+
+			if (m_pSettingsFile->GetAllKeys(INI_SECTION_AUTO_BLACKLIST, Values))
+			{
+				std::string Word;
+
+				EndIt = Values.cend();
+
+				for (SectionIt = Values.cbegin(); SectionIt != EndIt; ++SectionIt)
+				{
+					convert_ansi(SectionIt->pItem, Word);
+					m_ScoredWords[Word] = m_pSettingsFile->GetLong(INI_SECTION_AUTO_BLACKLIST, SectionIt->pItem);
+				}
+			}
+
 			EndIt = Sections.cend();
 
-			for (SectionIter = Sections.cbegin(); SectionIter != EndIt; ++SectionIter)
+			for (SectionIt = Sections.cbegin(); SectionIt !=  EndIt; ++SectionIt)
 			{
-				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
+				if (_tcsstr(SectionIt->pItem, PROFILE_PREFIX) == SectionIt->pItem)
 				{
-					SettingsIt = m_Profiles.find(SectionIter->pItem);
+					SettingsIt = m_Profiles.find(SectionIt->pItem);
 					Exists = (SettingsIt != m_Profiles.cend());
 
 					if (Exists)
@@ -241,9 +272,9 @@ namespace Windower
 					else
 						pSettings = new WindowerProfile();
 
-					if (LoadProfile(SectionIter->pItem, *pSettings))
+					if (LoadProfile(SectionIt->pItem, *pSettings))
 					{
-						m_Profiles[SectionIter->pItem] = pSettings;
+						m_Profiles[SectionIt->pItem] = pSettings;
 						m_bIsLoaded = true;
 					}
 					else
@@ -256,7 +287,7 @@ namespace Windower
 				}
 			}
 
-			return m_bIsLoaded;
+			return (m_bIsLoaded && VerifyConfig());
 		}
 
 		return false;
@@ -285,6 +316,53 @@ namespace Windower
 		}
 
 		return false;
+	}
+
+	bool SettingsManager::CreateDefaultScoredWords()
+	{
+		m_ScoredWords["w w w"] = 5;
+		m_ScoredWords["us_d"] = 5;
+		m_ScoredWords["c0m"] = 5;
+		m_ScoredWords["c 0 m"] = 5;
+		m_ScoredWords["c o m"] = 5;
+		m_ScoredWords["g0id"] = 5;
+		m_ScoredWords["goid"] = 5;
+		m_ScoredWords["gii"] = 5;
+
+		m_ScoredWords["delivery"] = 3;
+		m_ScoredWords["gold"] = 3;
+		
+		m_ScoredWords["handwork"] = 2;
+		m_ScoredWords["www"] = 2;
+		m_ScoredWords["100%"] = 2;
+		m_ScoredWords["com"] = 2;
+
+		m_ScoredWords["dolla"] = 1;
+		m_ScoredWords["gil"] = 1;
+		m_ScoredWords["usd"] = 1;
+		m_ScoredWords["$"] = 1;
+
+		return true;
+	}
+
+	const ScoredWords::const_iterator& SettingsManager::UpdateScoredWord(ScoredWords::const_iterator &WordIt_in)
+	{
+		if (WordIt_in != m_ScoredWords.cend())
+		{
+			string_t Word;
+			convert_utf8(WordIt_in->first, Word);
+			long Score = WordIt_in->second;
+
+			if (Score < 1L)
+			{
+				m_pSettingsFile->DeleteKey(INI_SECTION_AUTO_BLACKLIST, Word);
+				WordIt_in = m_ScoredWords.erase(WordIt_in);
+			}
+			else
+				m_pSettingsFile->SetLong(INI_SECTION_AUTO_BLACKLIST, Word, Score);
+		}
+
+		return WordIt_in;		
 	}
 
 	WindowerSettings::const_iterator SettingsManager::GetSettingsPos(const TCHAR *pProfileName_in) const
@@ -541,6 +619,9 @@ namespace Windower
 
 			if (m_pSettingsFile->SectionExists(DefaultProfile) == false)
 				bSave |= CreateDefault(DefaultProfile.c_str());
+
+			if (m_pSettingsFile->SectionExists(INI_SECTION_AUTO_BLACKLIST) == false)
+				bSave |= CreateDefaultScoredWords();
 
 			if (bSave)
 				Save();

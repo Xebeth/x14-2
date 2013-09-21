@@ -25,6 +25,7 @@ namespace Windower
 		m_ValidKeys.insert(0xAF8B3EE1);	// Timestamp
 		m_ValidKeys.insert(0x18E5F530);	// AutoLogin
 		m_ValidKeys.insert(0xEB71A021);	// ExpWatch
+		m_ValidKeys.insert(0xBACA701F); // AutoBlacklist
 	}
 
 	//! \brief CommandDispatcher destructor

@@ -35,7 +35,7 @@ namespace Windower
 		*/
 		virtual PluginPropertyPage* GetPropertyPage() =0;
 		//! \brief Callback function invoked when the settings have changed
-		virtual void OnSettingsChanged() {};
+		virtual void OnSettingsChanged() =0;
 
 	protected:
 		//! configuration page

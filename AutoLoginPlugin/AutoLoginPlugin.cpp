@@ -25,7 +25,14 @@ namespace Bootstrap
 		: Windower::ConfigurablePlugin(pServices_in)
 	{
 		// clear the thread data structure
-		memset(&m_ThreadData, 0, sizeof(m_ThreadData));		
+		memset(&m_ThreadData, 0, sizeof(m_ThreadData));
+
+		// create the settings
+		if (pServices_in != NULL)
+		{
+			// set the sound file path from the settings
+			OnSettingsChanged();
+		}
 	}
 	
 	/*! \brief Creates the thread used to monitor the forms during the login process
@@ -91,7 +98,10 @@ namespace Bootstrap
 		return new AutoLoginConfigDlg(m_pSettings, m_PluginInfo.GetName());
 	}
 
-	void AutoLoginPlugin::OnSettingsChanged() {}
+	void AutoLoginPlugin::OnSettingsChanged()
+	{
+		m_ThreadData.m_pSettings = m_pSettings;
+	}
 
 	/*! \brief Adds the plugin as a subscriber to the ie server handle service
 		\return true if the subscription succeeded; false otherwise

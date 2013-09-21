@@ -108,5 +108,11 @@
     <None Include="res\dlg_config.png">
       <Filter>Resources\images</Filter>
     </None>
+    <None Include="..\Installer\x14-banner.bmp">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Installer\x14-logo.bmp">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

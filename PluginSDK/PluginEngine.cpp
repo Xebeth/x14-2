@@ -133,6 +133,21 @@ namespace Windower
 		return false;
 	}
 
+	bool PluginEngine::ConfigurePlugin(string_t &PluginName_in)
+	{
+		PluginFramework::IPlugin *pPlugin = GetPluginInstance(PluginName_in);
+
+		if (pPlugin != NULL)
+		{
+			PushPluginConfigure(pPlugin);
+
+			return true;
+		}
+
+		return false;
+	}
+
+
 	size_t PluginEngine::LoadPlugins(const ActivePlugins& PluginSet_in)
 	{
 		size_t Count = 0U;
@@ -232,5 +247,29 @@ namespace Windower
 	const string_t& PluginEngine::GetWorkingDir() const
 	{
 		return m_WorkingDir;
+	}
+
+	void PluginEngine::PushPluginConfigure(PluginFramework::IPlugin *pPlugin_in)
+	{
+		if (pPlugin_in != NULL && pPlugin_in->IsConfigurable())
+			m_ConfigQueue.push_back(pPlugin_in);
+	}
+
+	bool PluginEngine::PopPluginConfigure()
+	{
+		if (m_ConfigQueue.empty() == false)
+		{
+			PluginFramework::IPlugin *pPlugin = m_ConfigQueue.front();
+
+			if (pPlugin != NULL && pPlugin->IsConfigurable())
+			{
+				// remove the plugin from the queue
+				m_ConfigQueue.erase(m_ConfigQueue.cbegin());
+
+				return pPlugin->Configure(NULL);
+			}
+		}
+
+		return true;
 	}
 }

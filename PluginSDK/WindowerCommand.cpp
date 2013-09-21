@@ -289,7 +289,7 @@ namespace Windower
 			else
 				++m_MaxParamsCount;
 
-			return (m_Parameters[Name_in] = new CommandParameter(Type_in, bOptional_in, "", Desc_in, Name_in));
+ 			return (m_Parameters[Name_in] = new CommandParameter(Type_in, bOptional_in, "", Desc_in, Name_in));
 		}
 		else if (pParam->GetType() == Type_in)
 			return pParam;

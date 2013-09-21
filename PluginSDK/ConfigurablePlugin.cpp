@@ -120,11 +120,8 @@ namespace Windower
 		  m_pConfigPage(NULL), m_pSettings(new WindowerProfile())
 	{
 		// create the settings
-		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
-		{
-			// set the sound file path from the settings
-			OnSettingsChanged();
-		}
+		if (pServices_in != NULL)
+			pServices_in->LoadSettings(m_pSettings);
 	}
 
 	//! \brief ConfigurablePlugin destructor

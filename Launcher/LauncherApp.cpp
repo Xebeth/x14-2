@@ -59,9 +59,11 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 			else if (_tcsicmp(lpszParam, _T("SID")) == 0)
 				m_LastFlag = FLAG_SID;
 		}
+#ifdef _DEBUG
 		// flags with no argument
 		if (_tcsicmp(lpszParam, _T("firstrun")) == 0)
 			m_bFirstRun = true;
+#endif // _DEBUG
 	}
 	else
 	{
@@ -257,6 +259,7 @@ BOOL LauncherApp::InitInstance()
 		}
 	}
 
+#ifdef _DEBUG
 	if (Tasks != WizardDlg::TASK_NONE)
 	{
 		WizardDlg ConfigurationWizard(*m_pPluginManager, *m_pSettingsManager);
@@ -273,6 +276,7 @@ BOOL LauncherApp::InitInstance()
 			m_pSettingsManager->Save();
 		}
 	}
+#endif // _DEBUG
 
 	// load the default profile
 	if (m_pSettingsManager->LoadDefaultProfile(CurrentProfile))

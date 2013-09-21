@@ -98,8 +98,8 @@ namespace Windower
 				else
 				{
 					// uninstall the hook
-					Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());
-					pPointer = NULL;
+					pPointer = m_pHookManager->GetTrampolineFunc(HookIt->first.c_str());
+					Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());					
 				}
 				// update the pointers (only create them when installing)
 				pService_in_out->SetPointer(HookIt->first, pPointer, false);

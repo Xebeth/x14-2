@@ -84,8 +84,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-									   const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
+	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+									   char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
 		{
@@ -102,7 +102,7 @@ namespace Windower
 			else
 				format(m_Buffer, _T("%s%s: %s\r\n"), m_pTimestamp, Sender.c_str(), Message.c_str());
 			// remove any non-printable character
-			purge<wchar_t>(m_Buffer, _CONTROL, _T("\r\n\t"));
+			purge<wchar_t>(m_Buffer, _ALPHA | _SPACE | _PUNCT | _DIGIT, _T("\r\n\t"), true);
 			// write the line in the log
 			WriteLine(m_Buffer);
 		}

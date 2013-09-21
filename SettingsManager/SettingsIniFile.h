@@ -33,6 +33,7 @@ namespace Settings
 		virtual bool CreateSection(const string_t &SectionName_in);
 		virtual bool DeleteSection(const string_t &SectionName_in);
 		virtual size_t GetSections(CSimpleIni::TNamesDepend &Sections_out) const;
+		virtual size_t GetAllKeys(const string_t &SectionName_in, CSimpleIni::TNamesDepend &Sections_out) const;
 
 		void SetCurrentSection(const string_t &CurrentSection_in) { m_CurrentSection = CurrentSection_in; }
 		const string_t& GetCurrentSection() const { return m_CurrentSection; }

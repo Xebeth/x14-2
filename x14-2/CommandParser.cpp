@@ -103,8 +103,8 @@ namespace Windower
 								if (*pConvertTrail != NULL || Error != 0)
 								{
 									return SetFeedback(PARSER_RESULT_INVALID_INT_PARAMETER, Command_out, ParamsCount,
-										ParamIter->second->GetName().c_str(), CurrentParam.c_str(), 
-										pFeedbackMsg_out, FeedbackMsgSize_out);
+													   ParamIter->second->GetName().c_str(), CurrentParam.c_str(), 
+													   pFeedbackMsg_out, FeedbackMsgSize_out);
 								}
 
 								ParamIter->second->SetIntegerValue(Value);
@@ -119,8 +119,8 @@ namespace Windower
 								if (*pConvertTrail != NULL || Error != 0)
 								{
 									return SetFeedback(PARSER_RESULT_INVALID_FLOAT_PARAMETER, Command_out, ParamsCount,
-										ParamIter->second->GetName().c_str(), CurrentParam.c_str(),
-										pFeedbackMsg_out, FeedbackMsgSize_out);
+													   ParamIter->second->GetName().c_str(), CurrentParam.c_str(),
+													   pFeedbackMsg_out, FeedbackMsgSize_out);
 								}
 
 								ParamIter->second->SetFloatValue(Value);

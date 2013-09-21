@@ -251,7 +251,7 @@ namespace Windower
 			LockEngineThread();
 
 			UpdateEngine();
-			Sleep(50);
+			Sleep(0);
 
 			UnlockEngineThread();
 			// Critical section <<<
@@ -266,7 +266,7 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_bShutdown == false && m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn() && m_pUpdateTimer != NULL)
+		if (m_bShutdown == false && m_pUpdateTimer != NULL)
 		{
 			m_pUpdateTimer->Update();
 
@@ -282,6 +282,8 @@ namespace Windower
 					if (pPlugin != NULL)
 						pPlugin->Update();
 				}
+				// configure any plugin queued
+				PopPluginConfigure();
 			}
 		}
 	}

@@ -32,8 +32,8 @@ namespace Windower
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
 		
-		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-							const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in);
+		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+							char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out);
 
 	protected:
 		PluginPropertyPage* GetPropertyPage();

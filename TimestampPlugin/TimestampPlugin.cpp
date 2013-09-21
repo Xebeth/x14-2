@@ -26,7 +26,7 @@ namespace Windower
 
 	{
 		// create the settings
-		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
+		if (pServices_in != NULL)
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -127,8 +127,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										 const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
+	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+										 char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (pOriginalMsg_in != NULL && MsgSize_in > 1U)
 		{

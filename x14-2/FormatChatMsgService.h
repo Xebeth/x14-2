@@ -41,10 +41,11 @@ namespace Windower
 								  UINT MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE);
 
 	private:
-		void OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in);
 
 		bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
 												 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in);
+		void OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in);
+
 		//! game pointer to this
 		LPVOID m_pChatMsg;
 		//! trampoline for the format chat message function

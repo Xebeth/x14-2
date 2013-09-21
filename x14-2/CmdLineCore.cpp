@@ -28,7 +28,7 @@ namespace Windower
 		\param[in,out] HookManager_in_out : the hook manager
 	*/
 	CmdLineCore::CmdLineCore()
-		: WindowerCore(_T(CMD_LINE_MODULE)), m_pCommandDispatcher(NULL),
+		: WindowerCore(_T(CMD_LINE_MODULE)), m_pCommandDispatcher(NULL), m_pTextCmdUnknown(NULL),
 		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL), m_pTextCmd(NULL)
 	{
 		// set the calling context for the hooks
@@ -73,10 +73,12 @@ namespace Windower
 				// skip command processing
 				return FormatChatMsgService::InjectMessage(Feedback, "x14-2", CHAT_MESSAGE_TYPE_NOTICE);
 			}
-			else if (pThis_in_out != NULL)
+			else if (pThis_in_out != NULL && pUnknown_in != NULL)
 			{
 				// call the trampoline to process the command
 				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
+				m_Context->m_pTextCmdUnknown = pUnknown_in;
+				m_Context->m_pTextCmd = pThis_in_out;
 			}
 		}
 
@@ -213,6 +215,23 @@ namespace Windower
 			if (pCommand != NULL)
 			{
 				pCommand->AddStringParam("plugin", false, "", "the name of the plugin to unload");
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			// register the "configure" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_CONFIGURE, "configure",
+										   "Loads a plugin given its name.", this, false);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("plugin", false, "", "the name of the plugin to configure");
 
 				if (RegisterCommand(pCommand) == false)
 				{
@@ -394,6 +413,27 @@ namespace Windower
 			{
 				return (m_pEngine ? m_pEngine->ListPlugins(Feedback_out) : false);
 			}
+			case CMD_CONFIGURE:
+			{
+				if (m_pEngine != NULL)
+				{
+					std::string PluginName = Command_in.GetStringValue("plugin");
+					string_t PluginNameW;
+
+					if (m_pEngine->ConfigurePlugin(convert_utf8(PluginName, PluginNameW)))
+					{
+						format(Feedback_out, "The plugin '%s' was configured successfully.", PluginName.c_str());
+						Result = true;
+					}
+					else
+					{
+						format(Feedback_out, "The plugin '%s' couldn't be configured.", PluginName.c_str());
+						Result = false;
+					}
+
+					return Result;
+				}
+			}
 			break;
 			case CMD_EXIT:
 				return (m_pEngine ? m_pEngine->Exit(Feedback_out) : false);
@@ -466,6 +506,6 @@ namespace Windower
 
 		InitStringNode(Cmd, Cmd_in);
 
-		return ProcessCmdHook(m_Context->m_pTextCmd, &Cmd, NULL);
+		return ProcessCmdHook(m_Context->m_pTextCmd, &Cmd, m_Context->m_pTextCmdUnknown);
 	}
 }

@@ -127,8 +127,9 @@
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x50200000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <BaseAddress>
+      </BaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -163,8 +164,9 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>0x50200000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <BaseAddress>
+      </BaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>

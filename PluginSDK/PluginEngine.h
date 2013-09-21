@@ -35,7 +35,8 @@ namespace Windower
 	class ICoreModule;
 
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
-	typedef stdext::hash_map<string_t, ICoreModule*> CoreModules;
+	typedef std::vector<PluginFramework::IPlugin*> ConfigurationQueue;
+	typedef stdext::hash_map<string_t, ICoreModule*> CoreModules;	
 	typedef std::set<string_t> ActivePlugins;
 
 	//! \brief Plugin engine
@@ -54,6 +55,7 @@ namespace Windower
 
 		PluginFramework::IPlugin* LoadPlugin(const string_t& PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t& PluginName_in);
+		bool ConfigurePlugin(string_t &PluginName_in);
 
 		/*! \brief Loads a set of plugins
 			\param[in] PluginSet_in : a list of plugins name to load
@@ -77,6 +79,9 @@ namespace Windower
 		const string_t& GetWorkingDir() const;
 
 	protected:
+		void PushPluginConfigure(PluginFramework::IPlugin *pPlugin_in);
+		bool PopPluginConfigure();
+
 		/*! \brief Sets the working directory of windower
 			\param[in] hModule_in : the handle of the DLL
 		*/
@@ -96,6 +101,8 @@ namespace Windower
 		string_t m_WorkingDir;
 		//! the modules containing the services
 		CoreModules m_Modules;
+		//! queue of plugins waiting to be configured (must be ran in a thread)
+		ConfigurationQueue m_ConfigQueue;
 	};
 }
 

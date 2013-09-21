@@ -27,12 +27,16 @@ enum eIniKeys
 	INI_KEY_TIMESTAMP,
 	// tell detect plugin
 	INI_KEY_TELL_SOUND,
+	// auto blacklist plugin
+	INI_KEY_BLACKLIST_THRESHOLD,
+	INI_KEY_BLACKLIST_COUNT,
 	// number of keys
 	INI_KEY_COUNT
 };
 
 namespace Windower
 {
+	typedef stdext::hash_map<std::string, long> ScoredWords;
 	//! a set of active plugin names
 	typedef std::set<string_t> ActivePlugins;
 
@@ -97,6 +101,13 @@ namespace Windower
 		*/
 		void SetLanguage(long Lng_in) { m_Language = Lng_in; }
 
+		/*! \brief Sets the blacklist threshold
+			\param[in] Lng_in : the new blacklist threshold
+		*/
+		void SetBlacklistThreshold(long Threshold_in) { m_BlacklistThreshold = Threshold_in; }
+
+		void SetBlacklistCount(long Count_in) { m_BlackListCount = Count_in; }
+
 		/*! \brief Sets the name of the profile
 			\param[in] pName_in : the new name of the profile
 		*/
@@ -111,6 +122,13 @@ namespace Windower
 			\return the language ID
 		*/
 		long GetLanguage() const { return m_Language; }
+
+		/*! \brief Retrieves the blacklist threshold
+			\return the blacklist threshold
+		*/
+		long GetBlacklistThreshold() const { return m_BlacklistThreshold; }
+
+		long GetBlacklistCount() const { return m_BlackListCount; }
 
 		/*! \brief Retrieves the name of the profile
 			\return the name of the profile
@@ -166,6 +184,14 @@ namespace Windower
 		virtual void SetUnsignedLong(const string_t &Key_in, ULONG NewValue_in, const TCHAR *pComment_in = NULL);
 		virtual void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
 		void SetPluginList( const string_t &PluginList_in );
+
+		void AddScoredWord(const TCHAR *pWord_in, long Score_in);
+
+		void SetScoredWords(ScoredWords *pScoredWords_in)
+		{ m_pScoredWords = pScoredWords_in; }
+		ScoredWords* GetScoredWords() const
+		{ return m_pScoredWords; }
+
 	protected:
 		static const TCHAR* m_sKeyDefault[INI_KEY_COUNT];
 		static const TCHAR* m_sKeyComment[INI_KEY_COUNT];
@@ -197,6 +223,12 @@ namespace Windower
 		KeyMapping m_KeyMapping;
 		//! string containing the list of plugins
 		mutable string_t m_PluginList;
+		//! scored words for the AutoBlacklist plugin
+		ScoredWords *m_pScoredWords;
+		//! threshold for blacklisting
+		long m_BlacklistThreshold;
+		//! count before adding to blacklist
+		long m_BlackListCount;
 	};
 }
 

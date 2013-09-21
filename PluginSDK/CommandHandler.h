@@ -25,17 +25,15 @@ namespace Windower
 	public:
 		CommandHandler(DWORD RegistrationKey_in, const std::string &InvokerName_in);
 		virtual ~CommandHandler();
-		virtual void Clear();
-
-		WindowerCommand* RegisterCommand(INT_PTR CmdID_in, const std::string &CmdName_in, const std::string &CmdDesc_in);
-		bool RevokeCommand(INT_PTR CommandID_in);
-
-		const WindowerCommand* FindCommand(INT_PTR CommandID_in) const;
-
+		
 	protected:
+		WindowerCommand* RegisterCommand(INT_PTR CmdID_in, const std::string &CmdName_in, const std::string &CmdDesc_in);
 		virtual bool IsCommandValid(const WindowerCommand *pCommand_in) const;
+		const WindowerCommand* FindCommand(INT_PTR CommandID_in) const;
 		virtual bool UnregisterCommand( WindowerCommand *pCommand_in);
 		virtual bool RegisterCommand(WindowerCommand *pCommand_in);
+		bool RevokeCommand(INT_PTR CommandID_in);
+		virtual void Clear();
 
 		//! the plugin registration key
 		DWORD m_RegistrationKey;

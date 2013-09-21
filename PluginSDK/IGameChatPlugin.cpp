@@ -38,41 +38,64 @@ namespace Windower
 	{
 		if (pBuffer_in_out != NULL)
 		{
-			// allocate a new buffer
-			char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize_in * sizeof(char));
-
-			if  (pRealloc != NULL)
+			if (BufferSize_in < dwNewSize_in)
 			{
-				// clear the buffer on the first allocation
-				if (*pBuffer_in_out == NULL)
-				{
-					// clear the buffer
-					memset(pRealloc, 0, dwNewSize_in * sizeof(char));
-					// copy the source
-					memcpy_s(pRealloc + Offset_in,
-							 sizeof(char) * (dwNewSize_in - Offset_in),
-							 pSrc_in, SrcSize_in);
-				}
-				else
-				{
-					// clear the buffer
-					memset(pRealloc + BufferSize_in, 0, (dwNewSize_in - BufferSize_in) * sizeof(char));
+				// allocate a new buffer
+				char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize_in * sizeof(char));
 
-					if (Offset_in > 0UL)
+				if  (pRealloc != NULL)
+				{
+					// clear the buffer on the first allocation
+					if (*pBuffer_in_out == NULL)
 					{
-						// shift the buffer
+						// clear the buffer
+						memset(pRealloc, 0, dwNewSize_in * sizeof(char));
+						// copy the source
 						memcpy_s(pRealloc + Offset_in,
-								 sizeof(char) * (dwNewSize_in - Offset_in),
-								 *pBuffer_in_out, BufferSize_in);
+							sizeof(char) * (dwNewSize_in - Offset_in),
+							pSrc_in, SrcSize_in);
 					}
-				}
+					else
+					{
+						// clear the buffer
+						memset(pRealloc + BufferSize_in, 0, (dwNewSize_in - BufferSize_in) * sizeof(char));
 
-				*pBuffer_in_out = pRealloc;
+						if (Offset_in > 0UL)
+						{
+							// shift the buffer
+							memcpy_s(pRealloc + Offset_in,
+								sizeof(char) * (dwNewSize_in - Offset_in),
+								*pBuffer_in_out, BufferSize_in);
+						}
+					}
 
-				return true;
+					*pBuffer_in_out = pRealloc;
+				}				
 			}
+
+			return true;
 		}
 
 		return false;
+	}	
+
+	/*! \brief Cleans the name of a sender
+		\param[in] pSender_in : the name of the sender as received by the game
+		\param[out] Result_out : the cleaned name of the sender
+	*/
+	std::string& IGameChatPlugin::CleanSender(const char* pSender_in, std::string &Result_out)
+	{
+		if (pSender_in != NULL)
+		{
+			Result_out = pSender_in;
+
+			if (Result_out.empty() == false)
+			{
+				purge<char>(Result_out, _ALPHA | _SPACE, "'", true);
+				Result_out = Result_out.substr(1, Result_out.length() / 2 - 1);
+			}
+		}
+
+		return Result_out;
 	}
 }

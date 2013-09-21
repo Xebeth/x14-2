@@ -90,9 +90,6 @@ namespace Bootstrap
 		TCHAR *pCmdLine = NULL;
 		BOOL Result = FALSE;
 
-		// remove the hooks since they are not needed anymore
-		m_HookManager.UnregisterHooks();
-
 		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
 		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		{

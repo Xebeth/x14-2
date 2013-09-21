@@ -12,6 +12,6 @@
 	#error Please include the global header file 'PluginFramework.h'
 #endif
 
-#define __PLUGIN_FRAMEWORK_VERSION__	_T("2.0.0")
+#define __PLUGIN_FRAMEWORK_VERSION__	_T("2.1.0")
 
 #endif//FRAMEWORK_VERSION_H__

@@ -181,6 +181,16 @@ namespace Settings
 		return Sections_out.size();
 	}
 
+	/*! \brief Retrieves a collection of all the value in the specified section
+		\param[out] Sections_out : a collection of all the sections in the INI file
+	*/
+	size_t SettingsIniFile::GetAllKeys(const string_t &SectionName_in, CSimpleIni::TNamesDepend &Sections_out) const
+	{
+		m_pIni->GetAllKeys(SectionName_in.c_str(), Sections_out);
+
+		return Sections_out.size();
+	}
+
 	/*! \brief Checks if the specified section exists
 		\param[in] SectionName_in : section to check
 		\return true if the section exists; false otherwise

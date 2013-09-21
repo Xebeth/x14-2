@@ -36,7 +36,7 @@ namespace Windower
 		SetIcon(m_hIcon, FALSE);
 
 		Revert();
-		InitializePage();
+		InitializePage();		
 
 		return CPropertyPage::OnInitDialog();
 	}
@@ -68,7 +68,6 @@ namespace Windower
 
 	BOOL PluginPropertyPage::OnSetActive()
 	{
-		InitializePage();
 		UpdateWizardButtons();
 
 		return __super::OnSetActive();

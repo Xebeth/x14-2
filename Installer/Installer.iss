@@ -55,24 +55,26 @@ Name: "x14Base";                      Description: "{#AppName} base files"; Type
 Name: "BootstrapPlugins";             Description: "Bootstrap plugins"; Types: full custom
 Name: "BootstrapPlugins/AutoLogin";   Description: "AutoLogin {#GetFileVersion("..\Release\Plugins\AutoLogin.dll")} — Auto fill the login form";          Types: full custom
 Name: "x14Plugins";                   Description: "{#AppName} Plugins"; Types: full custom
-Name: "x14Plugins/Distance";          Description: "Distance {#GetFileVersion("..\Release\Plugins\Distance.dll")} — Distance from player to target";      Types: full custom
-Name: "x14Plugins/ChatLog";           Description: "ChatLog {#GetFileVersion("..\Release\Plugins\ChatLog.dll")} — Log the game chat to a file";           Types: full custom
-Name: "x14Plugins/ExpWatch";          Description: "ExpWatch {#GetFileVersion("..\Release\Plugins\ExpWatch.dll")} — Keep track of experience earned";     Types: full custom
-Name: "x14Plugins/TellDetect";        Description: "TellDetect {#GetFileVersion("..\Release\Plugins\TellDetect.dll")} — Play a custom sound on tell";     Types: full custom
-Name: "x14Plugins/Timestamp";         Description: "Timestamp {#GetFileVersion("..\Release\Plugins\Timestamp.dll")} — Add a timestamp to the game chat";  Types: full custom
+Name: "x14Plugins/AutoBlacklist";     Description: "AutoBlacklist {#GetFileVersion("..\Release\Plugins\AutoBlacklist.dll")} — Blacklist spammers automatically";  Types: full custom
+Name: "x14Plugins/Distance";          Description: "Distance {#GetFileVersion("..\Release\Plugins\Distance.dll")} — Distance from player to target";              Types: full custom
+Name: "x14Plugins/ChatLog";           Description: "ChatLog {#GetFileVersion("..\Release\Plugins\ChatLog.dll")} — Log the game chat to a file";                   Types: full custom
+Name: "x14Plugins/ExpWatch";          Description: "ExpWatch {#GetFileVersion("..\Release\Plugins\ExpWatch.dll")} — Keep track of experience earned";             Types: full custom
+Name: "x14Plugins/TellDetect";        Description: "TellDetect {#GetFileVersion("..\Release\Plugins\TellDetect.dll")} — Play a custom sound on tell";             Types: full custom
+Name: "x14Plugins/Timestamp";         Description: "Timestamp {#GetFileVersion("..\Release\Plugins\Timestamp.dll")} — Add a timestamp to the game chat";          Types: full custom
 
 [Files]
-Source: "{#SourcePath}Plugins\AutoLogin.dll";   DestDir: "{app}\plugins"; Components: BootstrapPlugins/AutoLogin; Flags: replacesameversion
-Source: "{#SourcePath}Plugins\ChatLog.dll";     DestDir: "{app}\plugins"; Components: x14Plugins/ChatLog;    Flags: replacesameversion
-Source: "{#SourcePath}Plugins\Distance.dll";    DestDir: "{app}\plugins"; Components: x14Plugins/Distance;   Flags: replacesameversion
-Source: "{#SourcePath}Plugins\ExpWatch.dll";    DestDir: "{app}\plugins"; Components: x14Plugins/ExpWatch;   Flags: replacesameversion
-Source: "{#SourcePath}Plugins\TellDetect.dll";  DestDir: "{app}\plugins"; Components: x14Plugins/TellDetect; Flags: replacesameversion
-Source: "{#SourcePath}Plugins\Timestamp.dll";   DestDir: "{app}/plugins"; Components: x14Plugins/Timestamp;  Flags: replacesameversion
+Source: "{#SourcePath}Plugins\AutoLogin.dll";     DestDir: "{app}\plugins"; Components: BootstrapPlugins/AutoLogin; Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\AutoBlacklist.dll"; DestDir: "{app}\plugins"; Components: x14Plugins/AutoBlacklist;   Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\ChatLog.dll";       DestDir: "{app}\plugins"; Components: x14Plugins/ChatLog;         Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\Distance.dll";      DestDir: "{app}\plugins"; Components: x14Plugins/Distance;        Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\ExpWatch.dll";      DestDir: "{app}\plugins"; Components: x14Plugins/ExpWatch;        Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\TellDetect.dll";    DestDir: "{app}\plugins"; Components: x14Plugins/TellDetect;      Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\Timestamp.dll";     DestDir: "{app}/plugins"; Components: x14Plugins/Timestamp;       Flags: replacesameversion skipifsourcedoesntexist
 
-Source: "{#SourcePath}x14-2core.dll";           DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
-Source: "{#SourcePath}bootstrap.dll";           DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
-Source: "{#SourcePath}Launcher.exe";            DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
-Source: "{#SourcePath}tell.wav";                DestDir: "{app}"; Components: x14Plugins/TellDetect
+Source: "{#SourcePath}x14-2core.dll";             DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
+Source: "{#SourcePath}bootstrap.dll";             DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
+Source: "{#SourcePath}Launcher.exe";              DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
+Source: "{#SourcePath}tell.wav";                  DestDir: "{app}"; Components: x14Plugins/TellDetect       
 
 [Icons]
 Name: "{group}\{#AppName}";                       Filename: "{app}/{#AppExeName}"
@@ -85,9 +87,6 @@ Filename: "{app}/{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 [InstallDelete]
 Type: files; Name: "{app}/WindowerConfig.exe";
 Type: files; Name: "{app}/Windowerx14.dll";
-
-[UninstallDelete]
-Type: files; Name: "{app}/config.ini"
 
 [CustomMessages]
 win_sp_title=Windows %1 Service Pack %2

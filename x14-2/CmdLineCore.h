@@ -44,6 +44,7 @@ namespace Windower
 			CMD_LOAD_PLUGIN,		//!< loads a plugin
 			CMD_UNLOAD_PLUGIN,		//!< unloads a plugin
 			CMD_LIST_PLUGINS,		//!< list all plugins
+			CMD_CONFIGURE,			//!< configure a plugin
 			CMD_EXIT,				//!< exit the game
 			CMD_COUNT				//!< number of registered commands
 		};
@@ -79,7 +80,7 @@ namespace Windower
 		//! trampoline to the original ProcessCmd function
 		fnProcessCmd m_pProcessCmdTrampoline;
 		//! the object required for the command processing hook
-		LPVOID m_pTextCmd;
+		LPVOID m_pTextCmd, m_pTextCmdUnknown;
 		//! calling context for the service hooks
 		static CallingContext<CmdLineCore> m_Context;
 	};

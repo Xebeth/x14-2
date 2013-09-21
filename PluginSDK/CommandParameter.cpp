@@ -20,8 +20,10 @@ namespace Windower
 	CommandParameter::CommandParameter(const CommandParameter &CommandParam_in)
 	{
 		m_Description = CommandParam_in.m_Description;
+		m_bOptional = CommandParam_in.m_bOptional;
+		m_Value = CommandParam_in.m_Value;
 		m_Type = CommandParam_in.m_Type;
-		m_Name = CommandParam_in.m_Name;		
+		m_Name = CommandParam_in.m_Name;
 	}
 
 	CommandParameter::CommandParameter(COMMAND_PARAM_TYPE Type_in, bool bOptional_in, const std::string& Value_in,

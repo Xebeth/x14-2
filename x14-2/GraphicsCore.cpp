@@ -90,8 +90,15 @@ namespace Windower
 			g_pDirect3DWrapper = NULL;
 		}
 
+		if (g_pDirect3DSwapChainWrapper != NULL)
+		{
+			delete g_pDirect3DSwapChainWrapper;
+			g_pDirect3DSwapChainWrapper = NULL;
+		}
+
 		if (g_pDeviceWrapperImpl != NULL)
 		{
+			g_pDeviceWrapperImpl->SetRendering(false);
 			delete g_pDeviceWrapperImpl;
 			g_pDeviceWrapperImpl = NULL;
 		}

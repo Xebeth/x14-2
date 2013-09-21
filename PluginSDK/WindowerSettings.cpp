@@ -22,6 +22,8 @@ namespace Windower
 		_T("0"),															// KeyHash
 		_T("[HH:mm:ss] "),													// TimestampFormat
 		_T("tell.wav"),														// TellSound
+		_T("15"),															// BlacklistThreshold
+		_T("3"),															// BlacklistCount
 	};
 
 	const TCHAR* WindowerProfile::m_sKeyComment[INI_KEY_COUNT] =
@@ -35,6 +37,8 @@ namespace Windower
 		NULL,																// KeyHash
 		NULL,																// TimestampFormat
 		NULL,																// TellSound
+		NULL,																// BlacklistThreshold
+		NULL,																// BlacklistCount
 	};
 
 	const TCHAR* WindowerProfile::m_sKeyName[INI_KEY_COUNT] =
@@ -48,12 +52,18 @@ namespace Windower
 		_T("KeyHash"),														// KeyHash
 		_T("TimestampFormat"),												// TimestampFormat
 		_T("TellSound"),													// TellSound
+		_T("BlacklistThreshold"),											// m_BlacklistThreshold
+		_T("BlacklistCount"),												// BlacklistCount
 	};
 
 	//! \brief WindowerProfile default constructor
-	WindowerProfile::WindowerProfile() : m_VSync(Default<LONG>(INI_KEY_VSYNC) == 1L),
-		m_Language(Default<LONG>(INI_KEY_HASH)),
-		m_KeyHash(Default<ULONG>(INI_KEY_HASH))
+	WindowerProfile::WindowerProfile() : 
+		m_VSync(Default<LONG>(INI_KEY_VSYNC) == 1L),
+		m_KeyHash(Default<ULONG>(INI_KEY_HASH)),
+		m_Language(Default<LONG>(INI_KEY_LNG)),
+		m_BlacklistThreshold(5L),
+		m_BlackListCount(3L),
+		m_pScoredWords(NULL)
 	{
 		for (int i = 0; i < INI_KEY_COUNT; ++i)
 			m_KeyMapping[m_sKeyName[i]] = (eIniKeys)i;
@@ -81,7 +91,12 @@ namespace Windower
 		// tell detect
 		m_TellSound = Settings_in.m_TellSound;
 
+		// auto blacklist
+		m_BlacklistThreshold = Settings_in.m_BlacklistThreshold;
+		m_BlackListCount = Settings_in.m_BlackListCount;
+
 		m_ActivePlugins = Settings_in.m_ActivePlugins;
+		m_pScoredWords = Settings_in.m_pScoredWords;
 	}
 
 	/*! \brief Adds or removes a plugin to the active plugins list given its name
@@ -233,6 +248,20 @@ namespace Windower
 					SetPluginList(NewValue_in);
 				break;
 			}
+		}
+	}
+
+	void WindowerProfile::AddScoredWord(const TCHAR *pWord_in, long Score_in)
+	{
+		if (pWord_in != NULL && m_pScoredWords != NULL)
+		{
+			string_t wWord = pWord_in;
+			std::string aWord;
+
+			convert_ansi(wWord, aWord);
+			std::transform(aWord.begin(), aWord.end(), aWord.begin(), ::tolower);
+
+			(*m_pScoredWords)[aWord] = Score_in;
 		}
 	}
 

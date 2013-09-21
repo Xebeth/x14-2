@@ -177,7 +177,7 @@ template<typename T> std::basic_string<T>& purge(std::basic_string<T> &String_in
 /*! \brief Normalizes a path by settings all the slashes forward and adding a final slash if needed
 	\param[in,out] Path_in_out : the path to normalize
 */
-template<typename T> void normalize_path(std::basic_string<T> &Path_in_out, bool bForward_in = false)
+template<typename T> std::basic_string<T>& normalize_path(std::basic_string<T> &Path_in_out, bool bForward_in = false)
 {
 	if (Path_in_out.empty() == false)
 	{
@@ -192,6 +192,8 @@ template<typename T> void normalize_path(std::basic_string<T> &Path_in_out, bool
 		if (Path_in_out.back() != ReplaceStr[0])
 			Path_in_out += ReplaceStr[0];
 	}
+
+	return Path_in_out;
 }
 
 /*! \brief Initializes a string with a path and normalizes it

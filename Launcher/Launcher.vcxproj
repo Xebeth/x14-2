@@ -108,6 +108,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/zlib/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
+      <BaseAddress>
+      </BaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -171,6 +174,8 @@
   <ItemGroup>
     <None Include="..\Common\config.ico" />
     <None Include="..\Common\x14.ico" />
+    <None Include="..\Installer\x14-banner.bmp" />
+    <None Include="..\Installer\x14-logo.bmp" />
     <None Include="res\Config.rc2" />
     <None Include="res\dlg_config.png" />
   </ItemGroup>

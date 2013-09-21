@@ -100,8 +100,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
+	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+										char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == BATTLE_MESSAGE_TYPE_EXPERIENCE_GAIN)
 		{

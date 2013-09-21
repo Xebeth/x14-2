@@ -22,7 +22,7 @@ namespace Windower
 		: IGameChatPlugin(pServices_in)
 	{
 		// create the settings
-		if (pServices_in != NULL && pServices_in->LoadSettings(m_pSettings))
+		if (pServices_in != NULL)
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -83,8 +83,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in,
-										  const char *pOriginalMsg_in, char **pModifiedMsg_in_out, DWORD ModifiedSize_in)
+	DWORD TellDetectPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+										  char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE)
 			PlaySound(m_SoundFile.c_str(), NULL, SND_FILENAME | SND_ASYNC);
