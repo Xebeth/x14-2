@@ -28,7 +28,6 @@ class LauncherCmdLine : public CCommandLineInfo
 		FLAG_NONE		= -1,
 		FLAG_FIRST_RUN	=  0,	//	/firstrun
 		FLAG_PROFILE,			//	/profile
-		FLAG_SID,				//	/SID
 		FLAG_COUNT
 	};
 public:
@@ -44,12 +43,6 @@ public:
 	*/
 	const CString& GetProfileName(CString &ProfileName_out) const
 	{ ProfileName_out = m_ProfileName; return ProfileName_out; }
-	/*! \brief Retrieves the SID found on the command line
-		\param[out] ProfileName_out : string receiving the profile name
-		\return a const reference to ProfileName_out
-	*/
-	const CString& GetSID(CString &SID_out) const
-	{ SID_out = m_SID; return SID_out; }
 
 	bool IsFirstRun() const
 	{ return m_bFirstRun; }
@@ -57,8 +50,6 @@ public:
 protected:
 	//! Flag specifying if the first run wizard should be displayed
 	bool m_bFirstRun;
-	//! SID passed on the command line
-	CString m_SID;
 	//! name of the profile passed on the command line
 	CString m_ProfileName;
 	//! last flag parsed

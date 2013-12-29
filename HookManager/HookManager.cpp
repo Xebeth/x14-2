@@ -17,9 +17,13 @@ namespace HookEngineLib
 	IHookManager::~IHookManager()
 	{
 		MemberDetours::const_iterator DetourIt, DetourEndIt = m_AsmData.cend();
+		HookPtrMap::const_iterator HookIt, HookEndIt = m_HookMap.cend();
 
 		for (DetourIt = m_AsmData.cbegin(); DetourIt != DetourEndIt; ++DetourIt)
 			delete DetourIt->second;
+
+		for (HookIt = m_HookMap.cbegin(); HookIt != HookEndIt; ++HookIt)
+			delete HookIt->second;
 	}
 
 	/*! \brief Installs all the hooks currently registered in the manager
@@ -228,12 +232,7 @@ namespace HookEngineLib
 			Hook *pHook = Iter_in_out->second;
 
 			if (pHook != NULL && pHook->m_bInstalled)
-				UninstallHook(pHook);
-
-			Iter_in_out = m_HookMap.erase(Iter_in_out);
-			delete pHook;
-
-			return true;
+				return UninstallHook(pHook);
 		}
 
 		return false;

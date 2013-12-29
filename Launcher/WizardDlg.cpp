@@ -109,7 +109,7 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 
 					if (pPluginPage != NULL)
 					{
-						if (PluginIt->first.compare(_T("ChatLog")) != 0)
+						if ((pPlugin->GetCompatibilityFlags() & PLUGIN_COMPATIBILITY_NO_WIZARD) == 0)
 						{
 							PluginsSummary.AppendFormat(_T("      - %s\n"), PluginIt->first.c_str());
 							pPluginPage->SetFlags(TASK_CONFIGURE_PLUGINS);

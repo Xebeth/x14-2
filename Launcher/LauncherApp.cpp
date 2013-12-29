@@ -56,8 +56,6 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 		{
 			if (_tcsicmp(lpszParam, _T("profile")) == 0)
 				m_LastFlag = FLAG_PROFILE;
-			else if (_tcsicmp(lpszParam, _T("SID")) == 0)
-				m_LastFlag = FLAG_SID;
 		}
 #ifdef _DEBUG
 		// flags with no argument
@@ -71,9 +69,6 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 		{
 			case FLAG_PROFILE:
 				m_ProfileName.Format(_T("%s%s"), PROFILE_PREFIX, lpszParam);
-			break;
-			case FLAG_SID:
-				m_SID = lpszParam;
 			break;
 		}
 	}
@@ -283,22 +278,10 @@ BOOL LauncherApp::InitInstance()
 	{
 		// retrieve the game path
 		GamePath = m_pSettingsManager->GetGamePath();
-		// check if an SID has been provided
-		if (CmdInfo.GetSID(SID).IsEmpty() == false)
-		{
-			// inject directly into the game
-			format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
-			format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
-			// generate the command line
-			Launch = CreateCmdLine(CmdLine, GamePath, CurrentProfile.GetLanguage(), SID);
-		}
-		else
-		{
-			// default injection chain through boot
-			format(ExePath, _T("%sboot\\ffxivboot.exe"), GamePath.c_str());
-			format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
-			Launch = true;
-		}
+		// default injection chain through boot
+		format(ExePath, _T("%sboot\\ffxivboot.exe"), GamePath.c_str());
+		format(DLL32Path, _T("%s\\bootstrap.dll"), DirPath);
+		Launch = true;
 	}
 
 	if (ShowConfig || Launch == false)

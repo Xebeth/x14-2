@@ -27,7 +27,7 @@
 
 #include "Timer.h"
 
-#define _TESTING
+//#define _TESTING
 
 #if defined _DEBUG && defined _TESTING
 	#include "TestCore.h"
@@ -69,11 +69,11 @@ namespace Windower
 /*
 			// create the player data module
 			m_pPlayerCore = new PlayerCore;
-*/
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
 			m_pSystemCore->AddUIH(m_pGraphicsCore);
+*/
 		}
 	}
 

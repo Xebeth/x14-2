@@ -191,6 +191,8 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
 				{
+					m_bLoop = false;
+
 					if (m_Settings.IsAutoSubmitted())
 					{
 						// auto-submit the form
@@ -204,7 +206,7 @@ bool AutoLogin::AutoCompleteForm()
 						}
 						else
 						{
-							m_bLoop = m_AutoSubmitted = false;
+							m_AutoSubmitted = false;
 							m_pIFrameDoc->Release();
 							m_pIFrameDoc = NULL;
 						}
@@ -226,7 +228,7 @@ bool AutoLogin::AutoCompleteForm()
 							}
 							else
 							{
-								m_bLoop = m_AutoSubmitted = false;
+								m_AutoSubmitted = false;
 								m_pIFrameDoc->Release();
 								m_pIFrameDoc = NULL;
 							}

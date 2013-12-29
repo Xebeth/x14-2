@@ -78,7 +78,8 @@ namespace InjectModule
 								const TCHAR *pCmdLine_in_out, DWORD CreateProcessFlags_in)
 	{
 		TCHAR *pCmdLine = _tcsdup(pCmdLine_in_out);
-		STARTUPINFO StartupInfo;
+		string_t Path = ExePath_in;
+		STARTUPINFO StartupInfo;		
 		BOOL bResult;
 
 		// initialize the STARTUPINFO structure
@@ -88,7 +89,7 @@ namespace InjectModule
 		StartupInfo.wShowWindow = SW_SHOWNORMAL;
 		StartupInfo.cb = sizeof(StartupInfo);
 		// try to determine the current directory from the executable path
-		UINT IndexOf = ExePath_in.rfind('\\');
+		UINT IndexOf = normalize_path(Path, false, false).rfind('\\');
 		string_t CurrentDirectory;
 
 		CurrentDirectory = (IndexOf != STRING_T_NPOS) ? ExePath_in.substr(0, IndexOf + 1) : _T(".");
@@ -165,7 +166,6 @@ namespace InjectModule
 					{
 						// wait for the thread to terminate
 						RetCode = WaitForSingleObject(hThread, INFINITE);
-						CloseHandle(hThread);
 					}
 				}
 
@@ -174,13 +174,16 @@ namespace InjectModule
 					if (GetExitCodeThread(hThread, &RetCode) && FAILED(RetCode))
 					{
 						SetLastError(RetCode & 0x0FFFFFFF);
+						CloseHandle(hThread);
 
 						return FALSE;
 					}
+					else
+						CloseHandle(hThread);
 				}
 
 				// free the memory allocated in the target process
-				VirtualFreeEx(hProcess_in, pReservedSpace, DataSize, MEM_COMMIT);
+				VirtualFreeEx(hProcess_in, pReservedSpace, 0, MEM_RELEASE);
 
 				return TRUE;
 			}
