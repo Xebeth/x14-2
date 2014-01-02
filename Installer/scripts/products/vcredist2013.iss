@@ -1,13 +1,13 @@
 // requires Windows 7, Windows 7 Service Pack 1, Windows Server 2003 Service Pack 2, Windows Server 2008, Windows Server 2008 R2, Windows Server 2008 R2 SP1, Windows Vista Service Pack 1, Windows XP Service Pack 3
 // requires Windows Installer 3.1 or later
 // requires Internet Explorer 5.01 or later
-// http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9cfb2d51-5ff4-4491-b0e5-b386f32c0992
+// http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
 
 [CustomMessages]
-vcredist2010_title=Visual C++ 2010 SP1 Redistributable
+vcredist2013_title=Visual C++ 2013 Redistributable
 
-en.vcredist2010_size=4.8 MB
-en.vcredist2010_lcid=''
+en.vcredist2013_size=6.19 MB
+en.vcredist2013_lcid=''
 
 [Code]
 #IFDEF UNICODE
@@ -54,7 +54,10 @@ const
   VC_2010_SP1_REDIST_X64 = '{1D8E6291-B0D5-35EC-8441-6616F567A0F7}';
   VC_2010_SP1_REDIST_IA64 = '{88C73C1C-2DE5-3B01-AFB8-B46EF4AB41CD}';
 
-	vcredist2010_url = 'http://download.microsoft.com/download/C/6/D/C6D0FD4E-9E53-4897-9B91-836EBA2AACD3/vcredist_x86.exe';
+  VC_2013_REDIST_X86 = '{13A4EE12-23EA-3371-91EE-EFB36DDFFF3E}';
+  VC_2013_REDIST_X64 = '{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}';
+  
+	vcredist2013_url = 'http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe';
 
 
 function MsiQueryProductState(szProduct: string): INSTALLSTATE; 
@@ -65,12 +68,12 @@ begin
   Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
 end;
   
-procedure vcredist2010();
+procedure vcredist2013();
 begin
-	if (not VCVersionInstalled(VC_2010_SP1_REDIST_X86)) then
-		AddProduct('vcredist2010.exe',
-               CustomMessage('vcredist2010_lcid') + '/passive /norestart',
-               CustomMessage('vcredist2010_title'),
-               CustomMessage('vcredist2010_size'),
-               vcredist2010_url, false, false);
+	if (not VCVersionInstalled(VC_2013_REDIST_X86)) then
+		AddProduct('vcredist2013.exe',
+               CustomMessage('vcredist2013_lcid') + '/passive /norestart',
+               CustomMessage('vcredist2013_title'),
+               CustomMessage('vcredist2013_size'),
+               vcredist2013_url, false, false);
 end;

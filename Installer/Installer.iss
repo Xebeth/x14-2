@@ -5,14 +5,14 @@
 #define AppURL "http://x14.north-edge.com/x14-2"
 #define AppExeName "Launcher.exe"
 
-#define use_vc2010
+#define use_vc2013
 
 #include "scripts\products.iss"
 
 #include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
 #include "scripts\products\fileversion.iss"
-#include "scripts\products\vcredist2010.iss"
+#include "scripts\products\vcredist2013.iss"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -96,7 +96,7 @@ function InitializeSetup(): boolean;
 begin
 	//init windows version
 	initwinversion();  
-  vcredist2010();
+  vcredist2013();
   
   Result := true;
 end;
