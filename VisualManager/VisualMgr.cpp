@@ -62,7 +62,6 @@
 #include "OverlayTabCtrl.h"
 
 extern CFrameWnd* g_pTopLevelFrame;
-CGlobalUtils afxGlobalUtils;
 
 #pragma endregion Includes
 
@@ -1231,7 +1230,7 @@ BOOL VisualManager::OnNcActivate(CWnd* pWnd, BOOL bActive)
 		return FALSE;
 	}
 
-	if (afxGlobalData.DwmIsCompositionEnabled())
+	if (afxGlobalData.IsDwmCompositionEnabled())
 	{
 		return FALSE;
 	}
@@ -1808,7 +1807,7 @@ BOOL VisualManager::OnSetWindowRegion(CWnd* pWnd, CSize sizeWindow)
 		return FALSE;
 	}
 
-	if (afxGlobalData.DwmIsCompositionEnabled())
+	if (afxGlobalData.IsDwmCompositionEnabled())
 	{
 		return FALSE;
 	}
@@ -4012,7 +4011,7 @@ COLORREF VisualManager::OnFillCaptionBarButton(CDC* pDC, CMFCCaptionBar* pBar, C
 
 AFX_SMARTDOCK_THEME VisualManager::GetSmartDockingTheme()
 {
-	if (afxGlobalData.m_nBitsPerPixel <= 8 || afxGlobalData.IsHighContrastMode() || !afxGlobalData.IsWindowsLayerSupportAvailable() || !afxGlobalData.bIsWindowsVista)
+	if (afxGlobalData.m_nBitsPerPixel <= 8 || afxGlobalData.IsHighContrastMode())
 	{
 		return CMFCVisualManagerOffice2003::GetSmartDockingTheme();
 	}
@@ -4298,7 +4297,7 @@ HMODULE LoadModuleFullPath(_In_z_ const WCHAR *pszLibrary)
 		return NULL;
 	}
 
-	return(::AfxCtxLoadLibraryW(wszLoadPath));
+	return(::LoadLibrary(wszLoadPath));
 }
 
 /*! \brief Prevents the DWM to redraw the non-client area of frames (Windows Vista+)

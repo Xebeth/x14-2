@@ -85,19 +85,13 @@ namespace Bootstrap
 			return FALSE;
 
 		string_t WorkingDir = m_Engine.GetWorkingDir();
-		TCHAR DLL32Path[_MAX_PATH];
-		char DLLPath[_MAX_PATH];
-		TCHAR *pCmdLine = NULL;
+		TCHAR DLL32Path[_MAX_PATH] = { '\0', };
+		char DLLPath[_MAX_PATH] = { '\0', };
 		BOOL Result = FALSE;
 
 		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
 		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
 		{
-			string_t CmdLine(lpCommandLine_in_out);
-
-			if (m_Engine.UpdateCmdLineFromSettings(CmdLine))
-				pCmdLine = _tcsdup(CmdLine.c_str());
-
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.dll"), WorkingDir.c_str());
 			Result = TRUE;
 		}
@@ -107,31 +101,24 @@ namespace Bootstrap
 			Result = TRUE;
 		}
 
-		// if replacing the language failed, use the original command line
-		if (pCmdLine == NULL && lpCommandLine_in_out != NULL)
-			pCmdLine = _tcsdup(lpCommandLine_in_out);
-
 		if (Result)
 		{
 			WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
 
 			// attach the DLL to the next process in the chain
-			Result = DetourCreateProcessWithDllExW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
+			Result = DetourCreateProcessWithDllExW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
 												   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
 												   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
 												   lpProcessInformation_out, DLLPath, CreateProcessW);
 		}
 		else
 		{
-			Result = CreateProcessW(lpApplicationName_in, pCmdLine, lpProcessAttributes_in,
+			Result = CreateProcessW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
 									lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in, 
 									lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in, 
 									lpProcessInformation_out);
 		}
-		// cleanup
-		if (pCmdLine != NULL)
-			free(pCmdLine);
-
+		
 		return Result;
 	}
 

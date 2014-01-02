@@ -23,6 +23,8 @@
 // fixed DPI value
 #define DLG_FIXED_DPI 96
 
+class CTagManager;
+
 //!	\brief default visual manager
 class APPVIMGR_API VisualManager : public CMFCVisualManagerOffice2003
 {

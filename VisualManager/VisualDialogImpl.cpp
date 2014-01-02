@@ -576,7 +576,7 @@ BOOL VisualDialogImpl::OnNcCalcSize(BOOL, NCCALCSIZE_PARAMS FAR* pCalcSizeParams
 	ASSERT(pCalcSizeParams != NULL);
 	BOOL Result;
 
-	if (m_Dialog.IsWindowVisible() == FALSE && afxGlobalData.DwmIsCompositionEnabled())
+	if (m_Dialog.IsWindowVisible() == FALSE && afxGlobalData.IsDwmCompositionEnabled())
 	{
 		pCalcSizeParams->rgrc[0].bottom -= GetSystemMetrics(SM_CYSIZEFRAME);
 		pCalcSizeParams->rgrc[0].left += GetSystemMetrics(SM_CYSIZEFRAME);

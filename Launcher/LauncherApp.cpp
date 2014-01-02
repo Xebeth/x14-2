@@ -351,9 +351,7 @@ void LauncherApp::InitMFC()
 	// in your application.
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
-	// disable Aero to prevent bugs with dialogs client area => see VisualManager::IsOwnerDrawCaption()
-	// this forces AFX_GLOBAL_DATA.DwmIsCompositionEnabled() to return FALSE
-	afxGlobalData.bDisableAero = TRUE;
+
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(VisualManager));
 	// tooltip support
 	ttParams.m_bVislManagerTheme = TRUE;

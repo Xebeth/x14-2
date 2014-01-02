@@ -80,15 +80,15 @@ namespace StringUtils
 		//! first data chunk						(BC725A17-XXXX-XXXX-XXXX-XXXXXXXXXXXX)
 		DWORD	m_Data1;
 		//! second data chunk						(XXXXXXXX-4E60-XXXX-XXXX-XXXXXXXXXXXX)
-		WORD	m_Data2;
+		DWORD	m_Data2;
 		//! third data chunk						(XXXXXXXX-XXXX-4EE2-XXXX-XXXXXXXXXXXX)
-		WORD	m_Data3;
+		DWORD	m_Data3;
 		//! fourth data chunk						(XXXXXXXX-XXXX-XXXX-9E48-XXXXXXXXXXXX)
-		WORD	m_Data4;
+		DWORD	m_Data4;
 		//! first part of the fifth data chunk		(XXXXXXXX-XXXX-XXXX-XXXX-EF33D7CBXXXX)
 		DWORD	m_Data5_1;
 		//! second part of the fifth data chunk		(XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXB7E9)
-		WORD	m_Data5_2;
+		DWORD	m_Data5_2;
 	};
 }
 
