@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>1.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>77ae6ee4-da2b-409e-b796-6f976d38a465</ProjectGuid>
+    <AssemblyName>Installer</AssemblyName>
+    <Name>Installer</Name>
+    <RootNamespace>Installer</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>
+    </OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>
+    </OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Installer.iss">
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="scripts\" />
+    <Folder Include="scripts\products\" />
+    <Folder Include="scripts\isxdl\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="scripts\isxdl\isxdl.iss">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="scripts\products.iss">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="scripts\products\fileversion.iss">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="scripts\products\stringversion.iss">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="scripts\products\vcredist2013.iss">
+      <SubType>Content</SubType>
+    </None>
+    <None Include="scripts\products\winversion.iss">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\VisualInstaller\InnoSetupProject.targets" />
+</Project>

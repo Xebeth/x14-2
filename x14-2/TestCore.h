@@ -15,8 +15,8 @@ namespace Windower
 	typedef struct _StringNode StringNode;
 }
 
-// unsigned int __thiscall sub_AD1390(int this, const void *a2, size_t a3)
-typedef int (WINAPI *fnSubAD1390)(LPVOID pThis_in_out, Windower::StringNode* pCmd_in_out, LPVOID pUnknown_in);
+// unsigned int __thiscall resetPlayerTarget(int this)
+typedef int (WINAPI *fnSub59D550)(LPVOID pThis_in_out);
 
 namespace Windower
 {
@@ -33,9 +33,9 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 
 	protected:
-		static int WINAPI SubAD1390Hook(LPVOID pThis_in_out, Windower::StringNode* pCmd_in_out, LPVOID pUnknown_in);
+		static int WINAPI Sub59D550Hook(LPVOID pThis_in_out);
 
-		fnSubAD1390 m_pSubAD1390Trampoline;
+		fnSub59D550 m_pSub59D550Trampoline;
 		//! calling context for the module hooks
 		static CallingContext<TestCore> m_Context;
 	};

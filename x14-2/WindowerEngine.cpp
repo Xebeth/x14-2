@@ -27,7 +27,7 @@
 
 #include "Timer.h"
 
-//#define _TESTING
+#define _TESTING
 
 #if defined _DEBUG && defined _TESTING
 	#include "TestCore.h"
@@ -66,10 +66,8 @@ namespace Windower
 			m_pGameChatCore = new GameChatCore;
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore;
-/*
 			// create the player data module
 			m_pPlayerCore = new PlayerCore;
-*/
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler

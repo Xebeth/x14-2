@@ -13,7 +13,7 @@
 
 #define PLAYER_DATA_MODULE			_T("PlayerData")
 // available services for the module
-#define GET_SELECTED_TARGET_HOOK	_T("GetSelectedTarget")
+#define SET_PLAYER_TARGET_HOOK		_T("SetPlayerTarget")
 #define INIT_CHARACTER_MGR_HOOK		_T("CharacterMgrInit")
 
 namespace Windower

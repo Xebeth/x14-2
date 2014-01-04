@@ -14,6 +14,30 @@
 
 namespace Windower
 {
+	#pragma pack(push, 1)
+
+	typedef struct _TargetData
+	{						// Alignment	Offset
+		DWORD dwUnknown00;	// 0030			+0
+		DWORD dwUnknown01;	// 0034			+4
+		DWORD dwUnknown02;	// 0038			+8
+		DWORD dwUnknown03;	// 003C			+12
+		DWORD dwUnknown04;	// 0040			+16
+		DWORD dwUnknown05;	// 0044			+20
+		DWORD dwUnknown06;	// 0048			+24
+		DWORD dwUnknown07;	// 004C			+28
+		DWORD dwUnknown08;	// 0050			+32
+		DWORD dwUnknown09;	// 0054			+36
+		DWORD dwUnknown10;	// 0058			+40
+		DWORD dwUnknown11;	// 005C			+44
+		char Name[112];		// 0060			+48
+		float PosX;			// 00C0			+160
+		float PosY;			// 00C4			+164
+		float PosZ;			// 00C8			+168
+	} TargetData;
+
+	#pragma pack(pop)
+
 #ifdef __USE_UIAL
 	class LabelServiceParam
 	{
@@ -41,22 +65,6 @@ namespace Windower
 	};
 #endif // __USE_UIAL
 
-	typedef struct _TargetPos
-	{
-		_TargetPos() : pPosX(NULL), pPosY(NULL), pPosZ(NULL), pTargetName(NULL)
-		{
-#ifdef _DEBUG
-			dwTargetAddr = 0UL;
-#endif // _DEBUG
-		}
-
-		float *pPosX, *pPosY, *pPosZ;
-		const char *pTargetName;
-#ifdef _DEBUG
-		DWORD dwTargetAddr;
-#endif // _DEBUG
-	} TargetPos;
-
 	//! \brief Base class for plugins subscribing to the FormatChatMessage service
 	class IPlayerDataPlugin : public WindowerPlugin
 	{
@@ -68,13 +76,10 @@ namespace Windower
 			: WindowerPlugin(pServices_in) {}
 
 		/*! \brief Callback invoked when the game updates the player data pointer
-			\param[in] pPlayerData_in : pointer to the player data
+			\param[in] PlayerData_in : player info
+			\param[in] TargetData_in : target info
 		*/
-		virtual void OnPlayerPtrChange(const TargetPos &PlayerData_in) =0;
-		/*! \brief Callback invoked when the game updates the player data pointer
-			\param[in] pPlayerData_in : pointer to the player data
-		*/
-		virtual void OnTargetPtrChange(const TargetPos &TargetData_in) =0;
+		virtual void OnTargetPtrChange(const TargetData **pPlayerData_in, const TargetData **pTargetData_in) = 0;
 
 	protected:
 		virtual bool Unsubscribe();

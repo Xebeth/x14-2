@@ -31,62 +31,30 @@ namespace Windower
 		OnPlayerPtrChange(m_pPlayerData);
 	}
 
-	void PlayerDataService::OnPlayerPtrChange(TargetData *pPlayerData_in)
+	void PlayerDataService::OnPlayerPtrChange(const TargetData **pPlayerData_in)
+	{
+		m_pPlayerData = pPlayerData_in;
+		NotifyPlugins();
+	}
+
+	void PlayerDataService::OnTargetPtrChange(const TargetData **pTargetData_in)
+	{
+		m_pPlayerTarget = pTargetData_in;
+		NotifyPlugins();
+	}
+
+	void PlayerDataService::NotifyPlugins()
 	{
 		PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Subscribers.cend();
 		IPlayerDataPlugin *pPlugin = NULL;
-		TargetPos PlayerData;
-
-		m_pPlayerData = pPlayerData_in;
-
-		if (m_pPlayerData != NULL)
-		{
-			PlayerData.pPosX = &pPlayerData_in->PosX;
-			PlayerData.pPosY = &pPlayerData_in->PosY;
-			PlayerData.pPosZ = &pPlayerData_in->PosZ;
-			PlayerData.pTargetName = pPlayerData_in->Name;
-#ifdef _DEBUG
-			PlayerData.dwTargetAddr = (DWORD)pPlayerData_in;
-#endif // _DEBUG
-		}
 
 		for (PluginIt = m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 		{
 			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
 			if (pPlugin != NULL)
-				pPlugin->OnPlayerPtrChange(PlayerData);
+				pPlugin->OnTargetPtrChange(m_pPlayerData, m_pPlayerTarget);
 		}
 	}
 
-	void PlayerDataService::OnTargetPtrChange(TargetData *pTargetData_in)
-	{
-		if (m_pPlayerTarget != pTargetData_in)
-		{
-			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Subscribers.cend();
-			IPlayerDataPlugin *pPlugin = NULL;
-			TargetPos PlayerTarget;
-
-			m_pPlayerTarget = pTargetData_in;
-
-			if (pTargetData_in != NULL)
-			{
-				PlayerTarget.pPosX = &pTargetData_in->PosX;
-				PlayerTarget.pPosY = &pTargetData_in->PosY;
-				PlayerTarget.pPosZ = &pTargetData_in->PosZ;
-				PlayerTarget.pTargetName = pTargetData_in->Name;
-#ifdef _DEBUG
-				PlayerTarget.dwTargetAddr = (DWORD)pTargetData_in;
-#endif // _DEBUG
-			}
-
-			for (PluginIt = m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
-			{
-				pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
-
-				if (pPlugin != NULL)
-					pPlugin->OnTargetPtrChange(PlayerTarget);
-			}
-		}
-	}
 }

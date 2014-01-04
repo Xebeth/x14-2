@@ -23,15 +23,14 @@ namespace Windower
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		void OnPlayerPtrChange(const TargetPos &PlayerData_in);
-		void OnTargetPtrChange(const TargetPos &TargetData_in);
+		void OnTargetPtrChange(const TargetData **pPlayerData_in, const TargetData **pTargetData_in);
 
 		bool Update();
 
 	private:
 		UIAL::CUiWindow<> *m_pTextLabel;
-		TargetPos m_PlayerPos;
-		TargetPos m_TargetPos;
+		const TargetData **m_pPlayerData;
+		const TargetData **m_pPlayerTarget;
 		string_t m_TargetName;
 		string_t m_LabelText;
 		float m_Distance;

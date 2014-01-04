@@ -23,7 +23,7 @@ namespace Windower
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
 	PlayerCore::PlayerCore()
-		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerAddr(NULL),
+		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerData(NULL),
 		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
 		  m_pDestroySingletonsTrampoline(NULL),
 		  m_pCharMgrInitTrampoline(NULL),
@@ -42,10 +42,9 @@ namespace Windower
 		m_pHookManager->RegisterHook(INIT_CHARACTER_MGR_HOOK, SIGSCAN_GAME_PROCESSA, INIT_CHARACTER_MGR_OPCODES_SIGNATURE,
 									 INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, &PlayerCore::CharacterMgrInitHook,
 									 INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE);
-		// register the selected target hook
-		m_pHookManager->RegisterHook(GET_SELECTED_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, GET_SELECTED_TARGET_OPCODES_SIGNATURE,
-									 GET_SELECTED_TARGET_OPCODES_SIGNATURE_OFFSET, &PlayerCore::GetSelectedTargetHook,
-									 GET_SELECTED_TARGET_OPCODES_HOOK_SIZE);
+		m_pHookManager->RegisterHook(SET_PLAYER_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, SET_PLAYER_TARGET_OPCODES_SIGNATURE,
+									 SET_PLAYER_TARGET_OPCODES_SIGNATURE_OFFSET, &PlayerCore::SetPlayerTargetHook,
+									 SET_PLAYER_TARGET_OPCODES_HOOK_SIZE);
 		// register the destroy singletons hook
 		m_pHookManager->RegisterHook(DESTROY_SINGLETONS_HOOK, SIGSCAN_GAME_PROCESSA, DESTROY_SINGLETONS_OPCODES_SIGNATURE,
 									 DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET, &PlayerCore::DestroySingletonsHook,
@@ -68,8 +67,8 @@ namespace Windower
 	{
 		m_pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
 		m_pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
-		m_pGetTargetTrampoline = (fnGetSelectedTarget)HookManager_in.GetTrampolineFunc(GET_SELECTED_TARGET_HOOK);
-	}
+		m_pGetTargetTrampoline = (fnSetPlayerTarget)HookManager_in.GetTrampolineFunc(SET_PLAYER_TARGET_HOOK);
+ 	}
 
 	int PlayerCore::DestroySingletonsHook(LPVOID pThis)
 	{
@@ -88,33 +87,26 @@ namespace Windower
 
 	int PlayerCore::CharacterMgrInitHook(LPVOID pThis_in_out)
 	{
-		int Result = 0;
-
 		if (m_Context->m_pCharMgrInitTrampoline != NULL)
 		{
-			Result = m_Context->m_pCharMgrInitTrampoline(pThis_in_out);
-			m_Context->m_pPlayerAddr = (DWORD*)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
+			m_Context->m_pPlayerData = (const TargetData**)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
 
-			if (m_Context->m_pPlayerDataService != NULL && m_Context->m_pPlayerAddr != NULL)
-			{
-				TargetData *pPlayerData = *(TargetData**)m_Context->m_pPlayerAddr;
-				m_Context->m_pPlayerDataService->OnPlayerPtrChange(pPlayerData);
-			}
+			if (m_Context->m_pPlayerDataService != NULL && m_Context->m_pPlayerData != NULL)
+				m_Context->m_pPlayerDataService->OnPlayerPtrChange(m_Context->m_pPlayerData);
+
+			return m_Context->m_pCharMgrInitTrampoline(pThis_in_out);
 		}
 
-		return Result;
+		return NULL;
 	}
 
-	TargetData* PlayerCore::GetSelectedTargetHook(LPVOID pThis)
+	void PlayerCore::SetPlayerTargetHook(LPVOID pThis_in_out, const TargetData *pNewTarget_in, int Unknown_in)
 	{
-		TargetData *pPreviousTarget = m_Context->m_pPlayerTarget;
+		m_Context->m_pPlayerTarget = (const TargetData**)((DWORD)pThis_in_out + TARGET_DATA_OFFSET);
+		m_Context->m_pGetTargetTrampoline(pThis_in_out, pNewTarget_in, Unknown_in);
 
-		m_Context->m_pPlayerTarget = m_Context->m_pGetTargetTrampoline(pThis);
-
-		if (m_Context->m_pPlayerTarget != pPreviousTarget && m_Context->m_pPlayerDataService != NULL)
+		if (m_Context->m_pPlayerDataService != NULL)
 			m_Context->m_pPlayerDataService->OnTargetPtrChange(m_Context->m_pPlayerTarget);
-
-		return m_Context->m_pPlayerTarget;
 	}
 
 	void PlayerCore::Detach()
@@ -126,13 +118,12 @@ namespace Windower
 		}
 
 		m_Context->m_pPlayerTarget = NULL;
-		m_Context->m_pPlayerAddr = NULL;
+		m_Context->m_pPlayerData = NULL;
 	}
 
 	bool PlayerCore::IsLoggedIn() const
 	{
-		return (m_pPlayerAddr != NULL && *m_pPlayerAddr != NULL
-			&& ((TargetData*)*m_pPlayerAddr)->Name[0] != '\0');
+		return (m_pPlayerData != NULL && *m_pPlayerData != NULL && (*m_pPlayerData)->Name[0] != '\0');
 	}
 
 	/*! \brief Creates a service object given its name
@@ -154,38 +145,7 @@ namespace Windower
 			IPlayerDataPlugin *pPlugin = static_cast<IPlayerDataPlugin*>(pPlugin_in);
 
 			if (pPlugin != NULL)
-			{
-				TargetPos Data;
-
-				// update the player data for the new plugin
-				if (m_pPlayerAddr != NULL)
-				{
-					TargetData *pPlayerData = *(TargetData**)m_pPlayerAddr;
-
-					Data.pPosX = &pPlayerData->PosX;
-					Data.pPosY = &pPlayerData->PosY;
-					Data.pPosZ = &pPlayerData->PosZ;
-					Data.pTargetName = pPlayerData->Name;
-#ifdef _DEBUG
-					Data.dwTargetAddr = *m_pPlayerAddr;
-#endif // _DEBUG
-
-					pPlugin->OnPlayerPtrChange(Data);
-				}
-				// update the target data for the new plugin
-				if (m_pPlayerTarget != NULL)
-				{
-					Data.pPosX = &m_pPlayerTarget->PosX;
-					Data.pPosY = &m_pPlayerTarget->PosY;
-					Data.pPosZ = &m_pPlayerTarget->PosZ;
-					Data.pTargetName = m_pPlayerTarget->Name;
-#ifdef _DEBUG
-					Data.dwTargetAddr = (DWORD)m_pPlayerTarget;
-#endif // _DEBUG
-
-					pPlugin->OnTargetPtrChange(Data);
-				}
-			}
+				pPlugin->OnTargetPtrChange(m_pPlayerData, m_pPlayerTarget);
 		}
 	}
 }

@@ -14,11 +14,8 @@ namespace Windower
 {
 	//! \brief DistancePlugin constructor
 	DistancePlugin::DistancePlugin(PluginFramework::IPluginServices *pServices_in)
-		: IPlayerDataPlugin(pServices_in), m_Distance(0.f), m_pTextLabel(NULL)
-	{
-		memset(&m_TargetPos, 0, sizeof(m_TargetPos));
-		memset(&m_PlayerPos, 0, sizeof(m_PlayerPos));
-	}
+		: IPlayerDataPlugin(pServices_in), m_Distance(0.f), m_pTextLabel(NULL),
+		  m_pPlayerData(NULL), m_pPlayerTarget(NULL) {}
 
 	DistancePlugin::~DistancePlugin()
 	{
@@ -66,18 +63,14 @@ namespace Windower
 		PluginInfo_out.SetName(_T("Distance"));
 	}
 
-	void DistancePlugin::OnPlayerPtrChange(const TargetPos &PlayerData_in)
+	void DistancePlugin::OnTargetPtrChange(const TargetData **pPlayerData_in, const TargetData **pTargetData_in)
 	{
-		m_PlayerPos = PlayerData_in;
-	}
+		m_pPlayerTarget = pTargetData_in;
+		m_pPlayerData = pPlayerData_in;
 
-	void DistancePlugin::OnTargetPtrChange(const TargetPos &TargetData_in)
-	{
-		m_TargetPos = TargetData_in;
-
-		if (TargetData_in.pTargetName != NULL)
+		if (m_pPlayerTarget != NULL && *m_pPlayerTarget != NULL && (*m_pPlayerTarget)->Name != NULL)
 		{
-			std::string TargetName = TargetData_in.pTargetName;
+			std::string TargetName = (*m_pPlayerTarget)->Name;
 
 			// convert only once to UTF-8 for display
 			convert_utf8(TargetName, m_TargetName);
@@ -95,19 +88,19 @@ namespace Windower
 
 	bool DistancePlugin::Update()
 	{
-		if (m_TargetPos.pPosX != NULL && m_TargetPos.pPosY != NULL && m_TargetPos.pPosZ != NULL
-		 && m_TargetPos.pPosX != NULL && m_TargetPos.pPosY != NULL && m_TargetPos.pPosZ != NULL)
+		if (m_pPlayerTarget != NULL && *m_pPlayerTarget != NULL
+		 && m_pPlayerData != NULL && *m_pPlayerData != NULL)
 		{
-			float dX = *m_PlayerPos.pPosX - *m_TargetPos.pPosX;
-			float dY = *m_PlayerPos.pPosY - *m_TargetPos.pPosY;
-			float dZ = *m_PlayerPos.pPosZ - *m_TargetPos.pPosZ;
+			float dX = (*m_pPlayerData)->PosX - (*m_pPlayerTarget)->PosX;
+			float dY = (*m_pPlayerData)->PosY - (*m_pPlayerTarget)->PosY;
+			float dZ = (*m_pPlayerData)->PosZ - (*m_pPlayerTarget)->PosZ;
 
 			m_Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
 
 			if (m_pTextLabel != NULL)
 			{
 #ifdef _DEBUG
-				format(m_LabelText, _T("%s (0x%08X) => %.2f"), m_TargetName.c_str(), m_TargetPos.dwTargetAddr, m_Distance);
+				format(m_LabelText, _T("%s (0x%08X) => %.2f"), m_TargetName.c_str(), *m_pPlayerData, m_Distance);
 #else
 				format(m_LabelText, _T("%s => %.2f"), m_TargetName.c_str(), m_Distance);
 #endif // _DEBUG
