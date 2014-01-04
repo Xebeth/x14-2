@@ -213,7 +213,9 @@ namespace Windower
 
 	const wchar_t* PluginEngine::GetCompatibilityFlagsText(DWORD Flags_in)
 	{
-		switch(Flags_in)
+		DWORD Flags = (Flags_in & PLUGIN_COMPATIBILITY_MASK);
+
+		switch (Flags)
 		{
 			case PLUGIN_COMPATIBILITY_WINDOWER:
 				return L"Windower";

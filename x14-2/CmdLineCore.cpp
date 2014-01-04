@@ -227,7 +227,7 @@ namespace Windower
 
 			// register the "configure" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_CONFIGURE, "configure",
-										   "Loads a plugin given its name.", this, false);
+										   "Configures a plugin given its name.", this, false);
 
 			if (pCommand != NULL)
 			{

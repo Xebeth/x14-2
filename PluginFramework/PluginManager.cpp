@@ -72,9 +72,10 @@ namespace PluginFramework
 			if (CheckDLLExports(hPlugin, Info))
 			{
 				DWORD Flags = Info.GetCompatibilityFlags();
+
 				Info.m_DLLPath = pPluginPath_in;
 
-				if ((Flags & CompatibilityFlags_in) == Flags)
+				if ((Flags & CompatibilityFlags_in) != 0)
 					bResult = RegisterPlugin(Info);
 			}
 

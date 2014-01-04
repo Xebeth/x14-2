@@ -191,8 +191,6 @@ bool AutoLogin::AutoCompleteForm()
 
 				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
 				{
-					m_bLoop = false;
-
 					if (m_Settings.IsAutoSubmitted())
 					{
 						// auto-submit the form
