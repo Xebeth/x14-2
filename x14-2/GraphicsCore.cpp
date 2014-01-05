@@ -180,15 +180,11 @@ namespace Windower
 		m_hWnd = hWnd_in;
 
 		// set the device implementation
-		if (pDevice_in != NULL && g_pDeviceWrapperImpl == NULL)
+		if (pDevice_in != NULL && g_pDeviceWrapperImpl == NULL && pPresentParams_in != NULL)
 		{
-			D3DPRESENT_PARAMETERS PresentParams;
+			D3DPRESENT_PARAMETERS PresentParams = *pPresentParams_in;
 
-			if (pPresentParams_in != NULL)
-			{
-				PresentParams = *pPresentParams_in;
-			}
-			else if (m_Context->m_VSync)
+			if (m_Context->m_VSync)
 			{
 				// only these matter, they are used to overwrite
 				// the parameters during IDirect3DDevice9::Reset()
@@ -197,9 +193,21 @@ namespace Windower
 				PresentParams.BackBufferCount = 2;
 			}
 
+			unsigned long TextColor = 0xFFFF0000;
+			string_t LabelName = FPS_LABEL_NAME;
+			bool Bold = true, Italic = false;
+			string_t FontName = _T("Arial");
+			unsigned short FontSize = 12U;
+			long X = -16L, Y = 0L;
+
+			bool Deserialized = m_pEngine->DeserializeLabel(LabelName, X, Y, TextColor, FontName, FontSize, Bold, Italic);
+
 			// create the FPS counter
-			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, _T("FPS##Label"), -16L, 0L, 60UL, 16UL,
-													  _T("Arial"), 12, true, false, 0xFFFF0000, GetLabelRenderer(), true);
+			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, LabelName, X, Y, 60UL, 16UL,
+													  FontName, FontSize, Bold, Italic, TextColor, GetLabelRenderer(), true);
+
+			if (Deserialized == false)
+				m_pEngine->SerializeLabel(LabelName, X, Y, TextColor, FontName, FontSize);
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
 			pFPSLabel->Draw();
@@ -252,7 +260,18 @@ namespace Windower
 				UiTextLabel *pFPSLabel = static_cast<UiTextLabel*>(RenderableIt->second);
 
 				if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
-					pFPSLabel->SetPos(-10L, 24L);
+				{
+					unsigned long TextColor = 0xFFFF0000;
+					bool Bold = true, Italic = false;
+					string_t FontName = _T("Arial");
+					unsigned short FontSize = 12U;
+					long X = -16L, Y = 0L;
+
+					m_pEngine->DeserializeLabel(pFPSLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic);
+					pFPSLabel->SetTitleFont(FontName, FontSize, Bold, Italic);
+					pFPSLabel->SetTitleColor(TextColor);
+					pFPSLabel->SetPos(X, Y);
+				}					
 			}
 		}
 	}
@@ -281,7 +300,7 @@ namespace Windower
 	*/
 	BaseModuleService* GraphicsCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
-		return new TextLabelService(ServiceName_in, m_UiElements, GFX_TEXT_COUNT, InvokePermission_in);
+		return new TextLabelService(*m_pEngine, ServiceName_in, m_UiElements, GFX_TEXT_COUNT, InvokePermission_in);
 	}
 
 	LRESULT GraphicsCore::OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in)
@@ -342,13 +361,21 @@ namespace Windower
 
 	LRESULT GraphicsCore::OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
 	{
-		LRESULT Result = (m_pMovingLabel != NULL)
-					   ? IEventInterface::EVENT_PROCESSED
-					   : IEventInterface::EVENT_IGNORED;
+		if (m_pMovingLabel != NULL)
+		{
+			const UIAL::CUiFont &Font = m_pMovingLabel->GetTitleFont();
 
-		m_pMovingLabel = NULL;
+			m_pEngine->SerializeLabel(m_pMovingLabel->GetName(),
+									  m_pMovingLabel->GetX(), m_pMovingLabel->GetY(),
+									  m_pMovingLabel->GetTitleColor().GetARGB(),
+									  Font.GetFontName(), Font.GetFontSize(),
+									  Font.IsBold(), Font.IsItalic());
+			m_pMovingLabel = NULL;
 
-		return Result;
+			return IEventInterface::EVENT_PROCESSED;
+		}
+
+		return IEventInterface::EVENT_IGNORED;
 	}
 
 	LRESULT GraphicsCore::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
@@ -383,7 +410,11 @@ namespace Windower
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
 			break;
+#ifdef _DEBUG
+			case VK_F9:
+#else
 			case VK_F12:
+#endif // _DEBUG
 				ToggleFPS();
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
@@ -395,7 +426,7 @@ namespace Windower
 
 	LRESULT GraphicsCore::OnActivate(bool bActive_in, bool bMinimized_in)
 	{
-		if (g_pDeviceWrapperImpl != NULL)
+		if (g_pDeviceWrapperImpl != NULL && (g_pDeviceWrapperImpl->IsFullscreen() || bMinimized_in))
 		{
 			g_pDeviceWrapperImpl->SetRendering(bActive_in);
 

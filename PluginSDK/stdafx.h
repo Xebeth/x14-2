@@ -17,7 +17,4 @@
 #include <PluginFramework.h>
 #include <UIAL.h>
 
-#define PROFILE_PREFIX_LENGTH 8
-#define PROFILE_PREFIX _T("Profile:")
-
 #endif//__STDAFX_H__

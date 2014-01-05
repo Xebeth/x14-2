@@ -21,11 +21,14 @@
 
 #include "TextLabelRenderer.h"
 
+#include "WindowerEngine.h"
+
 namespace Windower
 {
-	TextLabelService::TextLabelService(const string_t& Name_in, RenderableMap &UiElements_in,
-									   unsigned long BaseID_in, bool InvokePermission_in)
-		: ModuleService(Name_in, InvokePermission_in), m_UiElements(UiElements_in),
+	TextLabelService::TextLabelService(WindowerEngine &Engine_in, const string_t& Name_in,
+									   RenderableMap &UiElements_in, unsigned long BaseID_in,
+									   bool InvokePermission_in)
+		: ModuleService(Name_in, InvokePermission_in), m_UiElements(UiElements_in), m_Engine(Engine_in),
 		  m_NextID(BaseID_in), m_pDevice(NULL), m_pRenderer(NULL), m_pWrapperImpl(NULL)
 	{
 		// add compatible plugins
@@ -70,11 +73,22 @@ namespace Windower
 				}
 				else
 				{
+					bool Deserialized = m_Engine.DeserializeLabel(pParam->m_LabelName, pParam->m_X, pParam->m_Y,
+																  pParam->m_TextColor, pParam->m_FontName,
+																  pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic);
 					// create a new label window
-					UiTextLabel *pLabel = CreateLabel(m_pDevice, m_pWrapperImpl, pParam->m_LabelName, pParam->m_X, pParam->m_Y, pParam->m_W,
-													  pParam->m_H, pParam->m_FontName, 12, true, false, pParam->m_ARGBColor, m_pRenderer, true);
+					UiTextLabel *pLabel = CreateLabel(m_pDevice, m_pWrapperImpl, pParam->m_LabelName,
+													  pParam->m_X, pParam->m_Y, pParam->m_W,
+													  pParam->m_H, pParam->m_FontName, 
+													  pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic,
+													  pParam->m_TextColor, m_pRenderer, true);
 					// set the return value
 					*pParam->m_ppUiLabel = pLabel;
+
+					if (pLabel != NULL && Deserialized == false)
+						m_Engine.SerializeLabel(pParam->m_LabelName, pParam->m_X, pParam->m_Y,
+												pParam->m_TextColor, pParam->m_FontName,
+												pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic);
 
 					return (pLabel != NULL);
 				}

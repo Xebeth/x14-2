@@ -14,6 +14,7 @@ class IDirect3D9Wrapper;
 
 #define GRAPHICS_MODULE			"Graphics"
 #define TEXT_LABEL_SERVICE		"TextLabelService"
+#define FPS_LABEL_NAME			_T("FPS##Label")
 
 typedef struct IDirect3D9 Direct3D9;
 typedef struct IDirect3DDevice9 IDirect3DDevice9;

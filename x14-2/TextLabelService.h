@@ -16,13 +16,15 @@ namespace Windower
 	typedef std::hash_map<string_t, unsigned long> UiIdMap;
 
 	class TextLabelRenderer;
+	class WindowerEngine;
 	class UiTextLabel;
 
 	class TextLabelService : public ModuleService
 	{
 	public:
-		TextLabelService(const string_t& Name_in, RenderableMap &UiElements_in,
-						 unsigned long BaseID_in, bool InvokePermission_in = false);
+		TextLabelService(WindowerEngine &Engine_in, const string_t& Name_in,
+						 RenderableMap &UiElements_in, unsigned long BaseID_in,
+						 bool InvokePermission_in = false);
 
 		void SetRenderer(TextLabelRenderer *pRenderer_in, IDirect3DDevice9 *pDevice_in,
 						 Direct3DDevice9WrapperImpl *pWrapperImpl_in);
@@ -41,6 +43,7 @@ namespace Windower
 		IDirect3DDevice9 *m_pDevice;
 		RenderableMap &m_UiElements;
 		UiLabelMap m_RemovedLabels;
+		WindowerEngine &m_Engine;
 		unsigned long m_NextID;
 		UiIdMap m_LabelIDs;
 	};

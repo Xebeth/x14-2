@@ -10,6 +10,7 @@
 
 #define GRAPHICS_MODULE			"Graphics"
 #define TEXT_LABEL_SERVICE		"TextLabelService"
+#define DISTANCE_LABEL_NAME		_T("Distance##Label")
 
 namespace Windower
 {
@@ -31,9 +32,6 @@ namespace Windower
 		UIAL::CUiWindow<> *m_pTextLabel;
 		const TargetData **m_pPlayerData;
 		const TargetData **m_pPlayerTarget;
-		string_t m_TargetName;
-		string_t m_LabelText;
-		float m_Distance;
 	};
 }
 

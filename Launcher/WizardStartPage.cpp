@@ -107,7 +107,7 @@ bool WizardStartPage::IsPageValid(string_t *pFeedback_out) const
 void WizardStartPage::Revert()
 {
 	if (m_pSettings != NULL)
-		m_ProfileName = m_pSettings->GetName() + PROFILE_PREFIX_LENGTH;
+		m_ProfileName = m_pSettings->GetName() + _tcslen(PROFILE_PREFIX);
 
 	m_CheckUpdate = m_SettingsManager.IsAutoUpdated();
 	m_GamePath = m_SettingsManager.GetGamePath();

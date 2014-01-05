@@ -93,7 +93,7 @@ namespace Windower
 	bool PluginServices::SaveSettings(const PluginFramework::IUserSettings *pSettings_in)
 	{
 		if (m_pSettingsManager != NULL)
-			return m_pSettingsManager->SaveSettings(static_cast<const WindowerProfile*>(pSettings_in));
+			return m_pSettingsManager->CopySettings(static_cast<const WindowerProfile*>(pSettings_in));
 
 		return false;
 	}

@@ -354,4 +354,22 @@ namespace Windower
 			// @TODO : find the Direct3D device
 		}
 	}
+
+	void WindowerEngine::SerializeLabel(const string_t &Name_in, long X_in, long Y_in,
+										unsigned long TextColor_in, const string_t &FontName_in,
+										unsigned short FontSize_in, bool Bold_in, bool Italic_in)
+	{
+		m_Settings.SerializeLabel(Name_in, X_in, Y_in, TextColor_in, FontName_in, FontSize_in, Bold_in, Italic_in);
+
+		if (m_pSettingsManager != NULL)
+			m_pSettingsManager->CopySettings(&m_Settings);
+	}
+
+	bool WindowerEngine::DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out,
+										  unsigned long &TextColor_out, string_t &FontName_out,
+										  unsigned short &FontSize_out, bool &Bold_out, bool &Italic_out)
+	{
+		return m_Settings.DeserializeLabel(Name_in, X_out, Y_out, TextColor_out, FontName_out,
+										   FontSize_out, Bold_out, Italic_out);
+	}
 }

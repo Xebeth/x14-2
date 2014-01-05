@@ -22,7 +22,7 @@ namespace Windower
 		_T("0"),															// KeyHash
 		_T("[HH:mm:ss] "),													// TimestampFormat
 		_T("tell.wav"),														// TellSound
-		_T("15"),															// BlacklistThreshold
+		_T("10"),															// BlacklistThreshold
 		_T("3"),															// BlacklistCount
 	};
 
@@ -97,6 +97,7 @@ namespace Windower
 
 		m_ActivePlugins = Settings_in.m_ActivePlugins;
 		m_pScoredWords = Settings_in.m_pScoredWords;
+		m_TextLabels = Settings_in.m_TextLabels;
 	}
 
 	/*! \brief Adds or removes a plugin to the active plugins list given its name
@@ -293,5 +294,96 @@ namespace Windower
 
 		for (PluginIt = PluginList.cbegin(), EndIt = PluginList.cend(); PluginIt != EndIt; ++PluginIt)
 			UpdatePluginList(*PluginIt);
+	}
+
+	void WindowerProfile::SerializeLabel(const string_t &Name_in, long X_in, long Y_in, unsigned long TextColor_in,
+										 const string_t &FontName_in, unsigned short FontSize_in, bool Bold_in, bool Italic_in)
+	{
+		m_TextLabels[Name_in] = LabelSettings(X_in, Y_in, TextColor_in, FontName_in, FontSize_in, Bold_in, Italic_in);
+	}
+
+	bool WindowerProfile::DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out, unsigned long &TextColor_out,
+										   string_t &FontName_out, unsigned short &FontSize_out, bool &Bold_out, bool &Italic_out)
+	{
+		TextLabels::const_iterator LabelIt = m_TextLabels.find(Name_in);
+
+		if (LabelIt != m_TextLabels.cend())
+		{
+			TextColor_out = LabelIt->second.TextColor;
+			FontName_out = LabelIt->second.FontName;
+			FontSize_out = LabelIt->second.FontSize;
+			Italic_out = LabelIt->second.bItalic;
+			Bold_out = LabelIt->second.bBold;
+			X_out = LabelIt->second.X;
+			Y_out = LabelIt->second.Y;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool WindowerProfile::LoadLabel(const string_t &Name_in, const string_t &SerializedData_in)
+	{
+		std::list<string_t> LabelParams;
+
+		if (tokenize<TCHAR>(SerializedData_in, LabelParams, _T("|"), _T("")))
+		{
+			LabelSettings &Settings = m_TextLabels[Name_in] = LabelSettings();
+
+			// X
+			Settings.X = _tcstol(LabelParams.front().c_str(), NULL, 10);
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// Y
+			Settings.Y = _tcstol(LabelParams.front().c_str(), NULL, 10);
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// TextColor
+			Settings.TextColor = _tcstoul(LabelParams.front().c_str(), NULL, 16);
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// FontName
+			Settings.FontName = LabelParams.front();
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// FontSize
+			Settings.FontSize = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10);
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// Bold
+			Settings.bBold = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			LabelParams.pop_front();
+
+			if (LabelParams.empty())
+				return false;
+			// Italic
+			Settings.bItalic = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			LabelParams.pop_front();
+
+			return LabelParams.empty();
+		}
+
+		return false;
+	}
+
+	string_t& WindowerProfile::SaveLabel(const LabelSettings &Settings_in, string_t &SerializedData_out) const
+	{
+		return format(SerializedData_out, SERIALIZE_LABEL_FORMAT, Settings_in.X, Settings_in.Y,
+																  Settings_in.TextColor,
+																  Settings_in.FontName.c_str(),
+																  Settings_in.FontSize,
+																  Settings_in.bBold ? 1U : 0U,
+																  Settings_in.bItalic ? 1U : 0U);
 	}
 }

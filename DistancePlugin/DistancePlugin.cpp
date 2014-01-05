@@ -14,7 +14,7 @@ namespace Windower
 {
 	//! \brief DistancePlugin constructor
 	DistancePlugin::DistancePlugin(PluginFramework::IPluginServices *pServices_in)
-		: IPlayerDataPlugin(pServices_in), m_Distance(0.f), m_pTextLabel(NULL),
+		: IPlayerDataPlugin(pServices_in), m_pTextLabel(NULL),
 		  m_pPlayerData(NULL), m_pPlayerTarget(NULL) {}
 
 	DistancePlugin::~DistancePlugin()
@@ -68,52 +68,46 @@ namespace Windower
 		m_pPlayerTarget = pTargetData_in;
 		m_pPlayerData = pPlayerData_in;
 
-		if (m_pPlayerTarget != NULL && *m_pPlayerTarget != NULL && (*m_pPlayerTarget)->Name != NULL)
+		if (m_pTextLabel == NULL)
 		{
-			std::string TargetName = (*m_pPlayerTarget)->Name;
+			LabelServiceParam LabelParam(&m_pTextLabel, DISTANCE_LABEL_NAME, 5L, 5L, 500UL, 16UL);
+			PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
-			// convert only once to UTF-8 for display
-			convert_utf8(TargetName, m_TargetName);
-
-			if (m_pTextLabel == NULL)
-			{
-				LabelServiceParam LabelParam(&m_pTextLabel, _T("Distance##label"), 5L, 5L, 500UL, 16UL, _T("Arial"));
-				PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
-
-				if (InvokeService(_T(GRAPHICS_MODULE), _T(TEXT_LABEL_SERVICE), Param) == false)
-					m_pTextLabel = NULL;
-			}
+			if (InvokeService(_T(GRAPHICS_MODULE), _T(TEXT_LABEL_SERVICE), Param) == false)
+				m_pTextLabel = NULL;
 		}
 	}
 
 	bool DistancePlugin::Update()
 	{
 		if (m_pPlayerTarget != NULL && *m_pPlayerTarget != NULL
-		 && m_pPlayerData != NULL && *m_pPlayerData != NULL)
+		 && m_pPlayerData != NULL && *m_pPlayerData != NULL
+		 && *m_pPlayerData != *m_pPlayerTarget)
 		{
-			float dX = (*m_pPlayerData)->PosX - (*m_pPlayerTarget)->PosX;
-			float dY = (*m_pPlayerData)->PosY - (*m_pPlayerTarget)->PosY;
-			float dZ = (*m_pPlayerData)->PosZ - (*m_pPlayerTarget)->PosZ;
-
-			m_Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
-
 			if (m_pTextLabel != NULL)
 			{
+				float dX = (*m_pPlayerData)->PosX - (*m_pPlayerTarget)->PosX;
+				float dY = (*m_pPlayerData)->PosY - (*m_pPlayerTarget)->PosY;
+				float dZ = (*m_pPlayerData)->PosZ - (*m_pPlayerTarget)->PosZ;
+				float Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
+				string_t TargetName, LabelText;
+
+				if ((*m_pPlayerTarget)->Name != NULL)
+					convert_utf8(std::string((*m_pPlayerTarget)->Name), TargetName);
+
 #ifdef _DEBUG
-				format(m_LabelText, _T("%s (0x%08X) => %.2f"), m_TargetName.c_str(), *m_pPlayerData, m_Distance);
+				format(LabelText, _T("%.2f [0x%08X] => %s"), Distance, *m_pPlayerData, TargetName.c_str());
 #else
-				format(m_LabelText, _T("%s => %.2f"), m_TargetName.c_str(), m_Distance);
+				format(LabelText, _T("%.2f"), Distance);
 #endif // _DEBUG
-				m_pTextLabel->SetTitleText(m_LabelText);
+				m_pTextLabel->SetTitleText(LabelText);
 				m_pTextLabel->SetVisibile(true);
 			}
 
 			return true;
 		}
 		else if (m_pTextLabel != NULL)
-		{
 			m_pTextLabel->SetVisibile(false);
-		}
 
 		return false;
 	}

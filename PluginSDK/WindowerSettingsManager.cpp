@@ -119,30 +119,16 @@ namespace Windower
 		if (m_pSettingsFile != NULL)
 		{
 			std::set<string_t>::const_iterator DeleteIter, DeleteEndIt = m_DeletedProfiles.cend();
-			WindowerSettings::const_iterator SettingsIter, EndIt = m_Profiles.cend();			
+			WindowerSettings::const_iterator SettingsIter, EndIt = m_Profiles.cend();
 			WindowerProfile *pProfile = NULL;
-			const TCHAR *pName;
+
 
 			for (SettingsIter = m_Profiles.cbegin(); SettingsIter != EndIt; ++SettingsIter)
 			{
 				pProfile = SettingsIter->second;
 
 				if (pProfile != NULL)
-				{
-					pName = pProfile->GetName();
-
-					SetLong(pName, INI_KEY_BLACKLIST_THRESHOLD, pProfile->GetBlacklistThreshold());
-					SetLong(pName, INI_KEY_BLACKLIST_COUNT, pProfile->GetBlacklistCount());
-					SetString(pName, INI_KEY_TIMESTAMP, pProfile->GetTimestampFormat());
-					SetString(pName, INI_KEY_PASSWORD, pProfile->GetCryptedPassword());
-					SetBool(pName, INI_KEY_AUTO_SUBMIT, pProfile->IsAutoSubmitted());
-					SetString(pName, INI_KEY_TELL_SOUND, pProfile->GetTellSound());
-					SetString(pName, INI_KEY_PLUGINS, pProfile->GetPluginList());
-					SetString(pName, INI_KEY_USERNAME, pProfile->GetUsername());
-					SetLong(pName, INI_KEY_LNG, pProfile->GetLanguage());
-					SetBool(pName, INI_KEY_VSYNC, pProfile->GetVSync());
-					SetHex(pName, INI_KEY_HASH, pProfile->GetKeyHash());
-				}
+					SaveSettings(pProfile);
 			}
 
 			// remove the sections of the delete profiles
@@ -159,7 +145,7 @@ namespace Windower
 			m_pSettingsFile->SetLong(INI_SECTION_GENERAL, INI_AUTO_UPDATE, m_bAutoUpdate ? 1L : 0L);
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_GAME_PATH, normalize_path(m_GamePath));
 
-			if  (m_ScoredWords.empty() == false)
+			if (m_ScoredWords.empty() == false)
 			{
 				ScoredWords::const_iterator WordIt, WordEndIt = m_ScoredWords.cbegin();
 
@@ -200,12 +186,35 @@ namespace Windower
 			Settings_out.SetScoredWords(&m_ScoredWords);
 			Settings_out.SetName(pProfileName_in);
 
+			LoadLabels(Settings_out);
+
 			return true;
 		}
 
 		return false;
 	}
 
+	void SettingsManager::LoadLabels(WindowerProfile &Settings_out)
+	{
+		string_t SectionName = LABELS_PREFIX;
+
+		SectionName += Settings_out.GetName() + _tcslen(PROFILE_PREFIX);
+
+		if (m_pSettingsFile->SectionExists(SectionName))
+		{
+			SectionsConstIterator SectionIt, EndIt;
+			CSimpleIni::TNamesDepend Values;
+
+			if (m_pSettingsFile->GetAllKeys(SectionName, Values))
+			{
+				SectionsConstIterator LabelIt, LabelEndIt = Values.cend();
+
+				for (LabelIt = Values.cbegin(); LabelIt != LabelEndIt; ++LabelIt)
+ 					Settings_out.LoadLabel(LabelIt->pItem, m_pSettingsFile->GetString(SectionName, LabelIt->pItem));
+			}
+		}
+	}
+	
 	/*! \brief Loads the default profile
 		\param[in] Settings_out : the settings receiving the default profile
 		\return true if the default profile was loaded successfully; false otherwise
@@ -284,7 +293,7 @@ namespace Windower
 						if (Exists)
 							m_Profiles.erase(SettingsIt);
 					}
-				}
+				}				
 			}
 
 			return (m_bIsLoaded && VerifyConfig());
@@ -330,18 +339,21 @@ namespace Windower
 		m_ScoredWords["gii"] = 5;
 
 		m_ScoredWords["delivery"] = 3;
+		m_ScoredWords["instant"] = 3;
 		m_ScoredWords["gold"] = 3;
 		
 		m_ScoredWords["handwork"] = 2;
-		m_ScoredWords["www"] = 2;
+		m_ScoredWords["discount"] = 2;
+		m_ScoredWords["price"] = 2;
 		m_ScoredWords["100%"] = 2;
 		m_ScoredWords["com"] = 2;
+		m_ScoredWords["www"] = 2;
 
 		m_ScoredWords["dolla"] = 1;
 		m_ScoredWords["gil"] = 1;
 		m_ScoredWords["usd"] = 1;
 		m_ScoredWords["$"] = 1;
-
+		
 		return true;
 	}
 
@@ -644,7 +656,42 @@ namespace Windower
 		return (m_bIsLoaded && m_pSettingsFile != NULL && m_pSettingsFile->IsConfigLoaded());
 	}
 
-	bool SettingsManager::SaveSettings(const WindowerProfile *pSettings_in)
+	bool SettingsManager::SaveSettings(WindowerProfile *pSettings_in)
+	{
+		if (pSettings_in != NULL)
+		{
+			const TCHAR *pName = pSettings_in->GetName();
+			string_t SectionName = LABELS_PREFIX, LabelSettings;
+			const TextLabels &Labels = pSettings_in->GetTextLabels();
+			TextLabels::const_iterator LabelIter, LabelEndIt = Labels.cend();
+
+			SectionName += pSettings_in->GetName() + _tcslen(PROFILE_PREFIX);
+
+			SetLong(pName, INI_KEY_BLACKLIST_THRESHOLD, pSettings_in->GetBlacklistThreshold());
+			SetLong(pName, INI_KEY_BLACKLIST_COUNT, pSettings_in->GetBlacklistCount());
+			SetString(pName, INI_KEY_TIMESTAMP, pSettings_in->GetTimestampFormat());
+			SetString(pName, INI_KEY_PASSWORD, pSettings_in->GetCryptedPassword());
+			SetBool(pName, INI_KEY_AUTO_SUBMIT, pSettings_in->IsAutoSubmitted());
+			SetString(pName, INI_KEY_TELL_SOUND, pSettings_in->GetTellSound());
+			SetString(pName, INI_KEY_PLUGINS, pSettings_in->GetPluginList());
+			SetString(pName, INI_KEY_USERNAME, pSettings_in->GetUsername());
+			SetLong(pName, INI_KEY_LNG, pSettings_in->GetLanguage());
+			SetBool(pName, INI_KEY_VSYNC, pSettings_in->GetVSync());
+			SetHex(pName, INI_KEY_HASH, pSettings_in->GetKeyHash());
+
+			for (LabelIter = Labels.cbegin(); LabelIter != LabelEndIt; ++LabelIter)
+			{
+				pSettings_in->SaveLabel(LabelIter->second, LabelSettings);
+				SetString(SectionName.c_str(), LabelIter->first.c_str(), LabelSettings.c_str());
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool SettingsManager::CopySettings(const WindowerProfile *pSettings_in)
 	{
 		if (pSettings_in != NULL)
 		{
@@ -714,6 +761,12 @@ namespace Windower
 	{
 		if (m_pSettingsFile != NULL)
 			return m_pSettingsFile->SetString(pProfileName_in, WindowerProfile::Key(Key_in), pValue_in, WindowerProfile::Comment(Key_in));
+	}
+
+	void SettingsManager::SetString(const TCHAR *pProfileName_in, const TCHAR *pKey_in, const TCHAR *pValue_in)
+	{
+		if (m_pSettingsFile != NULL)
+			return m_pSettingsFile->SetString(pProfileName_in, pKey_in, pValue_in);
 	}
 
 	void SettingsManager::SetHex(const TCHAR *pProfileName_in, eIniKeys Key_in, ULONG Value_in)

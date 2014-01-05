@@ -59,6 +59,17 @@ namespace Windower
 		// commands
 		bool Exit(std::string& Feedback_out);
 
+		bool DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out,
+							  unsigned long &TextColor_out,
+							  string_t &FontName_out,
+							  unsigned short &FontSize_out,
+							  bool &Bold_out, bool &Italic_out);
+		void SerializeLabel(const string_t &Name_in, long X_in, long Y_in,
+							unsigned long TextColor_in = 0xFF000000UL,
+							const string_t &FontName_in = _T("Arial"),
+							unsigned short FontSize_in = 12,
+							bool Bold_in = true, bool Italic_in = false);
+
 	private:
 		bool InitializePlugins();
 		void InitializeEngine();

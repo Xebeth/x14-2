@@ -42,25 +42,31 @@ namespace Windower
 	class LabelServiceParam
 	{
 	public:
-		LabelServiceParam() : m_ppUiLabel(NULL), m_ARGBColor(0xFFFFFFFF),
-			m_W(0UL), m_H(0UL), m_Destroy(false), m_X(0L), m_Y(0L) {}
+		LabelServiceParam() : m_ppUiLabel(NULL), m_TextColor(0xFFFFFFFFUL), m_FontName(_T("Arial")),
+			m_W(0UL), m_H(0UL), m_Destroy(false), m_X(0L), m_Y(0L), m_Fontsize(12UL), m_Bold(true), m_Italic(false) {}
 
 		LabelServiceParam(UIAL::CUiWindow<> **ppUiLabel_in, const string_t &LabelName_in,
 						  long X_in, long Y_in, unsigned long W_in, unsigned long H_in,
-						  const string_t &FontName_in, unsigned long ARGBColor_in = 0xFFFFFFFF)
-			: m_ppUiLabel(ppUiLabel_in), m_LabelName(LabelName_in), m_Destroy(false),
-			  m_ARGBColor(ARGBColor_in), m_W(W_in), m_H(H_in), m_X(X_in), m_Y(Y_in) {}
+						  const string_t &FontName_in = _T("Arial"), unsigned short FontSize_in = 12UL,
+						  unsigned long TextColor_in = 0xFFFFFFFF, bool Bold_in = true, bool Italic_in = false)
+			: m_ppUiLabel(ppUiLabel_in), m_LabelName(LabelName_in), m_Destroy(false), m_TextColor(TextColor_in),
+			  m_W(W_in), m_H(H_in), m_X(X_in), m_Y(Y_in), m_Bold(Bold_in), m_Italic(Italic_in),
+			  m_Fontsize(FontSize_in), m_FontName(FontName_in) {}
 
 		LabelServiceParam(UIAL::CUiWindow<> **ppUiLabel_in)
-			: m_ppUiLabel(ppUiLabel_in), m_ARGBColor(0xFFFFFFFF),
-			  m_W(0UL), m_H(0UL), m_Destroy(true), m_X(0L), m_Y(0L) {}
+			: m_ppUiLabel(ppUiLabel_in), m_TextColor(0xFFFFFFFF), m_FontName(_T("Arial")),
+			  m_Fontsize(12UL), m_W(0UL), m_H(0UL), m_Destroy(true),
+			  m_X(0L), m_Y(0L), m_Bold(true), m_Italic(false) {}
 
 		UIAL::CUiWindow<> **m_ppUiLabel;
-		unsigned long m_ARGBColor;
+		unsigned long m_TextColor;
+		unsigned short m_Fontsize;
 		unsigned long m_W, m_H;
 		string_t m_LabelName;
-		string_t m_FontName;		
+		string_t m_FontName;
 		bool m_Destroy;
+		bool m_Italic;
+		bool m_Bold;		
 		long m_X, m_Y;
 	};
 #endif // __USE_UIAL
