@@ -230,7 +230,7 @@ namespace Windower
 		ScoredWords* GetScoredWords() const
 		{ return m_pScoredWords; }
 
-		const TextLabels& GetTextLabels() const
+		TextLabels& GetTextLabels()
 		{ return m_TextLabels; }
 
 	protected:

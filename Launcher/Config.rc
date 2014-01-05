@@ -74,7 +74,6 @@ BEGIN
     PUSHBUTTON      "...",IDC_BROWSE_GAME_PATH,259,48,19,12
     CONTROL         "vSync / Triple buffering",IDC_VSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,80,91,10
     CONTROL         "Check at startup",IDC_AUTOUPDATE,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,104,80,67,10
-    COMBOBOX        IDC_LNG_COMBO,175,79,103,77,CBS_DROPDOWNLIST | CBS_OEMCONVERT | WS_VSCROLL | WS_TABSTOP
     CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,104,271,186
     DEFPUSHBUTTON   "Launch",IDOK,122,293,50,16,0,WS_EX_NOACTIVATE
     PUSHBUTTON      "Save",IDC_SAVE,175,293,50,16
@@ -83,8 +82,8 @@ BEGIN
     LTEXT           "Game directory :",IDC_STATIC,7,36,54,8
     LTEXT           "Plugins :",IDC_STATIC,7,92,28,8
     LTEXT           "Graphics :",IDC_STATIC,7,69,40,8
-    LTEXT           "Language :",IDC_STATIC,175,69,103,8
     LTEXT           "Updates:",IDC_STATIC,104,69,63,8
+    PUSHBUTTON      "Text labels",IDC_TEXT_LABELS,188,78,90,14,WS_DISABLED
 END
 
 IDD_UPDATE_DLG DIALOGEX 0, 0, 328, 185
@@ -109,7 +108,7 @@ BEGIN
     PUSHBUTTON      "...",IDC_BROWSE_GAME_PATH,302,26,19,14
     CONTROL         "Yes",IDC_UPDATE_YES,"Button",BS_AUTORADIOBUTTON | WS_GROUP,98,48,21,10
     CONTROL         "No",IDC_UPDATE_NO,"Button",BS_AUTORADIOBUTTON,127,48,21,10
-    CONTROL         "",IDC_START_SUMMARY,"RichEdit20W",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,7,77,314,101,WS_EX_LEFTSCROLLBAR
+    CONTROL         "",IDC_START_SUMMARY,"RichEdit20W",WS_BORDER | WS_VSCROLL | WS_HSCROLL | 0x8c4,7,77,314,101,WS_EX_LEFTSCROLLBAR
     LTEXT           "Name the default profile :",IDC_STATIC,7,9,83,8
     LTEXT           "Game directory :",IDC_STATIC,7,28,54,8
     LTEXT           "Check for updates :",IDC_STATIC,7,48,77,8
@@ -199,6 +198,106 @@ END
 #endif    // APSTUDIO_INVOKED
 
 #endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (France) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_LABEL_DLG DIALOGEX 0, 0, 312, 190
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_BORDER
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LABEL_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,298,108
+    EDITTEXT        IDC_POS_X,41,130,38,12,ES_AUTOHSCROLL | WS_DISABLED
+    EDITTEXT        IDC_POS_Y,41,146,38,12,ES_AUTOHSCROLL | WS_DISABLED
+    CONTROL         "",IDC_FONT_NAME,"MfcFontComboBox",WS_DISABLED | WS_VSCROLL | WS_TABSTOP | 0x312,123,128,60,68
+    EDITTEXT        IDC_FONT_SIZE,123,146,28,12,ES_AUTOHSCROLL | WS_DISABLED
+    CONTROL         "",IDC_TEXT_COLOR,"MfcColorButton",WS_DISABLED | WS_TABSTOP,241,127,50,16
+    CONTROL         "  Bold",IDC_BOLD_CHK,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,203,147,27,10
+    CONTROL         "  Italic",IDC_ITALIC_CHK,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,243,147,29,10
+    PUSHBUTTON      "Update",IDC_UPDATE_LABEL,197,169,52,14,WS_DISABLED
+    DEFPUSHBUTTON   "Close",IDOK,253,169,52,14
+    GROUPBOX        "Position :",IDC_LABEL_INFO,15,117,71,46
+    CTEXT           "Size",IDC_STATIC,101,147,20,8
+    CTEXT           "X",IDC_STATIC,20,131,17,8
+    CTEXT           "Name",IDC_STATIC,101,131,18,8
+    CTEXT           "pixels",IDC_STATIC,158,147,19,8
+    CTEXT           "Y",IDC_STATIC,20,147,17,8
+    GROUPBOX        "Font :",IDC_LABEL_INFO2,97,117,208,46
+    LTEXT           "Text color",IDC_STATIC,201,131,36,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_LABEL_DLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_LABEL_DLG DLGINIT
+BEGIN
+    IDC_FONT_NAME, 0x37c, 268, 0
+0x4d3c, 0x4346, 0x6f43, 0x626d, 0x426f, 0x786f, 0x445f, 0x6172, 0x5577, 
+0x6973, 0x676e, 0x6f46, 0x746e, 0x543e, 0x5552, 0x3c45, 0x4d2f, 0x4346, 
+0x6f43, 0x626d, 0x426f, 0x786f, 0x445f, 0x6172, 0x5577, 0x6973, 0x676e, 
+0x6f46, 0x746e, 0x3c3e, 0x464d, 0x4343, 0x6d6f, 0x6f62, 0x6f42, 0x5f78, 
+0x6853, 0x776f, 0x7254, 0x6575, 0x7954, 0x6570, 0x6f46, 0x746e, 0x3e73, 
+0x5254, 0x4555, 0x2f3c, 0x464d, 0x4343, 0x6d6f, 0x6f62, 0x6f42, 0x5f78, 
+0x6853, 0x776f, 0x7254, 0x6575, 0x7954, 0x6570, 0x6f46, 0x746e, 0x3e73, 
+0x4d3c, 0x4346, 0x6f43, 0x626d, 0x426f, 0x786f, 0x535f, 0x6f68, 0x5277, 
+0x7361, 0x6574, 0x5472, 0x7079, 0x4665, 0x6e6f, 0x7374, 0x543e, 0x5552, 
+0x3c45, 0x4d2f, 0x4346, 0x6f43, 0x626d, 0x426f, 0x786f, 0x535f, 0x6f68, 
+0x5277, 0x7361, 0x6574, 0x5472, 0x7079, 0x4665, 0x6e6f, 0x7374, 0x3c3e, 
+0x464d, 0x4343, 0x6d6f, 0x6f62, 0x6f42, 0x5f78, 0x6853, 0x776f, 0x6544, 
+0x6976, 0x6563, 0x7954, 0x6570, 0x6f46, 0x746e, 0x3e73, 0x5254, 0x4555, 
+0x2f3c, 0x464d, 0x4343, 0x6d6f, 0x6f62, 0x6f42, 0x5f78, 0x6853, 0x776f, 
+0x6544, 0x6976, 0x6563, 0x7954, 0x6570, 0x6f46, 0x746e, 0x3e73, 
+    IDC_TEXT_COLOR, 0x37c, 215, 0
+0x4d3c, 0x4346, 0x6f43, 0x6f6c, 0x4272, 0x7475, 0x6f74, 0x5f6e, 0x6e45, 
+0x6261, 0x656c, 0x744f, 0x6568, 0x4272, 0x7475, 0x6f74, 0x3e6e, 0x5254, 
+0x4555, 0x2f3c, 0x464d, 0x4343, 0x6c6f, 0x726f, 0x7542, 0x7474, 0x6e6f, 
+0x455f, 0x616e, 0x6c62, 0x4f65, 0x6874, 0x7265, 0x7542, 0x7474, 0x6e6f, 
+0x3c3e, 0x464d, 0x4343, 0x6c6f, 0x726f, 0x7542, 0x7474, 0x6e6f, 0x455f, 
+0x616e, 0x6c62, 0x4165, 0x7475, 0x6d6f, 0x7461, 0x6369, 0x7542, 0x7474, 
+0x6e6f, 0x463e, 0x4c41, 0x4553, 0x2f3c, 0x464d, 0x4343, 0x6c6f, 0x726f, 
+0x7542, 0x7474, 0x6e6f, 0x455f, 0x616e, 0x6c62, 0x4165, 0x7475, 0x6d6f, 
+0x7461, 0x6369, 0x7542, 0x7474, 0x6e6f, 0x3c3e, 0x464d, 0x4343, 0x6c6f, 
+0x726f, 0x7542, 0x7474, 0x6e6f, 0x435f, 0x6c6f, 0x6d75, 0x736e, 0x6f43, 
+0x6e75, 0x3e74, 0x3c35, 0x4d2f, 0x4346, 0x6f43, 0x6f6c, 0x4272, 0x7475, 
+0x6f74, 0x5f6e, 0x6f43, 0x756c, 0x6e6d, 0x4373, 0x756f, 0x746e, "\076" 
+    0
+END
+
+#endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

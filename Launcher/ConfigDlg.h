@@ -52,8 +52,7 @@ public:
 	afx_msg void OnProfileRename();
 	afx_msg void OnProfilesChange();
 
-	afx_msg void OnLanguageChange();
-		
+	afx_msg void OnBnClickedTextLabels();
 	afx_msg void OnAutoUpdateChange();
 	afx_msg void OnDeleteProfile();
 	afx_msg void OnVSyncChange();
@@ -83,7 +82,7 @@ protected:
 	EditLinkTarget m_GamePath;
 	CImageList m_ImageList;
 	int m_CurrentSel;
-	HICON m_hIcon;
+	HICON m_hIcon;	
 };
 
 #endif//__CONFIG_DLG_H__

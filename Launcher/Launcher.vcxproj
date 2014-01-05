@@ -108,7 +108,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>X14_EXPORTS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../VisualManager./;../ZipArchive/;../Updater/;../SettingsManager/;../PluginFramework/;../InjectModule/;../PluginSDK/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../VisualManager./;../ZipArchive/;../Updater/;../SettingsManager/;../PluginFramework/;../InjectModule/;../PluginSDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +156,7 @@
     <ClInclude Include="BaseWizardPage.h" />
     <ClInclude Include="ConfigDlg.h" />
     <ClInclude Include="EditLinkTarget.h" />
+    <ClInclude Include="LabelDlg.h" />
     <ClInclude Include="LauncherApp.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="BaseWizardPage.cpp" />
     <ClCompile Include="ConfigDlg.cpp" />
     <ClCompile Include="EditLinkTarget.cpp" />
+    <ClCompile Include="LabelDlg.cpp" />
     <ClCompile Include="LauncherApp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -197,4 +199,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Config.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

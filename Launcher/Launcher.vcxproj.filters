@@ -56,6 +56,9 @@
     <ClInclude Include="BaseWizardPage.h">
       <Filter>Wizard</Filter>
     </ClInclude>
+    <ClInclude Include="LabelDlg.h">
+      <Filter>Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="BaseWizardPage.cpp">
       <Filter>Wizard</Filter>
+    </ClCompile>
+    <ClCompile Include="LabelDlg.cpp">
+      <Filter>Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
