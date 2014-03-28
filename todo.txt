@@ -1,9 +1,5 @@
 @IDEAS:
 
-*	Misc.
-Text labels : serialize position after move and save to a file
-Threads for message boxes
-
 *	TellDetect
 expand to a user list of keywords with a custom sound per entry
 
