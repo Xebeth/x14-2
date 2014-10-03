@@ -39,6 +39,7 @@ OutputBaseFilename=x14-setup-{#AppVersion}
 SetupIconFile=..\Common\x14.ico
 Compression=lzma
 SolidCompression=yes
+; SignTool=signtool sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn^&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\*.*
 
 [LangOptions]
 DialogFontName=Arial
@@ -100,3 +101,12 @@ begin
   
   Result := true;
 end;
+
+[InnoIDE_PreCompile]
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\Launcher.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\bootstrap.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\x14-2core.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\plugins\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+
+[InnoIDE_PostCompile]
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Installer\*.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
