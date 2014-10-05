@@ -67,7 +67,7 @@ namespace Windower
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore;
 			// create the player data module
-			m_pPlayerCore = new PlayerCore;
+			m_pPlayerCore = NULL; // new PlayerCore;
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler

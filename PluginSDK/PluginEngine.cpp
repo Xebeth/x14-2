@@ -231,18 +231,19 @@ namespace Windower
 	void PluginEngine::SetWorkingDir(HMODULE hModule_in)
 	{
 		wchar_t DirPath[_MAX_PATH] = { '\0' };
-		wchar_t *pLastSlash = NULL;
-
+		
 		// retrieve the name of the module
-		GetModuleFileName(hModule_in, DirPath, _MAX_PATH);
-		// find the last backslash
-		pLastSlash = wcsrchr(DirPath, '\\') + 1;
-
-		if (pLastSlash != NULL)
+		if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
 		{
-			*pLastSlash = '\0';
-			// set the working directory
-			m_WorkingDir.assign(DirPath);
+			// find the last backslash
+			wchar_t *pLastSlash = pLastSlash = wcsrchr(DirPath, '\\') + 1;
+
+			if (pLastSlash != NULL)
+			{
+				*pLastSlash = '\0';
+				// set the working directory
+				m_WorkingDir.assign(DirPath);
+			}
 		}
 	}
 
