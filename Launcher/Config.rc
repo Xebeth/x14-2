@@ -130,8 +130,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "../Common/x14.ico"
-IDI_CONFIG              ICON                    "../Common/config.ico"
+IDR_MAINFRAME           ICON                    "../Resources/x14.ico"
+IDI_CONFIG              ICON                    "../Resources/config.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

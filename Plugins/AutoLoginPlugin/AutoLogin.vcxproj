@@ -11,16 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FAF23DC0-1FF5-406F-8906-D250EDE3A48F}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>x14-2core</RootNamespace>
-    <ProjectName>x14-2core</ProjectName>
+    <ProjectGuid>{BD0C19B3-9D7A-4102-B625-60592078FA98}</ProjectGuid>
+    <RootNamespace>AutoLogin</RootNamespace>
+    <Keyword>MFCDLLProj</Keyword>
+    <ProjectName>AutoLogin</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -28,6 +29,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -35,18 +37,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
+    <Import Project="..\..\dependencies\Common\props\Solution Directories.props" />
+    <Import Project="..\..\dependencies\Common\props\vld.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
+    <Import Project="..\..\dependencies\Common\props\Solution Directories.props" />
+    <Import Project="..\..\dependencies\Common\props\vld.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
     <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
   </PropertyGroup>
@@ -54,6 +57,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(TargetName)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
     <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
   </PropertyGroup>
@@ -62,15 +66,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;_DEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_AFXEXT;PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../SDK/;../../dependencies/PluginFramework/;../../dependencies/SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
       <BaseAddress>
       </BaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -79,6 +83,15 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -87,16 +100,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;NDEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../SDK/;../../dependencies/PluginFramework/;../../dependencies/SettingsManager/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX9/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalOptions>/WX %(AdditionalOptions)</AdditionalOptions>
       <BaseAddress>
       </BaseAddress>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -105,89 +119,48 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CmdLineCore.cpp" />
-    <ClCompile Include="CommandDispatcher.cpp" />
-    <ClCompile Include="CommandParser.cpp" />
-    <ClCompile Include="Direct3D9WrapperImpl.cpp" />
-    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
-    <ClCompile Include="Direct3DSwapChain9WrapperImpl.cpp" />
+    <ClCompile Include="AutoLogin.cpp" />
+    <ClCompile Include="AutoLoginConfigDlg.cpp" />
+    <ClCompile Include="AutoLoginPlugin.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="EventHandler.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FormatChatMsgService.cpp" />
-    <ClCompile Include="GameChatCore.cpp" />
-    <ClCompile Include="GraphicsCore.cpp" />
-    <ClCompile Include="IDirect3D9Wrapper.cpp" />
-    <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
-    <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp" />
-    <ClCompile Include="ModuleService.cpp" />
-    <ClCompile Include="PlayerCore.cpp" />
-    <ClCompile Include="PlayerDataService.cpp" />
+    <ClCompile Include="HTMLFormIterator.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="StringNode.cpp" />
-    <ClCompile Include="SystemCore.cpp" />
-    <ClCompile Include="TestCore.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="TextLabelRenderer.cpp" />
-    <ClCompile Include="TextLabelService.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="UiFPSCounter.cpp" />
-    <ClCompile Include="UiTextLabel.cpp" />
-    <ClCompile Include="WindowerCore.cpp" />
-    <ClCompile Include="WindowerEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CmdLineCore.h" />
-    <ClInclude Include="CommandDispatcher.h" />
-    <ClInclude Include="CommandParser.h" />
-    <ClInclude Include="Direct3DSwapChain9WrapperImpl.h" />
-    <ClInclude Include="Direct3D9WrapperImpl.h" />
-    <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
-    <ClInclude Include="EventHandler.h" />
-    <ClInclude Include="IDeviceCreateSubscriber.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="FormatChatMsgService.h" />
-    <ClInclude Include="GameChatCore.h" />
-    <ClInclude Include="GraphicsCore.h" />
-    <ClInclude Include="IDirect3D9Wrapper.h" />
-    <ClInclude Include="IDirect3DDevice9Wrapper.h" />
-    <ClInclude Include="IDirect3DSwapChain9Wrapper.h" />
-    <ClInclude Include="IEventInterface.h" />
-    <ClInclude Include="IRenderable.h" />
-    <ClInclude Include="ModuleService.h" />
-    <ClInclude Include="PlayerCore.h" />
-    <ClInclude Include="PlayerDataService.h" />
+    <ClInclude Include="AutoLogin.h" />
+    <ClInclude Include="AutoLoginConfigDlg.h" />
+    <ClInclude Include="AutoLoginPlugin.h" />
+    <ClInclude Include="HTMLFormIterator.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="StringNode.h" />
-    <ClInclude Include="SystemCore.h" />
-    <ClInclude Include="TestCore.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="TextLabelRenderer.h" />
-    <ClInclude Include="TextLabelService.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="UiFPSCounter.h" />
-    <ClInclude Include="UiTextLabel.h" />
     <ClInclude Include="version.h" />
-    <ClInclude Include="WindowerCore.h" />
-    <ClInclude Include="WindowerEngine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="AutoLogin.rc" />
     <ResourceCompile Include="module.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\todo.txt" />
+    <None Include="res\AutoLogin.ico" />
+    <None Include="res\AutoLogin.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\HookManager\HookManager.vcxproj" />
-    <ProjectReference Include="..\dependencies\SettingsManager\SettingsManager.vcxproj" />
-    <ProjectReference Include="..\Plugins\SDK\PluginSDK.vcxproj" />
+    <ProjectReference Include="..\SDK\PluginSDK.vcxproj">
+      <Project>{5cf59f44-ee3d-45be-a178-a7a30478f07f}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

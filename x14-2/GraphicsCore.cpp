@@ -6,8 +6,8 @@
 	purpose		:	Interface with Direct3D 9
 **************************************************************************/
 #include "stdafx.h"
-#include <d3dx9.h>
 #include <d3d9.h>
+#include <d3dx9.h>
 
 #include "WindowerEngine.h"
 

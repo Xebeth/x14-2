@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatLogPlugin.h" />
+    <ClInclude Include="..\TimestampPlugin\TimestampConfigDlg.h">
+      <Filter>Timestamp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TimestampPlugin\TimestampPlugin.h">
+      <Filter>Timestamp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TimestampPlugin\resource.h">
+      <Filter>Timestamp\resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{65569bdf-b2af-4fed-b396-5bdf378416d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{876235ba-7e4b-40e3-aacb-ae6788960f6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timestamp">
+      <UniqueIdentifier>{1e10278c-e1b4-49aa-ab0a-4ed5824af37b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timestamp\resources">
+      <UniqueIdentifier>{30f06bb9-390a-4c03-aa41-d27aea6f34ae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\TimestampPlugin\Timestamp.rc">
+      <Filter>Timestamp\resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatLogPlugin.cpp" />
+    <ClCompile Include="..\TimestampPlugin\TimestampConfigDlg.cpp">
+      <Filter>Timestamp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TimestampPlugin\TimestampPlugin.cpp">
+      <Filter>Timestamp</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Resources\x14.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

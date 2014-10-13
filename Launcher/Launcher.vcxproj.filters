@@ -105,10 +105,10 @@
     <None Include="res\Config.rc2">
       <Filter>Resources</Filter>
     </None>
-    <None Include="..\Common\config.ico">
+    <None Include="..\Resources\config.ico">
       <Filter>Resources\images</Filter>
     </None>
-    <None Include="..\Common\x14.ico">
+    <None Include="..\Resources\x14.ico">
       <Filter>Resources\images</Filter>
     </None>
     <None Include="res\dlg_config.png">

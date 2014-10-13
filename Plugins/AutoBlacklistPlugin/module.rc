@@ -5,7 +5,7 @@
 	copyright	:	North Edge (2011)
 	purpose		:	DLL version information
 **************************************************************************/
-IDR_MAINFRAME ICON "../Resources/x14.ico"
+IDR_MAINFRAME ICON "../../Resources/x14.ico"
 
 #include "version.h"
 
