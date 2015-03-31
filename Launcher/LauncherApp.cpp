@@ -81,7 +81,8 @@ bool LauncherApp::CreateLink(const string_t &SavePath_in, const string_t &LinkTa
 	IShellLink* pShellLink = NULL;
 	HRESULT hResult = S_FALSE;
 
-	::CoInitialize(NULL);
+	if (FAILED(::CoInitialize(NULL)))
+		return false;
 
 	// get a pointer to the IShellLink interface
 	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
@@ -124,7 +125,8 @@ CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CStri
 	IShellLink *pShellLink = NULL;
 	HRESULT hResult = S_FALSE;
 
-	::CoInitialize(NULL);
+	if (FAILED(::CoInitialize(NULL)))
+		return LinkTarget_out;
 
 	// get a pointer to the IShellLink interface
 	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
@@ -148,7 +150,7 @@ CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CStri
 
 				if (SUCCEEDED(hResult)) 
 				{ 
-					WIN32_FIND_DATA wfd;
+					WIN32_FIND_DATA wfd = { NULL };
 
 					// Get the path to the link target. 
 					hResult = pShellLink->GetPath(LinkTarget_out.GetBuffer(MAX_PATH), MAX_PATH, (WIN32_FIND_DATA*)&wfd, NULL); 
@@ -228,7 +230,7 @@ BOOL LauncherApp::InitInstance()
 													 m_Modules,
 													 m_pSettingsManager);
 	m_pPluginManager = new PluginFramework::PluginManager(m_pPluginServices);
-	
+/*
 	if (CmdInfo.IsFirstRun() || m_pSettingsManager->IsConfigLoaded() == false)
 	{
 		// for the first time use, perform all the tasks
@@ -243,6 +245,7 @@ BOOL LauncherApp::InitInstance()
 		if (m_pSettingsManager->IsGamePathValid() == false)
 			Tasks |= WizardDlg::TASK_CONFIGURE_PATH;
 	}
+*/
 	// check if a profile was specified on the command line
 	if (CmdInfo.GetProfileName(ProfileName).IsEmpty() == false)
 	{
