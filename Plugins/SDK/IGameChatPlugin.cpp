@@ -52,8 +52,8 @@ namespace Windower
 						memset(pRealloc, 0, dwNewSize_in * sizeof(char));
 						// copy the source
 						memcpy_s(pRealloc + Offset_in,
-							sizeof(char) * (dwNewSize_in - Offset_in),
-							pSrc_in, SrcSize_in);
+								 sizeof(char) * (dwNewSize_in - Offset_in),
+								 pSrc_in, SrcSize_in);
 					}
 					else
 					{
@@ -78,24 +78,4 @@ namespace Windower
 
 		return false;
 	}	
-
-	/*! \brief Cleans the name of a sender
-		\param[in] pSender_in : the name of the sender as received by the game
-		\param[out] Result_out : the cleaned name of the sender
-	*/
-	std::string& IGameChatPlugin::CleanSender(const char* pSender_in, std::string &Result_out)
-	{
-		if (pSender_in != NULL)
-		{
-			Result_out = pSender_in;
-
-			if (Result_out.empty() == false)
-			{
-				purge<char>(Result_out, _ALPHA | _SPACE, "'", true);
-				Result_out = Result_out.substr(1, Result_out.length() / 2 - 1);
-			}
-		}
-
-		return Result_out;
-	}
 }

@@ -74,7 +74,6 @@ namespace Windower
 		bool ResizeBuffer(const char *pSrc_in, DWORD SrcSize_in, DWORD dwNewSize_in,
 						  char **pBuffer_in_out, DWORD BufferSize_in, DWORD Offset_in = 0UL) const;
 
-		static std::string& CleanSender(const char* pSender_in, std::string &Result_out);
 		virtual bool Unsubscribe();
 		virtual bool Subscribe();
 	};
