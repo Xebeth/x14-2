@@ -35,6 +35,19 @@ namespace Windower
 			OnSettingsChanged();
 		}
 	}
+	
+	AutoBlacklistPlugin::~AutoBlacklistPlugin()
+	{
+		Offenders::iterator OffenderIt, OffEndIt = m_Offenders.end();
+
+		for (OffenderIt = m_Offenders.begin(); OffenderIt != OffEndIt; ++OffenderIt)
+		{
+			Offender *pOffender = OffenderIt->second;
+
+			if (pOffender != NULL)
+				delete pOffender;
+		}
+	}
 
 	/*! \brief Adds the plugin as a subscriber to the game chat service
 		\return true if the subscription succeeded; false otherwise
@@ -131,9 +144,18 @@ namespace Windower
 			Result = false;
 		}
 		// history
-		pCommand = RegisterCommand(CMD_HISTORY,	"blacklist::history", "gives a history of blocked messages and offenders");
+		pCommand = RegisterCommand(CMD_HISTORY, "blacklist::history", "gives a history of blocked messages and offenders");
 
 		if (pCommand != NULL && pCommand->AddStringParam("sub-command", true, "msg", "valid sub-commands: msg (blacklisted messages), char (blacklisted characters)") == false)
+		{
+			delete pCommand;
+			pCommand = NULL;
+			Result = false;
+		}
+		// score message
+		pCommand = RegisterCommand(CMD_SCORE_MSG, "blacklist::score", "evaluates the score of the provided message");
+
+		if (pCommand != NULL && pCommand->AddStringParam("message", false, "", "the message to be scored") == false)
 		{
 			delete pCommand;
 			pCommand = NULL;
@@ -165,6 +187,8 @@ namespace Windower
 				return UpdateThreshold(Command_in.GetIntegerValue("threshold"), Feedback_out);
 			case CMD_BLOCK_AT:
 				return UpdateCount(Command_in.GetIntegerValue("count"), Feedback_out);
+			case CMD_SCORE_MSG:
+				return ScoreMessage(Command_in.GetStringValue("message").c_str(), Feedback_out);
 			case CMD_HISTORY:
 				return DisplayHistory(Command_in.GetStringValue("sub-command"), Feedback_out);
 		}
@@ -251,7 +275,7 @@ namespace Windower
 							EndMsgIt = Messages.cend();
 
 							for (MsgIt = Messages.cbegin(); MsgIt != EndMsgIt; ++MsgIt)
-								append_format(Feedback_out, "\n   %s", MsgIt->c_str());
+								append_format(Feedback_out, "\n   %s\n", MsgIt->c_str());
 						}
 					}
 				}
@@ -277,11 +301,11 @@ namespace Windower
 
 					if (pOffender != NULL)
 					{
-						append_format(Feedback_out, " - %s (%ld/%ld): %sblacklisted",
+						append_format(Feedback_out, " - %s (%ld/%ld): %sblacklisted\n",
 									  pOffender->GetName().c_str(),
 									  pOffender->GetStrikes(),
 									  m_BlacklistCount, 
-									  pOffender->IsBlacklisted() ? " " : "not ");
+									  pOffender->IsBlacklisted() ? "" : "not ");
 					}
 				}
 			}
@@ -310,6 +334,19 @@ namespace Windower
 				for(WordIt = m_pScoredWords->cbegin(); WordIt != EndIt; ++WordIt)
 					append_format(Feedback_out, "\n   - '%s' (%ld)", WordIt->first.c_str(), WordIt->second);
 			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool AutoBlacklistPlugin::ScoreMessage(const char *pOriginalMsg_in, std::string &Feedback_out)
+	{
+		if (pOriginalMsg_in != NULL)
+		{
+			Feedback_out.clear();
+			ScoreMessage(CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE, pOriginalMsg_in, Feedback_out);
 
 			return true;
 		}
@@ -388,6 +425,7 @@ namespace Windower
 		Result &= RevokeCommand(CMD_LIST);
 		Result &= RevokeCommand(CMD_THRESHOLD);
 		Result &= RevokeCommand(CMD_COUNT);
+		Result &= RevokeCommand(CMD_SCORE_MSG);
 		Result &= RevokeCommand(CMD_HISTORY);
 
 		return Result;
@@ -439,37 +477,28 @@ namespace Windower
 			std::string ScoredMessage;
 			int Score = ScoreMessage(MessageType_in, pOriginalMsg_in, ScoredMessage);
 
-			if (Score > m_BlacklistThreshold)
+			if (Score >= m_BlacklistThreshold)
 			{
 				MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE;
 
 				if (pSender_in != NULL && pModifiedMsg_in_out != NULL)
 				{
-					std::string Sender;
-					Offender *pOffender = AddOffender(CleanSender(pSender_in, Sender));
+					Offender *pOffender = AddOffender(pSender_in);
 
 					if (pOffender != NULL)
 					{
 						pOffender->AddBlacklistedMessage(ScoredMessage);
-
+						
 						if (pOffender->IsBlacklisted() == false)
 						{
 							std::string NewMessage;
+							size_t NewSize;
 
 							pOffender->UpdateStrikes(1, m_BlacklistCount);
 
-							if (m_BlacklistCount > 0 && pOffender->IsBlacklisted())
-							{
-								format(NewMessage, "/blacklist add \"%s\"", pOffender->GetName().c_str());
-								MessageFlags_out |= (MSG_FLAG_DISCARD | MSG_FLAG_EXEC);
-							}
-							else
-							{
-								format(NewMessage, "AutoBlacklist>> Message from %s blacklisted (score %i).", pOffender->GetName().c_str(), Score);
-								MessageFlags_out |= MSG_FLAG_FORCE_ECHO;
-							}
-
-							size_t NewSize = NewMessage.size();
+							format(NewMessage, "AutoBlacklist>> Message from %s blacklisted (score %i).\0", pOffender->GetName().c_str(), Score);
+							MessageFlags_out |= MSG_FLAG_FORCE_ECHO;
+							NewSize = NewMessage.size();
 
 							if (ResizeBuffer(pOriginalMsg_in, MsgSize_in, NewSize, pModifiedMsg_in_out, ModifiedSize_in))
 							{
@@ -478,9 +507,7 @@ namespace Windower
 							}
 						}
 						else
-						{
 							MessageFlags_out |= MSG_FLAG_DISCARD;
-						}
 					}
 				}
 			}

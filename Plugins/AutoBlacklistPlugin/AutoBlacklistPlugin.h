@@ -25,6 +25,7 @@ namespace Windower
 			CMD_THRESHOLD,		//!< update the threshold score
 			CMD_BLOCK_AT,		//!< update the offenses count limit
 			CMD_HISTORY,		//!< history of the blacklisted messages
+			CMD_SCORE_MSG,		//!< scores a message according to the current settings
 			CMD_COUNT			//!< number of registered commands
 		};
 		//! sub-commands for history
@@ -62,6 +63,7 @@ namespace Windower
 
 	public:
 		explicit AutoBlacklistPlugin(PluginFramework::IPluginServices *pServices_in);
+		~AutoBlacklistPlugin();
 
 		static PluginFramework::IPlugin* Create(PluginFramework::IPluginServices *pServices_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
@@ -83,9 +85,10 @@ namespace Windower
 		// commands
 		bool AddWord(const std::string &Word_in, long Score_in, std::string & Feedback_out);
 		bool DisplayHistory(const std::string& SubCmd_in, std::string &Feedback_out);
+		bool ScoreMessage(const char *pOriginalMsg_in, std::string & Feedback_out);
 		bool RemoveWord(const std::string &Word_in, std::string & Feedback_out);
 		bool UpdateThreshold(long Threshold_in, std::string & Feedback_out);
-		bool UpdateCount(long Count_in, std::string & Feedback_out);
+		bool UpdateCount(long Count_in, std::string & Feedback_out);		
 		bool ListWords(std::string &Feedback_out);
 		
 		long m_BlacklistCount, m_BlacklistThreshold;
