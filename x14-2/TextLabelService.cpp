@@ -35,6 +35,7 @@ namespace Windower
 		StringUtils::UUID PluginUUID;
 
 		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("F4F02060-9ED0-11E2-9E96-0800200C9A66")));	// Distance
+		m_CompatiblePlugins.insert(PluginUUID.FromString(_T("61933EE0-3F0D-4EE4-B69E-C38B597293F0")));	// Gatherer
 	}
 
 	void TextLabelService::SetRenderer(TextLabelRenderer *pRenderer_in, IDirect3DDevice9 *pDevice_in,
