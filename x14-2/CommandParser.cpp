@@ -39,7 +39,7 @@ namespace Windower
 		WindowerCommand *pCommand;		
 
 		// shouldn't happen but skip the // if they're still present
-		if (strstr(pRawCommand_in, "//") == pRawCommand_in)
+		if (strstr(pRawCommand_in, "//") == pRawCommand_in || strstr(pRawCommand_in, "/!") == pRawCommand_in)
 			RawCommand = pRawCommand_in + 2;
 		else
 			RawCommand = pRawCommand_in;

@@ -11,13 +11,11 @@
 												 //81ECD000000056578BBC24DC000000		-15 8		2013-03-22
 												 //33C58945FC538B5D0C56578B7D088B07					2013-09-04
 												 //8038008BF10F84400100008D4DDC33C05157	
+												 //33C58945FC538B5D0C56578B7D088B07803800
 #define PROCESS_CMD_OPCODES_SIGNATURE			"##33C58945??538B5D??56578B7D??8B07803800"
-#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -14
-#define PROCESS_CMD_OPCODES_HOOK_SIZE			 9
+#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -11
+#define PROCESS_CMD_OPCODES_HOOK_SIZE			 11
 #define PROCESS_CMD_HOOK "OnProcessCmd"
-//																			   T e x t C o m m a n d
-#define TEXT_COMMAND_SIGNATURE					"##400000000C00000000000000000154657874436F6D6D616E64"
-#define TEXT_COMMAND_OFFSET						-0x164
 
 #define CMD_LINE_MODULE "CmdLine"
 
@@ -26,8 +24,7 @@ namespace Windower
 	typedef struct _StringNode StringNode;
 	class WindowerEngine;
 
-	// char __thiscall sub_900110(void *this, int a2, int a3) => search Component\Shell\ShellCommandModule.cpp, 
-	// the function makes reference to the offset below that (contains ' '	aka SpaceStrA)
+	// int __thiscall sub_CF1DE0(void *this, int *a2, int a3)
 	typedef int (WINAPI *fnProcessCmd)(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in);
 
 	class CommandDispatcher;
@@ -45,6 +42,10 @@ namespace Windower
 			CMD_UNLOAD_PLUGIN,		//!< unloads a plugin
 			CMD_LIST_PLUGINS,		//!< list all plugins
 			CMD_CONFIGURE,			//!< configure a plugin
+			CMD_MACRO,				//!< executes a macro
+			CMD_MACRO_ABORT,		//!< aborts the current macro
+			CMD_WAIT,				//!< wait command
+			CMD_KEY_PRESS,			//!< key press command
 			CMD_EXIT,				//!< exit the game
 			CMD_COUNT				//!< number of registered commands
 		};
@@ -56,6 +57,7 @@ namespace Windower
 		static int InjectCommand(const std::string &Cmd_in);
 
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
+		bool ExecuteMacroFile(const string_t &macroFile_in, long repeat = 1L);
 
 		// ICommandHandler interface implementation
 		bool IsCommandValid(const WindowerCommand *pCommand_in) const;
@@ -72,7 +74,7 @@ namespace Windower
 		int ShowCommandHelp(WindowerCommand *pCommand_in);
 		bool UnregisterCommands();
 		bool RegisterCommands();
-
+		
 		//! the command dispatcher
 		CommandDispatcher *m_pCommandDispatcher;
 		//! the command parser

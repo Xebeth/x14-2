@@ -42,7 +42,8 @@ namespace Windower
 		: PluginEngine(hModule_in, pConfigFile_in), m_hGameWnd(NULL), m_dwPID(0UL),
 		  m_bDetached(false), m_bShutdown(false), m_hWindowerDLL(hModule_in),
 		  m_pGameChatCore(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
-		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL)
+		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL),
+		  m_AbortCurrentMacro(0L)
 	{
 		InitializeCriticalSection(&m_PluginLock);
 		// set the static members of modules
@@ -67,7 +68,7 @@ namespace Windower
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore;
 			// create the player data module
-			m_pPlayerCore = NULL; // new PlayerCore;
+			// m_pPlayerCore = new PlayerCore;
 			// create the graphics module
 			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
@@ -236,6 +237,15 @@ namespace Windower
 			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, m_hWindowerDLL, 0, NULL);
 	}
 
+	bool WindowerEngine::QueueMacro(const string_t &MacroFile_in, long repeat)
+	{
+		LockEngineThread();
+		m_Macros.push_back(std::make_pair(MacroFile_in, repeat));
+		UnlockEngineThread();
+
+		return true;
+	}
+
 	/*! \brief The engine main thread
 		\return the exit code of the thread
 	*/
@@ -282,8 +292,59 @@ namespace Windower
 				}
 				// configure any plugin queued
 				PopPluginConfigure();
+				// execute any pending macro
+				PopMacroExecution();
 			}
 		}
+	}
+
+	bool WindowerEngine::PressKey(long key, long delay, long repeat)
+	{
+		if (m_pSystemCore != NULL)
+		{
+			if (delay < 500L)
+				delay = 500L;
+
+			for (long i = 0; i < repeat && IsMacroAborted() == false; ++i)
+			{
+				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYDOWN, key, 0);
+				::Sleep(250);
+				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYUP, key, 0);
+				::Sleep(delay);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool WindowerEngine::AbortMacro()
+	{
+		InterlockedExchange(&m_AbortCurrentMacro, 1L);
+
+		return true;
+	}
+
+	bool WindowerEngine::IsMacroAborted()
+	{
+		return (m_AbortCurrentMacro == 1L);
+	}
+
+	bool WindowerEngine::PopMacroExecution()
+	{
+		if (m_Macros.empty() == false)
+		{
+			auto macro = m_Macros.front();
+
+			// remove the macro from the queue
+			m_Macros.erase(m_Macros.cbegin());
+			m_AbortCurrentMacro = 0L;
+
+			return m_pCmdLineCore->ExecuteMacroFile(macro.first, macro.second);
+		}
+
+		return true;
 	}
 
 	//! \brief Initializes the engine
@@ -300,7 +361,7 @@ namespace Windower
 			m_pUpdateTimer = new Timer;
 
 			m_pUpdateTimer->SetRawTickInterval(100000);
-			m_pUpdateTimer->Start();			
+			m_pUpdateTimer->Start();
 		}
 
 		InitializePlugins();

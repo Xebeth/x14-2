@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher\Launcher.vcxproj", "{EC0D5B04-BE25-4D8B-9B31-077DF1855397}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -115,6 +115,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoBlacklist", "Plugins\Au
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSDK", "Plugins\SDK\PluginSDK.vcxproj", "{5CF59F44-EE3D-45BE-A178-A7A30478F07F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gatherer", "Plugins\GathererPlugin\Gatherer.vcxproj", "{61933EE0-3F0D-4EE4-B69E-C38B597293F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -525,6 +527,24 @@ Global
 		{5CF59F44-EE3D-45BE-A178-A7A30478F07F}.Template|Win32.Build.0 = Release|Win32
 		{5CF59F44-EE3D-45BE-A178-A7A30478F07F}.Template|x86.ActiveCfg = Release|Win32
 		{5CF59F44-EE3D-45BE-A178-A7A30478F07F}.Template|x86.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|Win32.Build.0 = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|x86.ActiveCfg = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Debug|x86.Build.0 = Debug|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|Win32.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|Win32.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|x86.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Release|x86.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|Mixed Platforms.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|Mixed Platforms.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|Win32.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|Win32.Build.0 = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|x86.ActiveCfg = Release|Win32
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0}.Template|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -554,5 +574,6 @@ Global
 		{03D09922-EAC7-45B8-BE8B-472B55434A07} = {19D307E9-C6D3-4EBD-BB3C-217BDBDC5443}
 		{04D9AAC0-FC16-4C9E-8C0E-0941B57F9E17} = {80AD3E25-1DC4-41E7-A135-8D27153992C0}
 		{5CF59F44-EE3D-45BE-A178-A7A30478F07F} = {80AD3E25-1DC4-41E7-A135-8D27153992C0}
+		{61933EE0-3F0D-4EE4-B69E-C38B597293F0} = {80AD3E25-1DC4-41E7-A135-8D27153992C0}
 	EndGlobalSection
 EndGlobal

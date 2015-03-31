@@ -45,7 +45,7 @@ namespace Windower
 		\return true if the message was formatted successfully; false otherwise
 	*/
 	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in)
+															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in, bool Unknown1)
 	{
 		m_Context->m_pChatMsg = pThis_in_out;
 
@@ -68,9 +68,6 @@ namespace Windower
 					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
 													  pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
 
-					// execute result
-					if ((MessageFlags & MSG_FLAG_EXEC) == MSG_FLAG_EXEC && pModifiedMsg != NULL)
-						CmdLineCore::InjectCommand(pModifiedMsg);
 					// discard message
 					if ((MessageFlags & MSG_FLAG_DISCARD) == MSG_FLAG_DISCARD)
 					{
@@ -79,6 +76,9 @@ namespace Windower
 
 						return false;
 					}
+					// execute result
+					if ((MessageFlags & MSG_FLAG_EXEC) == MSG_FLAG_EXEC && pModifiedMsg != NULL)
+						CmdLineCore::InjectCommand(pModifiedMsg);
 					// force the message to be an echo
 					if ((MessageFlags & MSG_FLAG_FORCE_ECHO) == MSG_FLAG_FORCE_ECHO)
 						MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE;
@@ -89,35 +89,33 @@ namespace Windower
 			}
 
 			return m_Context->FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
-											pMessage_in_out, pModifiedMsg, dwNewSize);
+											pMessage_in_out, pModifiedMsg, dwNewSize, Unknown1);
 		}
 
 		return false;
 	}
 
 	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in)
+											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in, bool Unknown1)
 	{
-		DWORD dwOriginalSenderSize = pSender_in_out->dwSize;
-		char *pOriginalSender = pSender_in_out->pResBuf;
-		StringNode OriginalMsg = *pMessage_in_out;
+		StringNode *pNode, ModifiedMsgNode;
 		bool Result = false;
 		 
 		// update the message
 		if (pModifiedMsg_in != NULL)
-			UpdateNode(pModifiedMsg_in, NewSize_in, *pMessage_in_out);
+		{
+			InitStringNode(ModifiedMsgNode, pModifiedMsg_in);
+			pNode = &ModifiedMsgNode;
+		}
+		else
+			pNode = pMessage_in_out;
+		
 		// display the error message instead of the typed command
 		Result = m_Context->m_pFormatChatMsgTrampoline(pThis_in_out, MessageType_in,
-													   pSender_in_out, pMessage_in_out, NULL);
-		// restore the original message and sender
-		pSender_in_out->dwSize = dwOriginalSenderSize;
-		pSender_in_out->pResBuf = pOriginalSender;
+													   pSender_in_out, pNode, NULL, Unknown1);
 		// cleanup
 		if (pModifiedMsg_in != NULL)
-		{
-			*pMessage_in_out = OriginalMsg;
 			free(pModifiedMsg_in);
-		}
 
 		return Result;
 	}
@@ -128,12 +126,17 @@ namespace Windower
 	{
 		if (m_Context->m_pChatMsg != NULL)
 		{
-			StringNode DummySender, DummyMsg;
 
-			InitStringNode(DummySender, Sender_in);
-			InitStringNode(DummyMsg, Msg_in);			
+			if (Msg_in.empty() == false)
+			{
+				StringNode DummySender, DummyMsg;
 
-			FormatChatMessageHook(m_Context->m_pChatMsg, MessageType_in, &DummySender, &DummyMsg, NULL);
+				InitStringNode(DummyMsg, Msg_in.c_str());
+				InitStringNode(DummySender, Sender_in.c_str());
+
+				FormatChatMessageHook(m_Context->m_pChatMsg, MessageType_in, 
+									  &DummySender, &DummyMsg, NULL, 0);
+			}
 
 			return true;
 		}

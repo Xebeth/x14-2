@@ -31,7 +31,8 @@ namespace Windower
 
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
-	typedef std::vector<DWORD_PTR> MemoryScanResult;
+	typedef std::vector<std::pair<string_t, long>> MacroFiles;
+	typedef std::vector<DWORD_PTR> MemoryScanResult;	
 
 	//! \brief Windower x14-2 engine
 	class WindowerEngine : public PluginEngine
@@ -40,7 +41,9 @@ namespace Windower
 		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		~WindowerEngine();
 
-		void ShutdownEngine(bool UnloadDLL_in = false);
+		bool QueueMacro(const string_t &MacroFile_in, long repeat);
+		bool PressKey(long key, long delay, long repeat);
+		void ShutdownEngine(bool UnloadDLL_in = false);		
 		bool Attach();
 		bool Detach();
 		void Inject();
@@ -52,6 +55,8 @@ namespace Windower
 		DWORD MainThread();
 
 		bool IsPlayerLoggedIn() const;
+		bool IsMacroAborted();
+		bool AbortMacro();
 
 		DWORD MemoryScan(const std::string &Pattern_in,
 						 MemoryScanResult &Results_in_out);
@@ -71,10 +76,11 @@ namespace Windower
 							bool Bold_in = true, bool Italic_in = false);
 
 	private:
+		bool PopMacroExecution();
 		bool InitializePlugins();
 		void InitializeEngine();
 		void UpdateEngine();
-
+		
 		//! the current settings
 		WindowerProfile m_Settings;
 		//! the hook engine
@@ -101,12 +107,15 @@ namespace Windower
 		DWORD m_dwPID;
 		//! update timer
 		Timer *m_pUpdateTimer;
+		//! Pending macro files
+		MacroFiles m_Macros;
 		//! critical section for plugin operations
 		CRITICAL_SECTION m_PluginLock;
 		//! flag controlling the lifetime of the engine thread
 		volatile bool m_bShutdown;
 		// flag specifying if the engine has been detached
 		volatile bool m_bDetached;
+		volatile LONG m_AbortCurrentMacro;
 	};
 }
 

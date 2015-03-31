@@ -6,6 +6,7 @@
 	purpose		:	Command line module
 **************************************************************************/
 #include "stdafx.h"
+#include <fstream>
 
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
@@ -63,6 +64,11 @@ namespace Windower
 	{
 		int Result = 0;
 
+		if (pUnknown_in != NULL)
+			m_Context->m_pTextCmdUnknown = pUnknown_in;
+		if (pThis_in_out != NULL)
+			m_Context->m_pTextCmd = pThis_in_out;
+
 		// update the text command pointer
 		if (m_Context->m_pProcessCmdTrampoline != NULL)
 		{
@@ -70,15 +76,18 @@ namespace Windower
 
 			if (m_Context->FilterCommands(pCmd_in_out, Feedback))
 			{
-				// skip command processing
-				return FormatChatMsgService::InjectMessage(Feedback, "x14-2", CHAT_MESSAGE_TYPE_NOTICE);
+				if (Feedback.empty() == false)
+				{
+					// skip command processing
+					return FormatChatMsgService::InjectMessage(Feedback, "x14-2", CHAT_MESSAGE_TYPE_NOTICE);
+				}
+				else
+					return true;
 			}
 			else if (pThis_in_out != NULL && pUnknown_in != NULL)
 			{
 				// call the trampoline to process the command
 				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
-				m_Context->m_pTextCmdUnknown = pUnknown_in;
-				m_Context->m_pTextCmd = pThis_in_out;
 			}
 		}
 
@@ -96,18 +105,19 @@ namespace Windower
 		 && m_Context->m_pCommandParser != NULL)
 		{
 			// the message starts with 2 forward slashes => expect a command
-			if (pCmd_in->dwSize != 0 && strstr(pCmd_in->pResBuf, "//") == pCmd_in->pResBuf)
+			if (pCmd_in->dwSize != 0 && (strstr(pCmd_in->pResBuf, "//") == pCmd_in->pResBuf || strstr(pCmd_in->pResBuf, "/!") == pCmd_in->pResBuf))
 			{
 				bool Result = false;
 
 				if (pCmd_in->dwSize > 2)
 				{
-					char *pFeedbackMsg = NULL;
-					WindowerCommand Command;
 					DWORD dwNewSize = 0UL;
+					WindowerCommand Command;
+					char *pFeedbackMsg = NULL;					
+					int parseResult = m_Context->m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command,
+																				&pFeedbackMsg, dwNewSize);
 
-					if (m_Context->m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command,
-																  &pFeedbackMsg, dwNewSize) == CommandParser::PARSER_RESULT_SUCCESS)
+					if (parseResult == CommandParser::PARSER_RESULT_SUCCESS)
 					{
 						Command.Execute(Feedback_out);
 						Result = true;
@@ -118,7 +128,7 @@ namespace Windower
 						Result = true;
 					}
 
-					if (Result)
+					if (Result && strstr(pCmd_in->pResBuf, "/!") == NULL)
 					{
 						std::string Cmd(pCmd_in->pResBuf);
 
@@ -254,6 +264,74 @@ namespace Windower
 
 			Result &= (pCommand != NULL);
 
+			// register the "macro" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_MACRO, "macro",
+										   "Executes a macro file.", this, false);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("file", false, "", "the file containing the macro commands");
+				pCommand->AddIntegerParam("count", true, 1L, "the number of times to execute the macro");
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			// register the "wait" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_WAIT, "wait",
+										   "Waits the specified number of milliseconds.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddIntegerParam("wait", false, 500L, "the number of milliseconds to wait");
+				pCommand->SetRestricted(false);
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			// register the "key" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_KEY_PRESS, "key",
+										   "Simulates a key press.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddIntegerParam("key", false, 0L, "the code of the key to press");
+				pCommand->AddIntegerParam("count", true, 1L, "the number of times to key is pressed");
+				pCommand->AddIntegerParam("delay", true, 500L, "the delay between keypresses");
+				pCommand->SetRestricted(false);
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			// register the "abort" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_MACRO_ABORT, "abort",
+										   "Aborts the macro currently executed, if any.", this);
+
+			if (pCommand != NULL && RegisterCommand(pCommand) == false)
+			{
+				delete pCommand;
+				pCommand = NULL;
+			}
+
+			Result &= (pCommand != NULL);
+			
 			// register the "exit" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_EXIT, "exit",
 										   "Forces the game to exit.", this);
@@ -272,6 +350,29 @@ namespace Windower
 		return false;
 	}
 
+	bool CmdLineCore::ExecuteMacroFile(const string_t &macroFile_in, long repeat)
+	{
+		if (m_pTextCmd != NULL)
+		{
+			for (long i = 0; i < repeat && m_pEngine->IsMacroAborted() == false; ++i)
+			{
+				std::ifstream infile(macroFile_in);
+
+				if (infile.bad() == false)
+				{
+					std::string line;
+
+					while (std::getline(infile, line) && m_pEngine->IsMacroAborted() == false)
+						InjectCommand(line);
+				}
+			}
+
+			return true;
+		}
+		
+		return false;
+	}
+	
 	/*! \brief Inserts a command in the collection of registered commands
 		\param[in] pCommand_in : the command to add
 	*/
@@ -435,6 +536,59 @@ namespace Windower
 				}
 			}
 			break;
+			case CMD_MACRO:
+				if (m_pEngine != NULL)
+				{
+					std::string MacroFile = Command_in.GetStringValue("file");
+					long repeat = Command_in.GetIntegerValue("count");
+					string_t MacroFileW;
+						
+					format(Feedback_out, "The macro '%s' has been queued for execution %ld time(s).", MacroFile.c_str(), repeat);
+					Result = true;
+
+					if (::GetFileAttributesA(MacroFile.c_str()) != INVALID_FILE_ATTRIBUTES)
+						Result &= m_pEngine->QueueMacro(convert_utf8(MacroFile, MacroFileW), repeat);
+					else
+						format(Feedback_out, "The macro '%s' failed to execute.", MacroFile.c_str());
+
+					return Result;
+				}
+			break;
+			case CMD_MACRO_ABORT:
+				if (m_pEngine != NULL)
+				{
+					Feedback_out = "Macro aborted.";
+
+					return m_pEngine->AbortMacro();
+				}
+			break;
+			case CMD_KEY_PRESS:
+				if (m_pEngine != NULL)
+				{
+					long repeat = Command_in.GetIntegerValue("count");
+					long delay = Command_in.GetPointerValue("delay");
+					long key = Command_in.GetPointerValue("key");					
+
+					Feedback_out = "";
+					Result = true;
+
+					return m_pEngine->PressKey(key, delay, repeat);
+				}
+			break;
+			case CMD_WAIT:
+				if (m_pEngine != NULL)
+				{
+					long wait = Command_in.GetIntegerValue("wait");
+
+					if (wait <= 500L)
+						wait = 500L;
+
+					Feedback_out = "";
+					::Sleep(wait);
+
+					return true;
+				}
+			break;
 			case CMD_EXIT:
 				return (m_pEngine ? m_pEngine->Exit(Feedback_out) : false);
 			break;
@@ -502,9 +656,12 @@ namespace Windower
 
 	int CmdLineCore::InjectCommand(const std::string &Cmd_in)
 	{
+		if (m_Context.IsSet() == false || m_Context->m_pTextCmd != NULL)
+			return 0;
+
 		StringNode Cmd;
 
-		InitStringNode(Cmd, Cmd_in);
+		InitStringNode(Cmd, Cmd_in.c_str());
 
 		return ProcessCmdHook(m_Context->m_pTextCmd, &Cmd, m_Context->m_pTextCmdUnknown);
 	}

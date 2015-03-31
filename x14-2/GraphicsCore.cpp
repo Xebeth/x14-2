@@ -112,7 +112,7 @@ namespace Windower
 
 	bool GraphicsCore::Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in)
 	{
-		if (g_pDirect3DWrapper != NULL)
+		if (g_pDeviceWrapperImpl != NULL)
 		{
 			ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
 
