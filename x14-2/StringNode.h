@@ -17,11 +17,11 @@ namespace Windower
 		DWORD		 dwSize;				// +12
 		DWORD		 dwUnknown2;			// +16
 		bool		 bUnknown;				// +17
-		bool		 bUnknown2;				// +18
+		bool		 UseInternal;				// +18
 		char		 InternalBuffer[64];	// +19
 	} StringNode;							// total size = 52 / with alignment = 54
 
 	size_t UpdateNode(char *pText_in, size_t TextLen_in, StringNode &Node_in_out);
-	void InitStringNode(StringNode &Node_in_out, const std::string &Msg_in);
+	void InitStringNode(StringNode &Node_in_out, const char *pMsg_in);
 }
 #endif//__STRINGNODE_H__
