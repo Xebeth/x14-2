@@ -67,6 +67,9 @@ namespace Windower
 		Rect.SetX(X);
 		Rect.SetY(Y);
 
+		if (Rect.GetHeight() <= 0L)
+			Rect.SetHeight(10L);
+
 		return IsInsideRect(Rect, X_in, Y_in);
 	}
 
