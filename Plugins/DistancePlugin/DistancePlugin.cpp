@@ -22,6 +22,7 @@ namespace Windower
 		if (m_pTextLabel != NULL)
 		{
 			LabelServiceParam LabelParam(&m_pTextLabel);
+			LabelParam.m_Destroy = true;
 			PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
 			if (InvokeService(_T(GRAPHICS_MODULE), _T(TEXT_LABEL_SERVICE), Param) == false)
