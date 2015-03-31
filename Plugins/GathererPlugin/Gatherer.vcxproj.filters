@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="version.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Precompiled headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GathererPlugin.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\dependencies\tinyxml\tinyxml2.h">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="Timetable.h">
+      <Filter>Timetable</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{65569bdf-b2af-4fed-b396-5bdf378416d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompiled headers">
+      <UniqueIdentifier>{876235ba-7e4b-40e3-aacb-ae6788960f6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{c1cc40d2-3cec-4b94-a0e6-b3fddc110867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timetable">
+      <UniqueIdentifier>{f151e5c2-ee8c-4283-a14f-4fa83440a5e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="module.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Gatherer.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Precompiled headers</Filter>
+    </ClCompile>
+    <ClCompile Include="GathererPlugin.cpp" />
+    <ClCompile Include="..\..\dependencies\tinyxml\tinyxml2.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="Timetable.cpp">
+      <Filter>Timetable</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Resources\x14.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="mining.xml">
+      <Filter>Resources</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>
