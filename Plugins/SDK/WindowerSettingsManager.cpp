@@ -262,7 +262,7 @@ namespace Windower
 
 				for (SectionIt = Values.cbegin(); SectionIt != EndIt; ++SectionIt)
 				{
-					convert_ansi(SectionIt->pItem, Word);
+					convert_ansi(SectionIt->pItem, Word, CP_UTF8);
 					m_ScoredWords[Word] = m_pSettingsFile->GetLong(INI_SECTION_AUTO_BLACKLIST, SectionIt->pItem);
 				}
 			}
@@ -329,30 +329,60 @@ namespace Windower
 
 	bool SettingsManager::CreateDefaultScoredWords()
 	{
-		m_ScoredWords["w w w"] = 5;
-		m_ScoredWords["us_d"] = 5;
-		m_ScoredWords["c0m"] = 5;
+		std::string ansi;
+		
+		convert_ansi(_T("\xD0\xA8\xD0\xA8\xD0\xA8"), ansi);
+		m_ScoredWords[ansi.c_str()] = 5;
+		convert_ansi(_T("g\xD0\xBEld"), ansi);
+		m_ScoredWords[ansi.c_str()] = 5;
+		convert_ansi(_T("c\xD0\xBEm"), ansi);
+		m_ScoredWords[ansi.c_str()] = 5;
+		convert_ansi(_T("c\xC3\xB6m"), ansi);
+		m_ScoredWords[ansi.c_str()] = 5;
 		m_ScoredWords["c 0 m"] = 5;
 		m_ScoredWords["c o m"] = 5;
+		m_ScoredWords["w w w"] = 5;
+		m_ScoredWords["us_d"] = 5;
 		m_ScoredWords["g0id"] = 5;
 		m_ScoredWords["goid"] = 5;
+		m_ScoredWords["wvvw"] = 5;
 		m_ScoredWords["gii"] = 5;
-
+		m_ScoredWords["c0m"] = 5;
+		m_ScoredWords["(om"] = 5;
+		m_ScoredWords["gii"] = 5;
+		m_ScoredWords["U$D"] = 5;
+				
+		m_ScoredWords["handwork"] = 3;
+		m_ScoredWords["discount"] = 3;
 		m_ScoredWords["delivery"] = 3;
 		m_ScoredWords["instant"] = 3;
+		m_ScoredWords["secure"] = 3;
+		m_ScoredWords["legal"] = 3;
+		m_ScoredWords["% off"] = 3;
+		m_ScoredWords["%off"] = 3;
 		m_ScoredWords["gold"] = 3;
 		
-		m_ScoredWords["handwork"] = 2;
-		m_ScoredWords["discount"] = 2;
+		m_ScoredWords["reliable"] = 2;
+		m_ScoredWords["minute"] = 2;
 		m_ScoredWords["price"] = 2;
-		m_ScoredWords["100%"] = 2;
+		m_ScoredWords["bonus"] = 2;
+		m_ScoredWords["extra"] = 2;
+		m_ScoredWords["fast"] = 2;
+		m_ScoredWords["safe"] = 2;
+		m_ScoredWords["gift"] = 2;
 		m_ScoredWords["com"] = 2;
 		m_ScoredWords["www"] = 2;
-
+		m_ScoredWords["min"] = 2;
+		
+		m_ScoredWords["in-game"] = 1;
+		m_ScoredWords["website"] = 1;
 		m_ScoredWords["dolla"] = 1;
+		m_ScoredWords["free"] = 1;
 		m_ScoredWords["gil"] = 1;
 		m_ScoredWords["usd"] = 1;
+		m_ScoredWords["off"] = 1;
 		m_ScoredWords["$"] = 1;
+		m_ScoredWords["%"] = 1;
 		
 		return true;
 	}
@@ -520,9 +550,10 @@ namespace Windower
 		BROWSEINFO BrowseInfo;
 		bool Result = false;
 
-		SecureZeroMemory(&BrowseInfo, sizeof(BrowseInfo));
+		if (FAILED(::CoInitialize(NULL)))
+			return false;
 
-		CoInitialize(NULL);
+		SecureZeroMemory(&BrowseInfo, sizeof(BrowseInfo));
 
 		if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &PIDL)))
 		{

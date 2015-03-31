@@ -22,7 +22,7 @@ namespace Windower
 		_T("0"),															// KeyHash
 		_T("[HH:mm:ss] "),													// TimestampFormat
 		_T("tell.wav"),														// TellSound
-		_T("10"),															// BlacklistThreshold
+		_T("15"),															// BlacklistThreshold
 		_T("3"),															// BlacklistCount
 	};
 
