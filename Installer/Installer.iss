@@ -39,7 +39,6 @@ OutputBaseFilename=x14-setup-{#AppVersion}
 SetupIconFile=..\Resources\x14.ico
 Compression=lzma
 SolidCompression=yes
-; SignTool=signtool sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn^&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\*.*
 
 [LangOptions]
 DialogFontName=Arial
@@ -62,6 +61,7 @@ Name: "x14Plugins/ChatLog";           Description: "ChatLog {#GetFileVersion("..
 Name: "x14Plugins/ExpWatch";          Description: "ExpWatch {#GetFileVersion("..\Release\Plugins\ExpWatch.dll")} — Keep track of experience earned";             Types: full custom
 Name: "x14Plugins/TellDetect";        Description: "TellDetect {#GetFileVersion("..\Release\Plugins\TellDetect.dll")} — Play a custom sound on tell";             Types: full custom
 Name: "x14Plugins/Timestamp";         Description: "Timestamp {#GetFileVersion("..\Release\Plugins\Timestamp.dll")} — Add a timestamp to the game chat";          Types: full custom
+Name: "x14Plugins/Gatherer";          Description: "Gatherer {#GetFileVersion("..\Release\Plugins\Gatherer.dll")} — A helper for gathering unspoiled nodes";      Types: full custom
 
 [Files]
 Source: "{#SourcePath}Plugins\AutoLogin.dll";     DestDir: "{app}\plugins"; Components: BootstrapPlugins/AutoLogin; Flags: replacesameversion skipifsourcedoesntexist
@@ -71,6 +71,7 @@ Source: "{#SourcePath}Plugins\Distance.dll";      DestDir: "{app}\plugins"; Comp
 Source: "{#SourcePath}Plugins\ExpWatch.dll";      DestDir: "{app}\plugins"; Components: x14Plugins/ExpWatch;        Flags: replacesameversion skipifsourcedoesntexist
 Source: "{#SourcePath}Plugins\TellDetect.dll";    DestDir: "{app}\plugins"; Components: x14Plugins/TellDetect;      Flags: replacesameversion skipifsourcedoesntexist
 Source: "{#SourcePath}Plugins\Timestamp.dll";     DestDir: "{app}/plugins"; Components: x14Plugins/Timestamp;       Flags: replacesameversion skipifsourcedoesntexist
+Source: "{#SourcePath}Plugins\Gatherer.dll";      DestDir: "{app}/plugins"; Components: x14Plugins/Gatherer;        Flags: replacesameversion skipifsourcedoesntexist
 
 Source: "{#SourcePath}x14-2core.dll";             DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}bootstrap.dll";             DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
@@ -103,10 +104,10 @@ begin
 end;
 
 [InnoIDE_PreCompile]
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\Launcher.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\bootstrap.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\x14-2core.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\plugins\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\Launcher.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\bootstrap.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\x14-2core.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\plugins\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
 
 [InnoIDE_PostCompile]
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\cpp\x14-2\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Installer\*.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Installer\*.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
