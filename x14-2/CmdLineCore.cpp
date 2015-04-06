@@ -360,10 +360,22 @@ namespace Windower
 
 				if (infile.bad() == false)
 				{
+					const char *pFind;
 					std::string line;
+					int wait = 3;
 
 					while (std::getline(infile, line) && m_pEngine->IsMacroAborted() == false)
+					{
 						InjectCommand(line);
+
+						pFind = strstr(line.c_str(), "<wait.");
+
+						if (pFind != NULL && sscanf_s(pFind, "<wait.%d>", &wait) == 1)
+						{
+							format(line, "/!wait %d", wait * 1000);
+							InjectCommand(line);
+						}
+					}
 				}
 			}
 
@@ -656,7 +668,7 @@ namespace Windower
 
 	int CmdLineCore::InjectCommand(const std::string &Cmd_in)
 	{
-		if (m_Context.IsSet() == false || m_Context->m_pTextCmd != NULL)
+		if (m_Context.IsSet() == false || m_Context->m_pTextCmd == NULL)
 			return 0;
 
 		StringNode Cmd;

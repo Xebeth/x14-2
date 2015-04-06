@@ -410,11 +410,7 @@ namespace Windower
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
 			break;
-#ifdef _DEBUG
-			case VK_F9:
-#else
 			case VK_F12:
-#endif // _DEBUG
 				ToggleFPS();
 				
 				return IEventInterface::EVENT_PROCESSED; // filtered
