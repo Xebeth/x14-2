@@ -83,6 +83,10 @@ namespace Windower
 													  pParam->m_H, pParam->m_FontName, 
 													  pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic,
 													  pParam->m_TextColor, m_pRenderer, true);
+
+					if (pParam->m_pfnMouseClick != NULL)
+						pLabel->SetMouseClickEvent(pParam->m_pfnMouseClick);
+
 					// set the return value
 					*pParam->m_ppUiLabel = pLabel;
 

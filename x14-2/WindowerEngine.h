@@ -31,7 +31,7 @@ namespace Windower
 
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
-	typedef std::vector<std::pair<string_t, long>> MacroFiles;
+	typedef std::pair<string_t, unsigned long> MacroParam;
 	typedef std::vector<DWORD_PTR> MemoryScanResult;	
 
 	//! \brief Windower x14-2 engine
@@ -41,7 +41,6 @@ namespace Windower
 		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
 		~WindowerEngine();
 
-		bool QueueMacro(const string_t &MacroFile_in, long repeat);
 		bool PressKey(long key, long delay, long repeat);
 		void ShutdownEngine(bool UnloadDLL_in = false);		
 		bool Attach();
@@ -55,11 +54,14 @@ namespace Windower
 		DWORD MainThread();
 
 		bool IsPlayerLoggedIn() const;
-		bool IsMacroAborted();
+		bool IsMacroRunning();
 		bool AbortMacro();
 
 		DWORD MemoryScan(const std::string &Pattern_in,
 						 MemoryScanResult &Results_in_out);
+
+		void UpdateMacroProgress(unsigned long step, unsigned long total, bool stop);
+		bool CreateMacroThread(const string_t &file, unsigned long repeat);
 
 		// commands
 		bool Exit(std::string& Feedback_out);
@@ -76,11 +78,28 @@ namespace Windower
 							bool Bold_in = true, bool Italic_in = false);
 
 	private:
-		bool PopMacroExecution();
 		bool InitializePlugins();
 		void InitializeEngine();
 		void UpdateEngine();
-		
+
+		template <typename T> class CallingContext
+		{
+		public:
+			CallingContext() : m_pThis(NULL) {}
+
+			bool IsSet() const { return (m_pThis != NULL); }
+			void Set(T *pThis_in) { m_pThis = pThis_in; }
+			T* operator->() const { return m_pThis; }
+			operator T*() { return m_pThis; }
+
+		private:
+			T *m_pThis;
+		};
+
+		static DWORD WINAPI MacroThread(LPVOID pParam_in_out);
+
+		//! calling context
+		static CallingContext<WindowerEngine> m_Context;		
 		//! the current settings
 		WindowerProfile m_Settings;
 		//! the hook engine
@@ -107,15 +126,15 @@ namespace Windower
 		DWORD m_dwPID;
 		//! update timer
 		Timer *m_pUpdateTimer;
-		//! Pending macro files
-		MacroFiles m_Macros;
 		//! critical section for plugin operations
 		CRITICAL_SECTION m_PluginLock;
+		CRITICAL_SECTION m_MacroLock;
 		//! flag controlling the lifetime of the engine thread
 		volatile bool m_bShutdown;
 		// flag specifying if the engine has been detached
 		volatile bool m_bDetached;
-		volatile LONG m_AbortCurrentMacro;
+		volatile LONG m_MacroRunning;
+		UIAL::CUiWindow<> *m_pTextLabel;
 	};
 }
 

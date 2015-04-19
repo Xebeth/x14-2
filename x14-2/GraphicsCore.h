@@ -15,11 +15,14 @@ class IDirect3D9Wrapper;
 #define GRAPHICS_MODULE			"Graphics"
 #define TEXT_LABEL_SERVICE		"TextLabelService"
 #define FPS_LABEL_NAME			_T("FPS##Label")
+#define MACRO_LABEL_NAME		_T("Macro##Label")
 
 typedef struct IDirect3D9 Direct3D9;
 typedef struct IDirect3DDevice9 IDirect3DDevice9;
 
 typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion_in);
+
+class Timer;
 
 namespace Windower
 {
@@ -32,6 +35,7 @@ namespace Windower
 		enum eStaticLabels
 		{
 			GFX_TEXT_FPS = 0,	// text label for the FPS counter
+			GFX_TEXT_MACRO,		// text label for macros
 			GFX_TEXT_COUNT		// number of static text labels
 		};
 
@@ -55,6 +59,7 @@ namespace Windower
 
 		UiTextLabel* HitTest(WORD X_in, WORD Y_in);
 
+		void ShowMacroProgress(unsigned long current, unsigned long total, bool visible);
 		void SetRendering(bool bEnable_in);
 		bool RegisterServices();
 		void ToggleRendering();
@@ -63,13 +68,13 @@ namespace Windower
 		// ICoreModule interface implementation
 		void RegisterHooks(HookEngineLib::IHookManager &HookManager_in);
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
-
+		
 		// Direct3D
 		static IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in);
 
 	protected:
 		TextLabelRenderer* GetLabelRenderer();
-
+		void InitializeLabel(UiTextLabel * pLabel);
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D device

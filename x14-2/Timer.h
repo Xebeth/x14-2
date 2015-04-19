@@ -14,17 +14,19 @@ public:
 	void Start();
 	void Stop();
 	void Update();
+	void Reset();
 
-	bool IsStopped() { return m_timerStopped; }
-	float GetFPS() { return m_fps; }
-	float GetRunningTime() { return m_runningTime; }
-	float GetElapsedTime() { return m_timerStopped ? 0.0f : m_timeElapsed; }
+	bool IsStopped() const { return m_timerStopped; }
+	float GetFPS() const { return m_fps; }
+	float GetRunningTime() const { return m_runningTime; }
+	float GetElapsedTime() const { return m_timerStopped ? 0.0f : m_timeElapsed; }
 	void SetTickInterval(float Interval_in);
 	void SetRawTickInterval(INT64 Interval_in) { m_TickInterval = Interval_in; }
-	bool HasTicked() { return m_bTicked; }
+	bool HasTicked() const { return m_bTicked; }
+	const string_t& RunningTime(string_t &time_out) const;
 
 private:
-	INT64 m_ticksPerSecond;
+	INT64 m_Frequency;
 	INT64 m_currentTime;
 	INT64 m_lastTime;
 	INT64 m_lastFPSUpdate;

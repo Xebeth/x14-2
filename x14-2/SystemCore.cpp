@@ -40,7 +40,7 @@ namespace Windower
 		\param[in,out] pParam_in_out : a pointer to the windower engine
 		\return the exit code of the thread
 	*/
-	DWORD WINAPI SystemCore::MainThreadStatic(LPVOID pParam_in_out)
+	DWORD WINAPI SystemCore::MainThread(LPVOID pParam_in_out)
 	{
 		if (m_pEngine != NULL)
 			return m_pEngine->MainThread();
@@ -254,7 +254,7 @@ namespace Windower
 			DWORD dwThreadID;
 
 			// create the engine thread
-			m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThreadStatic, NULL, 0, &dwThreadID);
+			m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThread, NULL, 0, &dwThreadID);
 		}
 	}
 }

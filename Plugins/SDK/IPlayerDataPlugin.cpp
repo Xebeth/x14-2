@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 
+#include "IUiElement.h"
 #include "ConfigurablePlugin.h"
 #include "WindowerPlugin.h"
 #include "IPlayerDataPlugin.h"

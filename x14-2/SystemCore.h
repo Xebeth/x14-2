@@ -51,7 +51,7 @@ namespace Windower
 	protected:
 		LRESULT FilterMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
 		LRESULT FilterSubClassMessages(HWND hWnd_in, UINT uMsg_in, WPARAM wParam_in, LPARAM lParam_in);
-		static DWORD WINAPI MainThreadStatic(LPVOID pParam_in_out);
+		static DWORD WINAPI MainThread(LPVOID pParam_in_out);
 
 		//! the original WndProc of the game
 		static WNDPROC m_pGameWndProc;

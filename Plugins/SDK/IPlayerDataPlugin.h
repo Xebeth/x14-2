@@ -39,11 +39,16 @@ namespace Windower
 	#pragma pack(pop)
 
 #ifdef __USE_UIAL
+	typedef void(__stdcall *fnOnMouseClick)(UIAL::CUiWindow<> *pUiElement_in_out, unsigned short X_in,
+											unsigned short Y_in, unsigned long MouseFlags_in,
+											unsigned int KeyFlags_in);
+
 	class LabelServiceParam
 	{
 	public:
 		LabelServiceParam() : m_ppUiLabel(NULL), m_TextColor(0xFFFFFFFFUL), m_FontName(_T("Arial")),
-			m_W(0UL), m_H(0UL), m_Destroy(false), m_X(0L), m_Y(0L), m_Fontsize(12UL), m_Bold(true), m_Italic(false) {}
+			m_W(0UL), m_H(0UL), m_Destroy(false), m_X(0L), m_Y(0L), m_Fontsize(12UL),
+			m_Bold(true), m_Italic(false), m_pfnMouseClick(NULL) {}
 
 		LabelServiceParam(UIAL::CUiWindow<> **ppUiLabel_in, const string_t &LabelName_in,
 						  long X_in, long Y_in, unsigned long W_in, unsigned long H_in,
@@ -51,14 +56,16 @@ namespace Windower
 						  unsigned long TextColor_in = 0xFFFFFFFF, bool Bold_in = true, bool Italic_in = false)
 			: m_ppUiLabel(ppUiLabel_in), m_LabelName(LabelName_in), m_Destroy(false), m_TextColor(TextColor_in),
 			  m_W(W_in), m_H(H_in), m_X(X_in), m_Y(Y_in), m_Bold(Bold_in), m_Italic(Italic_in),
-			  m_Fontsize(FontSize_in), m_FontName(FontName_in) {}
+			  m_Fontsize(FontSize_in), m_FontName(FontName_in), m_pfnMouseClick(NULL) {}
 
 		LabelServiceParam(UIAL::CUiWindow<> **ppUiLabel_in)
 			: m_ppUiLabel(ppUiLabel_in), m_TextColor(0xFFFFFFFF), m_FontName(_T("Arial")),
-			  m_Fontsize(12UL), m_W(0UL), m_H(0UL), m_Destroy(true),
-			  m_X(0L), m_Y(0L), m_Bold(true), m_Italic(false) {}
+			  m_Fontsize(12UL), m_W(0UL), m_H(0UL), m_Destroy(true), m_X(0L), m_Y(0L),
+			  m_Bold(true), m_Italic(false), m_pfnMouseClick(NULL) {}
 
+		
 		UIAL::CUiWindow<> **m_ppUiLabel;
+		fnOnMouseClick m_pfnMouseClick;
 		unsigned long m_TextColor;
 		unsigned short m_Fontsize;
 		unsigned long m_W, m_H;

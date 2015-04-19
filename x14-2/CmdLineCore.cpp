@@ -234,7 +234,7 @@ namespace Windower
 			}
 
 			Result &= (pCommand != NULL);
-
+/*
 			// register the "configure" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_CONFIGURE, "configure",
 										   "Configures a plugin given its name.", this, false);
@@ -251,7 +251,7 @@ namespace Windower
 			}
 
 			Result &= (pCommand != NULL);
-
+*/
 			// register the "list" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_LIST_PLUGINS, "list",
 										   "Gives a list of the available plugins.", this);
@@ -350,11 +350,11 @@ namespace Windower
 		return false;
 	}
 
-	bool CmdLineCore::ExecuteMacroFile(const string_t &macroFile_in, long repeat)
+	bool CmdLineCore::ExecuteMacroFile(const string_t &macroFile_in, unsigned long repeat)
 	{
 		if (m_pTextCmd != NULL)
 		{
-			for (long i = 0; i < repeat && m_pEngine->IsMacroAborted() == false; ++i)
+			for (unsigned long i = 1; i <= repeat && m_pEngine->IsMacroRunning(); ++i)
 			{
 				std::ifstream infile(macroFile_in);
 
@@ -364,7 +364,9 @@ namespace Windower
 					std::string line;
 					int wait = 3;
 
-					while (std::getline(infile, line) && m_pEngine->IsMacroAborted() == false)
+					m_pEngine->UpdateMacroProgress(i, repeat, false);
+
+					while (std::getline(infile, line) && m_pEngine->IsMacroRunning())
 					{
 						InjectCommand(line);
 
@@ -376,8 +378,10 @@ namespace Windower
 							InjectCommand(line);
 						}
 					}
-				}
+				}				
 			}
+
+			m_pEngine->UpdateMacroProgress(repeat + 1, repeat, false);
 
 			return true;
 		}
@@ -559,7 +563,7 @@ namespace Windower
 					Result = true;
 
 					if (::GetFileAttributesA(MacroFile.c_str()) != INVALID_FILE_ATTRIBUTES)
-						Result &= m_pEngine->QueueMacro(convert_utf8(MacroFile, MacroFileW), repeat);
+						Result &= m_pEngine->CreateMacroThread(convert_utf8(MacroFile, MacroFileW), repeat);
 					else
 						format(Feedback_out, "The macro '%s' failed to execute.", MacroFile.c_str());
 
@@ -595,8 +599,8 @@ namespace Windower
 					if (wait <= 500L)
 						wait = 500L;
 
+					::Sleep(wait + std::rand() % 250);
 					Feedback_out = "";
-					::Sleep(wait);
 
 					return true;
 				}

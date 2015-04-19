@@ -55,9 +55,9 @@ namespace Windower
 
 		static int WINAPI ProcessCmdHook(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in);
 		static int InjectCommand(const std::string &Cmd_in);
-
+		
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
-		bool ExecuteMacroFile(const string_t &macroFile_in, long repeat = 1L);
+		bool ExecuteMacroFile(const string_t &macroFile_in, unsigned long repeat = 1UL);
 
 		// ICommandHandler interface implementation
 		bool IsCommandValid(const WindowerCommand *pCommand_in) const;

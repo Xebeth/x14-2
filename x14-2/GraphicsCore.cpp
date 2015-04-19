@@ -31,6 +31,8 @@
 #include "ModuleService.h"
 #include "TextLabelService.h"
 
+extern Windower::WindowerEngine *g_pEngine;
+
 using namespace UIAL;
 
 Direct3DSwapChain9WrapperImpl *g_pDirect3DSwapChainWrapper = NULL;
@@ -39,6 +41,11 @@ Direct3D9WrapperImpl *g_pDirect3DWrapper = NULL;
 
 namespace Windower
 {
+	static void WINAPI OnMacroLabelClick(UIAL::CUiWindow<> *pLabel, WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
+	{
+		if (g_pEngine != NULL && (KeyFlags_in & IEventInterface::CONTROL_KEY_FLAG) == IEventInterface::CONTROL_KEY_FLAG)
+			g_pEngine->AbortMacro();
+	}
 
 	WindowerCore::CallingContext<GraphicsCore> GraphicsCore::m_Context;
 	
@@ -193,32 +200,25 @@ namespace Windower
 				PresentParams.BackBufferCount = 2;
 			}
 
-			unsigned long TextColor = 0xFFFF0000;
-			string_t LabelName = FPS_LABEL_NAME;
-			bool Bold = true, Italic = false;
-			string_t FontName = _T("Arial");
-			unsigned short FontSize = 12U;
-			long X = -16L, Y = 0L;
-
-			bool Deserialized = m_pEngine->DeserializeLabel(LabelName, X, Y, TextColor, FontName, FontSize, Bold, Italic);
-
-			// create the FPS counter
-			UiTextLabel *pFPSLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, LabelName, X, Y, 60UL, 16UL,
-													  FontName, FontSize, Bold, Italic, TextColor, GetLabelRenderer(), true);
-
-			if (Deserialized == false)
-				m_pEngine->SerializeLabel(LabelName, X, Y, TextColor, FontName, FontSize);
+			TextLabelRenderer *pRenderer = GetLabelRenderer();
+			// create the FPS counter and macro progress
+			UiTextLabel *pFpsLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, FPS_LABEL_NAME, -16L, 0L, 60UL, 16UL,
+													  _T("Arial"), 12U, true, false, 0xFFFF0000, pRenderer, true);
+			UiTextLabel *pMacroLabel = new UiTimerCounter(GFX_TEXT_MACRO, m_pDirect3DDevice, MACRO_LABEL_NAME, 0L, 0L, 320UL, 16UL,
+														  _T("Arial"), 12U, true, false, 0xFFFF0000, pRenderer, true);
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
-			pFPSLabel->Draw();
-#ifndef _DEBUG
-			pFPSLabel->SetVisibile(false);
-#endif // _DEBUG
+			pFpsLabel->Draw();
 			// create the device wrapper implementation
 			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
-			// add it to the list of renderables
-			g_pDeviceWrapperImpl->AddRenderable(GFX_TEXT_FPS, pFPSLabel);
-			m_UiElements[GFX_TEXT_FPS] = pFPSLabel;
+			// initialize the labels
+			InitializeLabel(pMacroLabel);
+			InitializeLabel(pFpsLabel);
+
+			pMacroLabel->SetMouseClickEvent(OnMacroLabelClick);
+#ifdef _DEBUG
+			pFpsLabel->SetVisibile(true);
+#endif // _DEBUG
 		}
 		// try to restore Direct3D
 		if (g_pDirect3DWrapper != NULL)
@@ -272,6 +272,35 @@ namespace Windower
 					pFPSLabel->SetTitleColor(TextColor);
 					pFPSLabel->SetPos(X, Y);
 				}					
+			}
+		}
+	}
+
+	void GraphicsCore::ShowMacroProgress(unsigned long current, unsigned long total, bool visible)
+	{
+		if (g_pDeviceWrapperImpl != NULL)
+		{
+			RenderableMap::const_iterator RenderableIt = m_UiElements.find(GFX_TEXT_MACRO);
+
+			if (RenderableIt != m_UiElements.cend())
+			{
+				UiTimerCounter *pMacroLabel = static_cast<UiTimerCounter*>(RenderableIt->second);
+
+				if (pMacroLabel != NULL)
+				{
+					unsigned long TextColor = 0xFFFF0000;
+					bool Bold = true, Italic = false;
+					string_t FontName = _T("Arial");
+					unsigned short FontSize = 12U;
+					long X = -16L, Y = 0L;
+					
+					m_pEngine->DeserializeLabel(pMacroLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic);
+					pMacroLabel->SetTitleFont(FontName, FontSize, Bold, Italic);
+					pMacroLabel->SetProgress(current, total, !visible);
+					pMacroLabel->SetTitleColor(TextColor);
+					pMacroLabel->SetVisible(visible);
+					pMacroLabel->SetPos(X, Y);
+				}
 			}
 		}
 	}
@@ -365,6 +394,7 @@ namespace Windower
 		{
 			const UIAL::CUiFont &Font = m_pMovingLabel->GetTitleFont();
 
+			m_pMovingLabel->OnMouseClick(X_in, Y_in, MouseFlags_in, KeyFlags_in);
 			m_pEngine->SerializeLabel(m_pMovingLabel->GetName(),
 									  m_pMovingLabel->GetX(), m_pMovingLabel->GetY(),
 									  m_pMovingLabel->GetTitleColor().GetARGB(),
@@ -430,5 +460,29 @@ namespace Windower
 		}
 
 		return IEventInterface::EVENT_IGNORED;
+	}
+
+	void GraphicsCore::InitializeLabel(UiTextLabel *pLabel)
+	{
+		if (pLabel != NULL && g_pDeviceWrapperImpl != NULL)
+		{
+			unsigned long TextColor = 0xFFFF0000, ID = pLabel->GetID();
+			const string_t &name = pLabel->GetName();
+			bool Bold = true, Italic = false;
+			string_t FontName = _T("Arial");
+			unsigned short FontSize = 12U;
+			long X = -16L, Y = 0L;
+
+			bool Deserialized = m_pEngine->DeserializeLabel(name, X, Y, TextColor, FontName, FontSize, Bold, Italic);
+
+			if (Deserialized == false)
+				m_pEngine->SerializeLabel(name, X, Y, TextColor, FontName, FontSize);
+
+			pLabel->SetVisibile(false);
+
+			// add it to the list of renderables
+			g_pDeviceWrapperImpl->AddRenderable(ID, pLabel);
+			m_UiElements[ID] = pLabel;
+		}
 	}
 }

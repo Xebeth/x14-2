@@ -35,6 +35,8 @@
 
 namespace Windower
 {
+	WindowerEngine::CallingContext<WindowerEngine> WindowerEngine::m_Context;
+
 	/*! \brief WindowerEngine constructor
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
@@ -43,9 +45,13 @@ namespace Windower
 		  m_bDetached(false), m_bShutdown(false), m_hWindowerDLL(hModule_in),
 		  m_pGameChatCore(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
 		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL),
-		  m_AbortCurrentMacro(0L)
+		  m_MacroRunning(0L), m_pTextLabel(NULL)
 	{
+		// set the calling context for the hooks
+		m_Context.Set(this);
+		// initialize synchronization locks
 		InitializeCriticalSection(&m_PluginLock);
+		InitializeCriticalSection(&m_MacroLock);
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
 		// create the system core module
@@ -125,6 +131,7 @@ namespace Windower
 
 		// delete the critical sections last
 		DeleteCriticalSection(&m_PluginLock);
+		DeleteCriticalSection(&m_MacroLock);
 	}
 
 	bool WindowerEngine::IsPlayerLoggedIn() const
@@ -237,15 +244,6 @@ namespace Windower
 			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, m_hWindowerDLL, 0, NULL);
 	}
 
-	bool WindowerEngine::QueueMacro(const string_t &MacroFile_in, long repeat)
-	{
-		LockEngineThread();
-		m_Macros.push_back(std::make_pair(MacroFile_in, repeat));
-		UnlockEngineThread();
-
-		return true;
-	}
-
 	/*! \brief The engine main thread
 		\return the exit code of the thread
 	*/
@@ -274,28 +272,34 @@ namespace Windower
 	//! \brief Updates the engine
 	void WindowerEngine::UpdateEngine()
 	{
-		if (m_bShutdown == false && m_pUpdateTimer != NULL)
+		if (m_bShutdown == false)
 		{
-			m_pUpdateTimer->Update();
-
-			if (m_pUpdateTimer->HasTicked())
+			if (m_pUpdateTimer != NULL)
 			{
-				WindowerPlugins::const_iterator PluginIt, EndIt = m_Plugins.cend();
-				WindowerPlugin *pPlugin = NULL;
+				m_pUpdateTimer->Update();
 
-				for (PluginIt = m_Plugins.cbegin(); PluginIt != EndIt; ++PluginIt)
+				if (m_pUpdateTimer->HasTicked())
 				{
-					pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
+					WindowerPlugins::const_iterator PluginIt, EndIt = m_Plugins.cend();
+					WindowerPlugin *pPlugin = NULL;
 
-					if (pPlugin != NULL)
-						pPlugin->Update();
+					for (PluginIt = m_Plugins.cbegin(); PluginIt != EndIt; ++PluginIt)
+					{
+						pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
+
+						if (pPlugin != NULL)
+							pPlugin->Update();
+					}
+					// configure any plugin queued
+					PopPluginConfigure();
 				}
-				// configure any plugin queued
-				PopPluginConfigure();
-				// execute any pending macro
-				PopMacroExecution();
 			}
 		}
+	}
+
+	void WindowerEngine::UpdateMacroProgress(unsigned long step, unsigned long total, bool stop)
+	{
+		m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroRunning());
 	}
 
 	bool WindowerEngine::PressKey(long key, long delay, long repeat)
@@ -305,7 +309,7 @@ namespace Windower
 			if (delay < 500L)
 				delay = 500L;
 
-			for (long i = 0; i < repeat && IsMacroAborted() == false; ++i)
+			for (long i = 0; i < repeat && IsMacroRunning(); ++i)
 			{
 				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYDOWN, key, 0);
 				::Sleep(250);
@@ -321,32 +325,17 @@ namespace Windower
 
 	bool WindowerEngine::AbortMacro()
 	{
-		InterlockedExchange(&m_AbortCurrentMacro, 1L);
-
+		InterlockedExchange(&m_MacroRunning, 0L);
+		UpdateMacroProgress(0UL, 0UL, true);
+		
 		return true;
 	}
 
-	bool WindowerEngine::IsMacroAborted()
+	bool WindowerEngine::IsMacroRunning()
 	{
-		return (m_AbortCurrentMacro == 1L);
+		return (m_MacroRunning == 1L);
 	}
-
-	bool WindowerEngine::PopMacroExecution()
-	{
-		if (m_Macros.empty() == false)
-		{
-			auto macro = m_Macros.front();
-
-			// remove the macro from the queue
-			m_Macros.erase(m_Macros.cbegin());
-			m_AbortCurrentMacro = 0L;
-
-			return m_pCmdLineCore->ExecuteMacroFile(macro.first, macro.second);
-		}
-
-		return true;
-	}
-
+	
 	//! \brief Initializes the engine
 	void WindowerEngine::InitializeEngine()
 	{
@@ -355,11 +344,11 @@ namespace Windower
 			m_hGameWnd = m_pSystemCore->GameHWND();
 			m_dwPID = ::GetCurrentProcessId();
 		}
-
+		
 		if (m_pUpdateTimer == NULL)
 		{
 			m_pUpdateTimer = new Timer;
-
+			
 			m_pUpdateTimer->SetRawTickInterval(100000);
 			m_pUpdateTimer->Start();
 		}
@@ -377,6 +366,39 @@ namespace Windower
 		LeaveCriticalSection(&m_PluginLock);
 
 		return true;
+	}
+
+	bool WindowerEngine::CreateMacroThread(const string_t &file, unsigned long repeat)
+	{
+		MacroParam *pParam = new MacroParam(file, repeat);
+		DWORD dwThreadID = 0UL;
+		HANDLE hThread;
+
+		if (m_MacroRunning == 0L)
+		{
+			InterlockedExchange(&m_MacroRunning, 1L);
+			UpdateMacroProgress(0UL, repeat, false);
+			// create the macro thread
+			hThread = CreateThread(NULL, 0, WindowerEngine::MacroThread, pParam, 0, &dwThreadID);
+			::CloseHandle(hThread);
+		}
+
+		return true;
+	}
+	
+	DWORD WINAPI WindowerEngine::MacroThread(LPVOID pParam_in_out)
+	{
+		MacroParam* pParam = static_cast<MacroParam*>(pParam_in_out);
+		DWORD Result = (DWORD)-1L;
+
+		if (pParam != NULL)
+		{
+			Result = m_Context->m_pCmdLineCore->ExecuteMacroFile(pParam->first, pParam->second) ? 1UL : 0UL;
+			InterlockedExchange(&m_Context->m_MacroRunning, 0L);
+			delete pParam;
+		}
+
+		return Result;
 	}
 
 	bool WindowerEngine::Exit(std::string& Feedback_out)
