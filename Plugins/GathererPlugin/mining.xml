@@ -1,70 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-    <time hours="1">
-        <item slot="3" zone="Coerthas Central Highlands" pos="(x27,y19)" difficulty="+">Darksteel Ore</item>
-        <item slot="1" zone="Eastern La Noscea" pos="(x17,y26)" difficulty="+++">Pumice</item>
-    </time>
-    <time hours="2">
-        <item slot="7" zone="Eastern Thanalan" pos="(x26,y19)" difficulty="++">Antumbral Rock</item>
-    </time>
-    <time hours="3">
-        <item slot="6" zone="Northern Thanalan" pos="(x16,y19)" difficulty="++">Ferberite</item>
-        <item slot="7" zone="Northern Thanalan" pos="(x16,y19)" difficulty="++">Raw Topaz</item>
-        <item slot="8" zone="Northern Thanalan" pos="(x16,y19)" difficulty="++">Raw Iolite</item>
-    </time>
-    <time hours="4">
-        <item slot="6" zone="Central Thanalan" pos="(x24,y16)" difficulty="++">Native Gold</item>
-        <item slot="8" zone="Central Thanalan" pos="(x24,y16)" difficulty="++">Raw Diamond</item>
-        <item slot="7" zone="Central Thanalan" pos="(x24,y16)" difficulty="++">Raw Emerald</item>
-        <item slot="6" zone="Southern Thanalan" pos="(x19,y8)" difficulty="+++">Platinum Ore</item>
-    </time>
-    <time hours="5">
-        <item slot="5" zone="Western Thanalan" pos="(x18,y27)" difficulty="">Water Cluster</item>
-        <item slot="2" zone="Eastern Thanalan" pos="(x25,y22)" difficulty="+">Gold Sand</item>
-    </time>
-    <time hours="6">
-        <item slot="7" zone="South Shroud" pos="(x16,y31)" difficulty="+">Umbral Rock</item>
-    </time>
-    <time hours="9">
-        <item slot="6" zone="Eastern Thanalan" pos="(x28,y22)" difficulty="+">Gold Ore</item>
-        <item slot="7" zone="Eastern Thanalan" pos="(x26,y22)" difficulty="+">Coblyn Larva</item>
-        <item slot="1" zone="Eastern Thanalan" pos="(x28,y22)" difficulty="+">Gregarious Worm</item>
-    </time>
-    <time hours="13">
-        <item slot="1" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Grade 4 Carbonized Matter</item>
-        <item slot="2" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Lightning Cluster</item>
-        <item slot="3" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Fire Cluster</item>
-        <item slot="4" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Wind Cluster</item>
-        <item slot="5" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Water Cluster</item>
-        <item slot="6" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Ice Cluster</item>
-        <item slot="7" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Earth Cluster</item>
-    </time>
-    <time hours="17">
-        <item slot="1" zone="Eastern La Noscea" pos="(x21,y32)" difficulty="+">Volcanic Rock Salt</item>
-        <item slot="1" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Grade 4 Carbonized Matter</item>
-        <item slot="2" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Lightning Cluster</item>
-        <item slot="3" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Fire Cluster</item>
-        <item slot="4" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Wind Cluster</item>
-        <item slot="5" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Water Cluster</item>
-        <item slot="6" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Ice Cluster</item>
-        <item slot="7" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Earth Cluster</item>
-        <item slot="6" zone="Northern Thanalan" pos="(x24,y26)" difficulty="+++">Virgin Basilisk Egg</item>
-    </time>
-    <time hours="18">
-        <item slot="7" zone="Lower La Noscea" pos="(x23,y21)" difficulty="++">Raw Ruby</item>
-        <item slot="8" zone="Lower La Noscea" pos="(x23,y21)" difficulty="++">Raw Sapphire</item>
-    </time>
-    <time hours="19">
-        <item slot="3" zone="Middle La Noscea" pos="(x25,y27)" difficulty="">Fire Cluster</item>
-    </time>
-    <time hours="21">
-        <item slot="7" zone="Coerthas Central Highlands" pos="(x23,y23)" difficulty="+">Astral Rock</item>
-        <item slot="1" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Grade 4 Carbonized Matter</item>
-        <item slot="2" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Lightning Cluster</item>
-        <item slot="3" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Fire Cluster</item>
-        <item slot="4" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Wind Cluster</item>
-        <item slot="5" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Water Cluster</item>
-        <item slot="6" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Ice Cluster</item>
-        <item slot="7" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Earth Cluster</item>
-    </time>
+  <time hours="1">
+    <item slot="3" zone="Coerthas Central Highlands" pos="(x27,y19)" difficulty="*">Darksteel Ore</item>
+    <item slot="1" zone="Eastern La Noscea" pos="(x17,y26)" difficulty="420 Ga 420 Pe ***">Pumice</item>
+  </time>
+  <time hours="2">
+    <item slot="7" zone="Eastern Thanalan" pos="(x26,y19)" difficulty="408 Ga 389 Pe **">Antumbral Rock</item>
+  </time>
+  <time hours="3">
+    <item slot="6" zone="Northern Thanalan" pos="(x16,y19)" difficulty="408 Ga 389 Pe **">Ferberite</item>
+    <item slot="7" zone="Northern Thanalan" pos="(x16,y19)" difficulty="408 Ga 389 Pe **">Raw Topaz</item>
+    <item slot="8" zone="Northern Thanalan" pos="(x16,y19)" difficulty="408 Ga 389 Pe **">Raw Iolite</item>
+  </time>
+  <time hours="4">
+    <item slot="6" zone="Central Thanalan" pos="(x24,y16)" difficulty="408 Ga 389 Pe **">Native Gold</item>
+    <item slot="7" zone="Central Thanalan" pos="(x24,y16)" difficulty="408 Ga 389 Pe **">Raw Emerald</item>
+    <item slot="8" zone="Central Thanalan" pos="(x24,y16)" difficulty="408 Ga 389 Pe **">Raw Diamond</item>
+    <item slot="6" zone="Southern Thanalan" pos="(x19,y8)" difficulty="420 Ga 420 Pe ***">Platinum Ore</item>
+  </time>
+  <time hours="5">
+    <item slot="2" zone="Eastern Thanalan" pos="(x25,y22)" difficulty="*">Gold Sand</item>
+    <item slot="8" zone="Western Thanalan" pos="(x17,y28)" difficulty="353 Ga 332 Pe *">Grade 3 Thanalan Topsoil</item>
+  </time>
+  <time hours="6">
+    <item slot="7" zone="South Shroud" pos="(x16,y31)" difficulty="353 Ga 332 Pe *">Umbral Rock</item>
+    <item slot="8" zone="South Shroud" pos="(x16,y31)" difficulty="353 Ga 332 Pe *">Grade 3 Shroud Topsoil</item>
+  </time>
+  <time hours="8">
+    <item slot="?" zone="Western La Noscea" pos="(x??,y??)" difficulty="450 Ga 450 Pe ***">Black Limestone</item>
+  </time>
+  <time hours="9">
+    <item slot="1" zone="Eastern Thanalan" pos="(x28,y22)" difficulty="*">Gregarious Worm</item>
+    <item slot="6" zone="Eastern Thanalan" pos="(x28,y22)" difficulty="*">Gold Ore</item>
+    <item slot="7" zone="Eastern Thanalan" pos="(x26,y22)" difficulty="*">Coblyn Larva</item>
+  </time>
+  <time hours="13">
+    <item slot="1" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Grade 4 Carbonized Matter</item>
+    <item slot="2" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Lightning Cluster</item>
+    <item slot="3" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Fire Cluster</item>
+    <item slot="4" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Wind Cluster</item>
+    <item slot="5" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Water Cluster</item>
+    <item slot="6" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Ice Cluster</item>
+    <item slot="7" zone="Mor Dhona" pos="(x28,y12)" difficulty="">Earth Cluster</item>
+  </time>
+  <time hours="17">
+    <item slot="1" zone="Eastern La Noscea" pos="(x21,y32)" difficulty="*">Volcanic Rock Salt</item>
+    <item slot="1" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Grade 4 Carbonized Matter</item>
+    <item slot="2" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Lightning Cluster</item>
+    <item slot="3" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Fire Cluster</item>
+    <item slot="4" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Wind Cluster</item>
+    <item slot="5" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Water Cluster</item>
+    <item slot="6" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Ice Cluster</item>
+    <item slot="7" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Earth Cluster</item>
+    <item slot="6" zone="Northern Thanalan" pos="(x24,y26)" difficulty="450 Ga 450 Pe ***">Virgin Basilisk Egg</item>
+  </time>
+  <time hours="18">
+    <item slot="7" zone="Lower La Noscea" pos="(x23,y21)" difficulty="408 Ga 389 Pe **">Raw Ruby</item>
+    <item slot="8" zone="Lower La Noscea" pos="(x23,y21)" difficulty="408 Ga 389 Pe **">Raw Sapphire</item>
+  </time>
+  <time hours="19">
+    <item slot="8" zone="Middle La Noscea" pos="(x24,y27)" difficulty="353 Ga 332 Pe *">Grade 3 La Noscean Topsoil</item>
+  </time>
+  <time hours="21">
+    <item slot="7" zone="Coerthas Central Highlands" pos="(x23,y23)" difficulty="*">Astral Rock</item>
+    <item slot="1" zone="Mor Dhona" pos="(x27,y10)" difficulty="*">Grade 4 Carbonized Matter</item>
+    <item slot="2" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Lightning Cluster</item>
+    <item slot="3" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Fire Cluster</item>
+    <item slot="4" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Wind Cluster</item>
+    <item slot="5" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Water Cluster</item>
+    <item slot="6" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Ice Cluster</item>
+    <item slot="7" zone="Mor Dhona" pos="(x27,y10)" difficulty="">Earth Cluster</item>
+  </time>
 </document>

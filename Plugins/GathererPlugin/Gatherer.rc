@@ -71,6 +71,7 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 //
 
 IDR_MINING              XML                     "mining.xml"
+IDR_BOTANY              XML                     "botany.xml"
 #endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
