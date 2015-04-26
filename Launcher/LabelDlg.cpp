@@ -45,6 +45,7 @@ BOOL LabelDlg::OnInitDialog()
 	m_LabelList.InsertColumn(LIST_COL_FONT_COLOR,	_T("Text color"),	 LVCFMT_LEFT,  70);
 	m_LabelList.InsertColumn(LIST_COL_BOLD,			_T("Bold"),			 LVCFMT_LEFT,  35);
 	m_LabelList.InsertColumn(LIST_COL_ITALIC,		_T("Italic"),		 LVCFMT_LEFT,  35);
+	m_LabelList.InsertColumn(LIST_COL_COLLAPSED,	_T("Collapsed"),	 LVCFMT_LEFT,  65);
 
 	pFontName->m_bDrawUsingFont = TRUE;
 
@@ -115,6 +116,10 @@ void LabelDlg::AddLabel(const string_t &Name_in, const Windower::LabelSettings &
 	LvItem.iSubItem = LIST_COL_ITALIC;
 	LvItem.pszText = Settings_in.bItalic ? _T("yes") : _T("no");
 	m_LabelList.SetItem(&LvItem);
+	// label collapsed
+	LvItem.iSubItem = LIST_COL_COLLAPSED;
+	LvItem.pszText = Settings_in.bCollapsed ? _T("yes") : _T("no");
+	m_LabelList.SetItem(&LvItem);
 }
 
 COLORREF ColorListCtrl::OnGetCellTextColor(int nRow, int nColumn)
@@ -182,6 +187,7 @@ void LabelDlg::UpdateUI()
 
 	CMFCColorButton *pTextColor = static_cast<CMFCColorButton*>(GetDlgItem(IDC_TEXT_COLOR));
 	CMFCFontComboBox *pFontName = static_cast<CMFCFontComboBox*>(GetDlgItem(IDC_FONT_NAME));
+	CMFCButton *pCollapsed = static_cast<CMFCButton*>(GetDlgItem(IDC_COLLAPSE_CHK));
 	CMFCButton *pItalic = static_cast<CMFCButton*>(GetDlgItem(IDC_ITALIC_CHK));
 	CMFCButton *pBold = static_cast<CMFCButton*>(GetDlgItem(IDC_BOLD_CHK));
 
@@ -191,11 +197,13 @@ void LabelDlg::UpdateUI()
 	GetDlgItem(IDC_POS_Y)->EnableWindow(Enable);	
 	pTextColor->EnableWindow(Enable);
 	pFontName->EnableWindow(Enable);
+	pCollapsed->EnableWindow(Enable);
 	pItalic->EnableWindow(Enable);
 	pBold->EnableWindow(Enable);
 
 	if (Enable)
 	{
+		pCollapsed->SetCheck(m_pCurrentLabel->bCollapsed ? BST_CHECKED : BST_UNCHECKED);
 		pItalic->SetCheck(m_pCurrentLabel->bItalic ? BST_CHECKED : BST_UNCHECKED);
 		pBold->SetCheck(m_pCurrentLabel->bBold ? BST_CHECKED : BST_UNCHECKED);
 		SetDlgItemInt(IDC_FONT_SIZE, m_pCurrentLabel->FontSize, false);
@@ -230,13 +238,15 @@ void LabelDlg::OnBnClickedUpdateLabel()
 	{
 		CMFCColorButton *pTextColor = static_cast<CMFCColorButton*>(GetDlgItem(IDC_TEXT_COLOR));
 		CMFCFontComboBox *pFontName = static_cast<CMFCFontComboBox*>(GetDlgItem(IDC_FONT_NAME));
-		CMFCButton *pItalic = static_cast<CMFCButton*>(GetDlgItem(IDC_ITALIC_CHK));
+		CMFCButton *pCollapsed = static_cast<CMFCButton*>(GetDlgItem(IDC_COLLAPSE_CHK));
+		CMFCButton *pItalic = static_cast<CMFCButton*>(GetDlgItem(IDC_ITALIC_CHK));		
 		CMFCButton *pBold = static_cast<CMFCButton*>(GetDlgItem(IDC_BOLD_CHK));
 
 		m_pCurrentLabel->FontSize = (unsigned short)GetDlgItemInt(IDC_FONT_SIZE, NULL, FALSE);
+		m_pCurrentLabel->bCollapsed = (pCollapsed->GetCheck() == BST_CHECKED);
 		m_pCurrentLabel->bItalic = (pItalic->GetCheck() == BST_CHECKED);
 		m_pCurrentLabel->FontName = pFontName->GetSelFont()->m_strName;
-		m_pCurrentLabel->TextColor = ToARGB(pTextColor->GetColor());
+		m_pCurrentLabel->TextColor = ToARGB(pTextColor->GetColor());		
 		m_pCurrentLabel->bBold = (pBold->GetCheck() == BST_CHECKED);
 		m_pCurrentLabel->X = (long)GetDlgItemInt(IDC_POS_X);
 		m_pCurrentLabel->Y = (long)GetDlgItemInt(IDC_POS_Y);

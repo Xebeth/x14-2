@@ -297,21 +297,24 @@ namespace Windower
 	}
 
 	void WindowerProfile::SerializeLabel(const string_t &Name_in, long X_in, long Y_in, unsigned long TextColor_in,
-										 const string_t &FontName_in, unsigned short FontSize_in, bool Bold_in, bool Italic_in)
+										 const string_t &FontName_in, unsigned short FontSize_in, bool Bold_in,
+										 bool Italic_in, bool Collapsed_in)
 	{
-		m_TextLabels[Name_in] = LabelSettings(X_in, Y_in, TextColor_in, FontName_in, FontSize_in, Bold_in, Italic_in);
+		m_TextLabels[Name_in] = LabelSettings(X_in, Y_in, TextColor_in, FontName_in, FontSize_in, Bold_in, Italic_in, Collapsed_in);
 	}
 
 	bool WindowerProfile::DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out, unsigned long &TextColor_out,
-										   string_t &FontName_out, unsigned short &FontSize_out, bool &Bold_out, bool &Italic_out)
+										   string_t &FontName_out, unsigned short &FontSize_out, bool &Bold_out,
+										   bool &Italic_out, bool &Collapsed_out)
 	{
 		TextLabels::const_iterator LabelIt = m_TextLabels.find(Name_in);
 
 		if (LabelIt != m_TextLabels.cend())
 		{
+			Collapsed_out = LabelIt->second.bCollapsed;
 			TextColor_out = LabelIt->second.TextColor;
 			FontName_out = LabelIt->second.FontName;
-			FontSize_out = LabelIt->second.FontSize;
+			FontSize_out = LabelIt->second.FontSize;			
 			Italic_out = LabelIt->second.bItalic;
 			Bold_out = LabelIt->second.bBold;
 			X_out = LabelIt->second.X;
@@ -371,6 +374,12 @@ namespace Windower
 			Settings.bItalic = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
 			LabelParams.pop_front();
 
+			if (LabelParams.empty())
+				return false;
+			// Collapsed
+			Settings.bCollapsed = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			LabelParams.pop_front();
+
 			return LabelParams.empty();
 		}
 
@@ -384,6 +393,7 @@ namespace Windower
 																  Settings_in.FontName.c_str(),
 																  Settings_in.FontSize,
 																  Settings_in.bBold ? 1U : 0U,
-																  Settings_in.bItalic ? 1U : 0U);
+																  Settings_in.bItalic ? 1U : 0U,
+																  Settings_in.bCollapsed ? 1U : 0U);
 	}
 }

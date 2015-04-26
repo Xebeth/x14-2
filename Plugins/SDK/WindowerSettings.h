@@ -33,8 +33,8 @@ enum eIniKeys
 	// number of keys
 	INI_KEY_COUNT
 };
-								// X | Y | TextColor | FontName | FontSize | Bold | Italic
-#define SERIALIZE_LABEL_FORMAT	_T("%ld|%ld|%08X|%s|%hu|%hu|%hu")
+								// X | Y | TextColor | FontName | FontSize | Bold | Italic | Collapsed
+#define SERIALIZE_LABEL_FORMAT	_T("%ld|%ld|%08X|%s|%hu|%hu|%hu|%hu")
 #define PROFILE_PREFIX			_T("Profile:")
 #define LABELS_PREFIX			_T("Labels:")
 
@@ -44,18 +44,19 @@ namespace Windower
 	{
 	public:
 		LabelSettings() : TextColor(0xFF000000UL), X(0L), Y(0L),
-			FontSize(12U), FontName(_T("Arial")), bBold(true), bItalic(false) {}
+			FontSize(12U), FontName(_T("Arial")), bBold(true), bItalic(false), bCollapsed(false) {}
 
 		LabelSettings(long X_in, long Y_in, unsigned long TextColor_in = 0xFF000000UL,
 					  const string_t &FontName_in = _T("Arial"), unsigned short FontSize_in = 12,
-					  bool Bold_in = true, bool Italic_in = false)
+					  bool Bold_in = true, bool Italic_in = false, bool Collapsed_in = false)
 			: X(X_in), Y(Y_in), TextColor(TextColor_in), FontSize(FontSize_in),
-			  FontName(FontName_in), bBold(Bold_in), bItalic(Italic_in) {}
+			  FontName(FontName_in), bBold(Bold_in), bItalic(Italic_in), bCollapsed(Collapsed_in) {}
 
 		unsigned long TextColor;
 		unsigned short FontSize;
 		bool bBold, bItalic;
 		string_t FontName;
+		bool bCollapsed;
 		long X, Y;
 	};
 
@@ -176,15 +177,15 @@ namespace Windower
 		bool LoadLabel(const string_t &Name_in, const string_t &SerializedData_in);
 		
 		bool DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out,
-							  unsigned long &TextColor_out,
-							  string_t &FontName_out,
-							  unsigned short &FontSize_out,
-							  bool &Bold_out, bool &Italic_out);
+							  unsigned long &TextColor_out, string_t &FontName_out,
+							  unsigned short &FontSize_out, bool &Bold_out,
+							  bool &Italic_out, bool &Collapsed_out);
 		void SerializeLabel(const string_t &Name_in, long X_in, long Y_in,
 							unsigned long TextColor_in = 0xFF000000UL,
 							const string_t &FontName_in = _T("Arial"),
 							unsigned short FontSize_in = 12,
-							bool Bold_in = true, bool Italic_in = false);
+							bool Bold_in = true, bool Italic_in = false,
+							bool Collapsed_in = false);
 	
 		void SetCryptedPassword(const string_t &Password_in) { m_Password = Password_in; }
 		void SetTellSound(const string_t &TellSound_in) { m_TellSound = TellSound_in; }

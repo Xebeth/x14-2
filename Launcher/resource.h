@@ -44,6 +44,7 @@
 #define IDC_FONT_NAME                   1031
 #define IDC_BOLD_CHK                    1032
 #define IDC_ITALIC_CHK                  1033
+#define IDC_COLLAPSE_CHK                1034
 
 // Next default values for new objects
 // 

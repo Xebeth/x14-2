@@ -71,6 +71,7 @@ namespace Windower
 		unsigned long m_W, m_H;
 		string_t m_LabelName;
 		string_t m_FontName;
+		bool m_Collapsed;
 		bool m_Destroy;
 		bool m_Italic;
 		bool m_Bold;		

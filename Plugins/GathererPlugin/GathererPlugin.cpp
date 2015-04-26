@@ -24,7 +24,7 @@ namespace Windower
 		{
 			bool collapsed = !pLabel->IsCollapsed();
 
-			pLabel->SetWidth(collapsed ? 40UL : 640UL);
+			pLabel->SetWidth(collapsed ? 100UL : 640UL);
 			pLabel->SetCollapsed(collapsed);			
 		}
 	}
