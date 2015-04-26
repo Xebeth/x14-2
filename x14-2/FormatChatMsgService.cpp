@@ -13,6 +13,9 @@
 
 #include "WindowerCore.h"
 #include "CmdLineCore.h"
+#include "WindowerEngine.h"
+
+extern Windower::WindowerEngine *g_pEngine;
 
 namespace Windower
 {
@@ -58,6 +61,12 @@ namespace Windower
 			char *pModifiedMsg = NULL;
 			IGameChatPlugin *pPlugin;
 			bool bResult = false;
+
+			if (g_pEngine != NULL)
+			{
+				g_pEngine->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
+										 pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
+			}
 
 			for (PluginIt = m_Context->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 			{

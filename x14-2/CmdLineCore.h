@@ -47,6 +47,7 @@ namespace Windower
 			CMD_WAIT,				//!< wait command
 			CMD_KEY_PRESS,			//!< key press command
 			CMD_EXIT,				//!< exit the game
+			CMD_WAIT_MSG,			//!< wait for a message
 			CMD_COUNT				//!< number of registered commands
 		};
 

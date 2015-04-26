@@ -45,7 +45,7 @@ namespace Windower
 		  m_bDetached(false), m_bShutdown(false), m_hWindowerDLL(hModule_in),
 		  m_pGameChatCore(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
 		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL),
-		  m_MacroRunning(0L), m_pTextLabel(NULL)
+		  m_pTextLabel(NULL), m_MacroThreadID(ThreadState::NONE)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -299,7 +299,7 @@ namespace Windower
 
 	void WindowerEngine::UpdateMacroProgress(unsigned long step, unsigned long total, bool stop)
 	{
-		m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroRunning());
+		m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroThreadActive());
 	}
 
 	bool WindowerEngine::PressKey(long key, long delay, long repeat)
@@ -309,7 +309,7 @@ namespace Windower
 			if (delay < 500L)
 				delay = 500L;
 
-			for (long i = 0; i < repeat && IsMacroRunning(); ++i)
+			for (long i = 0; i < repeat && IsMacroThreadActive(); ++i)
 			{
 				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYDOWN, key, 0);
 				::Sleep(250);
@@ -325,15 +325,27 @@ namespace Windower
 
 	bool WindowerEngine::AbortMacro()
 	{
-		InterlockedExchange(&m_MacroRunning, 0L);
+		if (m_MacroThreadID != 0UL && m_MacroThreadState == ThreadState::SUSPENDED)
+		{
+			SetMacroThreadState(ThreadState::RUNNING);
+			InterlockedExchange(&m_MacroThreadState, ThreadState::ABORTED);
+		}
+		else
+			InterlockedExchange(&m_MacroThreadID, 0UL);
+
 		UpdateMacroProgress(0UL, 0UL, true);
 		
 		return true;
 	}
 
-	bool WindowerEngine::IsMacroRunning()
+	bool WindowerEngine::IsMacroThreadActive() const
 	{
-		return (m_MacroRunning == 1L);
+		return (m_MacroThreadID != 0UL && (m_MacroThreadState == ThreadState::RUNNING || m_MacroThreadState == ThreadState::SUSPENDED));
+	}
+	
+	bool WindowerEngine::IsMacroThreadSuspended() const
+	{
+		return (m_MacroThreadID != 0UL && m_MacroThreadState == ThreadState::SUSPENDED);
 	}
 	
 	//! \brief Initializes the engine
@@ -371,16 +383,27 @@ namespace Windower
 	bool WindowerEngine::CreateMacroThread(const string_t &file, unsigned long repeat)
 	{
 		MacroParam *pParam = new MacroParam(file, repeat);
-		DWORD dwThreadID = 0UL;
 		HANDLE hThread;
 
-		if (m_MacroRunning == 0L)
+		if (IsMacroThreadActive() == false)
 		{
-			InterlockedExchange(&m_MacroRunning, 1L);
+			DWORD threadID = 0UL;
+
 			UpdateMacroProgress(0UL, repeat, false);
 			// create the macro thread
-			hThread = CreateThread(NULL, 0, WindowerEngine::MacroThread, pParam, 0, &dwThreadID);
-			::CloseHandle(hThread);
+			hThread = ::CreateThread(NULL, 0, WindowerEngine::MacroThread, pParam, 0, &threadID);
+
+			if (hThread != NULL)
+			{
+				InterlockedExchange(&m_MacroThreadState, ThreadState::RUNNING);
+				InterlockedExchange(&m_MacroThreadID, threadID);
+				::CloseHandle(hThread);
+			}
+			else
+			{
+				InterlockedExchange(&m_MacroThreadState, ThreadState::NONE);
+				InterlockedExchange(&m_MacroThreadID, 0UL);
+			}
 		}
 
 		return true;
@@ -394,11 +417,65 @@ namespace Windower
 		if (pParam != NULL)
 		{
 			Result = m_Context->m_pCmdLineCore->ExecuteMacroFile(pParam->first, pParam->second) ? 1UL : 0UL;
-			InterlockedExchange(&m_Context->m_MacroRunning, 0L);
+			InterlockedExchange(&m_Context->m_MacroThreadState, ThreadState::NONE);
+			InterlockedExchange(&m_Context->m_MacroThreadID, 0UL);
 			delete pParam;
 		}
 
 		return Result;
+	}
+
+	bool WindowerEngine::SetMacroThreadState(ThreadState state)
+	{
+		bool result = false;
+
+		switch (state)
+		{
+			case ThreadState::SUSPENDED:
+				if (m_MacroThreadState == ThreadState::RUNNING)
+				{
+					InterlockedExchange(&m_MacroThreadState, state);
+					result = true;
+				}
+			break;
+			case ThreadState::RUNNING:
+				if (m_MacroThreadState == ThreadState::SUSPENDED)
+				{
+					InterlockedExchange(&m_MacroThreadState, state);
+					result = true;
+				}
+			break;
+		}
+
+		return result;
+	}
+
+	bool WindowerEngine::SuspendMacroThread(const std::string &condition)
+	{
+		m_ExpectCondition = condition;
+
+		if (IsMacroThreadActive())
+			return SetMacroThreadState(ThreadState::SUSPENDED);
+
+		return false;
+	}
+	
+	/*! \brief Callback invoked when the game chat receives a new line
+		\param[in] MessageType_in : the type of the message
+		\param[in] pSender_in : the sender of the message
+		\param[in] MsgSize_in : the size of the unmodified message
+		\param[in] pOriginalMsg_in : a pointer to the unmodified message
+		\param[in] pModifiedMsg_in_out : the resulting text modified by the plugin
+		\param[in] DWORD ModifiedSize_in : the modified message size
+		\return the new size of the message
+	*/
+	DWORD WindowerEngine::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+									    char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
+	{
+		if (m_ExpectCondition.empty() || m_ExpectCondition[0] == '*' || strstr(pOriginalMsg_in, m_ExpectCondition.c_str()) != NULL)
+			SetMacroThreadState(ThreadState::RUNNING);
+
+		return MsgSize_in;
 	}
 
 	bool WindowerEngine::Exit(std::string& Feedback_out)
@@ -440,9 +517,12 @@ namespace Windower
 
 	void WindowerEngine::SerializeLabel(const string_t &Name_in, long X_in, long Y_in,
 										unsigned long TextColor_in, const string_t &FontName_in,
-										unsigned short FontSize_in, bool Bold_in, bool Italic_in)
+										unsigned short FontSize_in, bool Bold_in,
+										bool Italic_in, bool Collapsed_in)
 	{
-		m_Settings.SerializeLabel(Name_in, X_in, Y_in, TextColor_in, FontName_in, FontSize_in, Bold_in, Italic_in);
+		m_Settings.SerializeLabel(Name_in, X_in, Y_in, TextColor_in,
+								  FontName_in, FontSize_in,
+								  Bold_in, Italic_in, Collapsed_in);
 
 		if (m_pSettingsManager != NULL)
 			m_pSettingsManager->CopySettings(&m_Settings);
@@ -450,9 +530,10 @@ namespace Windower
 
 	bool WindowerEngine::DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out,
 										  unsigned long &TextColor_out, string_t &FontName_out,
-										  unsigned short &FontSize_out, bool &Bold_out, bool &Italic_out)
+										  unsigned short &FontSize_out, bool &Bold_out,
+										  bool &Italic_out, bool &Collapsed_out)
 	{
 		return m_Settings.DeserializeLabel(Name_in, X_out, Y_out, TextColor_out, FontName_out,
-										   FontSize_out, Bold_out, Italic_out);
+										   FontSize_out, Bold_out, Italic_out, Collapsed_out);
 	}
 }

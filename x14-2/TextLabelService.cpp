@@ -76,13 +76,16 @@ namespace Windower
 				{
 					bool Deserialized = m_Engine.DeserializeLabel(pParam->m_LabelName, pParam->m_X, pParam->m_Y,
 																  pParam->m_TextColor, pParam->m_FontName,
-																  pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic);
+																  pParam->m_Fontsize, pParam->m_Bold,
+																  pParam->m_Italic, pParam->m_Collapsed);
 					// create a new label window
 					UiTextLabel *pLabel = CreateLabel(m_pDevice, m_pWrapperImpl, pParam->m_LabelName,
 													  pParam->m_X, pParam->m_Y, pParam->m_W,
 													  pParam->m_H, pParam->m_FontName, 
 													  pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic,
 													  pParam->m_TextColor, m_pRenderer, true);
+
+					pLabel->SetCollapsed(pParam->m_Collapsed);
 
 					if (pParam->m_pfnMouseClick != NULL)
 						pLabel->SetMouseClickEvent(pParam->m_pfnMouseClick);
@@ -93,7 +96,8 @@ namespace Windower
 					if (pLabel != NULL && Deserialized == false)
 						m_Engine.SerializeLabel(pParam->m_LabelName, pParam->m_X, pParam->m_Y,
 												pParam->m_TextColor, pParam->m_FontName,
-												pParam->m_Fontsize, pParam->m_Bold, pParam->m_Italic);
+												pParam->m_Fontsize, pParam->m_Bold,
+												pParam->m_Italic, pParam->m_Collapsed);
 
 					return (pLabel != NULL);
 				}

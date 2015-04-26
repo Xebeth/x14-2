@@ -261,13 +261,13 @@ namespace Windower
 
 				if (pFPSLabel != NULL && pFPSLabel->ToggleVisible())
 				{
-					unsigned long TextColor = 0xFFFF0000;
-					bool Bold = true, Italic = false;
+					bool Bold = true, Italic = false, Collapsed = false;
+					unsigned long TextColor = 0xFFFF0000;					
 					string_t FontName = _T("Arial");
 					unsigned short FontSize = 12U;
 					long X = -16L, Y = 0L;
 
-					m_pEngine->DeserializeLabel(pFPSLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic);
+					m_pEngine->DeserializeLabel(pFPSLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic, Collapsed);
 					pFPSLabel->SetTitleFont(FontName, FontSize, Bold, Italic);
 					pFPSLabel->SetTitleColor(TextColor);
 					pFPSLabel->SetPos(X, Y);
@@ -288,13 +288,13 @@ namespace Windower
 
 				if (pMacroLabel != NULL)
 				{
+					bool Bold = true, Italic = false, Collapsed = false;
 					unsigned long TextColor = 0xFFFF0000;
-					bool Bold = true, Italic = false;
 					string_t FontName = _T("Arial");
 					unsigned short FontSize = 12U;
 					long X = -16L, Y = 0L;
 					
-					m_pEngine->DeserializeLabel(pMacroLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic);
+					m_pEngine->DeserializeLabel(pMacroLabel->GetName(), X, Y, TextColor, FontName, FontSize, Bold, Italic, Collapsed);
 					pMacroLabel->SetTitleFont(FontName, FontSize, Bold, Italic);
 					pMacroLabel->SetProgress(current, total, !visible);
 					pMacroLabel->SetTitleColor(TextColor);
@@ -399,7 +399,8 @@ namespace Windower
 									  m_pMovingLabel->GetX(), m_pMovingLabel->GetY(),
 									  m_pMovingLabel->GetTitleColor().GetARGB(),
 									  Font.GetFontName(), Font.GetFontSize(),
-									  Font.IsBold(), Font.IsItalic());
+									  Font.IsBold(), Font.IsItalic(),
+									  m_pMovingLabel->IsCollapsed());
 			m_pMovingLabel = NULL;
 
 			return IEventInterface::EVENT_PROCESSED;
@@ -467,16 +468,16 @@ namespace Windower
 		if (pLabel != NULL && g_pDeviceWrapperImpl != NULL)
 		{
 			unsigned long TextColor = 0xFFFF0000, ID = pLabel->GetID();
+			bool Bold = true, Italic = false, Collapsed = false;
 			const string_t &name = pLabel->GetName();
-			bool Bold = true, Italic = false;
 			string_t FontName = _T("Arial");
 			unsigned short FontSize = 12U;
 			long X = -16L, Y = 0L;
 
-			bool Deserialized = m_pEngine->DeserializeLabel(name, X, Y, TextColor, FontName, FontSize, Bold, Italic);
+			bool Deserialized = m_pEngine->DeserializeLabel(name, X, Y, TextColor, FontName, FontSize, Bold, Italic, Collapsed);
 
 			if (Deserialized == false)
-				m_pEngine->SerializeLabel(name, X, Y, TextColor, FontName, FontSize);
+				m_pEngine->SerializeLabel(name, X, Y, TextColor, FontName, FontSize, Bold, Italic, Collapsed);
 
 			pLabel->SetVisibile(false);
 

@@ -29,6 +29,15 @@ namespace Windower
 	class TestCore;
 #endif // _DEBUG
 
+	enum ThreadState
+	{
+		NONE = 0L,
+		RUNNING,
+		SUSPENDED,
+		ABORTED,
+		COUNT
+	};
+
 	//! a map of plugins
 	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
 	typedef std::pair<string_t, unsigned long> MacroParam;
@@ -53,8 +62,9 @@ namespace Windower
 		// main engine thread
 		DWORD MainThread();
 
+		bool IsMacroThreadSuspended() const;
+		bool IsMacroThreadActive() const;
 		bool IsPlayerLoggedIn() const;
-		bool IsMacroRunning();
 		bool AbortMacro();
 
 		DWORD MemoryScan(const std::string &Pattern_in,
@@ -62,20 +72,25 @@ namespace Windower
 
 		void UpdateMacroProgress(unsigned long step, unsigned long total, bool stop);
 		bool CreateMacroThread(const string_t &file, unsigned long repeat);
+		bool SuspendMacroThread(const std::string &condition);
+
+		
+		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
+							char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// commands
 		bool Exit(std::string& Feedback_out);
 
 		bool DeserializeLabel(const string_t &Name_in, long &X_out, long &Y_out,
-							  unsigned long &TextColor_out,
-							  string_t &FontName_out,
-							  unsigned short &FontSize_out,
-							  bool &Bold_out, bool &Italic_out);
+							  unsigned long &TextColor_out, string_t &FontName_out,
+							  unsigned short &FontSize_out, bool &Bold_out,
+							  bool &Italic_out, bool &Collapsed_out);
 		void SerializeLabel(const string_t &Name_in, long X_in, long Y_in,
 							unsigned long TextColor_in = 0xFF000000UL,
 							const string_t &FontName_in = _T("Arial"),
 							unsigned short FontSize_in = 12,
-							bool Bold_in = true, bool Italic_in = false);
+							bool Bold_in = true, bool Italic_in = false,
+							bool Collapsed_in = false);
 
 	private:
 		bool InitializePlugins();
@@ -97,6 +112,7 @@ namespace Windower
 		};
 
 		static DWORD WINAPI MacroThread(LPVOID pParam_in_out);
+		bool SetMacroThreadState(ThreadState state);
 
 		//! calling context
 		static CallingContext<WindowerEngine> m_Context;		
@@ -129,12 +145,14 @@ namespace Windower
 		//! critical section for plugin operations
 		CRITICAL_SECTION m_PluginLock;
 		CRITICAL_SECTION m_MacroLock;
+		volatile DWORD m_MacroThreadID;
 		//! flag controlling the lifetime of the engine thread
 		volatile bool m_bShutdown;
 		// flag specifying if the engine has been detached
 		volatile bool m_bDetached;
-		volatile LONG m_MacroRunning;
+		volatile LONG m_MacroThreadState;
 		UIAL::CUiWindow<> *m_pTextLabel;
+		std::string m_ExpectCondition;
 	};
 }
 

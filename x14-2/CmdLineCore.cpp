@@ -300,6 +300,24 @@ namespace Windower
 
 			Result &= (pCommand != NULL);
 
+			// register the "expect" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_WAIT_MSG, "expect",
+										   "Waits until the expected message is received.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("condition", true, "*", "the message to expect (* means any)");
+				pCommand->SetRestricted(false);
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
 			// register the "key" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_KEY_PRESS, "key",
 										   "Simulates a key press.", this);
@@ -354,9 +372,15 @@ namespace Windower
 	{
 		if (m_pTextCmd != NULL)
 		{
-			for (unsigned long i = 1; i <= repeat && m_pEngine->IsMacroRunning(); ++i)
+			for (unsigned long i = 1; i <= repeat && m_pEngine->IsMacroThreadActive(); ++i)
 			{
 				std::ifstream infile(macroFile_in);
+
+				while (m_pEngine->IsMacroThreadSuspended())
+				{
+					::Sleep(250);
+					continue;
+				}
 
 				if (infile.bad() == false)
 				{
@@ -366,8 +390,14 @@ namespace Windower
 
 					m_pEngine->UpdateMacroProgress(i, repeat, false);
 
-					while (std::getline(infile, line) && m_pEngine->IsMacroRunning())
+					while (std::getline(infile, line) && m_pEngine->IsMacroThreadActive())
 					{
+						while (m_pEngine->IsMacroThreadSuspended())
+						{
+							::Sleep(250);
+							continue;
+						}
+
 						InjectCommand(line);
 
 						pFind = strstr(line.c_str(), "<wait.");
@@ -599,11 +629,15 @@ namespace Windower
 					if (wait <= 500L)
 						wait = 500L;
 
-					::Sleep(wait + std::rand() % 250);
+					::Sleep(wait + std::rand() % 555);
 					Feedback_out = "";
 
 					return true;
 				}
+			break;
+			case CMD_WAIT_MSG:
+				if (m_pEngine != NULL && m_pEngine->IsMacroThreadActive())
+					return m_pEngine->SuspendMacroThread(Command_in.GetStringValue("condition"));
 			break;
 			case CMD_EXIT:
 				return (m_pEngine ? m_pEngine->Exit(Feedback_out) : false);
