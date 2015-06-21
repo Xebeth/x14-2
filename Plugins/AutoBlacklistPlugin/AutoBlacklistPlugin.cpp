@@ -470,9 +470,8 @@ namespace Windower
 	DWORD AutoBlacklistPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
 											 char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
 	{
-		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE
-		 || MessageType_in == CHAT_MESSAGE_TYPE_SHOUT_MESSAGE
-		 || MessageType_in == CHAT_MESSAGE_TYPE_YELL_MESSAGE)
+		if (MessageType_in != CHAT_MESSAGE_TYPE_ECHO_MESSAGE
+		 && MessageType_in != CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE)
 		{
 			std::string ScoredMessage;
 			int Score = ScoreMessage(MessageType_in, pOriginalMsg_in, ScoredMessage);
@@ -540,8 +539,6 @@ namespace Windower
 			std::map<size_t, long> Markers;
 			size_t position, offset = 0U;
 		
-			std::transform(Message.begin(), Message.end(), Message.begin(), ::tolower);
-
 			switch(MessageType_in)
 			{
 				case CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE:
@@ -565,9 +562,10 @@ namespace Windower
 			{
 				position = Message.find(WordIt->first);
 
-				if (position != std::string::npos)
+				while (position != std::string::npos)
 				{
 					Markers[position + WordIt->first.size()] = WordIt->second;
+					position = Message.find(WordIt->first, position);
 					Score += WordIt->second;
 				}
 			}
