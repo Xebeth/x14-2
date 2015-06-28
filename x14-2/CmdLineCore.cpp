@@ -87,7 +87,9 @@ namespace Windower
 			else if (pThis_in_out != NULL && pUnknown_in != NULL)
 			{
 				// call the trampoline to process the command
+				m_pEngine->LockEngineThread();
 				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
+				m_pEngine->UnlockEngineThread();
 			}
 		}
 
@@ -111,7 +113,7 @@ namespace Windower
 
 				if (pCmd_in->dwSize > 2)
 				{
-					DWORD dwNewSize = 0UL;
+					size_t dwNewSize = 0UL;
 					WindowerCommand Command;
 					char *pFeedbackMsg = NULL;					
 					int parseResult = m_Context->m_pCommandParser->ParseCommand(pCmd_in->pResBuf + 2, Command,

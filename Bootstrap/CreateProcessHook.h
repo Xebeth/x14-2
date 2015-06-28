@@ -8,7 +8,8 @@
 #ifndef __CREATE_PROCESS_HOOK_H__
 #define __CREATE_PROCESS_HOOK_H__
 
-#define TARGET_PROCESS_GAME _T("ffxiv.exe")
+#define TARGET_PROCESS_GAME_DX11	_T("ffxiv_dx11.exe")
+#define TARGET_PROCESS_GAME			_T("ffxiv.exe")
 
 typedef BOOL (WINAPI *fnCreateProcess)(LPCTSTR lpApplicationName_in, LPTSTR lpCommandLine_in_out,
 									   LPSECURITY_ATTRIBUTES lpProcessAttributes_in,

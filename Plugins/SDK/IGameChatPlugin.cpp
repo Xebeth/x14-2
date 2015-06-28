@@ -33,8 +33,8 @@ namespace Windower
 		return UnsubscribeService(_T(GAME_CHAT_MODULE), _T(FORMAT_CHAT_MESSAGE_HOOK));
 	}
 
-	bool IGameChatPlugin::ResizeBuffer(const char *pSrc_in, DWORD SrcSize_in, DWORD dwNewSize_in,
-									   char **pBuffer_in_out, DWORD BufferSize_in, DWORD Offset_in) const
+	bool IGameChatPlugin::ResizeBuffer(const char *pSrc_in, DWORD_PTR SrcSize_in, DWORD_PTR dwNewSize_in,
+									   char **pBuffer_in_out, DWORD_PTR BufferSize_in, DWORD_PTR Offset_in) const
 	{
 		if (pBuffer_in_out != NULL)
 		{

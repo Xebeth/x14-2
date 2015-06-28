@@ -13,9 +13,9 @@ namespace Windower
 	typedef struct _StringNode
 	{
 		char		*pResBuf;				// +4
-		DWORD		 dwCapacity;			// +8
-		DWORD		 dwSize;				// +12
-		DWORD		 dwUnknown2;			// +16
+		DWORD_PTR	 dwCapacity;			// +8
+		DWORD_PTR	 dwSize;				// +12
+		DWORD_PTR	 dwUnknown2;			// +16
 		bool		 bUnknown;				// +17
 		bool		 UseInternal;				// +18
 		char		 InternalBuffer[64];	// +19

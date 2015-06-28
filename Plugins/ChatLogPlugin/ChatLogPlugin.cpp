@@ -84,8 +84,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-									   char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
+	DWORD_PTR ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+										   char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
 		{
@@ -183,7 +183,7 @@ namespace Windower
 		// get the current time
 		GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0UL, NULL,
 					   m_TimestampFormatW.c_str(),
-					   m_pTimestamp, m_TimestampLength + 1);
+					   m_pTimestamp, (int)m_TimestampLength + 1);
 	}
 }
 

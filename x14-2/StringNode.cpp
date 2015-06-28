@@ -13,7 +13,7 @@ namespace Windower
 {
 	size_t UpdateNode(char *pText_in, size_t TextLen_in, StringNode &Node_in_out)
 	{
-		DWORD newCapacity = Node_in_out.dwCapacity;
+		DWORD_PTR newCapacity = Node_in_out.dwCapacity;
 
 		Node_in_out.pResBuf = pText_in;
 		Node_in_out.dwSize = Node_in_out.dwCapacity = TextLen_in;

@@ -43,9 +43,17 @@ typedef stdext::hash_map<std::string, long> ScoredWords;
 #endif
 
 #ifdef _DEBUG
-	#pragma comment(lib, "PluginSDK.x86d.lib")
+	#ifdef _M_X64
+		#pragma comment(lib, "PluginSDK.x64d.lib")
+	#else
+		#pragma comment(lib, "PluginSDK.x86d.lib")
+	#endif
 #else
-	#pragma comment(lib, "PluginSDK.x86.lib")
+	#ifdef _M_X64
+		#pragma comment(lib, "PluginSDK.x64.lib")
+	#else
+		#pragma comment(lib, "PluginSDK.x86.lib")
+	#endif
 #endif // _DEBUG
 
 #undef _WINDOWER_PLUGIN_SDK_INCLUDE_

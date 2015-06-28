@@ -61,8 +61,8 @@ namespace Windower
 			\param[in] DWORD ModifiedSize_in : the modified message size
 			\return the new size of the message
 		*/
-		virtual DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-									char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out) =0;
+		virtual DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+										char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out) =0;
 
 	protected:
 		/*! \brief IGameChatPlugin constructor
@@ -71,8 +71,8 @@ namespace Windower
 		explicit IGameChatPlugin(PluginFramework::IPluginServices *pServices_in)
 			: WindowerPlugin(pServices_in) {}
 
-		bool ResizeBuffer(const char *pSrc_in, DWORD SrcSize_in, DWORD dwNewSize_in,
-						  char **pBuffer_in_out, DWORD BufferSize_in, DWORD Offset_in = 0UL) const;
+		bool ResizeBuffer(const char *pSrc_in, DWORD_PTR SrcSize_in, DWORD_PTR dwNewSize_in,
+						  char **pBuffer_in_out, DWORD_PTR BufferSize_in, DWORD_PTR Offset_in = 0UL) const;
 
 		virtual bool Unsubscribe();
 		virtual bool Subscribe();

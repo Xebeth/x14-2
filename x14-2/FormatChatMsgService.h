@@ -43,7 +43,7 @@ namespace Windower
 	private:
 
 		bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-												 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in, bool Unknown1);
+												 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD_PTR NewSize_in, bool Unknown1);
 		void OnPointerChange(const std::string &HookName_in, LPVOID pPointer_in);
 
 		//! game pointer to this

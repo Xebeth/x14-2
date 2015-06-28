@@ -31,7 +31,7 @@ namespace Windower
 		\return the number of parameters found for the command or a value <0 otherwise if parsing failed
 	*/
 	int CommandParser::ParseCommand(const char *pRawCommand_in, WindowerCommand &Command_out,
-									char **pFeedbackMsg_out, DWORD &FeedbackMsgSize_out)
+									char **pFeedbackMsg_out, size_t &FeedbackMsgSize_out)
 	{
 		std::string RawCommand, FeedbackMsg, CommandName;
 		int Result = PARSER_RESULT_INVALID_COMMAND;
@@ -150,7 +150,7 @@ namespace Windower
 	*/
 	int CommandParser::SetFeedback(int ErrorCode_in, WindowerCommand &Command_in_out, size_t ParamCount_in,
 								   const char *pParamName_in, const char *pParamValue_in,
-								   char **pFeedbackMsg_out, DWORD &MsgSize_out)
+								   char **pFeedbackMsg_out, size_t &MsgSize_out)
 	{
 		std::string Feedback;
 
@@ -202,9 +202,9 @@ namespace Windower
 		\param[out] Params_out : the parameters of the command
 		\return the number of parameters
 	*/
-	int CommandParser::Tokenize(const std::string& RawCommand_in, std::string& Command_out, std::list<std::string> &Params_out)
+	size_t CommandParser::Tokenize(const std::string& RawCommand_in, std::string& Command_out, std::list<std::string> &Params_out)
 	{
-		unsigned int ParamsCount = tokenize<char>(RawCommand_in, Params_out, " ", "\"");
+		size_t ParamsCount = tokenize<char>(RawCommand_in, Params_out, " ", "\"");
 
 		if (Params_out.empty() == false)
 		{

@@ -488,7 +488,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 
 			while (Timeout_in >= 0 && Result == false)
 			{
-				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD*)&lRes);
+				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD_PTR*)&lRes);
 				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pPageDoc)) && m_pPageDoc != NULL);
 
 				if (Result == false)

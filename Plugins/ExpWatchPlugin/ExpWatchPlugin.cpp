@@ -100,8 +100,8 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-										char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
+	DWORD_PTR ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+											char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == BATTLE_MESSAGE_TYPE_EXPERIENCE_GAIN)
 		{
@@ -129,7 +129,7 @@ namespace Windower
 					if (m_KillCounter >= 10 && m_iMinutes > 0)
 #endif // _DEBUG
 					{
-						DWORD dwNewSize, MsgSize;
+						size_t dwNewSize, MsgSize;
 
 						// add the exp rate to the text
 						format(m_ExpRateMsg, " \xee\x81\xaf exp. rate : %.2f/h", m_AvgExpPerHour);

@@ -55,6 +55,9 @@
     <Filter Include="Windower\Modules\System\Events">
       <UniqueIdentifier>{884a1870-3e0b-4e2a-96c2-3072416304a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Windower\Modules\Graphics\Wrappers\Direct3D9">
+      <UniqueIdentifier>{01f35ed3-7671-4fdd-a866-cff160a85112}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -88,15 +91,6 @@
     <ClCompile Include="FormatChatMsgService.cpp">
       <Filter>Windower\Modules\Chat\Services</Filter>
     </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="IDirect3D9Wrapper.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="CmdLineCore.cpp">
       <Filter>Windower\Modules\Commands</Filter>
     </ClCompile>
@@ -127,20 +121,29 @@
     <ClCompile Include="TextLabelService.cpp">
       <Filter>Windower\Modules\Graphics\Services</Filter>
     </ClCompile>
-    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D9WrapperImpl.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClCompile>
     <ClCompile Include="EventHandler.cpp">
       <Filter>Windower\Modules\System\Events</Filter>
     </ClCompile>
+    <ClCompile Include="Direct3D9WrapperImpl.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
     <ClCompile Include="Direct3DSwapChain9WrapperImpl.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3D9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
     </ClCompile>
     <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -180,15 +183,6 @@
     <ClInclude Include="FormatChatMsgService.h">
       <Filter>Windower\Modules\Chat\Services</Filter>
     </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="IDirect3D9Wrapper.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="IDirect3DDevice9Wrapper.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="CmdLineCore.h">
       <Filter>Windower\Modules\Commands</Filter>
     </ClInclude>
@@ -219,26 +213,35 @@
     <ClInclude Include="UiFPSCounter.h">
       <Filter>Windower\Modules\Graphics\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Direct3DDevice9WrapperImpl.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="IDeviceCreateSubscriber.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D9WrapperImpl.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="IEventInterface.h">
       <Filter>Windower\Modules\System\Events</Filter>
     </ClInclude>
     <ClInclude Include="EventHandler.h">
       <Filter>Windower\Modules\System\Events</Filter>
     </ClInclude>
-    <ClInclude Include="IDirect3DSwapChain9Wrapper.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+    <ClInclude Include="Direct3D9WrapperImpl.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3DDevice9WrapperImpl.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
     </ClInclude>
     <ClInclude Include="Direct3DSwapChain9WrapperImpl.h">
-      <Filter>Windower\Modules\Graphics\Wrappers</Filter>
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeviceCreateSubscriber.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3D9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3DDevice9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirect3DSwapChain9Wrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

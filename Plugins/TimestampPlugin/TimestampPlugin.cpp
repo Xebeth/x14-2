@@ -127,20 +127,20 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-										 char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out)
+	DWORD_PTR TimestampPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+											 char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (pOriginalMsg_in != NULL && MsgSize_in > 1U)
 		{
 			// add 11 characters for the timestamp
-			DWORD dwNewSize = ModifiedSize_in + m_TimestampLength;
+			DWORD_PTR dwNewSize = ModifiedSize_in + m_TimestampLength;
 			// allocate a new buffer
 			if (ResizeBuffer(pOriginalMsg_in, MsgSize_in, dwNewSize, pModifiedMsg_in_out, ModifiedSize_in, m_TimestampLength))
 			{
 				// get the current time
 				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
 							   m_TimestampFormat.c_str(),
-							   *pModifiedMsg_in_out, m_TimestampLength);
+							   *pModifiedMsg_in_out, (int)m_TimestampLength);
 
 				return dwNewSize;
 			}

@@ -90,7 +90,8 @@ namespace Bootstrap
 		BOOL Result = FALSE;
 
 		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
-		 && _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
+		 && (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL
+		  || _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME_DX11) != NULL))
 		{
 			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.dll"), WorkingDir.c_str());
 			Result = TRUE;
@@ -109,7 +110,7 @@ namespace Bootstrap
 			Result = DetourCreateProcessWithDllExW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
 												   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
 												   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-												   lpProcessInformation_out, DLLPath, CreateProcessW);
+												   lpProcessInformation_out, DLLPath, NULL);
 		}
 		else
 		{

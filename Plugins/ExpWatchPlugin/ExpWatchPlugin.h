@@ -34,8 +34,8 @@ namespace Windower
 		bool Start(std::string *pFeedback_in_out = NULL);		
 		bool Stop(std::string *pFeedback_in_out = NULL);		
 
-		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-							char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out);
+		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
 

@@ -55,7 +55,7 @@ namespace Windower
 		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
 		{
 			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Context->m_Subscribers.cend();			
-			DWORD dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
+			DWORD_PTR dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
 			const char *pOriginalMsg = pMessage_in_out->pResBuf;
 			DWORD MessageFlags = MSG_FLAG_NONE;
 			char *pModifiedMsg = NULL;
@@ -67,7 +67,12 @@ namespace Windower
 				g_pEngine->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
 										 pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
 			}
+#ifdef _DEBUG
+			string_t log;
 
+			format(log, _T("Message: [0x%08X] %S %ld %ld\n"), pMessage_in_out, pMessage_in_out->pResBuf, MessageType_in, Unknown1);
+			OutputDebugString(log.c_str());
+#endif
 			for (PluginIt = m_Context->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 			{
 				pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
@@ -105,7 +110,7 @@ namespace Windower
 	}
 
 	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD NewSize_in, bool Unknown1)
+											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD_PTR NewSize_in, bool Unknown1)
 	{
 		StringNode *pNode, ModifiedMsgNode;
 		bool Result = false;

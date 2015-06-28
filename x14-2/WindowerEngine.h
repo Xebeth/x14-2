@@ -67,16 +67,16 @@ namespace Windower
 		bool IsPlayerLoggedIn() const;
 		bool AbortMacro();
 
-		DWORD MemoryScan(const std::string &Pattern_in,
-						 MemoryScanResult &Results_in_out);
+		DWORD_PTR MemoryScan(const std::string &Pattern_in,
+							 MemoryScanResult &Results_in_out);
 
 		void UpdateMacroProgress(unsigned long step, unsigned long total, bool stop);
 		bool CreateMacroThread(const string_t &file, unsigned long repeat);
 		bool SuspendMacroThread(const std::string &condition);
 
 		
-		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-							char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out);
+		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// commands
 		bool Exit(std::string& Feedback_out);

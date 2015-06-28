@@ -32,8 +32,8 @@ namespace Windower
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);
 		bool SetFormat(const std::string& Format_in);
 		
-		DWORD OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD MsgSize_in, const char *pOriginalMsg_in,
-							char **pModifiedMsg_in_out, DWORD ModifiedSize_in, DWORD &MessageFlags_out);
+		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 	protected:
 		PluginPropertyPage* GetPropertyPage();
@@ -45,7 +45,7 @@ namespace Windower
 		//! the format of the timestamp plugin
 		std::string	m_TimestampFormat;
 		//! the length of the formatted timestamp
-		unsigned int m_TimestampLength;
+		size_t m_TimestampLength;
 	};
 }
 

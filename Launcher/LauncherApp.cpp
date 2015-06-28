@@ -303,14 +303,14 @@ BOOL LauncherApp::InitInstance()
 	if (Launch)
 	{
 #ifdef _DEBUG
-		HANDLE hProcess = InjectModule::FindProcess(_T("ffxiv.exe"));
+		HANDLE hProcess = InjectModule::FindProcess(_T("ffxiv_dx11.exe"));
 
 		if (hProcess != NULL)
 		{
 			HMODULE hDLL = NULL;
 
 			// inject directly into the game
-			format(ExePath, _T("%sgame\\ffxiv.exe"), GamePath.c_str());
+			format(ExePath, _T("%sgame\\ffxiv_dx11.exe"), GamePath.c_str());
 			format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
 			// inject the DLL in the running game
 			InjectModule::InjectModule(hProcess, DLL32Path.c_str());
@@ -328,9 +328,6 @@ BOOL LauncherApp::InitInstance()
 			// create the game process
 			InjectModule::CreateProcessEx(ExePath, ProcessInfo, CmdLine.c_str(),
 										  CreationFlags, DLL32Path.c_str());
-			// cleanup
-			CloseHandle(ProcessInfo.hProcess);
-			CloseHandle(ProcessInfo.hThread);
 		}
 	}
 
