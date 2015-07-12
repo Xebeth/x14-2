@@ -172,44 +172,6 @@ CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CStri
 	return LinkTarget_out;
 }
 
-bool LauncherApp::CreateCmdLine(string_t &CmdLine_out, const string_t &GamePath_in,
-								long LanguageID_in, const TCHAR *pSID_in) const
-{
-	if (pSID_in != NULL)
-	{
-		FILE *pVersionFile = NULL;						
-		string_t VerFile;
-		
-		format(VerFile, _T("%sgame\\ffxivgame.ver"), GamePath_in.c_str());
-		
-		if (_tfopen_s(&pVersionFile, VerFile.c_str(), _T("r")) == 0)
-		{
-			TCHAR GameVersion[GAMEVER_BUFFER_SIZE];
-		
-			memset(GameVersion, 0, GAMEVER_BUFFER_SIZE * sizeof(TCHAR));
-		
-			// retrieve the game version
-			if (_fgetts(GameVersion, GAMEVER_BUFFER_SIZE, pVersionFile))
-			{
-				// create the command line parameters
-				format(CmdLine_out, _T("\"DEV.TestSID=%s\"")
-									_T(" \"DEV.UseSqPack=1\" \"DEV.DataPathType=1\"")
-									_T(" \"DEV.LobbyHost=neolobby01.ffxiv.com\"")
-									_T(" \"SYS.LobbyHost=neolobby01.ffxiv.com\"")
-									_T(" \"SYS.Region=3\"")
-									_T(" \"language=%ld\"")
-									_T(" \"ver=%s\""), 
-									pSID_in, LanguageID_in, GameVersion);
-			}
-			// cleanup
-			fclose(pVersionFile);
-
-			return true;
-		}
-	}
-
-	return false;
-}
 BOOL LauncherApp::InitInstance()
 {
 	string_t DLL32Path, ExePath, CmdLine, GamePath;	
@@ -256,7 +218,7 @@ BOOL LauncherApp::InitInstance()
 			ShowConfig = !m_pSettingsManager->Save();
 		}
 	}
-
+/*
 #ifdef _DEBUG
 	if (Tasks != WizardDlg::TASK_NONE)
 	{
@@ -275,7 +237,7 @@ BOOL LauncherApp::InitInstance()
 		}
 	}
 #endif // _DEBUG
-
+*/
 	// load the default profile
 	if (m_pSettingsManager->LoadDefaultProfile(CurrentProfile))
 	{
@@ -302,33 +264,13 @@ BOOL LauncherApp::InitInstance()
 
 	if (Launch)
 	{
-#ifdef _DEBUG
-		HANDLE hProcess = InjectModule::FindProcess(_T("ffxiv_dx11.exe"));
+		PROCESS_INFORMATION ProcessInfo = { 0 };
 
-		if (hProcess != NULL)
-		{
-			HMODULE hDLL = NULL;
-
-			// inject directly into the game
-			format(ExePath, _T("%sgame\\ffxiv_dx11.exe"), GamePath.c_str());
-			format(DLL32Path, _T("%s\\x14-2core.dll"), DirPath);
-			// inject the DLL in the running game
-			InjectModule::InjectModule(hProcess, DLL32Path.c_str());
-
-			CloseHandle(hProcess);
-		}
-		else
-#endif // _DEBUG
-		{
-			DWORD CreationFlags(CREATE_DEFAULT_ERROR_MODE | CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT);
-			PROCESS_INFORMATION ProcessInfo;
-
-			// initialize the structure
-			memset(&ProcessInfo, 0, sizeof(ProcessInfo));
-			// create the game process
-			InjectModule::CreateProcessEx(ExePath, ProcessInfo, CmdLine.c_str(),
-										  CreationFlags, DLL32Path.c_str());
-		}
+		// initialize the structure
+		memset(&ProcessInfo, 0, sizeof(ProcessInfo));
+		// create the game process
+		InjectModule::CreateProcessEx(ExePath, ProcessInfo, CmdLine.c_str(),
+									  NORMAL_PRIORITY_CLASS, DLL32Path.c_str());
 	}
 
 	VisualManager::DestroyInstance();
