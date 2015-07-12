@@ -79,6 +79,7 @@ namespace Windower
 			\return the working directory of windower
 		*/
 		const string_t& GetWorkingDir() const;
+		const TCHAR* GetGameDirectory() const;
 
 	protected:
 		void PushPluginConfigure(PluginFramework::IPlugin *pPlugin_in);

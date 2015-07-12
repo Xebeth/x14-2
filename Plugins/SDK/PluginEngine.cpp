@@ -252,6 +252,11 @@ namespace Windower
 		return m_WorkingDir;
 	}
 
+	const TCHAR* PluginEngine::GetGameDirectory() const
+	{
+		return m_pSettingsManager->GetGamePath();
+	}
+
 	void PluginEngine::PushPluginConfigure(PluginFramework::IPlugin *pPlugin_in)
 	{
 		if (pPlugin_in != NULL && pPlugin_in->IsConfigurable())
