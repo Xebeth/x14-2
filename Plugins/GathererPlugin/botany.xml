@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
   <time hours="1">
-    <item slot="4" zone="East Shroud" pos="(x22,y26)" difficulty="*">Crawler Cocoon</item>
+    <item slot="4" zone="East Shroud" pos="(x22,y26)" difficulty="*">Silkworm Cocoon</item>
     <item slot="1" zone="Mor Dhona" pos="(x32,y11)" difficulty="*">Grade 4 Carbonized Matter</item>
     <item slot="2" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Lightning Cluster</item>
     <item slot="3" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Fire Cluster</item>
