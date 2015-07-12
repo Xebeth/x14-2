@@ -55,7 +55,7 @@ namespace Windower
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
 		// create the system core module
-		m_pSystemCore = new SystemCore;
+		//m_pSystemCore = new SystemCore;
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
@@ -70,15 +70,15 @@ namespace Windower
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
 			// create the game chat module
-			m_pGameChatCore = new GameChatCore;
+			//m_pGameChatCore = new GameChatCore;
 			// create the command line module
-			m_pCmdLineCore = new CmdLineCore;
+			//m_pCmdLineCore = new CmdLineCore;
 			// create the player data module
 			// m_pPlayerCore = new PlayerCore;
 			// create the graphics module
-			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
+			//m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
-			m_pSystemCore->AddUIH(m_pGraphicsCore);
+			//m_pSystemCore->AddUIH(m_pGraphicsCore);
 		}
 	}
 

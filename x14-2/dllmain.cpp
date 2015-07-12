@@ -9,7 +9,51 @@
 
 #include "WindowerEngine.h"
 
+#ifndef _DEBUG
+	// You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
+	HINSTANCE g_hAppInstance = NULL;
+#endif
+
 Windower::WindowerEngine *g_pEngine = NULL;
+
+BOOL DestroyEngine()
+{
+	if (g_pEngine != NULL)
+	{
+		// stop the engine thread
+		g_pEngine->Detach();
+		// cleanup
+		delete g_pEngine;
+		g_pEngine = NULL;
+	}
+
+	return TRUE;
+}
+
+#ifndef _DEBUG
+extern "C"
+{
+#endif
+DLLEXPORT BOOL CreateEngine(LPVOID lpUserdata, DWORD nUserdataLen)
+{
+	if (g_pEngine == NULL)
+	{
+		HMODULE hModule = (HMODULE)lpUserdata;
+
+#ifndef _DEBUG
+		if (hModule == NULL)
+			hModule = g_hAppInstance;
+#endif // _DEBUG
+
+		g_pEngine = new Windower::WindowerEngine(hModule, _T("config.ini"));
+		g_pEngine->Attach();
+	}
+
+	return TRUE;
+}
+#ifndef _DEBUG
+}
+#endif
 
 /*! \brief DLL entry point
 	\param[in] hModule_in : a handle to the DLL module
@@ -19,45 +63,34 @@ Windower::WindowerEngine *g_pEngine = NULL;
 */
 BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_in)
 {
+#ifndef _M_X64
 	if (::DetourIsHelperProcess())
 		return TRUE;
+#endif
 
-	if (dwReason_in == DLL_PROCESS_ATTACH) 
+	switch (dwReason_in)
 	{
-		// Restore the IAT table
-		::DetourRestoreAfterWith();
-
-		if (g_pEngine == NULL)
-		{
-#ifdef _DEBUG
-			Sleep(5000);
+#ifndef _DEBUG
+		case DLL_QUERY_HMODULE:
+			if (lpReserved_in != NULL)
+				*(HMODULE *)lpReserved_in = g_hAppInstance;
+		break;
 #endif // _DEBUG
-			g_pEngine = new Windower::WindowerEngine(hModule_in, _T("config.ini"));
-			g_pEngine->Attach();
-		}
-	}
-	else if (dwReason_in == DLL_PROCESS_DETACH) 
-	{
-		if (g_pEngine != NULL)
-		{
-			// stop the engine thread
-			g_pEngine->Detach();
-			// cleanup
-			delete g_pEngine;
-			g_pEngine = NULL;
-		}
+	case DLL_PROCESS_ATTACH:
+#ifndef _M_X64
+			// Restore the IAT table
+			::DetourRestoreAfterWith();	
+#endif // _M_X64
+#ifndef _DEBUG
+			g_hAppInstance = hModule_in;
+#else
+			return CreateEngine(hModule_in, sizeof(HMODULE));
+#endif // _DEBUG
+		break;
+		case  DLL_PROCESS_DETACH:
+			return DestroyEngine();
+		break;
 	}
 
 	return TRUE;
-}
-
-//! Injects the DLL into a running copy of the target process
-extern "C" __declspec(dllexport) void Inject(const TCHAR *pDLL_in)
-{
-	HMODULE hModule = ::LoadLibrary(pDLL_in);
-
-	if (g_pEngine != NULL)
-		g_pEngine->Inject();
-
-	::FreeLibrary(hModule);
 }

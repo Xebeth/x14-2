@@ -58,6 +58,9 @@
     <Filter Include="Windower\Modules\Graphics\Wrappers\Direct3D9">
       <UniqueIdentifier>{01f35ed3-7671-4fdd-a866-cff160a85112}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Loader">
+      <UniqueIdentifier>{367c37ad-8cdd-4714-ada9-5903ff66b146}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -144,6 +147,9 @@
     </ClCompile>
     <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DebugStaging\ReflectiveLoader.cpp">
+      <Filter>Loader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +248,9 @@
     </ClInclude>
     <ClInclude Include="IDirect3DSwapChain9Wrapper.h">
       <Filter>Windower\Modules\Graphics\Wrappers\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DebugStaging\ReflectiveLoader.h">
+      <Filter>Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
