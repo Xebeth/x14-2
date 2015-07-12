@@ -11,6 +11,12 @@
 #define TARGET_PROCESS_GAME_DX11	_T("ffxiv_dx11.exe")
 #define TARGET_PROCESS_GAME			_T("ffxiv.exe")
 
+#ifdef _DEBUG
+	#define FUNCTION_HASH			0x9ccf0759	// DllInject
+#else
+	#define FUNCTION_HASH			0x34943165	// CreateEngine
+#endif // _DEBUG
+
 typedef BOOL (WINAPI *fnCreateProcess)(LPCTSTR lpApplicationName_in, LPTSTR lpCommandLine_in_out,
 									   LPSECURITY_ATTRIBUTES lpProcessAttributes_in,
 									   LPSECURITY_ATTRIBUTES lpThreadAttributes_in,

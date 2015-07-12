@@ -7,6 +7,7 @@
 **************************************************************************/
 #include "stdafx.h"
 #include <ImportTablePatcher.h>
+#include <ModuleInjection.h>
 
 #include "BootstrapEngine.h"
 
@@ -86,31 +87,75 @@ namespace Bootstrap
 
 		string_t WorkingDir = m_Engine.GetWorkingDir();
 		TCHAR DLL32Path[_MAX_PATH] = { '\0', };
-		char DLLPath[_MAX_PATH] = { '\0', };
 		BOOL Result = FALSE;
+		bool x64 = false;
 
-		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL
-		 && (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL
-		  || _tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME_DX11) != NULL))
+		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL)
 		{
-			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.dll"), WorkingDir.c_str());
-			Result = TRUE;
-		}
-		else
-		{
-			_stprintf_s(DLL32Path, _MAX_PATH, _T("%sbootstrap.dll"), WorkingDir.c_str());
-			Result = TRUE;
+			if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
+			{
+				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.x86.dll"), WorkingDir.c_str());
+				Result = TRUE;
+			}
+			else if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME_DX11) != NULL)
+			{
+#ifdef _DEBUG
+				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2dbg.x64.dll"), WorkingDir.c_str());
+#else
+				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.x64.dll"), WorkingDir.c_str());
+#endif
+				Result = TRUE;
+				x64 = true;
+			}
+			else
+			{
+				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sbootstrap.dll"), WorkingDir.c_str());
+				Result = TRUE;
+			}
 		}
 
 		if (Result)
 		{
-			WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
+			if (x64)
+			{
+				PROCESS_INFORMATION processInfo = { NULL };
+				string_t exePath;
 
-			// attach the DLL to the next process in the chain
-			Result = DetourCreateProcessWithDllExW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
-												   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
-												   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-												   lpProcessInformation_out, DLLPath, NULL);
+				format(exePath, _T("%sgame\\%s"), m_Engine.GetGameDirectory(), TARGET_PROCESS_GAME_DX11);
+#ifdef _DEBUG
+				TCHAR UserData[_MAX_PATH] = { '\0' };
+				DWORD DataLength;
+
+				DataLength = _stprintf_s(UserData, _MAX_PATH, _T("%sx14-2core.x64.dll"), WorkingDir.c_str());
+
+				if (DataLength != -1 && DataLength > 0UL)
+				{
+					Result = InjectModule::CreateProcessEx(exePath, processInfo, lpCommandLine_in_out,
+														   dwCreationFlags_in, DLL32Path, FUNCTION_HASH,
+														   UserData, (DataLength + 1) * sizeof(TCHAR));
+				}
+				else
+					Result = FALSE;
+#else
+				HMODULE UserData = NULL;
+
+				Result = InjectModule::CreateProcessEx(exePath, processInfo, lpCommandLine_in_out,
+													   dwCreationFlags_in, DLL32Path,
+													   FUNCTION_HASH, &UserData, sizeof(HMODULE));
+#endif // _DEBUG
+			}
+			else
+			{
+				char DLLPath[_MAX_PATH] = { '\0', };
+
+				WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
+
+				// attach the DLL to the next process in the chain
+				Result = DetourCreateProcessWithDllExW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
+													   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
+													   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
+													   lpProcessInformation_out, DLLPath, NULL);
+			}
 		}
 		else
 		{
