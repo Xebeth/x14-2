@@ -34,7 +34,7 @@ namespace Bootstrap
 			// Win32 related hooks
 			m_pSystemCore = new SystemCore(*this, m_HookManager);
 			// load plugins
-			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
+			m_pPluginManager->ListPlugins(m_WorkingDir + PLUGIN_DIRECTORY,
 										  PLUGIN_COMPATIBILITY_BOOTSTRAP);
 			// install the hooks
 			Attach();

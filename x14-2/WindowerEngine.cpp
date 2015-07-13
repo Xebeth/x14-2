@@ -55,7 +55,7 @@ namespace Windower
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
 		// create the system core module
-		//m_pSystemCore = new SystemCore;
+		m_pSystemCore = new SystemCore;
 		// testing
 #ifdef _DEBUG
 	#ifdef _TESTING
@@ -70,15 +70,15 @@ namespace Windower
 		if (m_pSettingsManager->IsGamePathValid() && m_pSettingsManager->LoadDefaultProfile(m_Settings))
 		{
 			// create the game chat module
-			//m_pGameChatCore = new GameChatCore;
+			m_pGameChatCore = new GameChatCore;
 			// create the command line module
-			//m_pCmdLineCore = new CmdLineCore;
+			m_pCmdLineCore = new CmdLineCore;
 			// create the player data module
-			// m_pPlayerCore = new PlayerCore;
+			m_pPlayerCore = new PlayerCore;
 			// create the graphics module
-			//m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
+			m_pGraphicsCore = new GraphicsCore(m_Settings.GetVSync());
 			// add the graphics core as an event handler
-			//m_pSystemCore->AddUIH(m_pGraphicsCore);
+			m_pSystemCore->AddUIH(m_pGraphicsCore);
 		}
 	}
 
@@ -148,7 +148,7 @@ namespace Windower
 			LockEngineThread();
 
 			// list the available plugins compatible with windower
-			m_pPluginManager->ListPlugins(m_WorkingDir + _T("plugins"),
+			m_pPluginManager->ListPlugins(m_WorkingDir + PLUGIN_DIRECTORY,
 										  PLUGIN_COMPATIBILITY_WINDOWER);
 			// load active plugins
 			LoadPlugins(m_Settings.GetActivePlugins());
@@ -535,5 +535,11 @@ namespace Windower
 	{
 		return m_Settings.DeserializeLabel(Name_in, X_out, Y_out, TextColor_out, FontName_out,
 										   FontSize_out, Bold_out, Italic_out, Collapsed_out);
+	}
+
+	void WindowerEngine::SetWnd(HWND hWnd_in)
+	{
+		if (m_pGraphicsCore != NULL)
+			m_pGraphicsCore->SetWnd(hWnd_in);
 	}
 }

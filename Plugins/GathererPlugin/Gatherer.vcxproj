@@ -77,7 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\$(PlatformTarget)\</OutDir>
     <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include</IncludePath>
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
   </PropertyGroup>
@@ -86,12 +86,12 @@
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x64\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\amd64\;$(VCInstallDir)atlmfc\lib\amd64\</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\$(PlatformTarget)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\$(PlatformTarget)\</OutDir>
     <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include</IncludePath>
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
   </PropertyGroup>
@@ -100,7 +100,7 @@
     <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x64\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\amd64\;$(VCInstallDir)atlmfc\lib\amd64\</LibraryPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\plugins\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\plugins\$(PlatformTarget)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -225,7 +225,7 @@ BOOL LauncherApp::InitInstance()
 		WizardDlg ConfigurationWizard(*m_pPluginManager, *m_pSettingsManager);
 
 		if ((Tasks & (WizardDlg::TASK_CHECK_UPDATES | WizardDlg::TASK_CONFIGURE_PLUGINS)) != WizardDlg::TASK_NONE)
-			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
+			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + PLUGIN_DIRECTORY);
 
 		if (ConfigurationWizard.CreatePages(Tasks) > 0U)
 			ShowConfig = (ConfigurationWizard.DoModal() == IDOK);
@@ -254,7 +254,7 @@ BOOL LauncherApp::InitInstance()
 		ConfigDlg ConfigurationDlg(*m_pPluginManager, *m_pSettingsManager);
 
 		if ((Tasks & (WizardDlg::TASK_CHECK_UPDATES | WizardDlg::TASK_CONFIGURE_PLUGINS)) == WizardDlg::TASK_NONE)
-			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + _T("plugins"));
+			m_pPluginManager->ListPlugins(m_pSettingsManager->GetWorkingDir() + PLUGIN_DIRECTORY);
 
 		m_pMainWnd = &ConfigurationDlg;
 		// show the configuration dialog

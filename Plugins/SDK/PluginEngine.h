@@ -19,6 +19,12 @@ namespace PluginFramework
 	class VersionInfo;
 }
 
+#ifdef _M_X64
+	#define PLUGIN_DIRECTORY _T("plugins\\x64")
+#else
+	#define PLUGIN_DIRECTORY _T("plugins\\x86")
+#endif // _M_X64
+
 //! compatibility flags
 enum eCompatibilityFlags
 {

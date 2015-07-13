@@ -51,7 +51,8 @@ namespace Windower
 		~WindowerEngine();
 
 		bool PressKey(long key, long delay, long repeat);
-		void ShutdownEngine(bool UnloadDLL_in = false);		
+		void ShutdownEngine(bool UnloadDLL_in = false);
+		void SetWnd(HWND hWnd_in);
 		bool Attach();
 		bool Detach();
 		void Inject();

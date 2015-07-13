@@ -84,6 +84,8 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 #ifndef _DEBUG
 			g_hAppInstance = hModule_in;
 #else
+			Sleep(5000);
+
 			return CreateEngine(hModule_in, sizeof(HMODULE));
 #endif // _DEBUG
 		break;

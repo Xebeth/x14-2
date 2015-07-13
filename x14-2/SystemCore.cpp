@@ -253,6 +253,7 @@ namespace Windower
 		{
 			DWORD dwThreadID;
 
+			m_pEngine->SetWnd(hWnd_in);
 			// create the engine thread
 			m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThread, NULL, 0, &dwThreadID);
 		}
