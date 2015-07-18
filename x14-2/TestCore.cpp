@@ -31,9 +31,9 @@ namespace Windower
 	*/
 	void TestCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
-		LONG BaseImage = (LONG)GetModuleHandle(NULL);
+		ULONG_PTR BaseImage = 0ULL;
 
-		// HookManager_in.RegisterHook("On59D550", SIGSCAN_GAME_PROCESSA, (LPVOID)(0x0059D550 + BaseImage - 0x00400000), &TestCore::Sub59D550Hook, 10);
+		HookManager_in.RegisterHook("On140966890", SIGSCAN_GAME_PROCESSA, (LPVOID)(BaseImage + 0x00140966890 - 0x140000000), &TestCore::Sub140966890Hook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -41,19 +41,12 @@ namespace Windower
 	*/
 	void TestCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pSub59D550Trampoline = (fnSub59D550)HookManager_in.GetTrampolineFunc("On59D550");
+		m_pSub140966890Trampoline = (fnSub140966890)HookManager_in.GetTrampolineFunc("On140966890");
 	}
 
-	int WINAPI TestCore::Sub59D550Hook(LPVOID pThis_in_out)
+	int WINAPI TestCore::Sub140966890Hook(LPVOID pThis_in_out, Windower::StringNode a2, __int64 a3)
 	{
-		MEMORY_BASIC_INFORMATION memInfo;
-
-		ZeroMemory(&memInfo, sizeof(memInfo));
-
-		if (VirtualQuery(m_Context->m_pSub59D550Trampoline, &memInfo, sizeof(memInfo)) && (memInfo.Protect & PAGE_EXECUTE) == 0)
-			VirtualProtect(m_Context->m_pSub59D550Trampoline, 9, memInfo.Protect | PAGE_EXECUTE, &memInfo.Protect);
-
-		int Result = m_Context->m_pSub59D550Trampoline(pThis_in_out);
+		int Result = m_Context->m_pSub140966890Trampoline(pThis_in_out, a2, a3);
 
 		return Result;
 	}
