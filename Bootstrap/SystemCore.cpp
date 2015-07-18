@@ -118,15 +118,18 @@ namespace Bootstrap
 		{
 			if (x64)
 			{
+#ifdef _DEBUG
+				const TCHAR *pFormatString = _T("%sx14-2core.x64.dll");
+#else
+				const TCHAR *pFormatString = _T("%s");
+#endif
 				PROCESS_INFORMATION processInfo = { NULL };
+				TCHAR UserData[_MAX_PATH] = { '\0' };
+				DWORD DataLength;
 				string_t exePath;
 
 				format(exePath, _T("%sgame\\%s"), m_Engine.GetGameDirectory(), TARGET_PROCESS_GAME_DX11);
-#ifdef _DEBUG
-				TCHAR UserData[_MAX_PATH] = { '\0' };
-				DWORD DataLength;
-
-				DataLength = _stprintf_s(UserData, _MAX_PATH, _T("%sx14-2core.x64.dll"), WorkingDir.c_str());
+				DataLength = _stprintf_s(UserData, _MAX_PATH, pFormatString, WorkingDir.c_str());
 
 				if (DataLength != -1 && DataLength > 0UL)
 				{
@@ -136,13 +139,6 @@ namespace Bootstrap
 				}
 				else
 					Result = FALSE;
-#else
-				HMODULE UserData = NULL;
-
-				Result = InjectModule::CreateProcessEx(exePath, processInfo, lpCommandLine_in_out,
-													   dwCreationFlags_in, DLL32Path,
-													   FUNCTION_HASH, &UserData, sizeof(HMODULE));
-#endif // _DEBUG
 			}
 			else
 			{
