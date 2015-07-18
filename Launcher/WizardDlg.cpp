@@ -125,7 +125,7 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 			}
 
 			if (PluginsSummary.IsEmpty() == false)
-				StartSummary.AppendFormat(_T("  - Configure the plugins:\n%s"), PluginsSummary);
+				StartSummary.AppendFormat(_T("  - Configure the plugins:\n%s"), PluginsSummary.GetBuffer());
 		}
 		// add the finish page if needed
 		if ((Tasks_in & TASK_FINISH_SUMMARY) == TASK_FINISH_SUMMARY)

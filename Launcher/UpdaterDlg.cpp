@@ -56,7 +56,7 @@ void UpdaterDlg::OnProgress(unsigned long Completed_in, unsigned long Total_in, 
 		{
 			float ProgressPercent = 100.f * ((float)Completed_in / Total_in);
 
-			m_ProgressText.Format(_T("%ld / %ld bytes (%0.2f%%)"), Completed_in, Total_in, ProgressPercent);
+			m_ProgressText.Format(_T("%ul / %ul bytes (%0.2f%%)"), Completed_in, Total_in, ProgressPercent);
 			GetDlgItem(IDC_DL_SIZE)->SetWindowText(m_ProgressText);
 		}
 

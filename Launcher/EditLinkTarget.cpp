@@ -33,10 +33,8 @@ void EditLinkTarget::OnDropFiles(HDROP hDropInfo)
 
 	if (Buffer::Realloc(&pName, AllocSize, true))
 	{
-		DragQueryFile(hDropInfo, 0, pName, _MAX_PATH);
-
 		// is it a shortcut?
-		if (_tcsstr(pName, _T(".lnk")) != NULL)
+		if (DragQueryFile(hDropInfo, 0, pName, _MAX_PATH) && _tcsstr(pName, _T(".lnk")) != NULL)
 		{
 			size_t Length = 0UL;
 			CString LinkTarget;			
@@ -49,7 +47,7 @@ void EditLinkTarget::OnDropFiles(HDROP hDropInfo)
 		}
 
 		if (m_pfnCallback != NULL && m_pCallbackObj != NULL
-			&& (m_pCallbackObj->*m_pfnCallback)(&pName))
+		 && (m_pCallbackObj->*m_pfnCallback)(&pName))
 		{
 			SetWindowText(pName);
 		}
