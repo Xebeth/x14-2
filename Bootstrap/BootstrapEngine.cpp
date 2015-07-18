@@ -18,8 +18,8 @@ namespace Bootstrap
 	/*! \brief BootstrapEngine constructor
 		\param[in] pConfigFile_in : the name of the configuration file
 	*/
-	BootstrapEngine::BootstrapEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in)
+	BootstrapEngine::BootstrapEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in)
+		: PluginEngine(WorkingDir_in, pConfigFile_in)
 	{
 		string_t ConfigPath;
 

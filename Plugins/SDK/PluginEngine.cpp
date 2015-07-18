@@ -18,11 +18,11 @@ namespace Windower
 {
 	const PluginFramework::VersionInfo PluginEngine::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
 
-	PluginEngine::PluginEngine(HMODULE hModule_in, const wchar_t *pConfigFile_in)
+	PluginEngine::PluginEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in)
 		: m_pPluginManager(NULL), m_pPluginServices(NULL), m_pSettingsManager()
 	{
 		// set the working directory
-		SetWorkingDir(hModule_in);
+		SetWorkingDir(WorkingDir_in.c_str());
 		// create the settings manager
 		m_pSettingsManager = new SettingsManager(m_WorkingDir.c_str(), pConfigFile_in);
 		// create the plugin services
@@ -228,23 +228,10 @@ namespace Windower
 		return L"None";
 	}
 
-	void PluginEngine::SetWorkingDir(HMODULE hModule_in)
+	void PluginEngine::SetWorkingDir(const TCHAR *pWorkingDir_in)
 	{
-		wchar_t DirPath[_MAX_PATH] = { '\0' };
-		
-		// retrieve the name of the module
-		if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
-		{
-			// find the last backslash
-			wchar_t *pLastSlash = pLastSlash = wcsrchr(DirPath, '\\') + 1;
-
-			if (pLastSlash != NULL)
-			{
-				*pLastSlash = '\0';
-				// set the working directory
-				m_WorkingDir.assign(DirPath);
-			}
-		}
+		if (pWorkingDir_in != NULL)
+			initialize_path(pWorkingDir_in, m_WorkingDir);
 	}
 
 	const string_t& PluginEngine::GetWorkingDir() const

@@ -27,11 +27,13 @@
 
 #include "Timer.h"
 
-#define _TESTING
+//#define _TESTING
 
 #if defined _DEBUG && defined _TESTING
 	#include "TestCore.h"
 #endif // _DEBUG
+
+extern HINSTANCE g_hAppInstance;
 
 namespace Windower
 {
@@ -40,12 +42,12 @@ namespace Windower
 	/*! \brief WindowerEngine constructor
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
-	WindowerEngine::WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(hModule_in, pConfigFile_in), m_hGameWnd(NULL), m_dwPID(0UL),
-		  m_bDetached(false), m_bShutdown(false), m_hWindowerDLL(hModule_in),
-		  m_pGameChatCore(NULL), m_pSystemCore(NULL), m_pPlayerCore(NULL),
-		  m_pUpdateTimer(NULL), m_pGraphicsCore(NULL), m_pCmdLineCore(NULL),
-		  m_pTextLabel(NULL), m_MacroThreadID(ThreadState::NONE)
+	WindowerEngine::WindowerEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in)
+		: PluginEngine(WorkingDir_in, pConfigFile_in), m_hGameWnd(NULL),
+		  m_bDetached(false), m_bShutdown(false), m_pGameChatCore(NULL),
+		  m_pSystemCore(NULL), m_pPlayerCore(NULL), m_pUpdateTimer(NULL),
+		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pTextLabel(NULL), 
+		  m_MacroThreadID(ThreadState::NONE), m_dwPID(0UL)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -146,7 +148,6 @@ namespace Windower
 		{
 			// >>> Critical section
 			LockEngineThread();
-
 			// list the available plugins compatible with windower
 			m_pPluginManager->ListPlugins(m_WorkingDir + PLUGIN_DIRECTORY,
 										  PLUGIN_COMPATIBILITY_WINDOWER);
@@ -167,7 +168,7 @@ namespace Windower
 	{
 		CoreModules::const_iterator ModuleIt, EndIt = m_Modules.cend();
 		ICoreModule *pModule = NULL;
-		
+
 		// register the hooks
 		for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 		{
@@ -195,7 +196,6 @@ namespace Windower
 			if (pModule != NULL)
 				pModule->RegisterServices();
 		}
-
 		// terminate sigscan to free the copy of the process memory
 		m_HookManager.GetSigScan().Clear();
 
@@ -240,8 +240,10 @@ namespace Windower
 		if (m_pSystemCore != NULL)
 			WaitForSingleObject(m_pSystemCore->GetMainThreadHandle(), INFINITE);
 
+#ifdef _DEBUG
 		if (UnloadDLL_in)
-			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, m_hWindowerDLL, 0, NULL);
+			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, g_hAppInstance, 0, NULL);
+#endif // _DEBUG
 	}
 
 	/*! \brief The engine main thread
@@ -469,7 +471,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR WindowerEngine::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR WindowerEngine::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (m_ExpectCondition.empty() || m_ExpectCondition[0] == '*' || strstr(pOriginalMsg_in, m_ExpectCondition.c_str()) != NULL)

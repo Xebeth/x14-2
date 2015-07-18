@@ -28,7 +28,7 @@ namespace Bootstrap
 	class BootstrapEngine : public Windower::PluginEngine
 	{
 	public:
-		BootstrapEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
+		BootstrapEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in);
 		virtual ~BootstrapEngine();
 
 		bool IsAutoLoginActive() const;

@@ -9,10 +9,8 @@
 
 #include "WindowerEngine.h"
 
-#ifndef _DEBUG
-	// You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
-	HINSTANCE g_hAppInstance = NULL;
-#endif
+// You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
+HINSTANCE g_hAppInstance = NULL;
 
 Windower::WindowerEngine *g_pEngine = NULL;
 
@@ -36,16 +34,12 @@ extern "C"
 #endif
 DLLEXPORT BOOL CreateEngine(LPVOID lpUserdata, DWORD nUserdataLen)
 {
-	if (g_pEngine == NULL)
+	if (g_pEngine == NULL && lpUserdata != NULL)
 	{
-		HMODULE hModule = (HMODULE)lpUserdata;
+		string_t WorkingDir;
 
-#ifndef _DEBUG
-		if (hModule == NULL)
-			hModule = g_hAppInstance;
-#endif // _DEBUG
-
-		g_pEngine = new Windower::WindowerEngine(hModule, _T("config.ini"));
+		filepath((LPCTSTR)lpUserdata, WorkingDir);
+		g_pEngine = new Windower::WindowerEngine(WorkingDir.c_str(), _T("config.ini"));
 		g_pEngine->Attach();
 	}
 
@@ -76,18 +70,23 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 				*(HMODULE *)lpReserved_in = g_hAppInstance;
 		break;
 #endif // _DEBUG
-	case DLL_PROCESS_ATTACH:
+		case DLL_PROCESS_ATTACH:
+		{
 #ifndef _M_X64
 			// Restore the IAT table
 			::DetourRestoreAfterWith();	
 #endif // _M_X64
-#ifndef _DEBUG
-			g_hAppInstance = hModule_in;
-#else
-			Sleep(5000);
 
-			return CreateEngine(hModule_in, sizeof(HMODULE));
-#endif // _DEBUG
+#ifdef _DEBUG
+			TCHAR DirPath[_MAX_PATH] = { '\0' };
+			
+			g_hAppInstance = hModule_in;
+			Sleep(5000);
+			// retrieve the name of the module
+			if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
+				return CreateEngine((LPVOID)DirPath, 0UL /* unused */);
+#endif
+		}
 		break;
 		case  DLL_PROCESS_DETACH:
 			return DestroyEngine();

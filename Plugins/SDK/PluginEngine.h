@@ -51,7 +51,7 @@ namespace Windower
 	class PluginEngine : public BaseEngine
 	{
 	public:
-		PluginEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
+		PluginEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in);
 		virtual ~PluginEngine();
 
 		/*! \brief Retrieves the compatibility flags of the plugin
@@ -92,9 +92,9 @@ namespace Windower
 		bool PopPluginConfigure();
 
 		/*! \brief Sets the working directory of windower
-			\param[in] hModule_in : the handle of the DLL
+			\param[in] pWorkingDir_in : the new working directory
 		*/
-		void SetWorkingDir(HMODULE hModule_in);
+		void SetWorkingDir(const TCHAR *pWorkingDir_in);
 
 		//! plugin engine version
 		static const PluginFramework::VersionInfo m_FrameworkVersion;

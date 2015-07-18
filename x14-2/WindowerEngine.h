@@ -47,7 +47,7 @@ namespace Windower
 	class WindowerEngine : public PluginEngine
 	{
 	public:
-		WindowerEngine(HMODULE hModule_in, const TCHAR *pConfigFile_in);
+		WindowerEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in);
 		~WindowerEngine();
 
 		bool PressKey(long key, long delay, long repeat);
@@ -76,7 +76,7 @@ namespace Windower
 		bool SuspendMacroThread(const std::string &condition);
 
 		
-		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+		DWORD_PTR OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// commands
@@ -137,8 +137,6 @@ namespace Windower
 		PlayerCore *m_pPlayerCore;
 		//! a handle to the game window
 		HWND m_hGameWnd;
-		//! handle of the windower DLL
-		HMODULE m_hWindowerDLL;
 		//! the process ID of the game
 		DWORD m_dwPID;
 		//! update timer
