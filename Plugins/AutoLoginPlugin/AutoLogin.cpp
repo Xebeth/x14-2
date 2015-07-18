@@ -52,7 +52,7 @@ AutoLogin::AutoLogin(Windower::WindowerProfile &Settings_in, HWND hParentWnd_in)
 	  m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL)
 {
 	// initialize COM
-	::CoInitialize(NULL);
+	SUCCEEDED(::CoInitialize(NULL));
 }
 
 //! \brief AutoLogin destructor
@@ -267,35 +267,40 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 				IDispatch* pInputDispatch = NULL;
 				BSTR EltID = SysAllocString(_T(""));
 				long nLength = 0;
-				VARIANT Index;
 
-				pElements->get_length(&nLength);
-				Index.vt = VT_I4;
-
-				for (long i = 0; i < nLength; ++i)
+				if (SUCCEEDED(pElements->get_length(&nLength)))
 				{
-					pElement = NULL;
-					Index.lVal = i;
+					VARIANT Index;
 
-					if (SUCCEEDED(pElements->item(Index, Index, &pInputDispatch)) && pInputDispatch != NULL)
+					Index.vt = VT_I4;
+
+					for (long i = 0; i < nLength; ++i)
 					{
-						if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, (LPVOID*)&pElement)) && pElement != NULL)
+						pElement = NULL;
+						Index.lVal = i;
+
+						if (SUCCEEDED(pElements->item(Index, Index, &pInputDispatch)) && pInputDispatch != NULL)
 						{
-							pElement->get_id(&EltID);
+							if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, (LPVOID*)&pElement)) && pElement != NULL)
+							{
+								if (SUCCEEDED(pElement->get_id(&EltID)))
+								{
 
-							if (EltID != NULL && _tcscmp(EltID, pID_in) == 0)
-							{
-								pInputDispatch->Release();
-								break;
+									if (EltID != NULL && _tcscmp(EltID, pID_in) == 0)
+									{
+										pInputDispatch->Release();
+										break;
+									}
+									else
+									{
+										// not the element we seek, release it
+										pElement->Release();
+									}
+								}
 							}
-							else
-							{
-								// not the element we seek, release it
-								pElement->Release();
-							}
+
+							pInputDispatch->Release();
 						}
-
-						pInputDispatch->Release();
 					}
 				}
 				// cleanup
@@ -418,9 +423,9 @@ IHTMLDocument2* AutoLogin::GetIFrameDocument(long Timeout_in)
 		FrameItem.vt = VT_DISPATCH;
 		FrameItem.pdispVal = NULL;
 
-		pIFrames->get_length(&Count);
-
-		if (Count > 0L && SUCCEEDED(pIFrames->item(&Index, &FrameItem)) && FrameItem.pdispVal != NULL)
+		if (SUCCEEDED(pIFrames->get_length(&Count)) && Count > 0L
+		 && SUCCEEDED(pIFrames->item(&Index, &FrameItem)) 
+		 && FrameItem.pdispVal != NULL)
 		{
 			IHTMLWindow2 *pFrame = NULL;
 
