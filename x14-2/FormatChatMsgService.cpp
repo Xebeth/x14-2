@@ -47,8 +47,9 @@ namespace Windower
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
-	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-															StringNode* pMessage_in_out, const __time64_t *pTimestamp_in, bool Unknown1)
+	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, DWORD_PTR MessageType_in,
+															StringNode* pSender_in_out, StringNode* pMessage_in_out,
+															const __time64_t *pTimestamp_in, bool Unknown1)
 	{
 		m_Context->m_pChatMsg = pThis_in_out;
 
@@ -67,12 +68,7 @@ namespace Windower
 				g_pEngine->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
 										 pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
 			}
-#ifdef _DEBUG
-			string_t log;
 
-			format(log, _T("Message: [0x%08X] %S %ld %ld\n"), pMessage_in_out, pMessage_in_out->pResBuf, MessageType_in, Unknown1);
-			OutputDebugString(log.c_str());
-#endif
 			for (PluginIt = m_Context->m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 			{
 				pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
@@ -103,14 +99,16 @@ namespace Windower
 			}
 
 			return m_Context->FormatMessage(pThis_in_out, MessageType_in, pSender_in_out,
-											pMessage_in_out, pModifiedMsg, dwNewSize, Unknown1);
+											pMessage_in_out, pModifiedMsg, dwNewSize,
+											pTimestamp_in, Unknown1);
 		}
 
 		return false;
 	}
 
-	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, USHORT MessageType_in, StringNode* pSender_in_out,
-											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD_PTR NewSize_in, bool Unknown1)
+	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, DWORD_PTR MessageType_in, StringNode* pSender_in_out,
+											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD_PTR NewSize_in,
+											 const __time64_t *pTimestamp_in, bool Unknown1)
 	{
 		StringNode *pNode, ModifiedMsgNode;
 		bool Result = false;
@@ -126,7 +124,8 @@ namespace Windower
 		
 		// display the error message instead of the typed command
 		Result = m_Context->m_pFormatChatMsgTrampoline(pThis_in_out, MessageType_in,
-													   pSender_in_out, pNode, NULL, Unknown1);
+													   pSender_in_out, pNode,
+													   pTimestamp_in, Unknown1);
 		// cleanup
 		if (pModifiedMsg_in != NULL)
 			free(pModifiedMsg_in);
@@ -138,7 +137,7 @@ namespace Windower
 											 const std::string &Sender_in,
 											 UINT MessageType_in)
 	{
-		if (m_Context->m_pChatMsg != NULL)
+		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
 		{
 
 			if (Msg_in.empty() == false)
@@ -149,7 +148,7 @@ namespace Windower
 				InitStringNode(DummySender, Sender_in.c_str());
 
 				FormatChatMessageHook(m_Context->m_pChatMsg, MessageType_in, 
-									  &DummySender, &DummyMsg, NULL, 0);
+									  &DummySender, &DummyMsg, NULL, false);
 			}
 
 			return true;
