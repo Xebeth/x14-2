@@ -21,7 +21,7 @@ namespace Windower
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+		DWORD_PTR OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 	protected:
 		PluginPropertyPage* GetPropertyPage();

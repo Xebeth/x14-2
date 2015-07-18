@@ -84,7 +84,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR ChatLogPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR ChatLogPlugin::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 										   char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
