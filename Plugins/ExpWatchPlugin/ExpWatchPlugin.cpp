@@ -100,7 +100,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR ExpWatchPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR ExpWatchPlugin::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == BATTLE_MESSAGE_TYPE_EXPERIENCE_GAIN)
@@ -155,7 +155,7 @@ namespace Windower
 	//! \brief Updates the statistics
 	void ExpWatchPlugin::UpdateStats()
 	{
-		m_ExpPeriod = (GetTickCount() - m_StartTime) / 3600000.f;
+		m_ExpPeriod = (GetTickCount64() - m_StartTime) / 3600000.f;
 		m_iHours = (int)m_ExpPeriod;
 		m_iMinutes = (int)(60 * (m_ExpPeriod - m_iHours));
 
@@ -241,7 +241,7 @@ namespace Windower
 				*pFeedback_in_out = "ExpWatch statistics were reset successfully.";
 
 			m_BonusExp = m_TotalExp = m_AvgExpPerHour = m_AvgExpPerKill = 0.f;
-			m_StartTime = GetTickCount();
+			m_StartTime = GetTickCount64();
 			m_KillCounter = 0L;
 		}
 

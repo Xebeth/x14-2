@@ -34,7 +34,7 @@ namespace Windower
 		bool Start(std::string *pFeedback_in_out = NULL);		
 		bool Stop(std::string *pFeedback_in_out = NULL);		
 
-		DWORD_PTR OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+		DWORD_PTR OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// const char* OnCreateTextNode(const char *pText_in, bool &Unsubscribe_out);
@@ -47,7 +47,7 @@ namespace Windower
 		void UpdateStats();
 
 		//! the time at which data collection started
-		DWORD m_StartTime;
+		ULONGLONG m_StartTime;
 		//! flag specifying if the data collection started
 		bool m_bStarted;
 		//! the number of defeated enemies since the data collection started
