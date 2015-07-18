@@ -467,11 +467,13 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR AutoBlacklistPlugin::OnChatMessage(USHORT MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR AutoBlacklistPlugin::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 												 char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
-		if (MessageType_in != CHAT_MESSAGE_TYPE_ECHO_MESSAGE
-		 && MessageType_in != CHAT_MESSAGE_TYPE_SYSTEM_MESSAGE)
+		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE
+		 || MessageType_in == CHAT_MESSAGE_TYPE_SHOUT_MESSAGE
+		 || MessageType_in == CHAT_MESSAGE_TYPE_YELL_MESSAGE
+		 || MessageType_in == CHAT_MESSAGE_TYPE_SAY_MESSAGE)
 		{
 			std::string ScoredMessage;
 			int Score = ScoreMessage(MessageType_in, pOriginalMsg_in, ScoredMessage);
@@ -528,7 +530,7 @@ namespace Windower
 		return pOffender;
 	}
 
-	int AutoBlacklistPlugin::ScoreMessage(USHORT MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out)
+	int AutoBlacklistPlugin::ScoreMessage(DWORD_PTR MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out)
 	{
 		int Score = 0;
 
@@ -538,6 +540,8 @@ namespace Windower
 			std::string Message = pOriginalMsg_in;
 			std::map<size_t, long> Markers;
 			size_t position, offset = 0U;
+
+			std::transform(Message.begin(), Message.end(), Message.begin(), ::tolower);
 		
 			switch(MessageType_in)
 			{
@@ -565,7 +569,7 @@ namespace Windower
 				while (position != std::string::npos)
 				{
 					Markers[position + WordIt->first.size()] = WordIt->second;
-					position = Message.find(WordIt->first, position);
+					position = Message.find(WordIt->first, ++position);
 					Score += WordIt->second;
 				}
 			}
