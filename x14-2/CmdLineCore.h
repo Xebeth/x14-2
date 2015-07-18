@@ -7,14 +7,9 @@
 **************************************************************************/
 #ifndef __CMD_LINE_CORE_H__
 #define __CMD_LINE_CORE_H__
-												 //53558BAC2488010000568BF133DB57		-42 11		2013-03-22
-												 //81ECD000000056578BBC24DC000000		-15 8		2013-03-22
-												 //33C58945FC538B5D0C56578B7D088B07					2013-09-04
-												 //8038008BF10F84400100008D4DDC33C05157	
-												 //33C58945FC538B5D0C56578B7D088B07803800
-#define PROCESS_CMD_OPCODES_SIGNATURE			"##33C58945??538B5D??56578B7D??8B07803800"
-#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -11
-#define PROCESS_CMD_OPCODES_HOOK_SIZE			 11
+												 //488B02498BF0488BFA803800			2015-07-16
+#define PROCESS_CMD_OPCODES_SIGNATURE			"##488B02498BF0488BFA803800"
+#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -23
 #define PROCESS_CMD_HOOK "OnProcessCmd"
 
 #define CMD_LINE_MODULE "CmdLine"
@@ -24,7 +19,7 @@ namespace Windower
 	typedef struct _StringNode StringNode;
 	class WindowerEngine;
 
-	// int __thiscall sub_CF1DE0(void *this, int *a2, int a3)
+	// int __fastcall sub_1409672C0(__int64 a1, __int64 a2, __int64 a3)
 	typedef int (WINAPI *fnProcessCmd)(LPVOID pThis_in_out, StringNode* pCmd_in_out, LPVOID pUnknown_in);
 
 	class CommandDispatcher;

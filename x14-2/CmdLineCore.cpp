@@ -72,23 +72,26 @@ namespace Windower
 		// update the text command pointer
 		if (m_Context->m_pProcessCmdTrampoline != NULL)
 		{
+			StringNode FeedbackNode, *pNode = pCmd_in_out;
 			std::string Feedback;
 
 			if (m_Context->FilterCommands(pCmd_in_out, Feedback))
 			{
 				if (Feedback.empty() == false)
 				{
-					// skip command processing
-					return FormatChatMsgService::InjectMessage(Feedback, "x14-2", CHAT_MESSAGE_TYPE_NOTICE);
+					pNode = &FeedbackNode;
+					Feedback.insert(0, "/echo ");
+					InitStringNode(FeedbackNode, Feedback.c_str());
 				}
 				else
 					return true;
 			}
-			else if (pThis_in_out != NULL && pUnknown_in != NULL)
+			
+			if (pThis_in_out != NULL && pUnknown_in != NULL)
 			{
 				// call the trampoline to process the command
 				m_pEngine->LockEngineThread();
-				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pCmd_in_out, pUnknown_in);
+				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pNode, pUnknown_in);
 				m_pEngine->UnlockEngineThread();
 			}
 		}
@@ -160,8 +163,7 @@ namespace Windower
 	void CmdLineCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
  		HookManager_in.RegisterHook(PROCESS_CMD_HOOK, SIGSCAN_GAME_PROCESSA, PROCESS_CMD_OPCODES_SIGNATURE,
-									PROCESS_CMD_OPCODES_SIGNATURE_OFFSET, &CmdLineCore::ProcessCmdHook,
-									PROCESS_CMD_OPCODES_HOOK_SIZE);
+									PROCESS_CMD_OPCODES_SIGNATURE_OFFSET, &CmdLineCore::ProcessCmdHook, 0UL);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
