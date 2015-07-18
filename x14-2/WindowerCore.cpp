@@ -86,23 +86,28 @@ namespace Windower
 			HookPointers::const_iterator HookIt, EndIt = HookList.cend();			
 			LPVOID pPointer = NULL;
 
-			Result = true;
-
-			for (HookIt = HookList.cbegin(); HookIt != EndIt; ++HookIt)
+			if (m_pHookManager->BeginTransaction())
 			{
-				if (Install_in)
+				Result = true;
+
+				for (HookIt = HookList.cbegin(); HookIt != EndIt; ++HookIt)
 				{
-					pPointer = m_pHookManager->InstallHook(HookIt->first.c_str());
-					Result &= (pPointer != NULL);
+					if (Install_in)
+					{
+						pPointer = m_pHookManager->InstallHook(HookIt->first.c_str());
+						Result &= (pPointer != NULL);
+					}
+					else
+					{
+						// uninstall the hook
+						Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());
+						pPointer = NULL;
+					}
+					// update the pointers (only create them when installing)
+					pService_in_out->SetPointer(HookIt->first, pPointer, false);
 				}
-				else
-				{
-					// uninstall the hook
-					pPointer = m_pHookManager->GetTrampolineFunc(HookIt->first.c_str());
-					Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());					
-				}
-				// update the pointers (only create them when installing)
-				pService_in_out->SetPointer(HookIt->first, pPointer, false);
+
+				return (m_pHookManager->CommitTransaction() && Result);
 			}
 		}
 
