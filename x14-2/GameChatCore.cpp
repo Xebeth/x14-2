@@ -41,8 +41,7 @@ namespace Windower
 		{
 			// register the format chat message hook
 			m_pHookManager->RegisterHook(FORMAT_CHAT_MESSAGE_HOOK, SIGSCAN_GAME_PROCESSA, FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE,
-										 FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET, &FormatChatMsgService::FormatChatMessageHook, 
-										 FORMAT_CHAT_MESSAGE_OPCODES_HOOK_SIZE);
+										 FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET, &FormatChatMsgService::FormatChatMessageHook);
 			// add it to the hook set
 			pService_in_out->SetPointer(FORMAT_CHAT_MESSAGE_HOOK, NULL);
 
