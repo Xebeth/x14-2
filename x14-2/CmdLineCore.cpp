@@ -87,7 +87,7 @@ namespace Windower
 					return true;
 			}
 			
-			if (pThis_in_out != NULL && pUnknown_in != NULL)
+			if (pThis_in_out != NULL && pUnknown_in != NULL && m_pEngine->IsExiting() == false)
 			{
 				// call the trampoline to process the command
 				m_pEngine->LockEngineThread();
@@ -163,7 +163,8 @@ namespace Windower
 	void CmdLineCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
  		HookManager_in.RegisterHook(PROCESS_CMD_HOOK, SIGSCAN_GAME_PROCESSA, PROCESS_CMD_OPCODES_SIGNATURE,
-									PROCESS_CMD_OPCODES_SIGNATURE_OFFSET, &CmdLineCore::ProcessCmdHook, 0UL);
+									PROCESS_CMD_OPCODES_SIGNATURE_OFFSET, &CmdLineCore::ProcessCmdHook,
+									PROCESS_CMD_OPCODES_SIZE);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed

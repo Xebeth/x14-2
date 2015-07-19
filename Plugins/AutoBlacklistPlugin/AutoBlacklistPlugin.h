@@ -69,11 +69,11 @@ namespace Windower
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		DWORD_PTR OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+		DWORD_PTR OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 	protected:
-		int ScoreMessage(DWORD_PTR MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out);
+		int ScoreMessage(CHAT_MESSAGE_TYPE MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out);
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string &Feedback_out);		
 		Offender* AddOffender(const std::string &Sender_in);
 		PluginPropertyPage* GetPropertyPage();

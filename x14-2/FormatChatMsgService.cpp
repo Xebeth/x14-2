@@ -47,7 +47,7 @@ namespace Windower
 		\param[in,out] pMessage_in_out : the message
 		\return true if the message was formatted successfully; false otherwise
 	*/
-	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, DWORD_PTR MessageType_in,
+	bool WINAPI FormatChatMsgService::FormatChatMessageHook(LPVOID pThis_in_out, CHAT_MESSAGE_TYPE MessageType_in,
 															StringNode* pSender_in_out, StringNode* pMessage_in_out,
 															const __time64_t *pTimestamp_in, bool Unknown1)
 	{
@@ -106,7 +106,7 @@ namespace Windower
 		return false;
 	}
 
-	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, DWORD_PTR MessageType_in, StringNode* pSender_in_out,
+	bool FormatChatMsgService::FormatMessage(LPVOID pThis_in_out, CHAT_MESSAGE_TYPE MessageType_in, StringNode* pSender_in_out,
 											 StringNode* pMessage_in_out, char *pModifiedMsg_in, DWORD_PTR NewSize_in,
 											 const __time64_t *pTimestamp_in, bool Unknown1)
 	{
@@ -135,7 +135,7 @@ namespace Windower
 
 	bool FormatChatMsgService::InjectMessage(const std::string &Msg_in,
 											 const std::string &Sender_in,
-											 UINT MessageType_in)
+											 CHAT_MESSAGE_TYPE MessageType_in)
 	{
 		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
 		{

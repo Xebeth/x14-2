@@ -83,7 +83,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR TellDetectPlugin::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR TellDetectPlugin::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											  char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE && MessageFlags_out == MSG_FLAG_NONE)

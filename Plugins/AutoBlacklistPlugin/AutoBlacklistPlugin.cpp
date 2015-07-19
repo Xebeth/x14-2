@@ -467,7 +467,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR AutoBlacklistPlugin::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR AutoBlacklistPlugin::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 												 char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE
@@ -530,7 +530,7 @@ namespace Windower
 		return pOffender;
 	}
 
-	int AutoBlacklistPlugin::ScoreMessage(DWORD_PTR MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out)
+	int AutoBlacklistPlugin::ScoreMessage(CHAT_MESSAGE_TYPE MessageType_in, const char *pOriginalMsg_in, std::string &ScoredMessage_out)
 	{
 		int Score = 0;
 

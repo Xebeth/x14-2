@@ -471,7 +471,7 @@ namespace Windower
 		\param[in] DWORD ModifiedSize_in : the modified message size
 		\return the new size of the message
 	*/
-	DWORD_PTR WindowerEngine::OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+	DWORD_PTR WindowerEngine::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (m_ExpectCondition.empty() || m_ExpectCondition[0] == '*' || strstr(pOriginalMsg_in, m_ExpectCondition.c_str()) != NULL)

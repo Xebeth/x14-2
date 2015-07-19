@@ -63,6 +63,7 @@ namespace Windower
 		// main engine thread
 		DWORD MainThread();
 
+		bool IsExiting() const { return m_bShutdown; }
 		bool IsMacroThreadSuspended() const;
 		bool IsMacroThreadActive() const;
 		bool IsPlayerLoggedIn() const;
@@ -76,7 +77,7 @@ namespace Windower
 		bool SuspendMacroThread(const std::string &condition);
 
 		
-		DWORD_PTR OnChatMessage(DWORD_PTR MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
+		DWORD_PTR OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
 
 		// commands
