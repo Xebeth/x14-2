@@ -30,7 +30,7 @@ public:
 	bool Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, int Size_in,
 					bool Antialising_in = true, bool Bold_in = false, bool Italic_in = false);
 	void Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
-			   ULONG BoxWidth_in = 0UL, ULONG BoxHeight_in = 0UL, FONTALIGNMENT Alignment_in = FA_LEFT);
+			   LONG BoxWidth_in = 0L, LONG BoxHeight_in = 0L, FONTALIGNMENT Alignment_in = FA_LEFT);
 
 	void Release();
 	void OnLostDevice();

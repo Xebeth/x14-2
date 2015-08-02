@@ -290,7 +290,7 @@ namespace Windower
 		std::list<string_t>::const_iterator PluginIt, EndIt;
 		std::list<string_t> PluginList;
 
-		tokenize<wchar_t>(PluginList_in, PluginList, _T("|"), _T("\0"));
+		tokenize<TCHAR>(PluginList_in, PluginList, _T("|"), _T("\0"));
 
 		for (PluginIt = PluginList.cbegin(), EndIt = PluginList.cend(); PluginIt != EndIt; ++PluginIt)
 			UpdatePluginList(*PluginIt);

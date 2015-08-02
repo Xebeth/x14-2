@@ -100,7 +100,7 @@ namespace Windower
 					else
 					{
 						// uninstall the hook
-						Result &= m_pHookManager->UninstallHook(HookIt->first.c_str());
+						m_pHookManager->UnregisterHook(HookIt->first.c_str());
 						pPointer = NULL;
 					}
 					// update the pointers (only create them when installing)

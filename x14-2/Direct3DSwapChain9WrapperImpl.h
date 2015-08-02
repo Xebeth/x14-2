@@ -30,9 +30,9 @@ namespace D3DSwapChain9_vTable
 	};
 
 	/*** IUnknown methods ***/
-	typedef HRESULT		(__stdcall *fnQueryInterface)(REFIID, void**);
-	typedef ULONG		(__stdcall *fnAddRef)(void);
-	typedef ULONG		(__stdcall *fnRelease)(void);
+	typedef HRESULT		(__stdcall IUnknown::*fnQueryInterface)(REFIID, void**);
+	typedef ULONG		(__stdcall IUnknown::*fnAddRef)(void);
+	typedef ULONG		(__stdcall IUnknown::*fnRelease)(void);
 	/*** IDirect3DSwapChain9 methods ***/
 	typedef HRESULT		(__stdcall IDirect3DSwapChain9::*fnPresent)(CONST RECT*,CONST RECT*,HWND,CONST RGNDATA*,DWORD);
 	typedef UINT		(__stdcall IDirect3DSwapChain9::*fnGetFrontBufferData)(IDirect3DSurface9*);

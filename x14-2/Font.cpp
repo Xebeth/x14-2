@@ -63,7 +63,7 @@ bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, i
 	\param[in] Alignment_in : the alignment of the text
 */
 void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
-				 ULONG BoxWidth_in, ULONG BoxHeight_in, FONTALIGNMENT Alignment_in)
+				 LONG BoxWidth_in, LONG BoxHeight_in, FONTALIGNMENT Alignment_in)
 {
 	if (m_pFont == NULL || m_pTextSprite == NULL || pText_in == NULL)
 		return;

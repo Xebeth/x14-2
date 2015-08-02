@@ -15,7 +15,7 @@
 	#include <UIAL.h>
 #endif
 
-typedef stdext::hash_map<std::string, long> ScoredWords;
+typedef hash_map<char, long> ScoredWords;
 
 #define _WINDOWER_PLUGIN_SDK_INCLUDE_
 

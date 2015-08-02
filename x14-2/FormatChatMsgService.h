@@ -9,12 +9,12 @@
 #define __MESSAGE_FORMAT_SERVICE_H__
 														 
 #ifdef _M_X64
-	//														   4532D233DB									14/07/2015
+	//														   45 32 D2 33 DB											14/07/2015
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"##4532D233DB"
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-41
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIZE				 0
 #else
-	//														   33C589????8B????53560F??????57				14/07/2015
+	//														   33 C5 89 ?? ?? 8B ?? ?? 53 56 0F ?? ?? ?? 57				14/07/2015
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			"##33C589????8B????53560F??????57"
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	-14
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIZE				 9

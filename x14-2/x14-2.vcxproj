@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -19,87 +19,78 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FAF23DC0-1FF5-406F-8906-D250EDE3A48F}</ProjectGuid>
+    <ProjectGuid>{CBFE3AA5-AD4E-48F7-AF7A-F7575E1378DC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>x14-2core</RootNamespace>
     <ProjectName>x14-2core</ProjectName>
+    <RootNamespace>x14-2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\dependencies\Common\props\Solution Directories.props" />
-    <Import Project="..\dependencies\Common\props\vld.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\dependencies\Common\props\Solution Directories.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
-    <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
     <TargetName>$(ProjectName).x86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
-    <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x64\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\amd64\;$(VCInstallDir)atlmfc\lib\amd64\</LibraryPath>
     <TargetName>$(ProjectName).x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
-    <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x86\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\;$(VCInstallDir)atlmfc\lib\</LibraryPath>
     <TargetName>$(ProjectName).x86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <IncludePath>$(WindowsSdkDir)include\;$(WindowsSdkDir)include\um\;$(WindowsSdkDir)include\shared\;$(FrameworkSDKDir)\include\;$(VCInstallDir)include\;$(VCInstallDir)atlmfc\include\</IncludePath>
-    <LibraryPath>$(WindowsSdkDir)lib\;$(WindowsSdkDir)lib\winv6.3\um\x64\;$(FrameworkSDKDir)\lib\;$(VCInstallDir)lib\amd64\;$(VCInstallDir)atlmfc\lib\amd64\</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName).x64</TargetName>
   </PropertyGroup>
@@ -108,46 +99,30 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;_DEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <EnablePREfast>true</EnablePREfast>
+      <PreprocessorDefinitions>__USE_UIAL;_AFXEXT;X14_EXPORTS;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>
-      </BaseAddress>
-      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;_DEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <EnablePREfast>true</EnablePREfast>
+      <PreprocessorDefinitions>__USE_UIAL;_AFXEXT;X14_EXPORTS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x64/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>
-      </BaseAddress>
-      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -156,24 +131,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;NDEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__USE_UIAL;_AFXEXT;X14_EXPORTS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x86/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>
-      </BaseAddress>
-      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -182,60 +150,93 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>__USE_UIAL;WIN32;NDEBUG;_WINDOWS;_AFXDLL;X14_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/DirectX/include/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__USE_UIAL;_AFXEXT;X14_EXPORTS;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../dependencies/UIAL/;../Plugins/SDK/;../dependencies/PluginFramework;../dependencies/SigScan/;../dependencies/HookManager/;../dependencies/SettingsManager/;$(CPP_SDK_PATH)/Detours/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/DirectX/lib/x64/;$(CPP_SDK_PATH)/MinHook/lib/;$(CPP_SDK_PATH)/Detours/lib/;$(CPP_SDK_PATH)/EasyHook/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/export:DetourFinishHelperProcess,@1,NONAME /WX %(AdditionalOptions)</AdditionalOptions>
-      <BaseAddress>
-      </BaseAddress>
-      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <AdditionalLibraryDirectories>$(CPP_SDK_PATH)/detours/lib/;$(SolutionDir)$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\DebugStaging\ReflectiveLoader.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="CmdLineCore.cpp" />
     <ClCompile Include="CommandDispatcher.cpp" />
     <ClCompile Include="CommandParser.cpp" />
-    <ClCompile Include="Direct3D9WrapperImpl.cpp" />
-    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp" />
-    <ClCompile Include="Direct3DSwapChain9WrapperImpl.cpp" />
+    <ClCompile Include="Direct3D9WrapperImpl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Direct3DDevice9WrapperImpl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Direct3DSwapChain9WrapperImpl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="DXGISwapChainWrapperImpl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="EventHandler.cpp" />
-    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="Font.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="FormatChatMsgService.cpp" />
     <ClCompile Include="GameChatCore.cpp" />
     <ClCompile Include="GraphicsCore.cpp" />
-    <ClCompile Include="IDirect3D9Wrapper.cpp" />
-    <ClCompile Include="IDirect3DDevice9Wrapper.cpp" />
-    <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp" />
+    <ClCompile Include="IDirect3D9Wrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="IDirect3DDevice9Wrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="IDirect3DSwapChain9Wrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="IDXGISwapChainWrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="ModuleService.cpp" />
     <ClCompile Include="PlayerCore.cpp" />
     <ClCompile Include="PlayerDataService.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StringNode.cpp" />
     <ClCompile Include="SystemCore.cpp" />
-    <ClCompile Include="TestCore.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="TestCore.cpp" />
     <ClCompile Include="TextLabelRenderer.cpp" />
     <ClCompile Include="TextLabelService.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -245,26 +246,80 @@
     <ClCompile Include="WindowerEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\DebugStaging\ReflectiveLoader.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="CmdLineCore.h" />
     <ClInclude Include="CommandDispatcher.h" />
     <ClInclude Include="CommandParser.h" />
-    <ClInclude Include="Direct3DSwapChain9WrapperImpl.h" />
-    <ClInclude Include="Direct3D9WrapperImpl.h" />
-    <ClInclude Include="Direct3DDevice9WrapperImpl.h" />
+    <ClInclude Include="Direct3D9WrapperImpl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Direct3DDevice9WrapperImpl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Direct3DSwapChain9WrapperImpl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="DXGISwapChainWrapperImpl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="EventHandler.h" />
-    <ClInclude Include="IDeviceCreateSubscriber.h" />
-    <ClInclude Include="Font.h" />
+    <ClInclude Include="Font.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="FormatChatMsgService.h" />
     <ClInclude Include="GameChatCore.h" />
     <ClInclude Include="GraphicsCore.h" />
-    <ClInclude Include="IDirect3D9Wrapper.h" />
-    <ClInclude Include="IDirect3DDevice9Wrapper.h" />
-    <ClInclude Include="IDirect3DSwapChain9Wrapper.h" />
+    <ClInclude Include="IDeviceCreateSubscriber.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="IDirect3D9Wrapper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="IDirect3DDevice9Wrapper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="IDirect3DSwapChain9Wrapper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="IDXGISwapChainWrapper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="IEventInterface.h" />
+    <ClInclude Include="IFont.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="IRenderable.h" />
     <ClInclude Include="ModuleService.h" />
     <ClInclude Include="PlayerCore.h" />
@@ -272,10 +327,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StringNode.h" />
     <ClInclude Include="SystemCore.h" />
-    <ClInclude Include="TestCore.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="TestCore.h" />
     <ClInclude Include="TextLabelRenderer.h" />
     <ClInclude Include="TextLabelService.h" />
     <ClInclude Include="Timer.h" />
@@ -287,14 +339,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="module.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\todo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\dependencies\HookManager\HookManager.vcxproj" />
-    <ProjectReference Include="..\dependencies\SettingsManager\SettingsManager.vcxproj" />
-    <ProjectReference Include="..\Plugins\SDK\PluginSDK.vcxproj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

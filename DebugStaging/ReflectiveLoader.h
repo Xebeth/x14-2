@@ -31,8 +31,6 @@
 #define _REFLECTIVEDLLINJECTION_REFLECTIVELOADER_H
 //===============================================================================================//
 #define WIN32_LEAN_AND_MEAN
-#include <Winsock2.h>
-#include <intrin.h>
 
 typedef HMODULE (WINAPI * LOADLIBRARYA)( LPCSTR );
 typedef FARPROC (WINAPI * GETPROCADDRESS)( HMODULE, LPCSTR );
@@ -40,7 +38,7 @@ typedef LPVOID  (WINAPI * VIRTUALALLOC)( LPVOID, SIZE_T, DWORD, DWORD );
 typedef VOID    (WINAPI * EXITTHREAD)( DWORD );
 typedef DWORD   (NTAPI  * NTFLUSHINSTRUCTIONCACHE)( HANDLE, PVOID, ULONG );
 
-/** NOTE: module hashes are computed using all-caps unicode strings */
+/** NOTE: module hashes are computed using all-caps Unicode strings */
 #define KERNEL32DLL_HASH				0x6A4ABC5B
 #define NTDLLDLL_HASH					0x3CFA685D
 

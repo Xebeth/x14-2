@@ -30,7 +30,7 @@ namespace Windower
 	*/
 	CmdLineCore::CmdLineCore()
 		: WindowerCore(_T(CMD_LINE_MODULE)), m_pCommandDispatcher(NULL), m_pTextCmdUnknown(NULL),
-		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL), m_pTextCmd(NULL)
+		  m_pProcessCmdTrampoline(NULL), m_pCommandParser(NULL), m_pTextCmd(NULL), m_pCondition(NULL)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -323,6 +323,42 @@ namespace Windower
 
 			Result &= (pCommand != NULL);
 
+			// register the "if" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_MACRO_IF, "if", "Sets a conditional execution.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->AddStringParam("condition",  false, "", "a conditional expression");
+				pCommand->AddStringParam("action",     false, "", "the action to execute if the conditions are met");
+				pCommand->AddIntegerParam("delay",     true,  0,  "the delay to add after executing the action");
+				pCommand->AddIntegerParam("overwrite", true,  0,  "flag specifying if the next action in the macro is skipped should the conditions be met");
+				pCommand->SetRestricted(true);
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
+			// register the "endif" command
+			pCommand = new WindowerCommand(ENGINE_KEY, CMD_MACRO_ENDIF, "endif", "Ends a block of conditional execution.", this);
+
+			if (pCommand != NULL)
+			{
+				pCommand->SetRestricted(true);
+
+				if (RegisterCommand(pCommand) == false)
+				{
+					delete pCommand;
+					pCommand = NULL;
+				}
+			}
+
+			Result &= (pCommand != NULL);
+
 			// register the "key" command
 			pCommand = new WindowerCommand(ENGINE_KEY, CMD_KEY_PRESS, "key",
 										   "Simulates a key press.", this);
@@ -373,8 +409,50 @@ namespace Windower
 		return false;
 	}
 
+	void CmdLineCore::ParseLine(const std::string &line)
+	{
+		WindowerCommand command;
+		std::string Feedback;
+		const char *pFind;
+		long wait = 0L;
+		size_t s = 0UL;
+
+		if (m_pCommandParser->ParseCommand(line.c_str(), command, NULL, s) == CommandParser::PARSER_RESULT_SUCCESS)
+			command.Execute(Feedback);
+		else
+			InjectCommand(line);
+
+		pFind = strstr(line.c_str(), "<wait.");
+
+		if (pFind != NULL && sscanf_s(pFind, "<wait.%d>", &wait) == 1)
+			MacroWait(wait * 1000);
+	}
+
+	void CmdLineCore::AbortMacro()
+	{
+		if (m_pCondition != NULL)
+		{
+			delete m_pCondition;
+			m_pCondition = NULL;
+		}
+	}
+
+	void CmdLineCore::MacroWait(long wait) const
+	{
+		if (wait <= 500L)
+			wait = 500L;
+
+		::Sleep(wait + std::rand() % 555);
+	}
+
 	bool CmdLineCore::ExecuteMacroFile(const string_t &macroFile_in, unsigned long repeat)
 	{
+		if (m_pCondition != NULL)
+		{
+			delete m_pCondition;
+			m_pCondition = NULL;
+		}
+
 		if (m_pTextCmd != NULL)
 		{
 			for (unsigned long i = 1; i <= repeat && m_pEngine->IsMacroThreadActive(); ++i)
@@ -389,29 +467,27 @@ namespace Windower
 
 				if (infile.bad() == false)
 				{
-					const char *pFind;
+					bool skip = false;
 					std::string line;
-					int wait = 3;
-
+					
 					m_pEngine->UpdateMacroProgress(i, repeat, false);
 
 					while (std::getline(infile, line) && m_pEngine->IsMacroThreadActive())
 					{
 						while (m_pEngine->IsMacroThreadSuspended())
-						{
 							::Sleep(250);
-							continue;
-						}
 
-						InjectCommand(line);
+						skip = false;
 
-						pFind = strstr(line.c_str(), "<wait.");
-
-						if (pFind != NULL && sscanf_s(pFind, "<wait.%d>", &wait) == 1)
+						if (strstr(line.c_str(), "endif") == NULL && m_pCondition != NULL
+						 && m_pCondition->IsTrue(m_pEngine->GetCraftingCondition()))
 						{
-							format(line, "/!wait %d", wait * 1000);
-							InjectCommand(line);
+							skip = m_pCondition->Overwrite;
+							ParseLine(m_pCondition->Action);
 						}
+						
+						if (skip == false)
+							ParseLine(line);
 					}
 				}				
 			}
@@ -629,15 +705,55 @@ namespace Windower
 			case CMD_WAIT:
 				if (m_pEngine != NULL)
 				{
-					long wait = Command_in.GetIntegerValue("wait");
-
-					if (wait <= 500L)
-						wait = 500L;
-
-					::Sleep(wait + std::rand() % 555);
+					MacroWait(Command_in.GetIntegerValue("wait"));
 					Feedback_out = "";
 
 					return true;
+				}
+			break;
+			case CMD_MACRO_IF:
+			{
+				std::string Condition = Command_in.GetStringValue("condition");
+				const char *pFind = strstr(Condition.c_str(), CRAFTING_CONDITION_MARKER);
+
+				if (m_pCondition != NULL)
+				{
+					delete m_pCondition;
+					m_pCondition = NULL;
+				}
+
+				if (pFind != NULL)
+				{
+					std::string values(pFind + CRAFTING_CONDITION_LENGTH);
+					std::list<std::string> valueList;					
+					size_t count = 0;
+
+					count = tokenize(values, valueList, ",", "");
+
+					if (count > 0UL)
+					{
+						std::string Action = Command_in.GetStringValue("action");
+
+						pFind = strstr(Action.c_str(), CRAFTING_ABILITY_MARKER);
+
+						if (pFind != NULL)
+						{
+							bool Overwrite = (Command_in.GetIntegerValue("overwrite") != 0L);
+							long Delay = Command_in.GetIntegerValue("delay");
+							std::string GameCmd;
+
+							format(GameCmd, "/action \"%s\" <me> <wait.%ld>", pFind + CRAFTING_ABILITY_LENGTH, Delay);
+							m_pCondition = new ConditionalAction(GameCmd, Overwrite, valueList);
+						}
+					}
+				}
+			}
+			break;
+			case CMD_MACRO_ENDIF:
+				if (m_pCondition != NULL)
+				{
+					delete m_pCondition;
+					m_pCondition = NULL;
 				}
 			break;
 			case CMD_WAIT_MSG:

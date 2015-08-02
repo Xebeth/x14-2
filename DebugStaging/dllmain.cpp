@@ -27,6 +27,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 		break;
 		case DLL_PROCESS_ATTACH:
 			g_hAppInstance = hinstDLL;
+#ifdef _DEBUG
+			Sleep(5000);
+#endif // _DEBUG
 		break;
 	}
 
@@ -37,6 +40,26 @@ extern "C"
 {
 	DLLEXPORT BOOL DllInject(LPVOID lpUserdata, DWORD nUserdataLen)
 	{
-		return (lpUserdata != NULL && LoadLibraryW((LPCTSTR)lpUserdata) != NULL);
+		if (lpUserdata != NULL)
+		{
+			if (LoadLibraryW((LPCTSTR)lpUserdata) == NULL)
+			{
+				DWORD errCode = GetLastError();
+				wchar_t buf[256];
+				wchar_t err[8];
+
+				_ltot_s(errCode, err, 10);
+
+				FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errCode,
+							   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+							   buf, 256, NULL);
+
+				MessageBox(NULL, buf, err, MB_OK);
+			}
+			else
+				return TRUE;
+		}
+
+		return FALSE;
 	}
 }

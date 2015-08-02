@@ -103,22 +103,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Config.rc2">
-      <Filter>Resources</Filter>
-    </None>
-    <None Include="..\Resources\config.ico">
       <Filter>Resources\images</Filter>
     </None>
-    <None Include="..\Resources\x14.ico">
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\dlg_config.png">
       <Filter>Resources\images</Filter>
-    </None>
-    <None Include="res\dlg_config.png">
-      <Filter>Resources\images</Filter>
-    </None>
-    <None Include="..\Installer\x14-banner.bmp">
-      <Filter>Resources</Filter>
-    </None>
-    <None Include="..\Installer\x14-logo.bmp">
-      <Filter>Resources</Filter>
-    </None>
+    </Image>
   </ItemGroup>
 </Project>

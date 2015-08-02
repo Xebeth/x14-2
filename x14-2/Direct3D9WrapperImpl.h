@@ -36,9 +36,9 @@ namespace D3D9_vTable
 	};
 
 	/*** IUnknown methods ***/
-	typedef HRESULT		(__stdcall *fnQueryInterface)(REFIID, void**);
-	typedef ULONG		(__stdcall *fnAddRef)(void);
-	typedef ULONG		(__stdcall *fnRelease)(void);
+	typedef HRESULT		(__stdcall IUnknown::*fnQueryInterface)(REFIID, void**);
+	typedef ULONG		(__stdcall IUnknown::*fnAddRef)(void);
+	typedef ULONG		(__stdcall IUnknown::*fnRelease)(void);
 	/*** IDirect3D9 methods ***/
 	typedef HRESULT		(__stdcall IDirect3D9::*fnRegisterSoftwareDevice)(void*);
 	typedef UINT		(__stdcall IDirect3D9::*fnGetAdapterCount)();

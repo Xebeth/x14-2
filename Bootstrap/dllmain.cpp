@@ -29,9 +29,6 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 		if (g_pEngine == NULL)
 		{
-#ifdef _DEBUG
-//			Sleep(5000);
-#endif // _DEBUG
 			TCHAR DirPath[_MAX_PATH] = { '\0' };
 			string_t WorkingDir;
 

@@ -8,10 +8,10 @@
 #ifndef __PLAYER_DATA_SERVICE_H__
 #define __PLAYER_DATA_SERVICE_H__
 
-#define PLAYER_DATA_MODULE			"PlayerData"
+#define PLAYER_DATA_MODULE		"PlayerData"
 // available services for the module
 #define SET_PLAYER_TARGET_HOOK	"SetPlayerTarget"
-#define INIT_CHARACTER_MGR_HOOK		"CharacterMgrInit"
+#define INIT_PLAYER_DATA_HOOK	"InitPlayerData"
 
 namespace Windower
 {

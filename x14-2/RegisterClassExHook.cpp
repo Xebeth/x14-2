@@ -10,9 +10,9 @@
 #include "WindowerEngine.h"
 
 #include "RegisterClassExHook.h"
-#include "CreateWindowExHook.h"
-#include "SetCursorPosHook.h"
 
+#include "IEventInterface.h"
+#include "EventHandler.h"
 #include "WindowerCore.h"
 #include "SystemCore.h"
 

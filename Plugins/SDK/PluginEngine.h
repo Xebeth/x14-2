@@ -42,9 +42,9 @@ namespace Windower
 	class PluginServices;
 	class ICoreModule;
 
-	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
+	typedef hash_map<TCHAR, PluginFramework::IPlugin*> WindowerPlugins;
 	typedef std::vector<PluginFramework::IPlugin*> ConfigurationQueue;
-	typedef stdext::hash_map<string_t, ICoreModule*> CoreModules;	
+	typedef hash_map<TCHAR, ICoreModule*> CoreModules;
 	typedef std::set<string_t> ActivePlugins;
 
 	//! \brief Plugin engine

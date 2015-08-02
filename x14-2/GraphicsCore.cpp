@@ -6,20 +6,23 @@
 	purpose		:	Interface with Direct3D 9
 **************************************************************************/
 #include "stdafx.h"
+#include <d3d11.h>
 #include <d3d9.h>
 #include <d3dx9.h>
 
 #include "WindowerEngine.h"
 
-#include "Font.h"
 #include "IRenderable.h"
 #include "IEventInterface.h"
+
+#include "Font.h"
 #include "IDirect3D9Wrapper.h"
 #include "Direct3D9WrapperImpl.h"
 #include "IDeviceCreateSubscriber.h"
 #include "IDirect3DDevice9Wrapper.h"
 #include "Direct3DDevice9WrapperImpl.h"
 #include "Direct3DSwapChain9WrapperImpl.h"
+#include "DXGISwapChainWrapperImpl.h"
 
 #include "TextLabelRenderer.h"
 #include "UiTextLabel.h"
@@ -31,13 +34,14 @@
 #include "ModuleService.h"
 #include "TextLabelService.h"
 
-extern Windower::WindowerEngine *g_pEngine;
 
-using namespace UIAL;
+DXGISwapChainWrapperImpl *g_pDXGISwapChainWrapper = NULL;
 
 Direct3DSwapChain9WrapperImpl *g_pDirect3DSwapChainWrapper = NULL;
 Direct3DDevice9WrapperImpl *g_pDeviceWrapperImpl = NULL;
 Direct3D9WrapperImpl *g_pDirect3DWrapper = NULL;
+
+extern Windower::WindowerEngine *g_pEngine;
 
 namespace Windower
 {
@@ -55,10 +59,12 @@ namespace Windower
 	*/
 	GraphicsCore::GraphicsCore(bool VSync_in)
 		: WindowerCore(_T(GRAPHICS_MODULE)), m_pLabelRenderer(NULL),
-		  m_pDirect3DCreate9Trampoline(NULL), m_Width(0U), m_Height(0U),
-		  m_pMovingLabel(NULL), m_pDirect3DDevice(NULL),
+		  m_Width(0U), m_Height(0U), m_pMovingLabel(NULL),
 		  m_MouseOffsetX(0U), m_MouseOffsetY(0U),
-		  m_LabelWidth (0UL), m_LabelHeight(0UL)
+		  m_LabelWidth (0UL), m_LabelHeight(0UL),
+		  m_pD3D11CreateDeviceAndSwapChainTrampoline(NULL),
+		  m_pDirect3DCreate9Trampoline(NULL),
+		  m_pDirect3DDevice(NULL), m_pD3D11Device(NULL)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -108,6 +114,13 @@ namespace Windower
 			g_pDeviceWrapperImpl->SetRendering(false);
 			delete g_pDeviceWrapperImpl;
 			g_pDeviceWrapperImpl = NULL;
+		}
+
+		if (g_pDXGISwapChainWrapper != NULL)
+		{
+			g_pDXGISwapChainWrapper->SetRendering(false);
+			delete g_pDXGISwapChainWrapper;
+			g_pDXGISwapChainWrapper = NULL;
 		}
 	}
 
@@ -181,6 +194,30 @@ namespace Windower
 		return pDirect3D;
 	}
 
+	HRESULT WINAPI GraphicsCore::D3D11CreateDeviceAndSwapChainHook(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software,
+																   UINT Flags, CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels,
+																   UINT SDKVersion, CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, 
+																   IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice, 
+																   D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext)
+	{
+		HRESULT result = m_Context->m_pD3D11CreateDeviceAndSwapChainTrampoline(pAdapter, DriverType, Software, Flags,
+																			   pFeatureLevels, FeatureLevels, SDKVersion,
+																			   pSwapChainDesc, ppSwapChain, ppDevice,
+																			   pFeatureLevel, ppImmediateContext);
+		if (SUCCEEDED(result))
+		{
+			if (ppSwapChain != NULL)
+				m_Context->OnSwapChainCreate(*ppSwapChain, const_cast<DXGI_SWAP_CHAIN_DESC*>(pSwapChainDesc));
+
+			if (ppDevice != NULL)
+				m_Context->m_pD3D11Device = *ppDevice;
+		}
+
+		m_Context->m_pHookManager->UnregisterHook("D3D11CreateDeviceAndSwapChain");
+
+		return result;
+	}
+
 	void GraphicsCore::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in)
 	{
 		m_pDirect3DDevice = pDevice_in;
@@ -199,18 +236,44 @@ namespace Windower
 				PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
 				PresentParams.BackBufferCount = 2;
 			}
+			// create the device wrapper implementation
+			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
+			// initialize labels and their renderer
+			InitializeRenderer(pDevice_in);
+		}
+		// try to restore Direct3D
+		if (g_pDirect3DWrapper != NULL)
+		{
+			delete g_pDirect3DWrapper;
+			g_pDirect3DWrapper = NULL;
+		}
+	}
 
+	void GraphicsCore::OnSwapChainCreate(IDXGISwapChain *pSwapChain, DXGI_SWAP_CHAIN_DESC* pSwapChainDesc)
+	{
+		if (g_pDXGISwapChainWrapper != NULL)
+		{
+			g_pDXGISwapChainWrapper->SetRendering(false);
+			delete g_pDXGISwapChainWrapper;
+			g_pDXGISwapChainWrapper = NULL;
+		}
+
+		g_pDXGISwapChainWrapper = new DXGISwapChainWrapperImpl(pSwapChain, pSwapChainDesc);
+	}
+
+	void GraphicsCore::InitializeRenderer(IDirect3DDevice9 *pDevice_in)
+	{
+		if (pDevice_in != NULL)
+		{
 			TextLabelRenderer *pRenderer = GetLabelRenderer();
 			// create the FPS counter and macro progress
-			UiTextLabel *pFpsLabel = new UiFPSCounter(GFX_TEXT_FPS, m_pDirect3DDevice, FPS_LABEL_NAME, -16L, 0L, 60UL, 16UL,
+			UiTextLabel *pFpsLabel = new UiFPSCounter(GFX_TEXT_FPS, pDevice_in, FPS_LABEL_NAME, -16L, 0L, 60UL, 16UL,
 													  _T("Arial"), 12U, true, false, 0xFFFF0000, pRenderer, true);
-			UiTextLabel *pMacroLabel = new UiTimerCounter(GFX_TEXT_MACRO, m_pDirect3DDevice, MACRO_LABEL_NAME, 0L, 0L, 320UL, 16UL,
+			UiTextLabel *pMacroLabel = new UiTimerCounter(GFX_TEXT_MACRO, pDevice_in, MACRO_LABEL_NAME, 0L, 0L, 320UL, 16UL,
 														  _T("Arial"), 12U, true, false, 0xFFFF0000, pRenderer, true);
 			// draw once to force w/e ID3DXFont::DrawText does the first time
 			// (one of the side effect is resetting the vtable of the device)
 			pFpsLabel->Draw();
-			// create the device wrapper implementation
-			g_pDeviceWrapperImpl = new Direct3DDevice9WrapperImpl(pDevice_in, PresentParams);
 			// initialize the labels
 			InitializeLabel(pMacroLabel);
 			InitializeLabel(pFpsLabel);
@@ -219,12 +282,6 @@ namespace Windower
 #ifdef _DEBUG
 			pFpsLabel->SetVisibile(true);
 #endif // _DEBUG
-		}
-		// try to restore Direct3D
-		if (g_pDirect3DWrapper != NULL)
-		{
-			delete g_pDirect3DWrapper;
-			g_pDirect3DWrapper = NULL;
 		}
 	}
 
@@ -312,6 +369,7 @@ namespace Windower
 	{
 		// register the Direct3DCreate9 hook
 		HookManager_in.RegisterHook("Direct3DCreate9", "d3d9.dll", NULL, &GraphicsCore::Direct3DCreate9Hook);
+		HookManager_in.RegisterHook("D3D11CreateDeviceAndSwapChain", "d3d11.dll", NULL, &GraphicsCore::D3D11CreateDeviceAndSwapChainHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -320,6 +378,7 @@ namespace Windower
 	void GraphicsCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		m_pDirect3DCreate9Trampoline = (fnDirect3DCreate9)HookManager_in.GetTrampolineFunc("Direct3DCreate9");
+		m_pD3D11CreateDeviceAndSwapChainTrampoline = (PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN)HookManager_in.GetTrampolineFunc("D3D11CreateDeviceAndSwapChain");
 	}
 
 	/*! \brief Creates a service object given its name
@@ -453,19 +512,21 @@ namespace Windower
 
 	LRESULT GraphicsCore::OnActivate(bool bActive_in, bool bMinimized_in)
 	{
+#ifdef _M_IX86
 		if (g_pDeviceWrapperImpl != NULL && (g_pDeviceWrapperImpl->IsFullscreen() || bMinimized_in))
 		{
 			g_pDeviceWrapperImpl->SetRendering(bActive_in);
 
 			return IEventInterface::EVENT_PROCESSED; // filtered
 		}
+#endif // _M_IX86
 
 		return IEventInterface::EVENT_IGNORED;
 	}
 
 	void GraphicsCore::InitializeLabel(UiTextLabel *pLabel)
 	{
-		if (pLabel != NULL && g_pDeviceWrapperImpl != NULL)
+		if (pLabel != NULL)
 		{
 			unsigned long TextColor = 0xFFFF0000, ID = pLabel->GetID();
 			bool Bold = true, Italic = false, Collapsed = false;
@@ -480,9 +541,10 @@ namespace Windower
 				m_pEngine->SerializeLabel(name, X, Y, TextColor, FontName, FontSize, Bold, Italic, Collapsed);
 
 			pLabel->SetVisibile(false);
-
 			// add it to the list of renderables
-			g_pDeviceWrapperImpl->AddRenderable(ID, pLabel);
+			if (g_pDeviceWrapperImpl != NULL)
+				g_pDeviceWrapperImpl->AddRenderable(ID, pLabel);
+
 			m_UiElements[ID] = pLabel;
 		}
 	}

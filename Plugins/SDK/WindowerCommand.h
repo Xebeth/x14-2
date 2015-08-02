@@ -27,7 +27,7 @@ namespace Windower
 	};
 
 	//! a hash map of command parameters
-	typedef stdext::hash_map<std::string, CommandParameter*> CommandParams;
+	typedef hash_map<char, CommandParameter*> CommandParams;
 
 	//! \brief Windower command
 	class WindowerCommand

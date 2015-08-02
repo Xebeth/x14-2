@@ -20,7 +20,7 @@ namespace Windower
 	class ICoreModule;
 
 	//! a hash map of core modules
-	typedef stdext::hash_map<string_t, ICoreModule*> CoreModules;
+	typedef hash_map<TCHAR, ICoreModule*> CoreModules;
 
 	//! \brief Plugin services used to (un)subscribe to services and invoke them
 	class PluginServices : public PluginFramework::IPluginServices

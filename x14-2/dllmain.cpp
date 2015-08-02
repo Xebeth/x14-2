@@ -81,7 +81,6 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 			TCHAR DirPath[_MAX_PATH] = { '\0' };
 			
 			g_hAppInstance = hModule_in;
-			Sleep(5000);
 			// retrieve the name of the module
 			if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
 				return CreateEngine((LPVOID)DirPath, 0UL /* unused */);

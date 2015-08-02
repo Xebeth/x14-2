@@ -141,9 +141,9 @@ namespace D3DDevice9_vTable
 	#pragma pack(push, 1)
 
 	/*** IUnknown methods ***/
-	typedef HRESULT	(__stdcall IDirect3DDevice9::*fnQueryInterface)(REFIID, void**);
-	typedef ULONG	(__stdcall IDirect3DDevice9::*fnAddRef)(void);
-	typedef ULONG	(__stdcall IDirect3DDevice9::*fnRelease)(void);
+	typedef HRESULT	(__stdcall IUnknown::*fnQueryInterface)(REFIID, void**);
+	typedef ULONG	(__stdcall IUnknown::*fnAddRef)(void);
+	typedef ULONG	(__stdcall IUnknown::*fnRelease)(void);
 	/*** IDirect3DDevice9 methods ***/
 	typedef HRESULT (__stdcall IDirect3DDevice9::*fnTestCooperativeLevel)();
 	typedef UINT	(__stdcall IDirect3DDevice9::*fnGetAvailableTextureMem)();
@@ -419,7 +419,7 @@ private:
 	D3DDevice9_vTable::Entries *m_pHookVTable;
 	D3DPRESENT_PARAMETERS m_PresentParams;	
 	IDirect3DDevice9 *m_pDirect3DDevice;
-	IDirect3DDevice9Wrapper m_Wrapper;
+	
 	RenderableMap m_UiElements;	
 	bool m_bFullscreen;
 	bool m_bRender;

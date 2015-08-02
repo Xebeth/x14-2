@@ -39,7 +39,7 @@ namespace Windower
 	};
 
 	//! a map of plugins
-	typedef stdext::hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
+	typedef hash_map<TCHAR, PluginFramework::IPlugin*> WindowerPlugins;
 	typedef std::pair<string_t, unsigned long> MacroParam;
 	typedef std::vector<DWORD_PTR> MemoryScanResult;	
 
@@ -75,7 +75,7 @@ namespace Windower
 		void UpdateMacroProgress(unsigned long step, unsigned long total, bool stop);
 		bool CreateMacroThread(const string_t &file, unsigned long repeat);
 		bool SuspendMacroThread(const std::string &condition);
-
+		long GetCraftingCondition() const;
 		
 		DWORD_PTR OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
@@ -93,10 +93,10 @@ namespace Windower
 							unsigned short FontSize_in = 12,
 							bool Bold_in = true, bool Italic_in = false,
 							bool Collapsed_in = false);
-
+		void InitializeEngine();
 	private:
 		bool InitializePlugins();
-		void InitializeEngine();
+
 		void UpdateEngine();
 
 		template <typename T> class CallingContext

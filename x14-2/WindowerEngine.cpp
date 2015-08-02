@@ -6,6 +6,7 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
+#include <d3d11.h>
 
 #include "WindowerEngine.h"
 
@@ -47,7 +48,7 @@ namespace Windower
 		  m_bDetached(false), m_bShutdown(false), m_pGameChatCore(NULL),
 		  m_pSystemCore(NULL), m_pPlayerCore(NULL), m_pUpdateTimer(NULL),
 		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pTextLabel(NULL), 
-		  m_MacroThreadID(ThreadState::NONE), m_dwPID(0UL)
+		  m_MacroThreadID(ThreadState::NONE), m_dwPID(0UL), m_MacroThreadState(0L)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -301,7 +302,11 @@ namespace Windower
 
 	void WindowerEngine::UpdateMacroProgress(unsigned long step, unsigned long total, bool stop)
 	{
-		m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroThreadActive());
+		if (m_pGraphicsCore != NULL)
+			m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroThreadActive());
+
+		if (m_pCmdLineCore != NULL)
+			m_pCmdLineCore->AbortMacro();
 	}
 
 	bool WindowerEngine::PressKey(long key, long delay, long repeat)
@@ -543,5 +548,13 @@ namespace Windower
 	{
 		if (m_pGraphicsCore != NULL)
 			m_pGraphicsCore->SetWnd(hWnd_in);
+	}
+
+	long WindowerEngine::GetCraftingCondition() const
+	{
+		if (m_pPlayerCore != NULL)
+			return m_pPlayerCore->GetCraftingCondition();
+
+		return Crafting::Invalid;
 	}
 }

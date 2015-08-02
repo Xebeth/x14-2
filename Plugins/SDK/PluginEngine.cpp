@@ -55,8 +55,13 @@ namespace Windower
 	bool PluginEngine::Detach()
 	{
 		// destroy the created plugins
-		while(m_Plugins.empty() == false)
-			UnloadPlugin(m_Plugins.rbegin()->first);
+		WindowerPlugins::const_iterator pluginIt;
+
+		while (m_Plugins.empty() == false)
+		{
+			pluginIt = m_Plugins.cbegin();
+			UnloadPlugin(pluginIt->first);
+		}
 
 		return true;
 	}
@@ -211,7 +216,7 @@ namespace Windower
 		return false;
 	}
 
-	const wchar_t* PluginEngine::GetCompatibilityFlagsText(DWORD Flags_in)
+	const TCHAR* PluginEngine::GetCompatibilityFlagsText(DWORD Flags_in)
 	{
 		DWORD Flags = (Flags_in & PLUGIN_COMPATIBILITY_MASK);
 

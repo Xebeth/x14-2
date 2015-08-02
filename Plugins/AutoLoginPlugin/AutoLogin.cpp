@@ -601,7 +601,7 @@ bool AutoLogin::UpdateDocumentState(IHTMLDocument2 *pDoc_in)
 
 		if (SUCCEEDED(pDoc_in->get_readyState(&DocState)))
 		{
-			m_DocumentState = DocState;
+			m_DocumentState.assign(DocState);
 			Result = true;
 		}
 

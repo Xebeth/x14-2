@@ -6,7 +6,7 @@
 	purpose		:	
 **************************************************************************/
 #include "stdafx.h"
-#include <hash_map>
+#include <hash_map.h>
 
 #include "ICommandHandler.h"
 #include "CommandParameter.h"

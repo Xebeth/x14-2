@@ -22,7 +22,7 @@ namespace Bootstrap
 	class SystemCore;
 
 	//! a hash map of core modules
-	typedef stdext::hash_map<string_t, Windower::ICoreModule*> CoreModules;
+	typedef hash_map<TCHAR, Windower::ICoreModule*> CoreModules;
 
 	//! \brief Plugin engine used during the game starting process
 	class BootstrapEngine : public Windower::PluginEngine

@@ -11,9 +11,9 @@
 namespace Windower
 {
 	//! a hash map of module services
-	typedef std::hash_map<string_t, BaseModuleService*> ModuleServices;
+	typedef hash_map<TCHAR, BaseModuleService*> ModuleServices;
 	//! the hooks of a service
-	typedef stdext::hash_map<std::string, LPVOID> HookPointers;
+	typedef hash_map<char, LPVOID> HookPointers;
 	typedef std::set<UUID> Blacklist;
 
 	class WindowerEngine;

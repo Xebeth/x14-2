@@ -22,6 +22,10 @@ typedef struct IDirect3DDevice9 IDirect3DDevice9;
 
 typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion_in);
 
+typedef struct ID3D11DeviceContext ID3D11DeviceContext;
+typedef struct IDXGISwapChain IDXGISwapChain;
+typedef struct ID3D11Device ID3D11Device;
+
 class Timer;
 
 namespace Windower
@@ -49,7 +53,9 @@ namespace Windower
 		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
 
 		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in);
+		void OnSwapChainCreate(IDXGISwapChain *pSwapChain, DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 
+		
 		LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
 		LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
 		LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
@@ -70,15 +76,25 @@ namespace Windower
 		void OnHookInstall(HookEngineLib::IHookManager &HookManager_in);
 		
 		// Direct3D
+
 		static IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in);
+		static HRESULT WINAPI D3D11CreateDeviceAndSwapChainHook(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software,
+																UINT Flags, CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels,
+																UINT SDKVersion, CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
+																IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice,
+																D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext);
 
 	protected:
 		TextLabelRenderer* GetLabelRenderer();
 		void InitializeLabel(UiTextLabel * pLabel);
+		void InitializeRenderer(IDirect3DDevice9 * pDevice_in);
+
 		//! function pointer to the original Direct3DCreate9 function
 		fnDirect3DCreate9 m_pDirect3DCreate9Trampoline;
 		//! Direct3D device
 		IDirect3DDevice9 *m_pDirect3DDevice;
+		ID3D11Device *m_pD3D11Device;
+		PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_pD3D11CreateDeviceAndSwapChainTrampoline;
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;
 		//! graphical elements

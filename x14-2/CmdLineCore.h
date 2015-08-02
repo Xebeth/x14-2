@@ -9,12 +9,12 @@
 #define __CMD_LINE_CORE_H__
 
 #ifdef _M_X64
-													 //488B02498BF0488BFA803800			2015-07-16
+													 //48 8B 02 49 8B F0 48 8B FA 80 38 00			2015-07-16
 	#define PROCESS_CMD_OPCODES_SIGNATURE			"##488B02498BF0488BFA803800"
 	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -23
 	#define PROCESS_CMD_OPCODES_SIZE				  0
 #else
-													 //51578B??89????89????89			2015-07-16
+													 //51 57 8B ?? 89 ?? ?? 89 ?? ?? 89				2015-07-16
 	#define PROCESS_CMD_OPCODES_SIGNATURE			"##51578B??89????89????89"
 	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -39
 	#define PROCESS_CMD_OPCODES_SIZE				  11
@@ -22,6 +22,15 @@
 
 #define CMD_LINE_MODULE "CmdLine"
 #define PROCESS_CMD_HOOK "OnProcessCmd"
+
+#define CRAFTING_STATUS_MARKER		"status="
+#define CRAFTING_STATUS_LENGTH		STRLEN(CRAFTING_STATUS_MARKER)
+
+#define CRAFTING_CONDITION_MARKER	"cond="
+#define CRAFTING_CONDITION_LENGTH	STRLEN(CRAFTING_CONDITION_MARKER)
+
+#define CRAFTING_ABILITY_MARKER		"ja:"
+#define CRAFTING_ABILITY_LENGTH		STRLEN(CRAFTING_ABILITY_MARKER)
 
 namespace Windower
 {
@@ -34,7 +43,31 @@ namespace Windower
 
 	class CommandDispatcher;
 	class WindowerEngine;
-	class CommandParser;	
+	class CommandParser;
+
+	class ConditionalAction
+	{
+	public:
+		ConditionalAction(std::string Action_in, bool Overwrite_in, const std::list<std::string> &Values_in)
+			: Action(Action_in), Overwrite(Overwrite_in), Values(Values_in) {}
+
+		bool IsTrue(long Value_in) const
+		{
+			std::list<std::string>::const_iterator valueEndIt = Values.cend(), valueIt;
+
+			for (valueIt = Values.cbegin(); valueIt != valueEndIt; ++valueIt)
+			{
+				if (Value_in == atol(valueIt->c_str()))
+					return true;
+			}
+
+			return false;
+		}
+
+		std::list<std::string> Values;
+		std::string Action;
+		bool Overwrite;
+	};
 
 	class CmdLineCore : public WindowerCore, public ICommandHandler
 	{
@@ -53,6 +86,8 @@ namespace Windower
 			CMD_KEY_PRESS,			//!< key press command
 			CMD_EXIT,				//!< exit the game
 			CMD_WAIT_MSG,			//!< wait for a message
+			CMD_MACRO_IF,			//!< condition for macros
+			CMD_MACRO_ENDIF,		//!< end of condition for macros
 			CMD_COUNT				//!< number of registered commands
 		};
 
@@ -64,6 +99,7 @@ namespace Windower
 		
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
 		bool ExecuteMacroFile(const string_t &macroFile_in, unsigned long repeat = 1UL);
+		void AbortMacro();
 
 		// ICommandHandler interface implementation
 		bool IsCommandValid(const WindowerCommand *pCommand_in) const;
@@ -78,9 +114,12 @@ namespace Windower
 
 		bool ShowCommandHelp(const std::string& CommandName_in, std::string& HelpMsg_out);
 		int ShowCommandHelp(WindowerCommand *pCommand_in);
+		void MacroWait(long wait) const;
 		bool UnregisterCommands();
 		bool RegisterCommands();
-		
+		void ParseLine(const std::string &line);
+
+		ConditionalAction *m_pCondition;
 		//! the command dispatcher
 		CommandDispatcher *m_pCommandDispatcher;
 		//! the command parser

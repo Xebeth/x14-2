@@ -25,7 +25,9 @@ namespace Windower
 	PlayerCore::PlayerCore()
 		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerData(NULL),
 		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
-		  m_pDestroySingletonsTrampoline(NULL),
+		  m_CraftingCondition(Crafting::Invalid),
+		  m_pOnCraftingProgressTrampoline(NULL),
+		  m_pFreePlayerDataTrampoline(NULL),		  
 		  m_pCharMgrInitTrampoline(NULL),
 		  m_pGetTargetTrampoline(NULL)
 	{
@@ -39,16 +41,19 @@ namespace Windower
 	void PlayerCore::RegisterHooks(HookEngineLib::IHookManager &HookManager_in)
 	{
 		// register the character manager initialization hook
-		HookManager_in.RegisterHook(INIT_CHARACTER_MGR_HOOK, SIGSCAN_GAME_PROCESSA, INIT_CHARACTER_MGR_OPCODES_SIGNATURE,
-									INIT_CHARACTER_MGR_OPCODES_SIGNATURE_OFFSET, &PlayerCore::CharacterMgrInitHook,
-									INIT_CHARACTER_MGR_OPCODES_HOOK_SIZE);
+		HookManager_in.RegisterHook(INIT_PLAYER_DATA_HOOK, SIGSCAN_GAME_PROCESSA, INIT_PLAYER_DATA_OPCODES_SIGNATURE,
+									INIT_PLAYER_DATA_OPCODES_SIGNATURE_OFFSET, &PlayerCore::InitPlayerDataHook,
+									INIT_PLAYER_DATA_OPCODES_HOOK_SIZE);/*
 		HookManager_in.RegisterHook(SET_PLAYER_TARGET_HOOK, SIGSCAN_GAME_PROCESSA, SET_PLAYER_TARGET_OPCODES_SIGNATURE,
 									SET_PLAYER_TARGET_OPCODES_SIGNATURE_OFFSET, &PlayerCore::SetPlayerTargetHook,
-									SET_PLAYER_TARGET_OPCODES_HOOK_SIZE);
+									SET_PLAYER_TARGET_OPCODES_HOOK_SIZE);  */
 		// register the destroy singletons hook
-		HookManager_in.RegisterHook(DESTROY_SINGLETONS_HOOK, SIGSCAN_GAME_PROCESSA, DESTROY_SINGLETONS_OPCODES_SIGNATURE,
-									DESTROY_SINGLETONS_OPCODES_SIGNATURE_OFFSET, &PlayerCore::DestroySingletonsHook,
-									DESTROY_SINGLETONS_OPCODES_HOOK_SIZE);
+		HookManager_in.RegisterHook(FREE_PLAYER_DATA_HOOK, SIGSCAN_GAME_PROCESSA, FREE_PLAYER_DATA_OPCODES_SIGNATURE,
+									FREE_PLAYER_DATA_OPCODES_SIGNATURE_OFFSET, &PlayerCore::FreePlayerDataHook,
+									FREE_PLAYER_DATA_OPCODES_HOOK_SIZE);
+		HookManager_in.RegisterHook(ON_CRAFTING_PROGRESS_HOOK, SIGSCAN_GAME_PROCESSA, ON_CRAFTING_PROGRESS_OPCODES_SIGNATURE,
+									ON_CRAFTING_PROGRESS_OPCODES_SIGNATURE_OFFSET, &PlayerCore::OnCraftingProgressHook,
+									ON_CRAFTING_PROGRESS_OPCODES_HOOK_SIZE);
 	}
 
 	/*! \brief Registers the services of the module
@@ -57,7 +62,7 @@ namespace Windower
 	bool PlayerCore::RegisterServices()
 	{
 		// register the services
-		return (RegisterService(_T(INIT_CHARACTER_MGR_HOOK), false) != NULL);
+		return (RegisterService(_T(INIT_PLAYER_DATA_HOOK), false) != NULL);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -65,36 +70,45 @@ namespace Windower
 	*/
 	void PlayerCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
-		m_pDestroySingletonsTrampoline = (fnDestroySingletons)HookManager_in.GetTrampolineFunc(DESTROY_SINGLETONS_HOOK);
-		m_pCharMgrInitTrampoline = (fnCharacterMgrInit)HookManager_in.GetTrampolineFunc(INIT_CHARACTER_MGR_HOOK);
+		m_pOnCraftingProgressTrampoline = (fnOnCraftingProgress)HookManager_in.GetTrampolineFunc(ON_CRAFTING_PROGRESS_HOOK);
+		m_pFreePlayerDataTrampoline = (fnFreePlayerData)HookManager_in.GetTrampolineFunc(FREE_PLAYER_DATA_HOOK);
+		m_pCharMgrInitTrampoline = (fnInitPlayerData)HookManager_in.GetTrampolineFunc(INIT_PLAYER_DATA_HOOK);
 		m_pGetTargetTrampoline = (fnSetPlayerTarget)HookManager_in.GetTrampolineFunc(SET_PLAYER_TARGET_HOOK);
  	}
 
-	int PlayerCore::DestroySingletonsHook(LPVOID pThis)
+	void PlayerCore::OnCraftingProgressHook(LPVOID pThis_in_out, CraftingData *pData_in)
+	{
+		if (pData_in != NULL)
+			m_Context->m_CraftingCondition = pData_in->Condition;
+
+		if (m_Context->m_pFreePlayerDataTrampoline != NULL)
+			m_Context->m_pOnCraftingProgressTrampoline(pThis_in_out, pData_in);
+	}
+
+	int PlayerCore::FreePlayerDataHook(LPVOID pThis)
 	{
 		int Result = 0;
 
-		// shutdown the main thread
-		m_pEngine->Detach();
-
-		if (m_Context->m_pDestroySingletonsTrampoline != NULL)
-			Result = m_Context->m_pDestroySingletonsTrampoline(pThis);
-
-		m_pEngine->ShutdownEngine();
+		if (m_Context->m_pFreePlayerDataTrampoline != NULL)
+		{
+			Result = m_Context->m_pFreePlayerDataTrampoline(pThis);
+			m_Context->m_pPlayerDataService->OnPlayerPtrChange(NULL);
+			m_Context->m_pEngine->AbortMacro();
+		}
 
 		return Result;
 	}
 
-	int PlayerCore::CharacterMgrInitHook(LPVOID pThis_in_out)
+	int PlayerCore::InitPlayerDataHook(LPVOID pThis_in_out, LPVOID pUnknown_in)
 	{
 		if (m_Context->m_pCharMgrInitTrampoline != NULL)
 		{
-			m_Context->m_pPlayerData = (const TargetData**)((DWORD)pThis_in_out + PLAYER_DATA_OFFSET);
+			m_Context->m_pPlayerData = (const TargetData**)((DWORD_PTR)pThis_in_out + PLAYER_DATA_OFFSET);
 
 			if (m_Context->m_pPlayerDataService != NULL && m_Context->m_pPlayerData != NULL)
 				m_Context->m_pPlayerDataService->OnPlayerPtrChange(m_Context->m_pPlayerData);
 
-			return m_Context->m_pCharMgrInitTrampoline(pThis_in_out);
+			return m_Context->m_pCharMgrInitTrampoline(pThis_in_out, pUnknown_in);
 		}
 
 		return NULL;
@@ -102,7 +116,7 @@ namespace Windower
 
 	void PlayerCore::SetPlayerTargetHook(LPVOID pThis_in_out, const TargetData *pNewTarget_in, int Unknown_in)
 	{
-		m_Context->m_pPlayerTarget = (const TargetData**)((DWORD)pThis_in_out + TARGET_DATA_OFFSET);
+		m_Context->m_pPlayerTarget = (const TargetData**)((DWORD_PTR)pThis_in_out + TARGET_DATA_OFFSET);
 		m_Context->m_pGetTargetTrampoline(pThis_in_out, pNewTarget_in, Unknown_in);
 
 		if (m_Context->m_pPlayerDataService != NULL)
@@ -140,7 +154,7 @@ namespace Windower
 
 	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)
 	{
-		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(INIT_CHARACTER_MGR_HOOK)) == 0)
+		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(INIT_PLAYER_DATA_HOOK)) == 0)
 		{
 			IPlayerDataPlugin *pPlugin = static_cast<IPlayerDataPlugin*>(pPlugin_in);
 

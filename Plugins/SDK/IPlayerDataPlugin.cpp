@@ -15,7 +15,7 @@
 #define PLAYER_DATA_MODULE			_T("PlayerData")
 // available services for the module
 #define SET_PLAYER_TARGET_HOOK		_T("SetPlayerTarget")
-#define INIT_CHARACTER_MGR_HOOK		_T("CharacterMgrInit")
+#define INIT_PLAYER_DATA_HOOK		_T("CharacterMgrInit")
 
 namespace Windower
 {
@@ -24,7 +24,7 @@ namespace Windower
 	*/
 	bool IPlayerDataPlugin::Subscribe()
 	{
-		return SubscribeService(PLAYER_DATA_MODULE, INIT_CHARACTER_MGR_HOOK);
+		return SubscribeService(PLAYER_DATA_MODULE, INIT_PLAYER_DATA_HOOK);
 	}
 
 	/*! \brief Removes the plugin as a subscriber to the game chat service
@@ -32,6 +32,6 @@ namespace Windower
 	*/
 	bool IPlayerDataPlugin::Unsubscribe()
 	{
-		return UnsubscribeService(PLAYER_DATA_MODULE, INIT_CHARACTER_MGR_HOOK);
+		return UnsubscribeService(PLAYER_DATA_MODULE, INIT_PLAYER_DATA_HOOK);
 	}
 }
