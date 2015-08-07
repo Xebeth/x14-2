@@ -60,8 +60,8 @@ namespace Windower
 		long X, Y;
 	};
 
-	typedef hash_map<TCHAR, LabelSettings> TextLabels;
-	typedef hash_map<char, long> ScoredWords;
+	typedef hash_map<string_t, LabelSettings> TextLabels;
+	typedef hash_map<std::string, long> ScoredWords;
 	//! a set of active plugin names
 	typedef std::set<string_t> ActivePlugins;
 
@@ -241,7 +241,7 @@ namespace Windower
 		static const TCHAR* m_sKeyComment[INI_KEY_COUNT];
 		static const TCHAR* m_sKeyName[INI_KEY_COUNT];
 
-		typedef hash_map<TCHAR, eIniKeys> KeyMapping;
+		typedef hash_map<string_t, eIniKeys> KeyMapping;
 
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;

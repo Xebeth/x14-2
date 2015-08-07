@@ -39,7 +39,7 @@ namespace Windower
 	};
 
 	//! a map of plugins
-	typedef hash_map<TCHAR, PluginFramework::IPlugin*> WindowerPlugins;
+	typedef hash_map<string_t, PluginFramework::IPlugin*> WindowerPlugins;
 	typedef std::pair<string_t, unsigned long> MacroParam;
 	typedef std::vector<DWORD_PTR> MemoryScanResult;	
 
@@ -68,6 +68,9 @@ namespace Windower
 		bool IsMacroThreadActive() const;
 		bool IsPlayerLoggedIn() const;
 		bool AbortMacro();
+
+		void LockMacroThread();
+		bool UnlockMacroThread();
 
 		DWORD_PTR MemoryScan(const std::string &Pattern_in,
 							 MemoryScanResult &Results_in_out);

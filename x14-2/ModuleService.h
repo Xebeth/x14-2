@@ -9,7 +9,7 @@
 #define __MODULE_SERVICE_H__
 
 //! the hooks of a service
-typedef hash_map<char, LPVOID> HookPointers;
+typedef hash_map<std::string, LPVOID> HookPointers;
 
 namespace PluginFramework
 {

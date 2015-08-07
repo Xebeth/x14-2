@@ -122,10 +122,12 @@ namespace Windower
 		else
 			pNode = pMessage_in_out;
 		
+		g_pEngine->LockMacroThread();
 		// display the error message instead of the typed command
 		Result = m_Context->m_pFormatChatMsgTrampoline(pThis_in_out, MessageType_in,
 													   pSender_in_out, pNode,
 													   pTimestamp_in, Unknown1);
+		g_pEngine->UnlockMacroThread();
 		// cleanup
 		if (pModifiedMsg_in != NULL)
 			free(pModifiedMsg_in);

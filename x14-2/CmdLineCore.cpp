@@ -90,9 +90,9 @@ namespace Windower
 			if (pThis_in_out != NULL && pUnknown_in != NULL && m_pEngine->IsExiting() == false)
 			{
 				// call the trampoline to process the command
-				m_pEngine->LockEngineThread();
+				m_pEngine->LockMacroThread();
 				Result = m_Context->m_pProcessCmdTrampoline(pThis_in_out, pNode, pUnknown_in);
-				m_pEngine->UnlockEngineThread();
+				m_pEngine->UnlockMacroThread();
 			}
 		}
 
@@ -416,11 +416,17 @@ namespace Windower
 		const char *pFind;
 		long wait = 0L;
 		size_t s = 0UL;
-
+		
 		if (m_pCommandParser->ParseCommand(line.c_str(), command, NULL, s) == CommandParser::PARSER_RESULT_SUCCESS)
+		{
 			command.Execute(Feedback);
+		}
 		else
+		{
+			m_pEngine->LockMacroThread();
 			InjectCommand(line);
+			m_pEngine->UnlockMacroThread();
+		}
 
 		pFind = strstr(line.c_str(), "<wait.");
 
@@ -430,6 +436,8 @@ namespace Windower
 
 	void CmdLineCore::AbortMacro()
 	{
+		m_pEngine->UnlockMacroThread();
+
 		if (m_pCondition != NULL)
 		{
 			delete m_pCondition;

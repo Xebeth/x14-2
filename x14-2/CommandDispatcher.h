@@ -14,7 +14,7 @@ namespace Windower
 	class WindowerEngine;
 
 	//! hash map of registered commands
-	typedef hash_map<char, WindowerCommand*> RegisteredCommands;
+	typedef hash_map<std::string, WindowerCommand*> RegisteredCommands;
 	//! set of plugin keys
 	typedef std::set<DWORD> AuthorizedKeys;
 

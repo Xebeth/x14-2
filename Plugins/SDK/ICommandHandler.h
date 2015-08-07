@@ -18,7 +18,7 @@ namespace Windower
 	class CommandParameter;
 
 	//! a hash map of command parameters
-	typedef hash_map<char, CommandParameter*> CommandParams;
+	typedef hash_map<std::string, CommandParameter*> CommandParams;
 
 	class ICommandHandler
 	{

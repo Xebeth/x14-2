@@ -345,6 +345,18 @@ namespace Windower
 		return true;
 	}
 
+	void WindowerEngine::LockMacroThread()
+	{
+		EnterCriticalSection(&m_MacroLock);
+	}
+
+	bool WindowerEngine::UnlockMacroThread()
+	{
+		LeaveCriticalSection(&m_MacroLock);
+
+		return true;
+	}
+
 	bool WindowerEngine::IsMacroThreadActive() const
 	{
 		return (m_MacroThreadID != 0UL && (m_MacroThreadState == ThreadState::RUNNING || m_MacroThreadState == ThreadState::SUSPENDED));

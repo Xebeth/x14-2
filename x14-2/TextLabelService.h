@@ -13,7 +13,7 @@ typedef struct IDirect3DDevice9 IDirect3DDevice9;
 namespace Windower
 {
 	typedef std::map<unsigned long, UiTextLabel*> UiLabelMap;
-	typedef hash_map<TCHAR, unsigned long> UiIdMap;
+	typedef hash_map<string_t, unsigned long> UiIdMap;
 
 	class TextLabelRenderer;
 	class WindowerEngine;
