@@ -1,13 +1,15 @@
 // requires Windows 7, Windows 7 Service Pack 1, Windows Server 2003 Service Pack 2, Windows Server 2008, Windows Server 2008 R2, Windows Server 2008 R2 SP1, Windows Vista Service Pack 1, Windows XP Service Pack 3
 // requires Windows Installer 3.1 or later
 // requires Internet Explorer 5.01 or later
-// http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe
 
 [CustomMessages]
-vcredist2013_title=Visual C++ 2013 Redistributable
+vcredist2015_x86_title=Visual C++ 2015 Redistributable (x86)
+en.vcredist2015_x86_size=13.1 MB
+en.vcredist2015_x86_lcid=''
 
-en.vcredist2013_size=6.19 MB
-en.vcredist2013_lcid=''
+vcredist2015_x64_title=Visual C++ 2015 Redistributable (x64)
+en.vcredist2015_x64_size=13.9 MB
+en.vcredist2015_x64_lcid=''
 
 [Code]
 #IFDEF UNICODE
@@ -56,9 +58,12 @@ const
 
   VC_2013_REDIST_X86 = '{13A4EE12-23EA-3371-91EE-EFB36DDFFF3E}';
   VC_2013_REDIST_X64 = '{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}';
-  
-	vcredist2013_url = 'http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe';
-
+    
+  VC_2015_REDIST_X86 = '{A2563E55-3BEC-3828-8D67-E5E8B9E8B675}';
+  VC_2015_REDIST_X64 = '{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}';
+    
+	vcredist2015_x86_url = 'http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe';
+	vcredist2015_x64_url = 'http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe';
 
 function MsiQueryProductState(szProduct: string): INSTALLSTATE; 
   external 'MsiQueryProductState{#AW}@msi.dll stdcall';
@@ -68,12 +73,18 @@ begin
   Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
 end;
   
-procedure vcredist2013();
+procedure vcredist2015();
 begin
-	if (not VCVersionInstalled(VC_2013_REDIST_X86)) then
-		AddProduct('vcredist2013.exe',
-               CustomMessage('vcredist2013_lcid') + '/passive /norestart',
-               CustomMessage('vcredist2013_title'),
-               CustomMessage('vcredist2013_size'),
-               vcredist2013_url, false, false);
+	if (not VCVersionInstalled(VC_2015_REDIST_X86)) then
+		AddProduct('vcredist2015.x86.exe',
+               CustomMessage('vcredist2015_x86_lcid') + '/passive /norestart',
+               CustomMessage('vcredist2015_x86_title'),
+               CustomMessage('vcredist2015_x86_size'),
+               vcredist2015_x86_url, false, false);
+  if (IsWin64 and not VCVersionInstalled(VC_2015_REDIST_X64)) then
+  	AddProduct('vcredist2015.x64.exe',
+               CustomMessage('vcredist2015_x64_lcid') + '/passive /norestart',
+               CustomMessage('vcredist2015_x64_title'),
+               CustomMessage('vcredist2015_x64_size'),
+               vcredist2015_x64_url, false, false);
 end;

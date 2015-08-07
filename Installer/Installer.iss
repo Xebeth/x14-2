@@ -4,15 +4,17 @@
 #define AppVersion GetFileVersion("..\Release\x14-2core.x86.dll")
 #define AppURL "http://x14.north-edge.com/x14-2"
 #define AppExeName "Launcher.exe"
+#define use_vc2015
 
-#define use_vc2013
+#define SignToolExe "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe"
+#define SignToolCmd "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll"
 
 #include "scripts\products.iss"
 
 #include "scripts\products\stringversion.iss"
 #include "scripts\products\winversion.iss"
 #include "scripts\products\fileversion.iss"
-#include "scripts\products\vcredist2013.iss"
+#include "scripts\products\vcredist2015.iss"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -30,8 +32,6 @@ DefaultDirName={pf}\{#AppName}
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
 LicenseFile=license.rtf
-;InfoBeforeFile=before-install.txt
-;InfoAfterFile=after-install.txt
 WizardSmallImageFile=x14-logo.bmp
 WizardImageFile=x14-banner.bmp
 OutputDir=.\
@@ -66,7 +66,8 @@ Name: "x14PluginsX86/Timestamp";         Description: "Timestamp {#GetFileVersio
 ;Name: "x14PluginsX86/Gatherer";          Description: "Gatherer {#GetFileVersion("..\Release\Plugins\x86\Gatherer.dll")} — A helper for gathering unspoiled nodes";      Types: full custom
 
 ;;;;; x64
-Name: "x14PluginsX64";                   Description: "{#AppName} Plugins (64-bit)"; Types: full custom
+
+Name: "x14PluginsX64";                   Description: "{#AppName} Plugins (64-bit)"; Check: IsWin64; Types: full custom;
 Name: "x14PluginsX64/AutoBlacklist";     Description: "AutoBlacklist {#GetFileVersion("..\Release\Plugins\x64\AutoBlacklist.dll")} — Blacklist spammers automatically";  Types: full custom
 ;Name: "x14PluginsX64/Distance";          Description: "Distance {#GetFileVersion("..\Release\Plugins\x64\Distance.dll")} — Distance from player to target";              Types: full custom
 Name: "x14PluginsX64/ChatLog";           Description: "ChatLog {#GetFileVersion("..\Release\Plugins\x64\ChatLog.dll")} — Log the game chat to a file";                   Types: full custom
@@ -96,8 +97,8 @@ Source: "{#SourcePath}Plugins\x64\TellDetect.dll";    DestDir: "{app}/plugins/x6
 Source: "{#SourcePath}Plugins\x64\Timestamp.dll";     DestDir: "{app}/plugins/x64/"; Components: x14PluginsX64/Timestamp;       Flags: replacesameversion skipifsourcedoesntexist
 ;Source: "{#SourcePath}Plugins\x64\Gatherer.dll";      DestDir: "{app}/plugins/x64/"; Components: x14PluginsX64/Gatherer;        Flags: replacesameversion skipifsourcedoesntexist
 
+Source: "{#SourcePath}x14-2core.x64.dll";         DestDir: "{app}"; Components: x14Base; Check: IsWin64; Flags: replacesameversion
 Source: "{#SourcePath}x14-2core.x86.dll";         DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
-Source: "{#SourcePath}x14-2core.x64.dll";         DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}bootstrap.dll";             DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}Launcher.exe";              DestDir: "{app}"; Components: x14Base; Flags: replacesameversion
 Source: "{#SourcePath}tell.wav";                  DestDir: "{app}"; Components: x14Pluginsx86/TellDetect x14Pluginsx64/TellDetect
@@ -124,18 +125,18 @@ function InitializeSetup(): boolean;
 begin
 	//init windows version
 	initwinversion();  
-  vcredist2013();
+  vcredist2015();
   
   Result := true;
 end;
 
 [InnoIDE_PreCompile]
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\Launcher.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\bootstrap.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\x14-2core.x86.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\x14-2core.x64.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\plugins\x86\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Release\plugins\x64\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\Launcher.exe"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\bootstrap.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\x14-2core.x86.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\x14-2core.x64.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\plugins\x86\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\..\Release\plugins\x64\*.dll"; Flags: CmdPrompt RunMinimized AbortOnError; 
 
 [InnoIDE_PostCompile]
-Name: """C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe"""; Parameters: "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll E:\~dev\cpp\x14-2\Installer\*.exe"; Flags: CmdPrompt RunMinimized AbortOnError;
+Name: ""{#SignToolExe}""; Parameters: "{#SignToolCmd} {#SourcePath}\x14-setup-*.exe"; Flags: CmdPrompt RunMinimized AbortOnError;
