@@ -26,7 +26,7 @@ namespace Windower
 
 	/*! \brief Retrieves a command given its ID
 		\param[in] CommandID_in : the ID of the command to retrieve
-		\return a pointer to the command if found; NULL otherwise
+		\return a pointer to the command if found; nullptr otherwise
 	*/
 	const WindowerCommand* CommandHandler::FindCommand(INT_PTR CommandID_in) const
 	{
@@ -35,7 +35,7 @@ namespace Windower
 		if (CmdIt != m_Commands.cend())
 			return CmdIt->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	/*! \brief Verifies that the specified command is valid and is compatible with the invoker
@@ -44,14 +44,14 @@ namespace Windower
 	*/
 	bool CommandHandler::IsCommandValid(const WindowerCommand *pCommand_in) const
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			const WindowerCommand *pCmd = FindCommand(pCommand_in->GetID());
 
-// 			if (pCmd != NULL)
+// 			if (pCmd != nullptr)
 // 				return pCmd->IsCompatible(pCommand_in);
 
-			return (pCmd != NULL);
+			return (pCmd != nullptr);
 		}
 
 		return false;
@@ -66,7 +66,7 @@ namespace Windower
 		HandlerCommands::const_iterator CmdIt = m_Commands.find(CommandID_in);
 
 		// check if the command exists
-		if (CmdIt != m_Commands.cend() && CmdIt->second != NULL)
+		if (CmdIt != m_Commands.cend() && CmdIt->second != nullptr)
 		{
 			if (UnregisterCommand(CmdIt->second))
 				m_Commands.erase(CmdIt);
@@ -81,12 +81,12 @@ namespace Windower
 		\param[in] CmdID_in : the ID of the command
 		\param[in] CmdName_in : the name of the command
 		\param[in] CmdDesc_in : the description of the command
-		\return a pointer to the command if it was registered successfully; NULL otherwise
+		\return a pointer to the command if it was registered successfully; nullptr otherwise
 	*/
 	WindowerCommand* CommandHandler::RegisterCommand(INT_PTR CmdID_in, const std::string &CmdName_in, const std::string &CmdDesc_in)
 	{
 		HandlerCommands::const_iterator CmdIt = m_Commands.find(CmdID_in);
-		WindowerCommand *pCommand = NULL;
+		WindowerCommand *pCommand = nullptr;
 
 		// check if the command already exists
 		if (CmdIt == m_Commands.cend())
@@ -104,7 +104,7 @@ namespace Windower
 			else
 			{
 				delete pCommand;
-				pCommand = NULL;
+				pCommand = nullptr;
 			}
 		}
 		else
@@ -119,7 +119,7 @@ namespace Windower
 	*/
 	bool CommandHandler::RegisterCommand(WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
   			return PluginFramework::IPlugin::InvokeService(_T("CommandDispatcher"), _T("RegisterCommand"),
 														   PluginFramework::ServiceParam(_T("WindowerCommand"),
@@ -135,7 +135,7 @@ namespace Windower
 	*/
 	bool CommandHandler::UnregisterCommand(WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			UnregisterParam UnregParam(m_RegistrationKey, pCommand_in->GetName());
 			PluginFramework::ServiceParam InvokeArg(L"UnregisterParam", &UnregParam);

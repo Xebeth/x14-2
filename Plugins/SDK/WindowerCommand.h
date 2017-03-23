@@ -229,7 +229,7 @@ namespace Windower
 	protected:
 		/*! \brief Retrieves a parameter given its name
 			\param[in] Name_in : the name of the parameter
-			\return a pointer to the parameter if it exists; NULL otherwise
+			\return a pointer to the parameter if it exists; nullptr otherwise
 		*/
 		CommandParameter* GetParameter(const std::string &Name_in) const;
 		/*! \brief Creates a parameter of the specified type

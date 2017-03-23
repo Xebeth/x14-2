@@ -60,7 +60,7 @@ namespace Windower
 			CommandParams::const_iterator ParamIt, EndIt = m_Parameters.cend();
 			size_t ParamCount = 0, ParamSize = m_Parameters.size();			
 			std::string ParamDesc, ValueDesc;
-			char *pParamFormat = NULL;
+			char *pParamFormat = nullptr;
 
 			append_format(Help_out, "\xee\x81\xaf %s", m_Name.c_str());
 
@@ -72,7 +72,7 @@ namespace Windower
 			// if the descriptions aren't empty, their keys must match the parameter type ones
 			for(ParamIt = m_Parameters.cbegin(); ParamIt != EndIt; ++ParamIt)
 			{
-				if (ParamIt->second != NULL)
+				if (ParamIt->second != nullptr)
 				{
 					if (ShowValues_in)
 						ValueDesc = ParamIt->second->GetStringValue();
@@ -129,13 +129,13 @@ namespace Windower
 		m_Parameters.clear();
 		m_Restricted = true;
 		m_Public = false;
-		m_pHandler = NULL;
+		m_pHandler = nullptr;
 		m_ID = -1;
 	}
 
 	int WindowerCommand::Execute(std::string &Feedback_out)
 	{
-		if (m_pHandler != NULL)
+		if (m_pHandler != nullptr)
 			return m_pHandler->DefaultHandler(this, Feedback_out);
 		else
 			format(Feedback_out, "The command '%s' is not associated with any action.", m_Name.c_str());
@@ -147,7 +147,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 			return pParam->GetStringValue();
 
 		return "";
@@ -158,7 +158,7 @@ namespace Windower
 		CommandParameter *pParam = GetParameter(Name_in);
 		string_t Result;
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 			convert_utf8(pParam->GetStringValue(), Result);
 
 		return Result;
@@ -166,10 +166,10 @@ namespace Windower
 
 	bool WindowerCommand::SetStringValue(const std::string &Name_in, const char *pDefaultValue_in)
 	{
-		std::string Value = (pDefaultValue_in != NULL) ? pDefaultValue_in : "";
+		std::string Value = (pDefaultValue_in != nullptr) ? pDefaultValue_in : "";
 		CommandParameter *pParam = GetParameter(Name_in);
 		
-		if (pParam != NULL)
+		if (pParam != nullptr)
 		{
 			pParam->SetStringValue(Value);
 
@@ -183,7 +183,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 			return pParam->GetPointerValue();
 
 		return 0L;
@@ -193,7 +193,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 		{
 			pParam->SetPointerValue(DefaultValue_in);
 
@@ -207,7 +207,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 			return pParam->GetIntegerValue();
 
 		return 0L;
@@ -217,7 +217,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 		{
 			pParam->SetIntegerValue(DefaultValue_in);
 
@@ -231,7 +231,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 			return pParam->GetFloatValue();
 
 		return 0.;
@@ -241,7 +241,7 @@ namespace Windower
 	{
 		CommandParameter *pParam = GetParameter(Name_in);
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 		{
 			pParam->SetFloatValue(DefaultValue_in);
 
@@ -268,7 +268,7 @@ namespace Windower
 		if (ParamIt != m_Parameters.cend())
 			return ParamIt->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	CommandParameter* WindowerCommand::CreateParameter(const std::string &Name_in,
@@ -279,7 +279,7 @@ namespace Windower
 		CommandParameter *pParam = GetParameter(Name_in);
 
 		// check if the parameter doesn't exist yet
-		if (pParam == NULL)
+		if (pParam == nullptr)
 		{
 			if (bOptional_in == false)
 			{
@@ -294,7 +294,7 @@ namespace Windower
 		else if (pParam->GetType() == Type_in)
 			return pParam;
 
-		return NULL;
+		return nullptr;
 	}
 
 	/*! \brief Creates a parameter of the type string
@@ -307,14 +307,14 @@ namespace Windower
 	bool WindowerCommand::AddStringParam(const std::string &Name_in, bool bOptional_in,
 									   const char *pDefaultValue_in, const char *pDesc_in)
 	{
-		std::string Desc = (pDesc_in != NULL) ? pDesc_in : "";
+		std::string Desc = (pDesc_in != nullptr) ? pDesc_in : "";
 		CommandParameter *pNewParam;
 
 		pNewParam = CreateParameter(Name_in, bOptional_in, Desc, COMMAND_PARAM_TYPE_STRING);
 
-		if (pNewParam != NULL)
+		if (pNewParam != nullptr)
 		{
-			std::string Value = (pDefaultValue_in != NULL) ? pDefaultValue_in : "";
+			std::string Value = (pDefaultValue_in != nullptr) ? pDefaultValue_in : "";
 
 			pNewParam->SetStringValue(Value);
 
@@ -334,12 +334,12 @@ namespace Windower
 	bool WindowerCommand::AddPointerParam(const std::string &Name_in, bool bOptional,
 										long DefaultValue_in, const char *pDesc_in)
 	{
-		std::string Desc = (pDesc_in != NULL) ? pDesc_in : "";
+		std::string Desc = (pDesc_in != nullptr) ? pDesc_in : "";
 		CommandParameter *pNewParam;
 
 		pNewParam = CreateParameter(Name_in, bOptional, Desc, COMMAND_PARAM_TYPE_POINTER);
 
-		if (pNewParam != NULL)
+		if (pNewParam != nullptr)
 		{
 			pNewParam->SetPointerValue(DefaultValue_in);
 
@@ -359,12 +359,12 @@ namespace Windower
 	bool WindowerCommand::AddIntegerParam(const std::string &Name_in, bool bOptional,
 										long DefaultValue_in, const char *pDesc_in)
 	{
-		std::string Desc = (pDesc_in != NULL) ? pDesc_in : "";
+		std::string Desc = (pDesc_in != nullptr) ? pDesc_in : "";
 		CommandParameter *pNewParam;
 
 		pNewParam = CreateParameter(Name_in, bOptional, Desc, COMMAND_PARAM_TYPE_POINTER);
 
-		if (pNewParam != NULL)
+		if (pNewParam != nullptr)
 		{
 			pNewParam->SetIntegerValue(DefaultValue_in);
 
@@ -384,12 +384,12 @@ namespace Windower
 	bool WindowerCommand::AddFloatParam(const std::string &Name_in, bool bOptional,
 									  double DefaultValue_in, const char *pDesc_in)
 	{
-		std::string Desc = (pDesc_in != NULL) ? pDesc_in : "";
+		std::string Desc = (pDesc_in != nullptr) ? pDesc_in : "";
 		CommandParameter *pNewParam;
 
 		pNewParam = CreateParameter(Name_in, bOptional, Desc, COMMAND_PARAM_TYPE_FLOAT);
 
-		if (pNewParam != NULL)
+		if (pNewParam != nullptr)
 		{
 			pNewParam->SetFloatValue(DefaultValue_in);
 

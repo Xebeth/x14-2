@@ -21,7 +21,7 @@ namespace Windower
 	{
 		bool bEmpty = true;
 
-		if (pIniFile_in != NULL && pWorkingDir_in != NULL)
+		if (pIniFile_in != nullptr && pWorkingDir_in != nullptr)
 		{
 			initialize_path(pWorkingDir_in, m_WorkingDir);
 			m_ConfigPath = m_WorkingDir + pIniFile_in;
@@ -38,7 +38,7 @@ namespace Windower
 			}
 		}
 		else
-			m_pSettingsFile = NULL;
+			m_pSettingsFile = nullptr;
 	}
 
 	//! \brief SettingsManager destructor
@@ -51,24 +51,24 @@ namespace Windower
 
 		m_Profiles.clear();
 
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 		{
 			delete m_pSettingsFile;
-			m_pSettingsFile = NULL;
+			m_pSettingsFile = nullptr;
 		}
 	}
 
 	/*! \brief Creates a copy of the specified profile
 		\param[in] pProfileName_in : the name of the profile
 		\param[in] Settings_in : the settings being copied
-		\return the newly created profile if successful; NULL otherwise
+		\return the newly created profile if successful; nullptr otherwise
 	*/
 	WindowerProfile* SettingsManager::DuplicateProfile(const TCHAR *pProfileName_in, const WindowerProfile &Settings_in)
 	{
 		WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
-		WindowerProfile *pNewSettings = NULL;
+		WindowerProfile *pNewSettings = nullptr;
 
-		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+		if (m_pSettingsFile != nullptr && pProfileName_in != nullptr)
 		{
 			string_t NewName = pProfileName_in;
 
@@ -90,7 +90,7 @@ namespace Windower
 	*/
 	bool SettingsManager::DeleteProfile(const TCHAR *pProfileName_in)
 	{
-		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+		if (m_pSettingsFile != nullptr && pProfileName_in != nullptr)
 		{
 			WindowerSettings::const_iterator ProfileIt = m_Profiles.find(pProfileName_in);
 
@@ -116,18 +116,18 @@ namespace Windower
 	*/
 	bool SettingsManager::Save()
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 		{
 			std::set<string_t>::const_iterator DeleteIter, DeleteEndIt = m_DeletedProfiles.cend();
 			WindowerSettings::const_iterator SettingsIter, EndIt = m_Profiles.cend();
-			WindowerProfile *pProfile = NULL;
+			WindowerProfile *pProfile = nullptr;
 
 
 			for (SettingsIter = m_Profiles.cbegin(); SettingsIter != EndIt; ++SettingsIter)
 			{
 				pProfile = SettingsIter->second;
 
-				if (pProfile != NULL)
+				if (pProfile != nullptr)
 					SaveSettings(pProfile);
 			}
 
@@ -138,7 +138,7 @@ namespace Windower
 			m_DeletedProfiles.clear();
 
 			// only update the default profile if it exists
-			if (GetSettings(m_DefaultProfile.c_str()) == NULL && m_Profiles.empty() == false)
+			if (GetSettings(m_DefaultProfile.c_str()) == nullptr && m_Profiles.empty() == false)
 				m_DefaultProfile = m_Profiles.cbegin()->first;
 
 			m_pSettingsFile->SetString(INI_SECTION_GENERAL, INI_KEY_CURRENT_PROFILE, m_DefaultProfile);
@@ -169,7 +169,7 @@ namespace Windower
 	*/
 	bool SettingsManager::LoadProfile(const TCHAR *pProfileName_in, WindowerProfile &Settings_out)
 	{
-		if (pProfileName_in != NULL && m_pSettingsFile != NULL && m_pSettingsFile->SectionExists(pProfileName_in))
+		if (pProfileName_in != nullptr && m_pSettingsFile != nullptr && m_pSettingsFile->SectionExists(pProfileName_in))
 		{
 			Settings_out.SetBlacklistThreshold(GetLong(pProfileName_in, INI_KEY_BLACKLIST_THRESHOLD));
 			Settings_out.SetBlacklistCount(GetLong(pProfileName_in, INI_KEY_BLACKLIST_COUNT));
@@ -229,7 +229,7 @@ namespace Windower
 	*/
 	bool SettingsManager::Reload()
 	{
-		return (m_pSettingsFile != NULL) ? m_pSettingsFile->Reload() : false;
+		return (m_pSettingsFile != nullptr) ? m_pSettingsFile->Reload() : false;
 	}
 
 	/*! \brief Loads the configuration
@@ -237,7 +237,7 @@ namespace Windower
 	*/
 	bool SettingsManager::Load()
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 		{
 			WindowerSettings::const_iterator SettingsIt;
 			CSimpleIni::TNamesDepend Sections;
@@ -307,7 +307,7 @@ namespace Windower
 	*/
 	bool SettingsManager::CreateDefault(const TCHAR *pProfileName_in)
 	{
-		if (m_pSettingsFile != NULL && pProfileName_in != NULL)
+		if (m_pSettingsFile != nullptr && pProfileName_in != nullptr)
 		{
 			WindowerProfile *pSettings = new WindowerProfile();
 
@@ -414,11 +414,11 @@ namespace Windower
 
 	/*! \brief Retrieves the profile specified by its name
 		\param[in] pProfileName_in : the name of the profile
-		\return a pointer to the profile if found; NULL otherwise
+		\return a pointer to the profile if found; nullptr otherwise
 	*/
 	WindowerProfile* SettingsManager::GetSettings(const TCHAR *pProfileName_in) const
 	{
-		if (pProfileName_in == NULL)
+		if (pProfileName_in == nullptr)
 			pProfileName_in = GetDefaultProfile();
 
 		WindowerSettings::const_iterator ProfileIt = GetSettingsPos(pProfileName_in);
@@ -426,7 +426,7 @@ namespace Windower
 		if (ProfileIt != m_Profiles.cend())
 			return ProfileIt->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	/*! \brief Copy a profile to another given its name
@@ -438,10 +438,10 @@ namespace Windower
 	{
 		WindowerProfile *pProfile = GetSettings(pDstProfile_in);
 
-		if (pProfile != NULL)
+		if (pProfile != nullptr)
 			pProfile->Copy(Src_in);
 
-		return (pProfile != NULL);
+		return (pProfile != nullptr);
 	}
 
 	
@@ -453,12 +453,12 @@ namespace Windower
 	bool SettingsManager::CheckDuplicates(const string_t& CurrentName_in, string_t& Name_in_out)
 	{
 		const WindowerProfile *pOtherProfile = GetSettings(Name_in_out.c_str());
-		bool Result = (pOtherProfile != NULL);
+		bool Result = (pOtherProfile != nullptr);
 		string_t NewName(Name_in_out);
 		unsigned long Counter = 0UL;		
 
 		// change the new name until it's unique
-		while (pOtherProfile != NULL)
+		while (pOtherProfile != nullptr)
 		{
 			// create a new name
 			format(NewName, _T("%s%ld"), Name_in_out.c_str(), ++Counter);
@@ -466,7 +466,7 @@ namespace Windower
 			if (_tcscmp(NewName.c_str(), CurrentName_in.c_str()) == 0)
 			{
 				// keep the old name
-				pOtherProfile = NULL;
+				pOtherProfile = nullptr;
 				Result = false;
 			}
 			else
@@ -491,7 +491,7 @@ namespace Windower
 	{
 		WindowerProfile *pProfile = GetSettings(pProfileName_in);
 
-		if (pProfile != NULL)
+		if (pProfile != nullptr)
 			return RenameProfile(pProfile, NewName_in_out);
 
 		return false;
@@ -504,7 +504,7 @@ namespace Windower
 	*/
 	bool SettingsManager::RenameProfile(WindowerProfile *pProfile_in_out, string_t& NewName_in_out)
 	{
-		if (pProfile_in_out != NULL)
+		if (pProfile_in_out != nullptr)
 		{
 			const WindowerProfile *pOtherProfile = GetSettings(NewName_in_out.c_str());
 			string_t CurrentName = pProfile_in_out->GetName();
@@ -545,19 +545,19 @@ namespace Windower
 	*/
 	bool SettingsManager::SelectDirectory(string_t& SelectedDir_out) const
 	{
-		LPCITEMIDLIST pSelectedPIDL = NULL;
-		LPITEMIDLIST PIDL = NULL;
+		LPCITEMIDLIST pSelectedPIDL = nullptr;
+		LPITEMIDLIST PIDL = nullptr;
 		BROWSEINFO BrowseInfo;
 		bool Result = false;
 
-		if (FAILED(::CoInitialize(NULL)))
+		if (FAILED(::CoInitialize(nullptr)))
 			return false;
 
 		SecureZeroMemory(&BrowseInfo, sizeof(BrowseInfo));
 
-		if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &PIDL)))
+		if (SUCCEEDED(SHGetSpecialFolderLocation(nullptr, CSIDL_DRIVES, &PIDL)))
 		{
-			BrowseInfo.hwndOwner = NULL;
+			BrowseInfo.hwndOwner = nullptr;
 			BrowseInfo.pidlRoot = PIDL;
 			BrowseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NONEWFOLDERBUTTON | BIF_USENEWUI | BIF_RETURNFSANCESTORS;
 			BrowseInfo.lpszTitle = _T("Please select the Final Fantasy XIV installation folder or type the complete path in the edit box below:");
@@ -565,7 +565,7 @@ namespace Windower
 			// select the directory manually
 			pSelectedPIDL = SHBrowseForFolder(&BrowseInfo);
 
-			if (pSelectedPIDL != NULL)
+			if (pSelectedPIDL != nullptr)
 			{
 				LPTSTR pPathBuffer = new TCHAR[_MAX_PATH];
 
@@ -612,9 +612,9 @@ namespace Windower
 
 	bool SettingsManager::VerifyConfig()
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 		{
-			const TCHAR *pFirstProfile = NULL;
+			const TCHAR *pFirstProfile = nullptr;
 			bool bSave = false;
 
 			// 1. Check that the general section exists
@@ -638,7 +638,7 @@ namespace Windower
 			{
 				if (_tcsstr(SectionIter->pItem, PROFILE_PREFIX) == SectionIter->pItem)
 				{
-					if (pFirstProfile == NULL)
+					if (pFirstProfile == nullptr)
 						pFirstProfile = SectionIter->pItem;
 
 					for (int i = 0; i < 3; ++i)
@@ -652,7 +652,7 @@ namespace Windower
 			if (DefaultProfile.empty())
 			{
 				// set the first profile as default
-				if (pFirstProfile == NULL)
+				if (pFirstProfile == nullptr)
 					pFirstProfile = INI_KEY_CURRENT_PROFILE;
 
 				SetDefaultProfile(pFirstProfile);
@@ -684,12 +684,12 @@ namespace Windower
 	*/
 	bool SettingsManager::IsConfigLoaded() const
 	{
-		return (m_bIsLoaded && m_pSettingsFile != NULL && m_pSettingsFile->IsConfigLoaded());
+		return (m_bIsLoaded && m_pSettingsFile != nullptr && m_pSettingsFile->IsConfigLoaded());
 	}
 
 	bool SettingsManager::SaveSettings(WindowerProfile *pSettings_in)
 	{
-		if (pSettings_in != NULL)
+		if (pSettings_in != nullptr)
 		{
 			const TCHAR *pName = pSettings_in->GetName();
 			string_t SectionName = LABELS_PREFIX, LabelSettings;
@@ -724,11 +724,11 @@ namespace Windower
 
 	bool SettingsManager::CopySettings(const WindowerProfile *pSettings_in)
 	{
-		if (pSettings_in != NULL)
+		if (pSettings_in != nullptr)
 		{
 			WindowerProfile *pProfile = GetSettings(pSettings_in->GetName());
 
-			if (pProfile != NULL)
+			if (pProfile != nullptr)
 			{
 				pProfile->Copy(*pSettings_in);
 
@@ -741,11 +741,11 @@ namespace Windower
 
 	bool SettingsManager::LoadSettings(WindowerProfile* pSettings_out) const
 	{
-		if (pSettings_out != NULL)
+		if (pSettings_out != nullptr)
 		{
 			WindowerProfile *pProfile = GetSettings(GetDefaultProfile());
 
-			if (pProfile != NULL)
+			if (pProfile != nullptr)
 			{
 				pSettings_out->Copy(*pProfile);
 
@@ -758,7 +758,7 @@ namespace Windower
 
 	ULONG SettingsManager::GetUnsignedLong(const TCHAR *pProfileName_in, eIniKeys Key_in) const
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->GetUnsignedLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<ULONG>(Key_in));
 		
 		return WindowerProfile::Default<ULONG>(Key_in);
@@ -766,7 +766,7 @@ namespace Windower
 
 	const TCHAR* SettingsManager::GetString(const TCHAR *pProfileName_in, eIniKeys Key_in) const
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->GetString(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<const TCHAR*>(Key_in));
 
 		return WindowerProfile::Default<const TCHAR*>(Key_in);
@@ -774,7 +774,7 @@ namespace Windower
 
 	LONG SettingsManager::GetLong(const TCHAR *pProfileName_in, eIniKeys Key_in) const
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->GetLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<LONG>(Key_in));
 
 		return WindowerProfile::Default<LONG>(Key_in);
@@ -782,7 +782,7 @@ namespace Windower
 
 	bool SettingsManager::GetBool(const TCHAR *pProfileName_in, eIniKeys Key_in) const
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return (m_pSettingsFile->GetLong(pProfileName_in, WindowerProfile::Key(Key_in), WindowerProfile::Default<LONG>(Key_in)) == 1L);
 
 		return (WindowerProfile::Default<ULONG>(Key_in) == 1L);
@@ -790,31 +790,31 @@ namespace Windower
 
 	void SettingsManager::SetString(const TCHAR *pProfileName_in, eIniKeys Key_in, const TCHAR *pValue_in)
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->SetString(pProfileName_in, WindowerProfile::Key(Key_in), pValue_in, WindowerProfile::Comment(Key_in));
 	}
 
 	void SettingsManager::SetString(const TCHAR *pProfileName_in, const TCHAR *pKey_in, const TCHAR *pValue_in)
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->SetString(pProfileName_in, pKey_in, pValue_in);
 	}
 
 	void SettingsManager::SetHex(const TCHAR *pProfileName_in, eIniKeys Key_in, ULONG Value_in)
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->SetHex(pProfileName_in, WindowerProfile::Key(Key_in), Value_in, WindowerProfile::Comment(Key_in));
 	}
 
 	void SettingsManager::SetLong(const TCHAR *pProfileName_in, eIniKeys Key_in, const LONG Value_in)
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->SetLong(pProfileName_in, WindowerProfile::Key(Key_in), Value_in, WindowerProfile::Comment(Key_in));
 	}
 
 	void SettingsManager::SetBool(const TCHAR *pProfileName_in, eIniKeys Key_in, bool Value_in)
 	{
-		if (m_pSettingsFile != NULL)
+		if (m_pSettingsFile != nullptr)
 			return m_pSettingsFile->SetLong(pProfileName_in, WindowerProfile::Key(Key_in), Value_in ? 1L : 0L, WindowerProfile::Comment(Key_in));
 	}
 }

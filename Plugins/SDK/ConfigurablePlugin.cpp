@@ -23,16 +23,16 @@ namespace Windower
 		PluginPropertySheet(const TCHAR *pTitle_in, WindowerProfile *pSettings_in)
 			: CPropertySheet(pTitle_in), m_pSettings(pSettings_in)
 		{ m_psh.dwFlags |= (PSH_NOAPPLYNOW); }
-		PluginPropertySheet() : m_pSettings(NULL), m_bSettingsChanged(false)
+		PluginPropertySheet() : m_pSettings(nullptr), m_bSettingsChanged(false)
 		{ m_psh.dwFlags |= (PSH_NOAPPLYNOW); }
 
 		virtual bool Save()
 		{
 			bool Result = false;
 
-			if (m_pSettings != NULL)
+			if (m_pSettings != nullptr)
 			{
-				PluginPropertyPage *pPage = NULL;
+				PluginPropertyPage *pPage = nullptr;
 				int PageCount = GetPageCount();
 				string_t Feedback;
 
@@ -42,7 +42,7 @@ namespace Windower
 				{
 					pPage = reinterpret_cast<PluginPropertyPage*>(GetPage(PageIndex));
 
-					if (pPage != NULL)
+					if (pPage != nullptr)
 					{
 						// check if the page is valid then save
 						if (pPage->IsPageValid(&Feedback))
@@ -71,7 +71,7 @@ namespace Windower
 			BOOL Result = CPropertySheet::OnInitDialog();
 			CPropertyPage *pFirstPage = GetPage(0);
 
-			if (pFirstPage != NULL)
+			if (pFirstPage != nullptr)
 			{
 				SetIcon(pFirstPage->GetIcon(FALSE), FALSE);
 				SetIcon(pFirstPage->GetIcon(TRUE), TRUE);
@@ -116,49 +116,49 @@ namespace Windower
 	END_MESSAGE_MAP()
 
 	ConfigurablePlugin::ConfigurablePlugin(PluginFramework::IPluginServices *pServices_in)
-		: PluginFramework::IPlugin(pServices_in), m_pConfigDlg(NULL),
-		  m_pConfigPage(NULL), m_pSettings(new WindowerProfile())
+		: PluginFramework::IPlugin(pServices_in), m_pConfigDlg(nullptr),
+		  m_pConfigPage(nullptr), m_pSettings(new WindowerProfile())
 	{
 		// create the settings
-		if (pServices_in != NULL)
+		if (pServices_in != nullptr)
 			pServices_in->LoadSettings(m_pSettings);
 	}
 
 	//! \brief ConfigurablePlugin destructor
 	ConfigurablePlugin::~ConfigurablePlugin()
 	{
-		if (m_pConfigPage != NULL)
+		if (m_pConfigPage != nullptr)
 		{
 			delete m_pConfigPage;
-			m_pConfigPage = NULL;
+			m_pConfigPage = nullptr;
 		}
 
-		if (m_pConfigDlg != NULL)
+		if (m_pConfigDlg != nullptr)
 		{
 			delete m_pConfigDlg;
-			m_pConfigDlg = NULL;
+			m_pConfigDlg = nullptr;
 		}
 		
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 		{
 			delete m_pSettings;
-			m_pSettings = NULL;
+			m_pSettings = nullptr;
 		}		
 	}
 
 	bool ConfigurablePlugin::Configure(PluginFramework::IPlugin *pInstance_in, const LPVOID pUserData_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			ConfigurablePlugin *pConfigPlugin = static_cast<ConfigurablePlugin*>(pInstance_in);
 
-			if (pConfigPlugin->m_pSettings != NULL)
+			if (pConfigPlugin->m_pSettings != nullptr)
 			{
 				// create the property page if needed
-				if (pConfigPlugin->m_pConfigPage == NULL)
+				if (pConfigPlugin->m_pConfigPage == nullptr)
 					pConfigPlugin->m_pConfigPage = pConfigPlugin->GetPropertyPage();
 				// create the property sheet if needed
-				if (pConfigPlugin->m_pConfigDlg == NULL && pConfigPlugin->m_pConfigPage != NULL)
+				if (pConfigPlugin->m_pConfigDlg == nullptr && pConfigPlugin->m_pConfigPage != nullptr)
 				{
 					pConfigPlugin->m_pConfigDlg = new PluginPropertySheet(_T("Plugin configuration"),
 																		  pConfigPlugin->m_pSettings);
@@ -166,7 +166,7 @@ namespace Windower
 					pConfigPlugin->m_pConfigDlg->AddPage(pConfigPlugin->m_pConfigPage);				
 				}
 				// display the property sheet
-				if (pConfigPlugin->m_pConfigDlg != NULL)
+				if (pConfigPlugin->m_pConfigDlg != nullptr)
 				{
 					pConfigPlugin->m_pConfigDlg->DoModal();
 

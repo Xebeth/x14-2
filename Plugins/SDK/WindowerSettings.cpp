@@ -28,17 +28,17 @@ namespace Windower
 
 	const TCHAR* WindowerProfile::m_sKeyComment[INI_KEY_COUNT] =
 	{
-		NULL,																// Plugins
-		NULL,																// VSync
+		nullptr,																// Plugins
+		nullptr,																// VSync
 		_T(";	0: 日本語	1: English	2: Deutsch	3: Français"),			// Language
-		NULL,																// AutoSubmit
-		NULL,																// Password
-		NULL,																// Username
-		NULL,																// KeyHash
-		NULL,																// TimestampFormat
-		NULL,																// TellSound
-		NULL,																// BlacklistThreshold
-		NULL,																// BlacklistCount
+		nullptr,																// AutoSubmit
+		nullptr,																// Password
+		nullptr,																// Username
+		nullptr,																// KeyHash
+		nullptr,																// TimestampFormat
+		nullptr,																// TellSound
+		nullptr,																// BlacklistThreshold
+		nullptr,																// BlacklistCount
 	};
 
 	const TCHAR* WindowerProfile::m_sKeyName[INI_KEY_COUNT] =
@@ -63,7 +63,7 @@ namespace Windower
 		m_Language(Default<LONG>(INI_KEY_LNG)),
 		m_BlacklistThreshold(5L),
 		m_BlackListCount(3L),
-		m_pScoredWords(NULL)
+		m_pScoredWords(nullptr)
 	{
 		for (int i = 0; i < INI_KEY_COUNT; ++i)
 			m_KeyMapping[m_sKeyName[i]] = (eIniKeys)i;
@@ -254,7 +254,7 @@ namespace Windower
 
 	void WindowerProfile::AddScoredWord(const TCHAR *pWord_in, long Score_in)
 	{
-		if (pWord_in != NULL && m_pScoredWords != NULL)
+		if (pWord_in != nullptr && m_pScoredWords != nullptr)
 		{
 			string_t wWord = pWord_in;
 			std::string aWord;
@@ -335,19 +335,19 @@ namespace Windower
 			LabelSettings &Settings = m_TextLabels[Name_in] = LabelSettings();
 
 			// X
-			Settings.X = _tcstol(LabelParams.front().c_str(), NULL, 10);
+			Settings.X = _tcstol(LabelParams.front().c_str(), nullptr, 10);
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
 				return false;
 			// Y
-			Settings.Y = _tcstol(LabelParams.front().c_str(), NULL, 10);
+			Settings.Y = _tcstol(LabelParams.front().c_str(), nullptr, 10);
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
 				return false;
 			// TextColor
-			Settings.TextColor = _tcstoul(LabelParams.front().c_str(), NULL, 16);
+			Settings.TextColor = _tcstoul(LabelParams.front().c_str(), nullptr, 16);
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
@@ -359,25 +359,25 @@ namespace Windower
 			if (LabelParams.empty())
 				return false;
 			// FontSize
-			Settings.FontSize = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10);
+			Settings.FontSize = (unsigned short)_tcstol(LabelParams.front().c_str(), nullptr, 10);
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
 				return false;
 			// Bold
-			Settings.bBold = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			Settings.bBold = (unsigned short)_tcstol(LabelParams.front().c_str(), nullptr, 10) ? true : false;
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
 				return false;
 			// Italic
-			Settings.bItalic = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			Settings.bItalic = (unsigned short)_tcstol(LabelParams.front().c_str(), nullptr, 10) ? true : false;
 			LabelParams.pop_front();
 
 			if (LabelParams.empty())
 				return false;
 			// Collapsed
-			Settings.bCollapsed = (unsigned short)_tcstol(LabelParams.front().c_str(), NULL, 10) ? true : false;
+			Settings.bCollapsed = (unsigned short)_tcstol(LabelParams.front().c_str(), nullptr, 10) ? true : false;
 			LabelParams.pop_front();
 
 			return LabelParams.empty();

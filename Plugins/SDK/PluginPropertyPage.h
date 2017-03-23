@@ -8,6 +8,8 @@
 #ifndef __PLUGIN_PROPERTY_PAGE_H__
 #define __PLUGIN_PROPERTY_PAGE_H__
 
+#include <afxdlgs.h>
+
 namespace Windower
 {
 	class SettingsManager;
@@ -49,9 +51,9 @@ namespace Windower
 		ULONG GetUnsignedLong(const string_t &Key_in, ULONG DefaultValue = 0UL) const;
 		const TCHAR* GetString(const string_t &Key_in, const TCHAR* pDefaultValue = _T("")) const;
 
-		void SetHex(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
-		void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);		
-		void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
+		void SetHex(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = nullptr);
+		void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = nullptr);		
+		void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = nullptr);
 
 		void SetSettings(WindowerProfile *pSettings_in);
 		const string_t& GetPluginName() const

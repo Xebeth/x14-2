@@ -219,9 +219,9 @@ namespace Windower
 		virtual ULONG GetUnsignedLong(const string_t &Key_in, ULONG DefaultValue = 0UL) const;
 		virtual LONG GetLong(const string_t &Key_in, LONG DefaultValue = 0L) const;
 
-		virtual void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = NULL);
-		virtual void SetUnsignedLong(const string_t &Key_in, ULONG NewValue_in, const TCHAR *pComment_in = NULL);
-		virtual void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = NULL);
+		virtual void SetString(const string_t &Key_in, const string_t &NewValue_in, const TCHAR *pComment_in = nullptr);
+		virtual void SetUnsignedLong(const string_t &Key_in, ULONG NewValue_in, const TCHAR *pComment_in = nullptr);
+		virtual void SetLong(const string_t &Key_in, LONG NewValue_in, const TCHAR *pComment_in = nullptr);
 		void SetPluginList( const string_t &PluginList_in );
 
 		void AddScoredWord(const TCHAR *pWord_in, long Score_in);

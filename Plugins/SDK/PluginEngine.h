@@ -59,7 +59,7 @@ namespace Windower
 		*/
 		static const TCHAR* GetCompatibilityFlagsText(DWORD Flags_in);
 
-		virtual bool Detach();
+		bool Detach() override;
 
 		PluginFramework::IPlugin* LoadPlugin(const string_t& PluginName_in, bool ForceReload_in = false);
 		bool UnloadPlugin(const string_t& PluginName_in);

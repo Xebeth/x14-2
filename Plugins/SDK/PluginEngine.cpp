@@ -19,7 +19,7 @@ namespace Windower
 	const PluginFramework::VersionInfo PluginEngine::m_FrameworkVersion(__PLUGIN_FRAMEWORK_VERSION__);
 
 	PluginEngine::PluginEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in)
-		: m_pPluginManager(NULL), m_pPluginServices(NULL), m_pSettingsManager()
+		: m_pPluginManager(nullptr), m_pPluginServices(nullptr), m_pSettingsManager()
 	{
 		// set the working directory
 		SetWorkingDir(WorkingDir_in.c_str());
@@ -33,22 +33,22 @@ namespace Windower
 
 	PluginEngine::~PluginEngine()
 	{
-		if (m_pSettingsManager != NULL)
+		if (m_pSettingsManager != nullptr)
 		{
 			delete m_pSettingsManager;
-			m_pSettingsManager = NULL;
+			m_pSettingsManager = nullptr;
 		}
 
-		if (m_pPluginManager != NULL)
+		if (m_pPluginManager != nullptr)
 		{
 			delete m_pPluginManager;
-			m_pPluginManager = NULL;
+			m_pPluginManager = nullptr;
 		}
 
-		if (m_pPluginServices != NULL)
+		if (m_pPluginServices != nullptr)
 		{
 			delete m_pPluginServices;
-			m_pPluginServices = NULL;
+			m_pPluginServices = nullptr;
 		}
 	}
 
@@ -94,26 +94,26 @@ namespace Windower
 		if (PluginIt != m_Plugins.cend())
 			return PluginIt->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	PluginFramework::IPlugin* PluginEngine::LoadPlugin(const string_t& PluginName_in, bool ForceReload_in)
 	{
-		PluginFramework::IPlugin* pPlugin = NULL;
+		PluginFramework::IPlugin* pPlugin = nullptr;
 
 		if (ForceReload_in)
 			UnloadPlugin(PluginName_in);
 
 		// if the plugin hasn't already been loaded
-		if (ForceReload_in == false || (pPlugin = GetPluginInstance(PluginName_in)) == NULL)
+		if (ForceReload_in == false || (pPlugin = GetPluginInstance(PluginName_in)) == nullptr)
 		{
 			// the plugin already exists
-			if (pPlugin == NULL)
+			if (pPlugin == nullptr)
 			{
 				// try to load it
 				pPlugin = m_pPluginManager->LoadPlugin(PluginName_in);
 				// if the plugin was loaded successfuly; store it
-				if (pPlugin != NULL)
+				if (pPlugin != nullptr)
 					m_Plugins[PluginName_in] = pPlugin;
 			}
 		}
@@ -125,7 +125,7 @@ namespace Windower
 	{
 		PluginFramework::IPlugin *pPlugin = GetPluginInstance(PluginName_in);
 
-		if (pPlugin != NULL && m_pPluginManager->UnloadPlugin(PluginName_in))
+		if (pPlugin != nullptr && m_pPluginManager->UnloadPlugin(PluginName_in))
 		{
 			WindowerPlugins::const_iterator PluginIt = m_Plugins.find(PluginName_in);
 
@@ -142,7 +142,7 @@ namespace Windower
 	{
 		PluginFramework::IPlugin *pPlugin = GetPluginInstance(PluginName_in);
 
-		if (pPlugin != NULL)
+		if (pPlugin != nullptr)
 		{
 			PushPluginConfigure(pPlugin);
 
@@ -168,7 +168,7 @@ namespace Windower
 
 	bool PluginEngine::ListPlugins(std::string& Feedback_out) const
 	{
-		if  (m_pPluginManager != NULL)
+		if  (m_pPluginManager != nullptr)
 		{
 			const PluginFramework::RegisteredPlugins &Plugins = m_pPluginManager->GetRegisteredPlugins();
 			PluginFramework::RegisteredPlugins::const_iterator PluginIt, PluginEnd = Plugins.cend();
@@ -235,7 +235,7 @@ namespace Windower
 
 	void PluginEngine::SetWorkingDir(const TCHAR *pWorkingDir_in)
 	{
-		if (pWorkingDir_in != NULL)
+		if (pWorkingDir_in != nullptr)
 			initialize_path(pWorkingDir_in, m_WorkingDir);
 	}
 
@@ -251,7 +251,7 @@ namespace Windower
 
 	void PluginEngine::PushPluginConfigure(PluginFramework::IPlugin *pPlugin_in)
 	{
-		if (pPlugin_in != NULL && pPlugin_in->IsConfigurable())
+		if (pPlugin_in != nullptr && pPlugin_in->IsConfigurable())
 			m_ConfigQueue.push_back(pPlugin_in);
 	}
 
@@ -261,12 +261,12 @@ namespace Windower
 		{
 			PluginFramework::IPlugin *pPlugin = m_ConfigQueue.front();
 
-			if (pPlugin != NULL && pPlugin->IsConfigurable())
+			if (pPlugin != nullptr && pPlugin->IsConfigurable())
 			{
 				// remove the plugin from the queue
 				m_ConfigQueue.erase(m_ConfigQueue.cbegin());
 
-				return pPlugin->Configure(NULL);
+				return pPlugin->Configure(nullptr);
 			}
 		}
 

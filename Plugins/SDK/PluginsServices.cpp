@@ -34,11 +34,11 @@ namespace Windower
 	bool PluginServices::SubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 										  PluginFramework::IPlugin* pPlugin_in) const
 	{
-		if (pPlugin_in != NULL)
+		if (pPlugin_in != nullptr)
 		{
 			CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-			if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+			if (ModuleIt != m_Modules.cend() && ModuleIt->second != nullptr)
 				return ModuleIt->second->Subscribe(ServiceName_in, pPlugin_in);
 		}
 
@@ -54,11 +54,11 @@ namespace Windower
 	bool PluginServices::UnsubscribeService(const string_t &ModuleName_in, const string_t &ServiceName_in,
 											PluginFramework::IPlugin* pPlugin_in) const
 	{
-		if (pPlugin_in != NULL)
+		if (pPlugin_in != nullptr)
 		{
 			CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-			if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+			if (ModuleIt != m_Modules.cend() && ModuleIt->second != nullptr)
 				return ModuleIt->second->Unsubscribe(ServiceName_in, pPlugin_in);
 		}
 
@@ -76,7 +76,7 @@ namespace Windower
 	{
 		CoreModules::const_iterator ModuleIt = m_Modules.find(ModuleName_in);
 
-		if (ModuleIt != m_Modules.cend() && ModuleIt->second != NULL)
+		if (ModuleIt != m_Modules.cend() && ModuleIt->second != nullptr)
 			return ModuleIt->second->Invoke(ServiceName_in, Params_in);
 
 		return false;
@@ -84,7 +84,7 @@ namespace Windower
 
 	bool PluginServices::LoadSettings(PluginFramework::IUserSettings* pSettings_out) const
 	{
-		if (m_pSettingsManager != NULL)
+		if (m_pSettingsManager != nullptr)
 			return m_pSettingsManager->LoadSettings(static_cast<WindowerProfile*>(pSettings_out));
 		
 		return false;
@@ -92,7 +92,7 @@ namespace Windower
 
 	bool PluginServices::SaveSettings(const PluginFramework::IUserSettings *pSettings_in)
 	{
-		if (m_pSettingsManager != NULL)
+		if (m_pSettingsManager != nullptr)
 			return m_pSettingsManager->CopySettings(static_cast<const WindowerProfile*>(pSettings_in));
 
 		return false;
@@ -100,9 +100,9 @@ namespace Windower
 
 	const TCHAR* PluginServices::GetWorkingDir() const
 	{
-		if (m_pSettingsManager != NULL)
+		if (m_pSettingsManager != nullptr)
 			return m_pSettingsManager->GetWorkingDir().c_str();
 
-		return NULL;
+		return nullptr;
 	}
 }

@@ -37,17 +37,17 @@ namespace Windower
 	{ m_Value = StringValue_in; }
 
 	long CommandParameter::GetPointerValue() const
-	{ return strtol(m_Value.c_str(), NULL, 16); }
+	{ return strtol(m_Value.c_str(), nullptr, 16); }
 	void CommandParameter::SetPointerValue(long PointerValue_in)
 	{ format(m_Value, "%08x", PointerValue_in); }
 
 	long CommandParameter::GetIntegerValue() const
-	{ return strtol(m_Value.c_str(), NULL, 10); }
+	{ return strtol(m_Value.c_str(), nullptr, 10); }
 	void CommandParameter::SetIntegerValue(long IntegerValue_in)
 	{ format(m_Value, "%ld", IntegerValue_in); }
 
 	double CommandParameter::GetFloatValue() const
-	{ return strtod(m_Value.c_str(), NULL); }
+	{ return strtod(m_Value.c_str(), nullptr); }
 	void CommandParameter::SetFloatValue(double FloatValue_in)
 	{ format(m_Value, "%g", FloatValue_in); }
 

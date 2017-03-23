@@ -36,17 +36,17 @@ namespace Windower
 	bool IGameChatPlugin::ResizeBuffer(const char *pSrc_in, DWORD_PTR SrcSize_in, DWORD_PTR dwNewSize_in,
 									   char **pBuffer_in_out, DWORD_PTR BufferSize_in, DWORD_PTR Offset_in) const
 	{
-		if (pBuffer_in_out != NULL)
+		if (pBuffer_in_out != nullptr)
 		{
 			if (BufferSize_in < dwNewSize_in)
 			{
 				// allocate a new buffer
 				char *pRealloc = (char*)realloc(*pBuffer_in_out, dwNewSize_in * sizeof(char));
 
-				if  (pRealloc != NULL)
+				if  (pRealloc != nullptr)
 				{
 					// clear the buffer on the first allocation
-					if (*pBuffer_in_out == NULL)
+					if (*pBuffer_in_out == nullptr)
 					{
 						// clear the buffer
 						memset(pRealloc, 0, dwNewSize_in * sizeof(char));

@@ -10,7 +10,6 @@
 
 #include "WindowerSettings.h"
 #include "PluginPropertyPage.h"
-#include "WindowerSettingsManager.h"
 
 namespace Windower
 {
@@ -27,7 +26,7 @@ namespace Windower
 
 	PluginPropertyPage::~PluginPropertyPage()
 	{
-		m_pSettings = NULL;
+		m_pSettings = nullptr;
 	}
 
 	BOOL PluginPropertyPage::OnInitDialog()
@@ -77,12 +76,12 @@ namespace Windower
 	{
 		CPropertySheet *pSheet = static_cast<CPropertySheet*>(GetParent());
 
-		if (pSheet != NULL && pSheet->IsWizard())
+		if (pSheet != nullptr && pSheet->IsWizard())
 		{
 			int ActiveIndex = pSheet->GetActiveIndex();
 			int PageCount = pSheet->GetPageCount();
 			UINT WizardButtons = PSWIZB_CANCEL;
-			bool Valid = IsPageValid(NULL);
+			bool Valid = IsPageValid(nullptr);
 			
 			// handle the next button
 			if (ActiveIndex >= PageCount - 1)

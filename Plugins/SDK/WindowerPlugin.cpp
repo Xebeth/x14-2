@@ -55,7 +55,7 @@ namespace Windower
 	*/
 	PluginPropertyPage* WindowerPlugin::GetPropertyPage()
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	//! \brief Callback function invoked when the settings have changed
