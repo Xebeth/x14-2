@@ -9,14 +9,12 @@
 #include "resource.h"
 
 #include <PluginPropertyPage.h>
-
 #include "BaseWizardPage.h"
+
 #include "WizardFinishPage.h"
 #include "WizardStartPage.h"
-#include "UpdaterDlg.h"
 
 #include "WizardDlg.h"
-#include "WindowerUpdater.h"
 
 BEGIN_MESSAGE_MAP(WizardDlg, CPropertySheet)
 	ON_BN_CLICKED(ID_WIZNEXT, OnWizNext)
@@ -27,9 +25,8 @@ END_MESSAGE_MAP()
 WizardDlg::WizardDlg(PluginFramework::PluginManager &PluginManager_in,
 					 Windower::SettingsManager &SettingsManager_in)
 	: CPropertySheet(_T("x14-2 configuration wizard")),
-	  m_pStartPage(NULL), m_pFinishPage(NULL), m_pUpdaterPage(NULL),
-	  m_SettingsManager(SettingsManager_in), m_PluginManager(PluginManager_in),
-	  m_pSettings(new Windower::WindowerProfile())
+	  m_PluginManager(PluginManager_in), m_SettingsManager(SettingsManager_in), m_pSettings(new Windower::WindowerProfile()),
+	  m_pFinishPage(nullptr), m_pStartPage(nullptr), m_pUpdaterPage(nullptr)
 {
 	m_psh.hInstance = AfxGetInstanceHandle();
 
@@ -39,19 +36,19 @@ WizardDlg::WizardDlg(PluginFramework::PluginManager &PluginManager_in,
 WizardDlg::~WizardDlg()
 {
 	UINT PageCount = GetPageCount();
-	CPropertyPage *pPage = NULL;
+	CPropertyPage *pPage;
 
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 	{
 		delete m_pSettings;
-		m_pSettings = NULL;
+		m_pSettings = nullptr;
 	}
 
 	for (UINT PageIndex = 0U; PageIndex < PageCount; ++PageIndex)
 	{
 		pPage = GetPage(PageIndex);
 
-		if (pPage != NULL)
+		if (pPage != nullptr)
 			delete pPage;
 	}
 }
@@ -92,9 +89,9 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 		{
 			const PluginFramework::RegisteredPlugins& Plugins = m_PluginManager.GetRegisteredPlugins();
 			PluginFramework::RegisteredPlugins::const_iterator PluginIt, EndIt = Plugins.cend();
-			Windower::ConfigurablePlugin *pConfigPlugin = NULL;
-			Windower::PluginPropertyPage *pPluginPage = NULL;
-			PluginFramework::IPlugin *pPlugin = NULL;	
+			Windower::ConfigurablePlugin *pConfigPlugin;
+			Windower::PluginPropertyPage *pPluginPage;
+			PluginFramework::IPlugin *pPlugin;	
 			CString PluginsSummary;
 			string_t PageTitle;
 			
@@ -102,12 +99,12 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 			{
 				pPlugin = m_PluginManager.LoadPlugin(PluginIt->second.GetName());
 
-				if (pPlugin != NULL && pPlugin->IsConfigurable())
+				if (pPlugin != nullptr && pPlugin->IsConfigurable())
 				{
 					pConfigPlugin = static_cast<Windower::ConfigurablePlugin*>(pPlugin);
 					pPluginPage = pConfigPlugin->GetPropertyPage();
 
-					if (pPluginPage != NULL)
+					if (pPluginPage != nullptr)
 					{
 						if ((pPlugin->GetCompatibilityFlags() & PLUGIN_COMPATIBILITY_NO_WIZARD) == 0)
 						{
@@ -135,7 +132,7 @@ UINT WizardDlg::CreatePages(UINT Tasks_in)
 			++Result;
 		}
 
-		if (m_pStartPage != NULL && StartSummary.IsEmpty() == false)
+		if (m_pStartPage != nullptr && StartSummary.IsEmpty() == false)
 			m_pStartPage->SetSummary(StartSummary);
 	}
 
@@ -146,11 +143,11 @@ void WizardDlg::OnWizNext()
 {
 	Windower::PluginPropertyPage *pPage = static_cast<Windower::PluginPropertyPage*>(GetActivePage());
 
-	if (pPage != NULL)
+	if (pPage != nullptr)
 	{
-		if (pPage->IsPageValid(NULL))
+		if (pPage->IsPageValid(nullptr))
 		{
-			if (m_pSettings != NULL)
+			if (m_pSettings != nullptr)
 			{
 				const string_t &Name = pPage->GetPluginName();
 
@@ -171,22 +168,22 @@ void WizardDlg::OnWizBack()
 {
 	Windower::PluginPropertyPage *pPage = static_cast<Windower::PluginPropertyPage*>(GetActivePage());
 
-	if (pPage != NULL && pPage->IsPageValid(NULL))
+	if (pPage != nullptr && pPage->IsPageValid(nullptr))
 		pPage->Commit();
 
 	Default();
 }
 
-void WizardDlg::ResetPages()
+void WizardDlg::ResetPages() const
 {
-	Windower::PluginPropertyPage *pPage = NULL;
+	Windower::PluginPropertyPage *pPage;
 	UINT PageCount = GetPageCount();
 
 	for (UINT PageIndex = 0U; PageIndex < PageCount; ++PageIndex)
 	{
 		pPage = static_cast<Windower::PluginPropertyPage*>(GetPage(PageIndex));
 
-		if (pPage != NULL)
+		if (pPage != nullptr)
 			pPage->Revert();
 	}
 }
@@ -205,4 +202,4 @@ void WizardDlg::OnWizFinish()
 }
 
 const TCHAR* WizardDlg::GetProfileName() const
-{ return m_pSettings ? m_pSettings->GetName() : NULL; }
+{ return m_pSettings ? m_pSettings->GetName() : nullptr; }

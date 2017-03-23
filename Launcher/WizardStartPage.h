@@ -23,10 +23,10 @@ public:
 	void SetSummary(const CString &StartSummary);
 	bool ProfileHasChanged() const;
 
-	bool IsPageValid(string_t *pFeedback_out) const;
-	bool InitializePage();
-	void Revert();
-	bool Commit();
+	bool IsPageValid(string_t *pFeedback_out) const override;
+	bool InitializePage() override;
+	void Revert() override;
+	bool Commit() override;
 
 protected:
 	afx_msg void OnCheckUpdate(UINT ControlID_in);

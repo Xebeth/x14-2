@@ -17,26 +17,26 @@ BEGIN_MESSAGE_MAP(EditLinkTarget, CEdit)
 END_MESSAGE_MAP()
 
 //! \brief EditLinkTarget default constructor
-EditLinkTarget::EditLinkTarget() : m_pfnCallback(NULL),
-	m_pCallbackObj(NULL), m_pToolTip(NULL) {}
+EditLinkTarget::EditLinkTarget() : m_pToolTip(nullptr),
+	m_pfnCallback(nullptr), m_pCallbackObj(nullptr) {}
 
 EditLinkTarget::~EditLinkTarget()
 {
-	if (m_pToolTip != NULL)
+	if (m_pToolTip != nullptr)
 		CTooltipManager::DeleteToolTip(m_pToolTip);
 }
 
 void EditLinkTarget::OnDropFiles(HDROP hDropInfo)
 {
-	size_t AllocSize = (DragQueryFile(hDropInfo, 0, NULL, 0U) + 1) * sizeof(TCHAR);
-	TCHAR *pName = NULL;
+	size_t AllocSize = (DragQueryFile(hDropInfo, 0, nullptr, 0U) + 1) * sizeof(TCHAR);
+	TCHAR *pName = nullptr;
 
 	if (Buffer::Realloc(&pName, AllocSize, true))
 	{
 		// is it a shortcut?
-		if (DragQueryFile(hDropInfo, 0, pName, _MAX_PATH) && _tcsstr(pName, _T(".lnk")) != NULL)
+		if (DragQueryFile(hDropInfo, 0, pName, _MAX_PATH) && _tcsstr(pName, _T(".lnk")) != nullptr)
 		{
-			size_t Length = 0UL;
+			size_t Length;
 			CString LinkTarget;			
 
 			LauncherApp::ResolveLink(m_hWnd, pName, LinkTarget);
@@ -46,7 +46,7 @@ void EditLinkTarget::OnDropFiles(HDROP hDropInfo)
 				_tcscpy_s(pName, Length, LinkTarget);
 		}
 
-		if (m_pfnCallback != NULL && m_pCallbackObj != NULL
+		if (m_pfnCallback != nullptr && m_pCallbackObj != nullptr
 		 && (m_pCallbackObj->*m_pfnCallback)(&pName))
 		{
 			SetWindowText(pName);
@@ -60,7 +60,7 @@ void EditLinkTarget::OnDropFiles(HDROP hDropInfo)
 
 void EditLinkTarget::SetCallback(fnOnDrop pCallback_in, CWnd *pObj_in)
 {
-	if (pCallback_in != NULL && pObj_in != NULL)
+	if (pCallback_in != nullptr && pObj_in != nullptr)
 	{
 		m_pfnCallback = pCallback_in;
 		m_pCallbackObj = pObj_in;
@@ -75,12 +75,12 @@ void EditLinkTarget::SetCallback(fnOnDrop pCallback_in, CWnd *pObj_in)
 */
 BOOL EditLinkTarget::PreTranslateMessage(MSG* pMsg_in)
 {
-	if (m_pToolTip != NULL)
+	if (m_pToolTip != nullptr)
 	{
 		switch(pMsg_in->message)
 		{
 		case WM_MOUSEMOVE:
-			if (m_pToolTip->GetSafeHwnd() != NULL)
+			if (m_pToolTip->GetSafeHwnd() != nullptr)
 				m_pToolTip->RelayEvent(pMsg_in);
 			break;
 		}
@@ -95,11 +95,11 @@ BOOL EditLinkTarget::PreTranslateMessage(MSG* pMsg_in)
 void EditLinkTarget::SetTooltip(const CString &Text_in)
 {
 	// destroy the previous tooltip
-	if (m_pToolTip != NULL)
+	if (m_pToolTip != nullptr)
 		CTooltipManager::DeleteToolTip(m_pToolTip);
 	// create the tooltip
 	CTooltipManager::CreateToolTip(m_pToolTip, this, AFX_TOOLTIP_TYPE_BUTTON);
 	// set the tooltip text
-	if (m_pToolTip != NULL)
+	if (m_pToolTip != nullptr)
 		m_pToolTip->AddTool(this, Text_in);
 }

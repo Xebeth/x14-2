@@ -16,27 +16,27 @@
 
 LauncherApp g_pApp;
 
-LauncherApp::LauncherApp() : m_pSettingsManager(NULL),
-	m_pPluginManager(NULL), m_pPluginServices(NULL) {}
+LauncherApp::LauncherApp() : m_pPluginManager(nullptr),
+	m_pSettingsManager(nullptr), m_pPluginServices(nullptr) {}
 
 LauncherApp::~LauncherApp()
 {
-	if (m_pSettingsManager != NULL)
+	if (m_pSettingsManager != nullptr)
 	{
 		delete m_pSettingsManager;
-		m_pSettingsManager = NULL;
+		m_pSettingsManager = nullptr;
 	}
 
-	if (m_pPluginManager != NULL)
+	if (m_pPluginManager != nullptr)
 	{
 		delete m_pPluginManager;
-		m_pPluginManager = NULL;
+		m_pPluginManager = nullptr;
 	}
 
-	if (m_pPluginServices != NULL)
+	if (m_pPluginServices != nullptr)
 	{
 		delete m_pPluginServices;
-		m_pPluginServices = NULL;
+		m_pPluginServices = nullptr;
 	}
 
 	VisualManager::DestroyInstance();
@@ -65,6 +65,7 @@ void LauncherCmdLine::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
 	}
 	else
 	{
+		// ReSharper disable once CppIncompleteSwitchStatement
 		switch(m_LastFlag)
 		{
 			case FLAG_PROFILE:
@@ -78,14 +79,14 @@ bool LauncherApp::CreateLink(const string_t &SavePath_in, const string_t &LinkTa
 							 const string_t &WorkingDir_in, const TCHAR *pArgs_in,
 							 const TCHAR *pDesc_in, int IconIndex_in)
 {
-	IShellLink* pShellLink = NULL;
-	HRESULT hResult = S_FALSE;
+	IShellLink* pShellLink = nullptr;
+	HRESULT hResult;
 
-	if (FAILED(::CoInitialize(NULL)))
+	if (FAILED(::CoInitialize(nullptr)))
 		return false;
 
 	// get a pointer to the IShellLink interface
-	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
+	hResult = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLink, reinterpret_cast<LPVOID*>(&pShellLink)); 
 
 	if (SUCCEEDED(hResult)) 
 	{ 
@@ -96,16 +97,16 @@ bool LauncherApp::CreateLink(const string_t &SavePath_in, const string_t &LinkTa
 		pShellLink->SetWorkingDirectory(WorkingDir_in.c_str());		
 		pShellLink->SetPath(LinkTarget_in.c_str());
 
-		if (pArgs_in != NULL)
+		if (pArgs_in != nullptr)
 			pShellLink->SetArguments(pArgs_in);
 		
-		if (pDesc_in != NULL)
+		if (pDesc_in != nullptr)
 			pShellLink->SetDescription(pDesc_in); 
 
 		// get a pointer to the IPersistFile interface
-		hResult = pShellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&pPersistentFile); 
+		hResult = pShellLink->QueryInterface(IID_IPersistFile, reinterpret_cast<LPVOID*>(&pPersistentFile)); 
 
-		if (SUCCEEDED(hResult) && pPersistentFile != NULL) 
+		if (SUCCEEDED(hResult) && pPersistentFile != nullptr) 
 		{ 
 			// Save the link by calling IPersistFile::Save
 			hResult = pPersistentFile->Save(SavePath_in.c_str(), TRUE); 
@@ -122,23 +123,23 @@ bool LauncherApp::CreateLink(const string_t &SavePath_in, const string_t &LinkTa
 
 CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CString &LinkTarget_out)
 {
-	IShellLink *pShellLink = NULL;
-	HRESULT hResult = S_FALSE;
+	IShellLink *pShellLink = nullptr;
+	HRESULT hResult;
 
-	if (FAILED(::CoInitialize(NULL)))
+	if (FAILED(::CoInitialize(nullptr)))
 		return LinkTarget_out;
 
 	// get a pointer to the IShellLink interface
-	hResult = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink); 
+	hResult = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLink, reinterpret_cast<LPVOID*>(&pShellLink)); 
 
-	if (SUCCEEDED(hResult) && pShellLink != NULL) 
+	if (SUCCEEDED(hResult) && pShellLink != nullptr) 
 	{
-		IPersistFile* pPersistentFile = NULL; 
+		IPersistFile* pPersistentFile = nullptr; 
 
 		// get a pointer to the IPersistFile interface
-		hResult = pShellLink->QueryInterface(IID_IPersistFile, (void**)&pPersistentFile); 
+		hResult = pShellLink->QueryInterface(IID_IPersistFile, reinterpret_cast<void**>(&pPersistentFile)); 
 
-		if (SUCCEEDED(hResult) && pPersistentFile != NULL) 
+		if (SUCCEEDED(hResult) && pPersistentFile != nullptr) 
 		{
 			// Load the shortcut. 
 			hResult = pPersistentFile->Load(pLinkPath_in, STGM_READ); 
@@ -153,7 +154,7 @@ CString& LauncherApp::ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CStri
 					WIN32_FIND_DATA wfd = { NULL };
 
 					// Get the path to the link target. 
-					hResult = pShellLink->GetPath(LinkTarget_out.GetBuffer(MAX_PATH), MAX_PATH, (WIN32_FIND_DATA*)&wfd, NULL); 
+					pShellLink->GetPath(LinkTarget_out.GetBuffer(MAX_PATH), MAX_PATH, static_cast<WIN32_FIND_DATA*>(&wfd), NULL);
 					// unlock the buffer
 					LinkTarget_out.ReleaseBuffer(-1);
 				} 
@@ -212,7 +213,7 @@ BOOL LauncherApp::InitInstance()
 	if (CmdInfo.GetProfileName(ProfileName).IsEmpty() == false)
 	{
 		// if it exits, set it as default
-		if (m_pSettingsManager->GetSettings(ProfileName) != NULL)
+		if (m_pSettingsManager->GetSettings(ProfileName) != nullptr)
 		{
 			m_pSettingsManager->SetDefaultProfile(ProfileName);
 			ShowConfig = !m_pSettingsManager->Save();
@@ -259,12 +260,12 @@ BOOL LauncherApp::InitInstance()
 		m_pMainWnd = &ConfigurationDlg;
 		// show the configuration dialog
 		Launch = (ConfigurationDlg.DoModal() == IDOK);
-		m_pMainWnd = NULL;
+		m_pMainWnd = nullptr;
 	}
 
 	if (Launch)
 	{
-		PROCESS_INFORMATION ProcessInfo = { 0 };
+		PROCESS_INFORMATION ProcessInfo = { nullptr };
 
 		// initialize the structure
 		memset(&ProcessInfo, 0, sizeof(ProcessInfo));

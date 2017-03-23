@@ -8,11 +8,6 @@
 #ifndef __BASE_WIZARD_PAGE_H__
 #define __BASE_WIZARD_PAGE_H__
 
-namespace Windower
-{
-	WindowerProfile;
-}
-
 class BaseWizardPage : public Windower::PluginPropertyPage
 {
 public:
@@ -20,12 +15,12 @@ public:
 				   const string_t &PluginName_in,
 				   UINT TemplateResID_in, UINT IconResID_in);
 
-	virtual BOOL OnSetActive();
+	BOOL OnSetActive() override;
 
-	bool IsPageValid(string_t *pFeedback_out) const;
-	bool InitializePage();
-	bool Commit();
-	void Revert();
+	bool IsPageValid(string_t *pFeedback_out) const override;
+	bool InitializePage() override;
+	bool Commit() override;
+	void Revert() override;
 };
 
 #endif//__BASE_WIZARD_PAGE_H__

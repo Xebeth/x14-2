@@ -27,7 +27,7 @@ END_MESSAGE_MAP()
 WizardStartPage::WizardStartPage(Windower::SettingsManager &SettingsManager_in, 
 								 Windower::WindowerProfile *pSettings_in)
 	: BaseWizardPage(pSettings_in, _T(""), WizardStartPage::IDD, IDR_MAINFRAME),
-	  m_Changed(false), m_CheckUpdate(false), m_SettingsManager(SettingsManager_in)
+	  m_SettingsManager(SettingsManager_in), m_CheckUpdate(false), m_Changed(false)
 {
 	m_psp.dwFlags |= PSP_USEHEADERTITLE | PSP_USEHEADERSUBTITLE;
 	m_PageFlags = WizardDlg::TASK_START_SUMMARY;	
@@ -63,8 +63,6 @@ void WizardStartPage::OnProfileNameChange()
 
 void WizardStartPage::OnPathBrowse()
 {
-	bool ValidPath = false;
-
 	if (m_SettingsManager.SelectDirectory(m_GamePath))
 	{
 		if (m_SettingsManager.CheckGamePath(m_GamePath))
@@ -87,7 +85,7 @@ bool WizardStartPage::IsPageValid(string_t *pFeedback_out) const
 	{
 		Result = false;
 
-		if (pFeedback_out != NULL)
+		if (pFeedback_out != nullptr)
 			*pFeedback_out += _T("\n    - The profile name is empty.");
 	}
 
@@ -97,7 +95,7 @@ bool WizardStartPage::IsPageValid(string_t *pFeedback_out) const
 	{
 		Result = false;
 
-		if (pFeedback_out != NULL)
+		if (pFeedback_out != nullptr)
 			*pFeedback_out += _T("\n    - The game path is empty.");
 	}
 
@@ -106,7 +104,7 @@ bool WizardStartPage::IsPageValid(string_t *pFeedback_out) const
 
 void WizardStartPage::Revert()
 {
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 		m_ProfileName = m_pSettings->GetName() + _tcslen(PROFILE_PREFIX);
 
 	m_CheckUpdate = m_SettingsManager.IsAutoUpdated();
@@ -116,7 +114,7 @@ void WizardStartPage::Revert()
 
 bool WizardStartPage::Commit()
 {
-	if (IsPageValid(NULL) && m_pSettings != NULL)
+	if (IsPageValid(nullptr) && m_pSettings != nullptr)
 	{
 		string_t Current = m_SettingsManager.GetDefaultProfile();
 		string_t ProfileName = PROFILE_PREFIX;

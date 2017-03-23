@@ -12,7 +12,7 @@
 namespace Windower
 {
 	WindowerUpdater::WindowerUpdater(const TCHAR *pURL_in, Updater::IThreadProgress *pProgress_in)
-		: m_hThread(NULL)
+		: m_hThread(nullptr)
 	{
 		m_pDownloader = new Updater::FileDownload(pURL_in, pProgress_in);
 		m_pThread = new Updater::Thread(m_pDownloader);
@@ -20,28 +20,28 @@ namespace Windower
 
 	WindowerUpdater::~WindowerUpdater()
 	{
-		if (m_pThread != NULL)
+		if (m_pThread != nullptr)
 		{
 			delete m_pThread;
-			m_pThread = NULL;
+			m_pThread = nullptr;
 		}
 
-		if (m_pDownloader != NULL)
+		if (m_pDownloader != nullptr)
 		{
 			delete m_pDownloader;
-			m_pDownloader = NULL;
+			m_pDownloader = nullptr;
 		}
 	}
 
 	void WindowerUpdater::Start()
 	{
-		if (m_pThread != NULL)
+		if (m_pThread != nullptr)
 			m_hThread = m_pThread->Execute();
 	}
 
-	void WindowerUpdater::Cancel()
+	void WindowerUpdater::Cancel() const
 	{
-		if (m_pThread != NULL)
+		if (m_pThread != nullptr)
 		{
 			m_pThread->Abort();
 			m_pThread->Reset();
@@ -50,7 +50,7 @@ namespace Windower
 
 	void WindowerUpdater::SaveFile(const TCHAR* pFilename_in, const TCHAR *pDeflateFile_in) const
 	{
-		if (m_pDownloader != NULL)
+		if (m_pDownloader != nullptr)
 			m_pDownloader->SaveToDisk(pFilename_in, pDeflateFile_in);
 	}
 }

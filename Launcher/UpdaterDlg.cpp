@@ -22,7 +22,7 @@ END_MESSAGE_MAP()
 
 UpdaterDlg::UpdaterDlg(Windower::WindowerProfile *pSettings_in)
 	: BaseWizardPage(pSettings_in, _T(""), IDD_UPDATE_DLG, IDR_MAINFRAME),
-	  m_bStarted(false), m_pUpdater(NULL)
+	  m_pUpdater(nullptr), m_bStarted(false)
 {
 	m_pUpdater = new Windower::WindowerUpdater(_T("http://woodart.free.fr/_tmp/config.zip"), this);
 	m_PageFlags = WizardDlg::TASK_CHECK_UPDATES;
@@ -31,10 +31,10 @@ UpdaterDlg::UpdaterDlg(Windower::WindowerProfile *pSettings_in)
 
 UpdaterDlg::~UpdaterDlg()
 {
-	if (m_pUpdater != NULL)
+	if (m_pUpdater != nullptr)
 	{
 		delete m_pUpdater;
-		m_pUpdater = NULL;
+		m_pUpdater = nullptr;
 	}
 }
 
@@ -47,20 +47,20 @@ bool UpdaterDlg::InitializePage()
 
 void UpdaterDlg::OnProgress(unsigned long Completed_in, unsigned long Total_in, const TCHAR *pFeedbackMsg_in)
 {
-	if (m_pProgressCtrl != NULL)
+	if (m_pProgressCtrl != nullptr)
 	{
 		m_pProgressCtrl->SetRange32(0, Total_in);
 		m_pProgressCtrl->SetPos(Completed_in);
 
 		if (Completed_in <= Total_in && Total_in != 0UL)
 		{
-			float ProgressPercent = 100.f * ((float)Completed_in / Total_in);
+			float ProgressPercent = 100.f * (static_cast<float>(Completed_in) / Total_in);
 
 			m_ProgressText.Format(_T("%ul / %ul bytes (%0.2f%%)"), Completed_in, Total_in, ProgressPercent);
 			GetDlgItem(IDC_DL_SIZE)->SetWindowText(m_ProgressText);
 		}
 
-		if (pFeedbackMsg_in == NULL || m_StatusText.Compare(pFeedbackMsg_in) != 0)
+		if (pFeedbackMsg_in == nullptr || m_StatusText.Compare(pFeedbackMsg_in) != 0)
 		{
 			GetDlgItem(IDC_STATUS_TXT)->SetWindowText(pFeedbackMsg_in);
 			m_StatusText = pFeedbackMsg_in;
@@ -78,7 +78,7 @@ void UpdaterDlg::OnFinish()
 		pStart->EnableWindow(TRUE);
 	}
 
-	if (m_pUpdater != NULL)
+	if (m_pUpdater != nullptr)
 	{
 		m_pUpdater->SaveFile(_T("F:\\config.ini"), _T("config.ini"));
 	}
@@ -95,7 +95,7 @@ void UpdaterDlg::OnStart()
 		pStart->SetWindowText(_T("Stop"));
 		pStart->EnableWindow(TRUE);
 
-		if (m_pProgressCtrl != NULL)
+		if (m_pProgressCtrl != nullptr)
 			m_pProgressCtrl->SetStep(0);
 	}
 
@@ -111,18 +111,19 @@ void UpdaterDlg::OnCancel()
 		pStart->SetWindowText(_T("Start"));
 		pStart->EnableWindow(TRUE);
 
-		if (m_pProgressCtrl != NULL)
+		if (m_pProgressCtrl != nullptr)
 			m_pProgressCtrl->SetStep(0);
 	}
 
 	m_bStarted = false;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void UpdaterDlg::OnStartClick()
 {
 	GetDlgItem(IDC_START)->EnableWindow(FALSE);
 
-	if (m_pUpdater != NULL)
+	if (m_pUpdater != nullptr)
 	{
 		if (m_bStarted)
 			m_pUpdater->Cancel();

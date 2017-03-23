@@ -23,8 +23,8 @@ enum eLabelListColumns
 class ColorListCtrl : public CMFCListCtrl
 {
 protected:
-	virtual HFONT OnGetCellFont(int nRow, int nColumn, DWORD dwData = 0);
-	virtual COLORREF OnGetCellTextColor(int nRow, int nColumn);
+	HFONT OnGetCellFont(int nRow, int nColumn, DWORD dwData = 0) override;
+	COLORREF OnGetCellTextColor(int nRow, int nColumn) override;
 };
 
 //! \brief Main dialog
@@ -34,18 +34,16 @@ class LabelDlg : public CDialogEx
 public:
 	LabelDlg(Windower::SettingsManager &SettingsManager_in,
 			 Windower::WindowerProfile &CurrentProfile_in,
-			 CWnd* pParent_in = NULL);
+			 CWnd* pParent_in = nullptr);
 
 	static COLORREF FromARGB(unsigned long ARGB_in);
 
 protected:
-	void DoDataExchange(CDataExchange* pDX_in);
+	void DoDataExchange(CDataExchange* pDX_in) override;
 	// Generated message map functions
-	BOOL OnInitDialog();
+	BOOL OnInitDialog() override;
 	DECLARE_MESSAGE_MAP()
-
-	afx_msg void OnBnClickedTextLabels();
-
+	
 	void AddLabel(const string_t &Name_in, const Windower::LabelSettings &Settings_in, bool Selected_in);
 	void UpdateLabelList();
 	
@@ -58,7 +56,7 @@ public:
 	afx_msg void OnLvnItemchangedLabelList(NMHDR *pNMHDR, LRESULT *pResult);
 	void UpdateUI();
 	afx_msg void OnBnClickedUpdateLabel();
-	unsigned long ToARGB(COLORREF Color_in);
+	static unsigned long ToARGB(COLORREF Color_in);
 };
 
 #endif//__LABEL_DLG_H__

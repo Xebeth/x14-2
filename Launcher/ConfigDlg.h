@@ -41,9 +41,9 @@ public:
 
 	ConfigDlg(PluginFramework::PluginManager &PluginManager_in,
 			  Windower::SettingsManager &SettingsManager_in,
-			  CWnd* pParent_in = NULL);
+			  CWnd* pParent_in = nullptr);
 
-	void InsertPlugin(CListCtrl *pListCtrl_in_out, const PluginFramework::PluginInfo &PluginInfo_in);
+	void InsertPlugin(CListCtrl *pListCtrl_in_out, const PluginFramework::PluginInfo &PluginInfo_in) const;
 
 	bool OnTargetDrop(TCHAR **pDropPath_in);
 
@@ -63,17 +63,17 @@ public:
 	afx_msg void OnSave();
 
 protected:
-	void DoDataExchange(CDataExchange* pDX_in);
+	void DoDataExchange(CDataExchange* pDX_in) override;
 	// Generated message map functions
-	BOOL OnInitDialog();
+	BOOL OnInitDialog() override;
 	DECLARE_MESSAGE_MAP()
 
-	void GenerateNewName(CString &NewName_in_out);
-	void UpdateActivePlugins();
+	static void GenerateNewName(CString &NewName_in_out);
+	void UpdateActivePlugins() const;
 	void ActivateAllPlugins();		
-	void RefreshPluginList();
-	void OnCancel();
-	void OnOK();
+	void RefreshPluginList() const;
+	void OnCancel() override;
+	void OnOK() override;
 
 	PluginFramework::PluginManager &m_PluginManager;
 	Windower::WindowerProfile *m_pCurrentSettings;

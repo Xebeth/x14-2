@@ -7,7 +7,6 @@
 **************************************************************************/
 #include "stdafx.h"
 #include "resource.h"
-#include <afxdlgs.h>
 
 #include <PluginPropertyPage.h>
 
@@ -24,7 +23,7 @@ BOOL BaseWizardPage::OnSetActive()
 {
 	WizardDlg *pWizard = static_cast<WizardDlg*>(GetParent());
 
-	if (pWizard != NULL)
+	if (pWizard != nullptr)
 		pWizard->SetIcon(m_hIcon, FALSE);
 
 	return __super::OnSetActive();

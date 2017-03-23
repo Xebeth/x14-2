@@ -8,7 +8,6 @@ purpose		:	Main dialog
 #include "stdafx.h"
 #include "resource.h"
 
-#include "LauncherApp.h"
 #include "LabelDlg.h"
 
 BEGIN_MESSAGE_MAP(LabelDlg, CDialogEx)
@@ -20,9 +19,9 @@ END_MESSAGE_MAP()
 LabelDlg::LabelDlg(Windower::SettingsManager &SettingsManager_in,
 				   Windower::WindowerProfile &CurrentProfile_in,
 				   CWnd* pParent_in)
-	: CDialogEx(LabelDlg::IDD, pParent_in), m_CurrentSel(-1),
-	  m_SettingsManager(SettingsManager_in),
-	  m_CurrentSettings(CurrentProfile_in) {}
+	: CDialogEx(IDD, pParent_in), m_CurrentSettings(CurrentProfile_in),
+	  m_SettingsManager(SettingsManager_in), m_pCurrentLabel(nullptr),
+	  m_CurrentSel(-1) {}
 
 void LabelDlg::DoDataExchange(CDataExchange *pDX_in)
 {
@@ -62,7 +61,7 @@ void LabelDlg::UpdateLabelList()
 
 	m_LabelList.DeleteAllItems();
 	m_LabelList.SetFocus();
-	m_pCurrentLabel = NULL;
+	m_pCurrentLabel = nullptr;
 
 	for (LabelIt = Labels.cbegin(); LabelIt != EndIt; ++LabelIt)
 		AddLabel(LabelIt->first, LabelIt->second, (Count++ == m_CurrentSel));
@@ -78,15 +77,15 @@ void LabelDlg::AddLabel(const string_t &Name_in, const Windower::LabelSettings &
 	LvItem.state = Selected_in ? LVIS_SELECTED | LVIS_FOCUSED : 0;
 	LvItem.mask = LVIF_TEXT | LVIF_PARAM | LVIF_STATE;
 	LvItem.stateMask = LVIS_SELECTED | LVIS_FOCUSED;	
-	LvItem.lParam = (LPARAM)&Settings_in;	
+	LvItem.lParam = reinterpret_cast<LPARAM>(&Settings_in);	
 	LvItem.iItem = 0;
 
 	if (Selected_in)
-		m_pCurrentLabel = (Windower::LabelSettings*)&Settings_in;
+		m_pCurrentLabel = const_cast<Windower::LabelSettings*>(&Settings_in);
 
 	// label name
 	LvItem.iSubItem = LIST_COL_NAME;
-	LvItem.pszText = (LPTSTR)Name_in.c_str();
+	LvItem.pszText = const_cast<LPTSTR>(Name_in.c_str());
 
 	int Index = m_LabelList.InsertItem(&LvItem);
 
@@ -96,17 +95,17 @@ void LabelDlg::AddLabel(const string_t &Name_in, const Windower::LabelSettings &
 	// label position
 	LvItem.iSubItem = LIST_COL_POSITION;
 	format(Text, _T("%ld,%ld"), Settings_in.X, Settings_in.Y);
-	LvItem.pszText = (LPTSTR)Text.c_str();
+	LvItem.pszText = const_cast<LPTSTR>(Text.c_str());
 	m_LabelList.SetItem(&LvItem);
 	// label font
 	LvItem.iSubItem = LIST_COL_FONT;
 	format(Text, _T("%s %hu"), Settings_in.FontName.c_str(), Settings_in.FontSize);
-	LvItem.pszText = (LPTSTR)Text.c_str();
+	LvItem.pszText = const_cast<LPTSTR>(Text.c_str());
 	m_LabelList.SetItem(&LvItem);
 	// label text color
 	LvItem.iSubItem = LIST_COL_FONT_COLOR;
 	format(Text, _T("#%6X"), Settings_in.TextColor & 0x00FFFFFF);
-	LvItem.pszText = (LPTSTR)Text.c_str();
+	LvItem.pszText = const_cast<LPTSTR>(Text.c_str());
 	m_LabelList.SetItem(&LvItem);
 	// label bold
 	LvItem.iSubItem = LIST_COL_BOLD;
@@ -126,9 +125,9 @@ COLORREF ColorListCtrl::OnGetCellTextColor(int nRow, int nColumn)
 {
 	if (nColumn == LIST_COL_FONT)
 	{
-		const Windower::LabelSettings *pSettings = (const Windower::LabelSettings*)GetItemData(nRow);
+		const Windower::LabelSettings *pSettings = reinterpret_cast<const Windower::LabelSettings*>(GetItemData(nRow));
 
-		if (pSettings != NULL)
+		if (pSettings != nullptr)
 			return LabelDlg::FromARGB(pSettings->TextColor);
 	}
 
@@ -140,9 +139,9 @@ HFONT ColorListCtrl::OnGetCellFont(int nRow, int nColumn, DWORD dwData)
 {
 	if (nColumn == LIST_COL_FONT)
 	{
-		const Windower::LabelSettings *pSettings = (const Windower::LabelSettings*)GetItemData(nRow);
+		const Windower::LabelSettings *pSettings = reinterpret_cast<const Windower::LabelSettings*>(GetItemData(nRow));
 
-		if (pSettings != NULL)
+		if (pSettings != nullptr)
 		{
 			CFont Result;
 
@@ -151,7 +150,7 @@ HFONT ColorListCtrl::OnGetCellFont(int nRow, int nColumn, DWORD dwData)
 							   FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 							   ANTIALIASED_QUALITY, FF_DONTCARE, pSettings->FontName.c_str());
 
-			return (HFONT)Result.Detach();
+			return static_cast<HFONT>(Result.Detach());
 		}
 	}
 
@@ -166,12 +165,12 @@ void LabelDlg::OnLvnItemchangedLabelList(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		if ((pNMLV->uNewState & LVIS_SELECTED) == LVIS_SELECTED)
 		{
-			m_pCurrentLabel = (Windower::LabelSettings*)m_LabelList.GetItemData(pNMLV->iItem);
+			m_pCurrentLabel = reinterpret_cast<Windower::LabelSettings*>(m_LabelList.GetItemData(pNMLV->iItem));
 			m_CurrentSel = pNMLV->iItem;
 		}
 		else
 		{
-			m_pCurrentLabel = NULL;
+			m_pCurrentLabel = nullptr;
 			m_CurrentSel = -1;
 		}
 
@@ -183,7 +182,7 @@ void LabelDlg::OnLvnItemchangedLabelList(NMHDR *pNMHDR, LRESULT *pResult)
 
 void LabelDlg::UpdateUI()
 {
-	bool Enable = (m_pCurrentLabel != NULL);
+	bool Enable = (m_pCurrentLabel != nullptr);
 
 	CMFCColorButton *pTextColor = static_cast<CMFCColorButton*>(GetDlgItem(IDC_TEXT_COLOR));
 	CMFCFontComboBox *pFontName = static_cast<CMFCFontComboBox*>(GetDlgItem(IDC_FONT_NAME));
@@ -216,9 +215,9 @@ void LabelDlg::UpdateUI()
 
 COLORREF LabelDlg::FromARGB(unsigned long ARGB_in)
 {
-	unsigned short R = (unsigned short)((ARGB_in & 0x00FF0000) >> 16);
-	unsigned short G = (unsigned short)((ARGB_in & 0x0000FF00) >> 8);
-	unsigned short B = (unsigned short)(ARGB_in & 0x000000FF);
+	unsigned short R = static_cast<unsigned short>((ARGB_in & 0x00FF0000) >> 16);
+	unsigned short G = static_cast<unsigned short>((ARGB_in & 0x0000FF00) >> 8);
+	unsigned short B = static_cast<unsigned short> (ARGB_in & 0x000000FF);
 
 	return RGB(R, G, B);
 }
@@ -234,7 +233,7 @@ unsigned long LabelDlg::ToARGB(COLORREF Color_in)
 
 void LabelDlg::OnBnClickedUpdateLabel()
 {
-	if (m_pCurrentLabel != NULL)
+	if (m_pCurrentLabel != nullptr)
 	{
 		CMFCColorButton *pTextColor = static_cast<CMFCColorButton*>(GetDlgItem(IDC_TEXT_COLOR));
 		CMFCFontComboBox *pFontName = static_cast<CMFCFontComboBox*>(GetDlgItem(IDC_FONT_NAME));
@@ -242,14 +241,14 @@ void LabelDlg::OnBnClickedUpdateLabel()
 		CMFCButton *pItalic = static_cast<CMFCButton*>(GetDlgItem(IDC_ITALIC_CHK));		
 		CMFCButton *pBold = static_cast<CMFCButton*>(GetDlgItem(IDC_BOLD_CHK));
 
-		m_pCurrentLabel->FontSize = (unsigned short)GetDlgItemInt(IDC_FONT_SIZE, NULL, FALSE);
+		m_pCurrentLabel->FontSize = static_cast<unsigned short>(GetDlgItemInt(IDC_FONT_SIZE, nullptr, FALSE));
 		m_pCurrentLabel->bCollapsed = (pCollapsed->GetCheck() == BST_CHECKED);
+		m_pCurrentLabel->X = static_cast<long>(GetDlgItemInt(IDC_POS_X));
+		m_pCurrentLabel->Y = static_cast<long>(GetDlgItemInt(IDC_POS_Y));
 		m_pCurrentLabel->bItalic = (pItalic->GetCheck() == BST_CHECKED);
 		m_pCurrentLabel->FontName = pFontName->GetSelFont()->m_strName;
 		m_pCurrentLabel->TextColor = ToARGB(pTextColor->GetColor());		
 		m_pCurrentLabel->bBold = (pBold->GetCheck() == BST_CHECKED);
-		m_pCurrentLabel->X = (long)GetDlgItemInt(IDC_POS_X);
-		m_pCurrentLabel->Y = (long)GetDlgItemInt(IDC_POS_Y);
 
 		UpdateLabelList();
 	}

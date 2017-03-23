@@ -41,13 +41,13 @@ public:
 
 	void OnProgress(unsigned long Completed_in,
 					unsigned long Total_in,
-					const TCHAR *pFeedbackMsg_in);
-	void PumpMessages();
-	void OnFinish();
-	void OnCancel();
-	void OnStart();
+					const TCHAR *pFeedbackMsg_in) override;
+	void PumpMessages() override;
+	void OnFinish() override;
+	void OnCancel() override;
+	void OnStart() override;
 
-	bool InitializePage();
+	bool InitializePage() override;
 
 protected:
 	afx_msg void OnStartClick();

@@ -21,11 +21,12 @@ public:
 	void SetCallback(fnOnDrop pCallback_in, CWnd *pObj_in);
 
 	void SetTooltip(const CString &Text_in);
-	BOOL PreTranslateMessage(MSG* pMsg_in);
+	BOOL PreTranslateMessage(MSG* pMsg_in) override;
 
 protected:
 	DECLARE_MESSAGE_MAP()
 
+	// ReSharper disable once CppHidingFunction
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 
 	//! Tooltip control

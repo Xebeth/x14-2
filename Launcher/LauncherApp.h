@@ -31,11 +31,9 @@ class LauncherCmdLine : public CCommandLineInfo
 		FLAG_COUNT
 	};
 public:
-	LauncherCmdLine()
-		: m_LastFlag(FLAG_NONE),
-			m_bFirstRun(NULL) {}
+	LauncherCmdLine() : m_bFirstRun(false), m_LastFlag(FLAG_NONE) {}
 
-	void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast);
+	void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast) override;
 
 	/*! \brief Retrieves the profile name found on the command line
 		\param[out] ProfileName_out : string receiving the profile name
@@ -63,17 +61,14 @@ public:
 	LauncherApp();
 	~LauncherApp();
 
-	BOOL InitInstance();
+	BOOL InitInstance() override;
 
 	static CString& ResolveLink(HWND hWnd_in, const TCHAR *pLinkPath_in, CString &LinkTarget_out);
 	static bool CreateLink(const string_t &SavePath_in, const string_t &LinkTarget_in,
-						   const string_t &WorkingDir_in, const TCHAR *pArgs_in = NULL,
-						   const TCHAR *pDesc_in = NULL, int IconIndex_in = 0);
+						   const string_t &WorkingDir_in, const TCHAR *pArgs_in = nullptr,
+						   const TCHAR *pDesc_in = nullptr, int IconIndex_in = 0);
 
 protected:
-	bool CreateCmdLine(string_t &CmdLine_out, const string_t &GamePath_in,
-						long LanguageID_in, const TCHAR *pSID_in) const;
-
 	PluginFramework::PluginManager *m_pPluginManager;
 	Windower::SettingsManager *m_pSettingsManager;
 	Windower::PluginServices *m_pPluginServices;

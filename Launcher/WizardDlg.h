@@ -44,7 +44,7 @@ public:
 
 	const TCHAR* GetProfileName() const;
 	UINT CreatePages(UINT Tasks_in);
-	void ResetPages();
+	void ResetPages() const;
 
 protected:
 	DECLARE_MESSAGE_MAP()

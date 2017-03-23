@@ -23,8 +23,8 @@ namespace Windower
 		~WindowerUpdater();
 
 		void SaveFile(const TCHAR* pFilename_in,
-					  const TCHAR *pDeflateFile_in = NULL) const;
-		void Cancel();
+					  const TCHAR *pDeflateFile_in = nullptr) const;
+		void Cancel() const;
 		void Start();
 
 	protected:
