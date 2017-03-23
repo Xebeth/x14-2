@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include <afxdllx.h>
 
-static AFX_EXTENSION_MODULE ChatLogDLL = { NULL, NULL };
+static AFX_EXTENSION_MODULE ChatLogDLL = { FALSE, nullptr };
 
 extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {

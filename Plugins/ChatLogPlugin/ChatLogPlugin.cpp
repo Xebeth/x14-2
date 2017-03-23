@@ -20,11 +20,11 @@ namespace Windower
 		\param[in] pServices_in : a pointer to the plugin services
 	*/
 	ChatLogPlugin::ChatLogPlugin(PluginFramework::IPluginServices *pServices_in)
-		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(NULL), m_pTimestamp(NULL)
+		: TimestampPlugin(pServices_in), m_bOpened(false), m_pFile(nullptr), m_pTimestamp(nullptr)
 	{
 		// create the log directory
 		m_LogPath = format(_T("%s%s"), IPlugin::GetWorkingDir(), _T("logs"));
-		CreateDirectory(m_LogPath.c_str(), NULL);
+		CreateDirectory(m_LogPath.c_str(), nullptr);
 		// convert the timestamp
 		convert_utf8(m_TimestampFormat, m_TimestampFormatW);
 	}
@@ -34,10 +34,10 @@ namespace Windower
 	{
 		StopLog();
 
-		if (m_pTimestamp != NULL)
+		if (m_pTimestamp != nullptr)
 		{
 			delete[] m_pTimestamp;
-			m_pTimestamp = NULL;
+			m_pTimestamp = nullptr;
 		}
 	}
 
@@ -55,10 +55,10 @@ namespace Windower
 	*/
 	void ChatLogPlugin::Destroy(IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -87,7 +87,7 @@ namespace Windower
 	DWORD_PTR ChatLogPlugin::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 										   char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
-		if (StartLog() && pOriginalMsg_in != NULL && MsgSize_in > 0U)
+		if (StartLog() && pOriginalMsg_in != nullptr && MsgSize_in > 0U)
 		{
 			string_t Sender, Message, Line;
 
@@ -116,7 +116,7 @@ namespace Windower
 	*/
 	bool ChatLogPlugin::WriteLine(const string_t &Line_in)
 	{
-		if (m_pFile != NULL)
+		if (m_pFile != nullptr)
 		{
 			size_t DataWritten, BufferLength = Line_in.length();
 			DataWritten = fwrite(Line_in.c_str(), sizeof(TCHAR), BufferLength - 1, m_pFile);
@@ -134,7 +134,7 @@ namespace Windower
 	*/
 	bool ChatLogPlugin::StartLog()
 	{
-		if (m_bOpened == false && m_pFile == NULL)
+		if (m_bOpened == false && m_pFile == nullptr)
 		{
 			string_t LogFilename;
 			SYSTEMTIME Time;
@@ -145,7 +145,7 @@ namespace Windower
 				   Time.wYear, Time.wMonth, Time.wDay);
 			// open the file in shared mode for reading only
 			m_pFile = _wfsopen(LogFilename.c_str(), _T("a+, ccs=UTF-8"), _SH_DENYWR);
-			m_bOpened = (m_pFile != NULL);
+			m_bOpened = (m_pFile != nullptr);
 
 			if (m_bOpened)
 			{
@@ -162,18 +162,18 @@ namespace Windower
 	//! \brief Stops the current logging session
 	void ChatLogPlugin::StopLog()
 	{
-		if (m_bOpened && m_pFile != NULL)
+		if (m_bOpened && m_pFile != nullptr)
 		{
 			WriteLine(_T("== End of session =======================\r\n"));
 
 			fclose(m_pFile);
-			m_pFile = NULL;
+			m_pFile = nullptr;
 		}
 	}
 
 	void ChatLogPlugin::UpdateTimestamp()
 	{
-		if (m_pTimestamp == NULL)
+		if (m_pTimestamp == nullptr)
 		{
 			m_pTimestamp = new TCHAR[m_TimestampLength + 1];
 			// clear the buffer
@@ -181,7 +181,7 @@ namespace Windower
 		}
 
 		// get the current time
-		GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0UL, NULL,
+		GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0UL, nullptr,
 					   m_TimestampFormatW.c_str(),
 					   m_pTimestamp, (int)m_TimestampLength + 1);
 	}
