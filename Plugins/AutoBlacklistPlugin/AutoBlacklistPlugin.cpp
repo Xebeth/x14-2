@@ -24,12 +24,12 @@ namespace Windower
 {
 	//! \brief AutoBlacklistPlugin constructor
 	AutoBlacklistPlugin::AutoBlacklistPlugin(PluginFramework::IPluginServices *pServices_in)
-		: IGameChatPlugin(pServices_in), m_pScoredWords(NULL),
+		: IGameChatPlugin(pServices_in), m_pScoredWords(nullptr),
 		  CommandHandler(0xBACA701F, "AutoBlacklistPlugin"),
 		  m_BlacklistThreshold(15L), m_BlacklistCount(3L)
 	{
 		// create the settings
-		if (pServices_in != NULL)
+		if (pServices_in != nullptr)
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -44,7 +44,7 @@ namespace Windower
 		{
 			Offender *pOffender = OffenderIt->second;
 
-			if (pOffender != NULL)
+			if (pOffender != nullptr)
 				delete pOffender;
 		}
 	}
@@ -79,10 +79,10 @@ namespace Windower
 	*/
 	void AutoBlacklistPlugin::Destroy(IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -109,60 +109,60 @@ namespace Windower
 		// add/update scored word
 		WindowerCommand *pCommand = RegisterCommand(CMD_ADD, "blacklist::add", "adds a blacklisted word to the list or updates the score of an existing one");
 
-		if (pCommand != NULL && (pCommand->AddStringParam("word", false, "", "the word to add to the list") == false
+		if (pCommand != nullptr && (pCommand->AddStringParam("word", false, "", "the word to add to the list") == false
 							  || pCommand->AddIntegerParam("score", false, 1L, "the score associated with the word") == false))
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// remove word
 		pCommand = RegisterCommand(CMD_REMOVE, "blacklist::remove", "removes a blacklisted word from the list");
 
-		if (pCommand != NULL && pCommand->AddStringParam("word", false, "", "the word to remove from the list") == false)
+		if (pCommand != nullptr && pCommand->AddStringParam("word", false, "", "the word to remove from the list") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// threshold score update
 		pCommand = RegisterCommand(CMD_THRESHOLD, "blacklist::threshold", "updates the score threshold used to blacklist a message");
 
-		if (pCommand != NULL && pCommand->AddIntegerParam("threshold", true, -1L, "the score threshold") == false)
+		if (pCommand != nullptr && pCommand->AddIntegerParam("threshold", true, -1L, "the score threshold") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// offense count update
 		pCommand = RegisterCommand(CMD_BLOCK_AT, "blacklist::count", "updates the offense count used to add a character to the blacklist");
 
-		if (pCommand != NULL && pCommand->AddIntegerParam("count", true, -1L, "the number of offenses before blacklisting a character (set to 0 to disable this behaviour)") == false)
+		if (pCommand != nullptr && pCommand->AddIntegerParam("count", true, -1L, "the number of offenses before blacklisting a character (set to 0 to disable this behaviour)") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// history
 		pCommand = RegisterCommand(CMD_HISTORY, "blacklist::history", "gives a history of blocked messages and offenders");
 
-		if (pCommand != NULL && pCommand->AddStringParam("sub-command", true, "msg", "valid sub-commands: msg (blacklisted messages), char (blacklisted characters)") == false)
+		if (pCommand != nullptr && pCommand->AddStringParam("sub-command", true, "msg", "valid sub-commands: msg (blacklisted messages), char (blacklisted characters)") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// score message
 		pCommand = RegisterCommand(CMD_SCORE_MSG, "blacklist::score", "evaluates the score of the provided message");
 
-		if (pCommand != NULL && pCommand->AddStringParam("message", false, "", "the message to be scored") == false)
+		if (pCommand != nullptr && pCommand->AddStringParam("message", false, "", "the message to be scored") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 			Result = false;
 		}
 		// list
-		Result &= (RegisterCommand(CMD_LIST, "blacklist::list", "lists the blacklisted words and their scores") != NULL);
+		Result &= (RegisterCommand(CMD_LIST, "blacklist::list", "lists the blacklisted words and their scores") != nullptr);
 
 		return Result;
 	}
@@ -198,7 +198,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::UpdateThreshold(long Threshold_in, std::string & Feedback_out)
 	{
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 		{
 			if (Threshold_in == -1L)
 			{
@@ -223,7 +223,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::UpdateCount(long Count_in, std::string & Feedback_out)
 	{
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 		{
 			if (Count_in == -1L)
 			{
@@ -265,7 +265,7 @@ namespace Windower
 				{
 					Offender *pOffender = OffenderIt->second;
 
-					if (pOffender != NULL)
+					if (pOffender != nullptr)
 					{
 						const BlockedMessages &Messages = pOffender->GetBlockedMessages();
 
@@ -299,7 +299,7 @@ namespace Windower
 				{
 					Offender *pOffender = OffenderIt->second;
 
-					if (pOffender != NULL)
+					if (pOffender != nullptr)
 					{
 						append_format(Feedback_out, " - %s (%ld/%ld): %sblacklisted\n",
 									  pOffender->GetName().c_str(),
@@ -318,7 +318,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::ListWords(std::string &Feedback_out)
 	{
-		if (m_pScoredWords != NULL)
+		if (m_pScoredWords != nullptr)
 		{
 			if (m_pScoredWords->empty())
 			{
@@ -343,7 +343,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::ScoreMessage(const char *pOriginalMsg_in, std::string &Feedback_out)
 	{
-		if (pOriginalMsg_in != NULL)
+		if (pOriginalMsg_in != nullptr)
 		{
 			Feedback_out.clear();
 			ScoreMessage(CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE, pOriginalMsg_in, Feedback_out);
@@ -356,7 +356,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::RemoveWord(const std::string &Word_in, std::string & Feedback_out)
 	{
-		if (m_pScoredWords != NULL && m_pSettings != NULL)
+		if (m_pScoredWords != nullptr && m_pSettings != nullptr)
 		{
 			ScoredWords::iterator WordIt = m_pScoredWords->find(Word_in);
 
@@ -385,7 +385,7 @@ namespace Windower
 
 	bool AutoBlacklistPlugin::AddWord(const std::string &Word_in, long Score_in, std::string & Feedback_out)
 	{
-		if (m_pScoredWords != NULL && m_pSettings != NULL)
+		if (m_pScoredWords != nullptr && m_pSettings != nullptr)
 		{
 			ScoredWords::iterator WordIt;
 			std::string Word = Word_in;
@@ -436,16 +436,16 @@ namespace Windower
 	*/
 	Windower::PluginPropertyPage* AutoBlacklistPlugin::GetPropertyPage()
 	{
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 			return new AutoBlacklistConfigDlg(m_pSettings, m_PluginInfo.GetName());
 
-		return NULL;
+		return nullptr;
 	}
 
 	//! \brief Callback function invoked when the settings have changed
 	void AutoBlacklistPlugin::OnSettingsChanged()
 	{
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 		{
 			m_BlacklistThreshold = m_pSettings->GetBlacklistThreshold();
 			m_BlacklistCount = m_pSettings->GetBlacklistCount();
@@ -482,11 +482,11 @@ namespace Windower
 			{
 				MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE;
 
-				if (pSender_in != NULL && pModifiedMsg_in_out != NULL)
+				if (pSender_in != nullptr && pModifiedMsg_in_out != nullptr)
 				{
 					Offender *pOffender = AddOffender(pSender_in);
 
-					if (pOffender != NULL)
+					if (pOffender != nullptr)
 					{
 						pOffender->AddBlacklistedMessage(ScoredMessage);
 						
@@ -520,7 +520,7 @@ namespace Windower
 	AutoBlacklistPlugin::Offender* AutoBlacklistPlugin::AddOffender(const std::string &Sender_in)
 	{
 		Offenders::iterator OffenderIt = m_Offenders.find(Sender_in);
-		Offender *pOffender = NULL;
+		Offender *pOffender = nullptr;
 
 		if (OffenderIt != m_Offenders.end())
 			pOffender = OffenderIt->second;
@@ -534,7 +534,7 @@ namespace Windower
 	{
 		int Score = 0;
 
-		if (m_pScoredWords != NULL && pOriginalMsg_in != NULL)
+		if (m_pScoredWords != nullptr && pOriginalMsg_in != nullptr)
 		{
 			ScoredWords::const_iterator WordIt, WordEndIt = m_pScoredWords->cend();
 			std::string Message = pOriginalMsg_in;

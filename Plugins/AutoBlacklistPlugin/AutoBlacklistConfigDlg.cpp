@@ -32,11 +32,11 @@ AutoBlacklistConfigDlg::AutoBlacklistConfigDlg(Windower::WindowerProfile *pSetti
 
 bool AutoBlacklistConfigDlg::UpdateWordList() const
 {
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 	{
 		const Windower::ScoredWords *pScoredWords = m_pSettings->GetScoredWords();
 
-		if (pScoredWords != NULL)
+		if (pScoredWords != nullptr)
 		{
 			Windower::ScoredWords::const_iterator WordIt, EndIt = pScoredWords->cend();
 			CString Word;
@@ -58,7 +58,7 @@ void AutoBlacklistConfigDlg::OnDeleteSelected()
 {
 	CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 
-	if (pWordList != NULL)
+	if (pWordList != nullptr)
 	{
 		for (int i = 0; i < pWordList->GetItemCount(); ++i)
 		{
@@ -78,7 +78,7 @@ void AutoBlacklistConfigDlg::InsertWord(const CString &Word_in, long Score_in) c
 {
 	CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 
-	if (pWordList != NULL)
+	if (pWordList != nullptr)
 	{
 		CString Word = Word_in;
 		CString Score;
@@ -104,7 +104,7 @@ void AutoBlacklistConfigDlg::OnClickList(NMHDR* pNMHDR, LRESULT* pResult)
 	CEdit *pEdit = static_cast<CEdit*>(GetDlgItem(IDC_EDIT_CELL));
 	LPNMLISTVIEW pActiveItem = (LPNMLISTVIEW) pNMHDR;	
 	
-	if (pActiveItem != NULL && pWordList != NULL)
+	if (pActiveItem != nullptr && pWordList != nullptr)
 	{
 		//get the row number
 		m_nItem = pActiveItem->iItem;
@@ -154,7 +154,7 @@ bool AutoBlacklistConfigDlg::InitializePage()
 	SetDlgItemText(IDC_HELP_TEXT, _T("When the score of a message exceeds the score threshold, it is blacklisted.\r\n")
 								  _T("After the specified number of offenses, the user is automatically added to your blacklist."));
 
-	if (pWordList != NULL)
+	if (pWordList != nullptr)
 	{
 		pWordList->SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP | LVS_EX_GRIDLINES);
 
@@ -174,7 +174,7 @@ bool AutoBlacklistConfigDlg::InitializePage()
 
 void AutoBlacklistConfigDlg::Revert() 
 {
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 	{
 		m_BlacklistThreshold = m_pSettings->GetBlacklistThreshold();
 		m_BlacklistCount = m_pSettings->GetBlacklistCount();
@@ -184,14 +184,14 @@ void AutoBlacklistConfigDlg::Revert()
 //! \brief Message handler called when the user presses the OK button
 bool AutoBlacklistConfigDlg::Commit()
 {
-	if (IsPageValid(NULL) && m_pSettings != NULL)
+	if (IsPageValid(nullptr) && m_pSettings != nullptr)
 	{
 		m_pSettings->SetBlacklistThreshold(GetDlgItemInt(IDC_SCORE_THRESHOLD));
 		m_pSettings->SetBlacklistCount(GetDlgItemInt(IDC_BLOCK_AT));
 
 		CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 
-		if (pWordList != NULL)
+		if (pWordList != nullptr)
 		{
 			int Count = pWordList->GetItemCount();
 			CString Text;
@@ -224,7 +224,7 @@ bool AutoBlacklistConfigDlg::IsPageValid(string_t *pFeedback_out) const
 	int Threshold = GetDlgItemInt(IDC_SCORE_THRESHOLD);
 	int Count = GetDlgItemInt(IDC_BLOCK_AT);
 
-	if (pFeedback_out != NULL)
+	if (pFeedback_out != nullptr)
 	{
 		if (Threshold < 5)
 			*pFeedback_out += _T("\n    - The threshold score must be >= 5");
@@ -238,7 +238,7 @@ void AutoBlacklistConfigDlg::OnLeaveWordEdit()
 	CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 	CEdit *pEdit = static_cast<CEdit*>(GetDlgItem(IDC_EDIT_CELL));
 
-	if (pEdit != NULL && pWordList != NULL && m_nSubItem != -1 && m_nItem != -1)
+	if (pEdit != nullptr && pWordList != nullptr && m_nSubItem != -1 && m_nItem != -1)
 	{
 		CString Text;
 
@@ -254,7 +254,7 @@ void AutoBlacklistConfigDlg::OnChangeNewWord()
 {
 	CButton *pAddWord = static_cast<CButton*>(GetDlgItem(IDC_ADD_WORD));
 
-	if (pAddWord != NULL)
+	if (pAddWord != nullptr)
 	{
 		CString Text;
 		int Score = GetDlgItemInt(IDC_NEW_SCORE);
@@ -284,7 +284,7 @@ void AutoBlacklistConfigDlg::OnClickAddWord()
 		CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 		CString ItemText;
 
-		if (pWordList != NULL)
+		if (pWordList != nullptr)
 		{
 			int Count = pWordList->GetItemCount();
 
@@ -312,7 +312,7 @@ void AutoBlacklistConfigDlg::OnLvnItemchangedWordList(NMHDR *pNMHDR, LRESULT *pR
 	CButton *pDelButton = static_cast<CButton*>(GetDlgItem(IDC_DEL_SELECTED));
 	CListCtrl *pWordList = static_cast<CListCtrl*>(GetDlgItem(IDC_WORD_LIST));
 	
-	if (pWordList != NULL && pDelButton != nullptr)
+	if (pWordList != nullptr && pDelButton != nullptr)
 	{
 		int Count = pWordList->GetItemCount();
 
