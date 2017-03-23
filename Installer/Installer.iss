@@ -7,7 +7,7 @@
 #define use_vc2015
 
 #define SignToolExe "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe"
-#define SignToolCmd "sign /f E:\~dev\certificates\north-edge-os.pfx /p 7a6iI26*wn&t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll"
+#define SignToolCmd "sign /f E:\~dev\certificates\certum\code-signing.pfx /p 7a6iI26*wn$t0ET /t http://timestamp.verisign.com/scripts/timstamp.dll"
 
 #include "scripts\products.iss"
 

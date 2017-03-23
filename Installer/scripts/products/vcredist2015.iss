@@ -3,13 +3,29 @@
 // requires Internet Explorer 5.01 or later
 
 [CustomMessages]
-vcredist2015_x86_title=Visual C++ 2015 Redistributable (x86)
+vcredist2015_x86_title=Visual 2015 C++ Redistributable (x86)
 en.vcredist2015_x86_size=13.1 MB
 en.vcredist2015_x86_lcid=''
 
 vcredist2015_x64_title=Visual C++ 2015 Redistributable (x64)
 en.vcredist2015_x64_size=13.9 MB
 en.vcredist2015_x64_lcid=''
+
+vcredist2015_sp2_x86_title=Visual C++ 2015 Update 2 Redistributable (x86)
+en.vcredist2015_sp2_x86_size=13.3 MB
+en.vcredist2015_sp2_x86_lcid=''
+
+vcredist2015_sp2_x64_title=Visual C++ 2015 Update 2 Redistributable (x64)
+en.vcredist2015_sp2_x64_size=14.0 MB
+en.vcredist2015_sp2_x64_lcid=''
+
+vcredist2015_sp3_x86_title=Visual C++ 2015 Update 3 Redistributable (x86)
+en.vcredist2015_sp3_x86_size=13.7 MB
+en.vcredist2015_sp3_x86_lcid=''
+
+vcredist2015_sp3_x64_title=Visual C++ 2015 Update 3 Redistributable (x64)
+en.vcredist2015_sp3_x64_size=14.5 MB
+en.vcredist2015_sp3_x64_lcid=''
 
 [Code]
 #IFDEF UNICODE
@@ -61,30 +77,46 @@ const
     
   VC_2015_REDIST_X86 = '{A2563E55-3BEC-3828-8D67-E5E8B9E8B675}';
   VC_2015_REDIST_X64 = '{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}';
-    
+  
+  VC_2015_SP2_REDIST_X86 = '{B5FC62F5-A367-37A5-9FD2-A6E137C0096F}';
+  VC_2015_SP2_REDIST_X64 = '{7B50D081-E670-3B43-A460-0E2CDB5CE984}';
+      
+  VC_2015_SP3_REDIST_X86 = '{e2803110-78b3-4664-a479-3611a381656a}';
+  VC_2015_SP3_REDIST_X64 = '{d992c12e-cab2-426f-bde3-fb8c53950b0d}';
+  
 	vcredist2015_x86_url = 'http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe';
 	vcredist2015_x64_url = 'http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe';
-
+	
+	vcredist2015_sp2_x86_url = 'http://download.microsoft.com/download/9/b/3/9b3d2920-49f7-4e76-a55c-d72b51e44537/vc_redist.x86.exe';
+	vcredist2015_sp2_x64_url = 'http://download.microsoft.com/download/8/c/b/8cb4af84-165e-4b36-978d-e867e07fc707/vc_redist.x64.exe';
+	
+	vcredist2015_sp3_x86_url = 'http://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x86.exe';
+	vcredist2015_sp3_x64_url = 'http://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x64.exe';
+	
 function MsiQueryProductState(szProduct: string): INSTALLSTATE; 
   external 'MsiQueryProductState{#AW}@msi.dll stdcall';
 
 function VCVersionInstalled(const ProductID: string): Boolean;
+var
+  State: Integer;
 begin
-  Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
+  State := MsiQueryProductState(ProductID);
+//MsgBox('Product ' + ProductID + ' state: ' + IntToStr(State), mbInformation, MB_OK);    
+  Result := State = INSTALLSTATE_DEFAULT;
 end;
   
 procedure vcredist2015();
 begin
-	if (not VCVersionInstalled(VC_2015_REDIST_X86)) then
+	if (not VCVersionInstalled(VC_2015_SP3_REDIST_X86)) then
 		AddProduct('vcredist2015.x86.exe',
-               CustomMessage('vcredist2015_x86_lcid') + '/passive /norestart',
-               CustomMessage('vcredist2015_x86_title'),
-               CustomMessage('vcredist2015_x86_size'),
-               vcredist2015_x86_url, false, false);
-  if (IsWin64 and not VCVersionInstalled(VC_2015_REDIST_X64)) then
+               CustomMessage('vcredist2015_sp3_x86_lcid') + '/passive /norestart',
+               CustomMessage('vcredist2015_sp3_x86_title'),
+               CustomMessage('vcredist2015_sp3_x86_size'),
+               vcredist2015_sp3_x86_url, false, false);
+  if (IsWin64 and not VCVersionInstalled(VC_2015_SP3_REDIST_X64)) then
   	AddProduct('vcredist2015.x64.exe',
-               CustomMessage('vcredist2015_x64_lcid') + '/passive /norestart',
-               CustomMessage('vcredist2015_x64_title'),
-               CustomMessage('vcredist2015_x64_size'),
-               vcredist2015_x64_url, false, false);
+               CustomMessage('vcredist2015_sp3_x64_lcid') + '/passive /norestart',
+               CustomMessage('vcredist2015_sp3_x64_title'),
+               CustomMessage('vcredist2015_sp3_x64_size'),
+               vcredist2015_sp3_x64_url, false, false);
 end;

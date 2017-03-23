@@ -29,6 +29,7 @@ var
 	installMemo, downloadMemo, downloadMessage: string;
 	products: array of TProduct;
 	delayedReboot: boolean;
+	skipInstall: boolean;
 	DependencyPage: TOutputProgressWizardPage;
 
 
@@ -84,6 +85,11 @@ var
 	ResultCode, i, productCount, finishCount: Integer;
 begin
 	Result := InstallSuccessful;
+
+  if skipInstall then begin
+    exit;
+  end;
+
 	productCount := GetArrayLength(products);
 
 	if productCount > 0 then begin
@@ -188,6 +194,8 @@ begin
 end;
 
 function NextButtonClick(CurPageID: Integer): boolean;
+var
+  Answer: Integer;
 begin
 	Result := true;
 
@@ -199,12 +207,14 @@ begin
 				isxdl_SetOption('language', ExpandConstant('{tmp}{\}') + CustomMessage('isxdl_langfile'));
 			end;
 			//isxdl_SetOption('title', FmtMessage(SetupMessage(msgSetupWindowTitle), [CustomMessage('appname')]));
-
-			if SuppressibleMsgBox(FmtMessage(CustomMessage('depdownload_msg'), [downloadMessage]), mbConfirmation, MB_YESNO, IDYES) = IDNO then
-				Result := false
-			else if isxdl_DownloadFiles(StrToInt(ExpandConstant('{wizardhwnd}'))) = 0 then
-				Result := false;
-		end;
+      Answer := SuppressibleMsgBox(FmtMessage(CustomMessage('depdownload_msg'), [downloadMessage]), mbConfirmation, MB_YESNOCANCEL, IDYES);
+      
+      case Answer of 
+        IDYES    : Result := (isxdl_DownloadFiles(StrToInt(ExpandConstant('{wizardhwnd}'))) <> 0);
+        IDCANCEL : skipInstall := true;
+        IDNO     : Result := false;
+      end;
+    end;  
 	end;
 end;
 
