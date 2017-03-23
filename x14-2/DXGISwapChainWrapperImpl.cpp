@@ -13,8 +13,8 @@
 #include "DXGISwapChainWrapperImpl.h"
 #include "IDeviceCreateSubscriber.h"
 
-DXGISwapChainWrapperImpl::DXGISwapChainWrapperImpl(IDXGISwapChain *pSwapChain_in, DXGI_SWAP_CHAIN_DESC *pSwapChainDesc_in)
-	: m_pDXGISwapChain11(pSwapChain_in), m_pHookVTable(NULL)
+DXGISwapChainWrapperImpl::DXGISwapChainWrapperImpl(IDXGISwapChain *pSwapChain_in, const DXGI_SWAP_CHAIN_DESC *pSwapChainDesc_in)
+	: m_pDXGISwapChain11(pSwapChain_in), m_pHookVTable(nullptr), m_bRender(true)
 {
 	// retrieve the pointer to the current one
 	m_pHookVTable = *reinterpret_cast<DXGISwapChain_vTable::Entries**>(pSwapChain_in);
@@ -29,8 +29,8 @@ DXGISwapChainWrapperImpl::~DXGISwapChainWrapperImpl()
 	// restore the vtable
 	PatchVTable(true);
 	// reset the pointers
-	m_pHookVTable = NULL;
-	m_pDXGISwapChain11 = NULL;
+	m_pHookVTable = nullptr;
+	m_pDXGISwapChain11 = nullptr;
 }
 
 void DXGISwapChainWrapperImpl::PatchVTable(bool bRestore_in)
@@ -61,13 +61,13 @@ void DXGISwapChainWrapperImpl::Draw()
 	if (m_bRender)
 	{
 		RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-		IRenderable *pRenderable = NULL;
+		IRenderable *pRenderable = nullptr;
 
 		for (RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 		{
 			pRenderable = RenderableIt->second;
 
-			if (pRenderable != NULL && pRenderable->IsVisible())
+			if (pRenderable != nullptr && pRenderable->IsVisible())
 			{
 				pRenderable->Update();
 				pRenderable->Draw();

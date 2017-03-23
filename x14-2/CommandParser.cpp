@@ -48,11 +48,11 @@ namespace Windower
 		// set the name of the command
 		Command_out.SetName(CommandName);
 
-		if ((pCommand = m_CommandDispatcher.FindCommand(CommandName)) != NULL)
+		if ((pCommand = m_CommandDispatcher.FindCommand(CommandName)) != nullptr)
 		{
 			size_t ParamsCount = Params.size();
 
-			if (pCommand != NULL)
+			if (pCommand != nullptr)
 			{
 				Result = PARSER_RESULT_SUCCESS;
 				Command_out.Copy(*pCommand);
@@ -68,7 +68,7 @@ namespace Windower
 
 			if (Result != PARSER_RESULT_SUCCESS)
 			{
-				return SetFeedback(Result, Command_out, ParamsCount, NULL, NULL,
+				return SetFeedback(Result, Command_out, ParamsCount, nullptr, nullptr,
 								   pFeedbackMsg_out, FeedbackMsgSize_out);
 			}
 			else if (ParamsCount > 0)
@@ -78,7 +78,7 @@ namespace Windower
 
 				if (ParamIter != Parameters.cend())
 				{
-					char *pConvertTrail = NULL;
+					char *pConvertTrail = nullptr;
 					std::string CurrentParam;
 					int Error = 0;
 
@@ -157,7 +157,7 @@ namespace Windower
 		switch(ErrorCode_in)
 		{
 			case PARSER_RESULT_INVALID_FLOAT_PARAMETER:
-				if (pParamName_in != NULL && pParamValue_in != NULL)
+				if (pParamName_in != nullptr && pParamValue_in != nullptr)
 				{
 					format(Feedback, "\xee\x81\xaf Parameter '%s' : invalid float value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);
@@ -166,7 +166,7 @@ namespace Windower
 					Feedback = "\xee\x81\xaf Invalid float parameter.";
 			break;
 			case PARSER_RESULT_INVALID_INT_PARAMETER:
-				if (pParamName_in != NULL && pParamValue_in != NULL)
+				if (pParamName_in != nullptr && pParamValue_in != nullptr)
 				{
 					format(Feedback, "\xee\x81\xaf Parameter '%s' : invalid integer value \u00AB%s\u00BB.",
 						   pParamName_in, pParamValue_in);

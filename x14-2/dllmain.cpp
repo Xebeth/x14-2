@@ -10,19 +10,20 @@
 #include "WindowerEngine.h"
 
 // You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
-HINSTANCE g_hAppInstance = NULL;
+HINSTANCE g_hDllInstace = nullptr;
+HINSTANCE g_hAppInstance = nullptr;
 
-Windower::WindowerEngine *g_pEngine = NULL;
+Windower::WindowerEngine *g_pEngine = nullptr;
 
 BOOL DestroyEngine()
 {
-	if (g_pEngine != NULL)
+	if (g_pEngine != nullptr)
 	{
 		// stop the engine thread
 		g_pEngine->Detach();
 		// cleanup
 		delete g_pEngine;
-		g_pEngine = NULL;
+		g_pEngine = nullptr;
 	}
 
 	return TRUE;
@@ -34,11 +35,15 @@ extern "C"
 #endif
 DLLEXPORT BOOL CreateEngine(LPVOID lpUserdata, DWORD nUserdataLen)
 {
-	if (g_pEngine == NULL && lpUserdata != NULL)
+	if (g_pEngine == nullptr && lpUserdata != nullptr)
 	{
 		string_t WorkingDir;
 
-		filepath((LPCTSTR)lpUserdata, WorkingDir);
+#ifdef _DEBUG
+		//Sleep(5000);
+#endif // _DEBUG
+
+		file_path((LPCTSTR)lpUserdata, WorkingDir);
 		g_pEngine = new Windower::WindowerEngine(WorkingDir.c_str(), _T("config.ini"));
 		g_pEngine->Attach();
 	}
@@ -66,7 +71,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 	{
 #ifndef _DEBUG
 		case DLL_QUERY_HMODULE:
-			if (lpReserved_in != NULL)
+			if (lpReserved_in != nullptr)
 				*(HMODULE *)lpReserved_in = g_hAppInstance;
 		break;
 #endif // _DEBUG
@@ -80,7 +85,8 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 #ifdef _DEBUG
 			TCHAR DirPath[_MAX_PATH] = { '\0' };
 			
-			g_hAppInstance = hModule_in;
+			g_hDllInstace = hModule_in;
+			g_hAppInstance = GetModuleHandle(nullptr);
 			// retrieve the name of the module
 			if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
 				return CreateEngine((LPVOID)DirPath, 0UL /* unused */);

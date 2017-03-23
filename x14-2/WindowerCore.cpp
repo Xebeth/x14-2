@@ -13,8 +13,8 @@
 
 namespace Windower
 {
-	HookEngine* WindowerCore::m_pHookManager = NULL;
-	WindowerEngine* WindowerCore::m_pEngine = NULL;	
+	HookEngine* WindowerCore::m_pHookManager = nullptr;
+	WindowerEngine* WindowerCore::m_pEngine = nullptr;	
 
 	/*! \brief WindowerCore constructor
 		\param[in] ModuleName_in : the name of the module
@@ -23,7 +23,7 @@ namespace Windower
 	*/
 	WindowerCore::WindowerCore(const string_t& ModuleName_in)
 	{
-		if (m_pEngine != NULL)
+		if (m_pEngine != nullptr)
 			m_pEngine->RegisterModule(ModuleName_in, this);
 	}
 
@@ -39,12 +39,12 @@ namespace Windower
 	/*! \brief Registers a service in the module
 		\param[in] ServiceName_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return a pointer to the service if successful; NULL otherwise
+		\return a pointer to the service if successful; nullptr otherwise
 	*/
 	BaseModuleService* WindowerCore::RegisterService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
 		ModuleServices::const_iterator ServiceIt = m_Services.find(ServiceName_in);
-		BaseModuleService *pBaseService = NULL;
+		BaseModuleService *pBaseService = nullptr;
 
 		// the service doesn't exist
 		if (ServiceIt == m_Services.cend())
@@ -52,7 +52,7 @@ namespace Windower
 			// create a new service
 			pBaseService = CreateService(ServiceName_in, InvokePermission_in);
 
-			if (pBaseService != NULL)
+			if (pBaseService != nullptr)
 			{
 				if (pBaseService->CanSubscribe())
 				{
@@ -80,11 +80,11 @@ namespace Windower
 	{
 		bool Result = false;
 
-		if (pService_in_out != NULL && m_pHookManager != NULL)
+		if (pService_in_out != nullptr && m_pHookManager != nullptr)
 		{
 			const HookPointers &HookList = pService_in_out->GetHooks();
 			HookPointers::const_iterator HookIt, EndIt = HookList.cend();			
-			LPVOID pPointer = NULL;
+			LPVOID pPointer = nullptr;
 
 			if (m_pHookManager->BeginTransaction())
 			{
@@ -95,13 +95,13 @@ namespace Windower
 					if (Install_in)
 					{
 						pPointer = m_pHookManager->InstallHook(HookIt->first.c_str());
-						Result &= (pPointer != NULL);
+						Result &= (pPointer != nullptr);
 					}
 					else
 					{
 						// uninstall the hook
 						m_pHookManager->UnregisterHook(HookIt->first.c_str());
-						pPointer = NULL;
+						pPointer = nullptr;
 					}
 					// update the pointers (only create them when installing)
 					pService_in_out->SetPointer(HookIt->first, pPointer, false);
@@ -127,7 +127,7 @@ namespace Windower
 		{
 			BaseModuleService *pBaseService = ServiceIt->second;
 
-			if (pBaseService != NULL && pBaseService->CanSubscribe())
+			if (pBaseService != nullptr && pBaseService->CanSubscribe())
 			{
 				ModuleService *pService = static_cast<ModuleService*>(pBaseService);
 
@@ -135,7 +135,7 @@ namespace Windower
 				{
 					bool bInstall = pService->GetSubscribers().empty();
 
-					if (pService != NULL && pService->AddSubscriber(pPlugin_in))
+					if (pService != nullptr && pService->AddSubscriber(pPlugin_in))
 					{
 						// Hooks must be installed before creating the calling context!
 						if (bInstall)
@@ -165,7 +165,7 @@ namespace Windower
 		{
 			BaseModuleService *pBaseService = ServiceIt->second;
 
-			if (pBaseService != NULL && pBaseService->CanSubscribe())
+			if (pBaseService != nullptr && pBaseService->CanSubscribe())
 			{
 				ModuleService *pService = static_cast<ModuleService*>(pBaseService);
 
@@ -190,7 +190,7 @@ namespace Windower
 	/*! \brief Creates a service object given its name
 		\param[in] ServiceName_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return a pointer to the service object if successful; NULL otherwise
+		\return a pointer to the service object if successful; nullptr otherwise
 	*/
 	BaseModuleService* WindowerCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{

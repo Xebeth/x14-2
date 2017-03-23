@@ -12,6 +12,7 @@
 
 #include "IRenderable.h"
 #include "IDeviceCreateSubscriber.h"
+#include "ISwapChainCreateSubscriber.h"
 
 #include "IEventInterface.h"
 #include "EventHandler.h"
@@ -31,10 +32,11 @@
 //#define _TESTING
 
 #if defined _DEBUG && defined _TESTING
+	#include "IGameChatPlugin.h"
 	#include "TestCore.h"
 #endif // _DEBUG
 
-extern HINSTANCE g_hAppInstance;
+extern HINSTANCE g_hDllInstace;
 
 namespace Windower
 {
@@ -44,17 +46,17 @@ namespace Windower
 		\param[in] pConfigFile_in : path to the configuration file
 	*/
 	WindowerEngine::WindowerEngine(const string_t &WorkingDir_in, const TCHAR *pConfigFile_in)
-		: PluginEngine(WorkingDir_in, pConfigFile_in), m_hGameWnd(NULL),
-		  m_bDetached(false), m_bShutdown(false), m_pGameChatCore(NULL),
-		  m_pSystemCore(NULL), m_pPlayerCore(NULL), m_pUpdateTimer(NULL),
-		  m_pGraphicsCore(NULL), m_pCmdLineCore(NULL), m_pTextLabel(NULL), 
+		: PluginEngine(WorkingDir_in, pConfigFile_in), m_hGameWnd(nullptr),
+		  m_bDetached(false), m_bShutdown(false), m_pGameChatCore(nullptr),
+		  m_pSystemCore(nullptr), m_pPlayerCore(nullptr), m_pUpdateTimer(nullptr),
+		  m_pGraphicsCore(nullptr), m_pCmdLineCore(nullptr), m_pTextLabel(nullptr), 
 		  m_MacroThreadID(ThreadState::NONE), m_dwPID(0UL), m_MacroThreadState(0L)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
 		// initialize synchronization locks
-		InitializeCriticalSection(&m_PluginLock);
-		InitializeCriticalSection(&m_MacroLock);
+//		InitializeCriticalSection(&m_PluginLock);
+//		InitializeCriticalSection(&m_MacroLock);
 		// set the static members of modules
 		WindowerCore::Initialize(this, &m_HookManager);
 		// create the system core module
@@ -65,7 +67,7 @@ namespace Windower
 		// create the testing module
 		m_pTestCore = new TestCore;
 	#else
-		m_pTestCore = NULL;
+		m_pTestCore = nullptr;
 	#endif
 #endif // _DEBUG
 
@@ -76,6 +78,7 @@ namespace Windower
 			m_pGameChatCore = new GameChatCore;
 			// create the command line module
 			m_pCmdLineCore = new CmdLineCore;
+			m_pCmdLineCore->SetMacroDirectry(m_pSettingsManager->GetWorkingDir() + MACROS_DIRECTORY);
 			// create the player data module
 			m_pPlayerCore = new PlayerCore;
 			// create the graphics module
@@ -88,64 +91,64 @@ namespace Windower
 	/*! \brief WindowerEngine destructor */
 	WindowerEngine::~WindowerEngine()
 	{
-		if (m_pGameChatCore != NULL)
+		if (m_pGameChatCore != nullptr)
 		{
 			delete m_pGameChatCore;
-			m_pGameChatCore = NULL;
+			m_pGameChatCore = nullptr;
 		}
 
-		if (m_pGraphicsCore != NULL)
+		if (m_pGraphicsCore != nullptr)
 		{
 			delete m_pGraphicsCore;
-			m_pGraphicsCore = NULL;
+			m_pGraphicsCore = nullptr;
 		}
 
-		if (m_pPlayerCore != NULL)
+		if (m_pPlayerCore != nullptr)
 		{
 			delete m_pPlayerCore;
-			m_pPlayerCore = NULL;
+			m_pPlayerCore = nullptr;
 		}
 
-		if (m_pCmdLineCore != NULL)
+		if (m_pCmdLineCore != nullptr)
 		{
 			delete m_pCmdLineCore;
-			m_pCmdLineCore = NULL;
+			m_pCmdLineCore = nullptr;
 		}
 
-		if (m_pSystemCore != NULL)
+		if (m_pSystemCore != nullptr)
 		{
 			delete m_pSystemCore;
-			m_pSystemCore = NULL;
+			m_pSystemCore = nullptr;
 		}
 
-		if (m_pUpdateTimer != NULL)
+		if (m_pUpdateTimer != nullptr)
 		{
 			delete m_pUpdateTimer;
-			m_pUpdateTimer = NULL;
+			m_pUpdateTimer = nullptr;
 		}
 
 #if defined _DEBUG && defined _TESTING
-		if (m_pTestCore != NULL)
+		if (m_pTestCore != nullptr)
 		{
 			delete m_pTestCore;
-			m_pTestCore = NULL;
+			m_pTestCore = nullptr;
 		}
 #endif // _DEBUG
 
 		// delete the critical sections last
-		DeleteCriticalSection(&m_PluginLock);
-		DeleteCriticalSection(&m_MacroLock);
+//		DeleteCriticalSection(&m_PluginLock);
+//		DeleteCriticalSection(&m_MacroLock);
 	}
 
 	bool WindowerEngine::IsPlayerLoggedIn() const
 	{
-		return (m_pPlayerCore != NULL && m_pPlayerCore->IsLoggedIn());
+		return (m_pPlayerCore != nullptr && m_pPlayerCore->IsLoggedIn());
 	}
 
 	//! \brief Initializes the plugins
 	bool WindowerEngine::InitializePlugins()
 	{
-		if (m_pPluginManager != NULL)
+		if (m_pPluginManager != nullptr)
 		{
 			// >>> Critical section
 			LockEngineThread();
@@ -168,14 +171,14 @@ namespace Windower
 	bool WindowerEngine::Attach()
 	{
 		CoreModules::const_iterator ModuleIt, EndIt = m_Modules.cend();
-		ICoreModule *pModule = NULL;
+		ICoreModule *pModule = nullptr;
 
 		// register the hooks
 		for (ModuleIt = m_Modules.cbegin(); ModuleIt != EndIt; ++ModuleIt)
 		{
 			pModule = ModuleIt->second;
 
-			if (pModule != NULL)
+			if (pModule != nullptr)
 				pModule->RegisterHooks(m_HookManager);
 		}
 		// install the hooks
@@ -185,7 +188,7 @@ namespace Windower
 			{
 				pModule = ModuleIt->second;
 
-				if (pModule != NULL)
+				if (pModule != nullptr)
 					pModule->OnHookInstall(m_HookManager);
 			}
 		}
@@ -194,7 +197,7 @@ namespace Windower
 		{
 			pModule = ModuleIt->second;
 
-			if (pModule != NULL)
+			if (pModule != nullptr)
 				pModule->RegisterServices();
 		}
 		// terminate sigscan to free the copy of the process memory
@@ -211,16 +214,16 @@ namespace Windower
 		if (m_bDetached == false)
 		{
 			// clear all the player data
-			if (m_pPlayerCore != NULL)
+			if (m_pPlayerCore != nullptr)
 				m_pPlayerCore->Detach();
 			// stop the update timer
-			if (m_pUpdateTimer != NULL)
+			if (m_pUpdateTimer != nullptr)
 				m_pUpdateTimer->Stop();
 			// restore the vtables of the Direct3D objects
-			if (m_pGraphicsCore != NULL)
+			if (m_pGraphicsCore != nullptr)
 				m_pGraphicsCore->Detach();
 			// restore the window procedures
-			if (m_pSystemCore != NULL)
+			if (m_pSystemCore != nullptr)
 				m_pSystemCore->Detach();
 			// unregister the hooks
 			m_HookManager.Shutdown();
@@ -238,12 +241,12 @@ namespace Windower
 		// terminate the engine thread
 		m_bShutdown = true;
 
-		if (m_pSystemCore != NULL)
+		if (m_pSystemCore != nullptr)
 			WaitForSingleObject(m_pSystemCore->GetMainThreadHandle(), INFINITE);
 
 #ifdef _DEBUG
 		if (UnloadDLL_in)
-			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, g_hAppInstance, 0, NULL);
+			CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)::FreeLibrary, g_hDllInstace, 0, nullptr);
 #endif // _DEBUG
 	}
 
@@ -277,20 +280,20 @@ namespace Windower
 	{
 		if (m_bShutdown == false)
 		{
-			if (m_pUpdateTimer != NULL)
+			if (m_pUpdateTimer != nullptr)
 			{
 				m_pUpdateTimer->Update();
 
 				if (m_pUpdateTimer->HasTicked())
 				{
 					WindowerPlugins::const_iterator PluginIt, EndIt = m_Plugins.cend();
-					WindowerPlugin *pPlugin = NULL;
+					WindowerPlugin *pPlugin = nullptr;
 
 					for (PluginIt = m_Plugins.cbegin(); PluginIt != EndIt; ++PluginIt)
 					{
 						pPlugin = static_cast<WindowerPlugin*>(PluginIt->second);
 
-						if (pPlugin != NULL)
+						if (pPlugin != nullptr)
 							pPlugin->Update();
 					}
 					// configure any plugin queued
@@ -302,24 +305,24 @@ namespace Windower
 
 	void WindowerEngine::UpdateMacroProgress(unsigned long step, unsigned long total, bool stop)
 	{
-		if (m_pGraphicsCore != NULL)
+		if (m_pGraphicsCore != nullptr)
 			m_pGraphicsCore->ShowMacroProgress(step, total, !stop && IsMacroThreadActive());
 
-		if (m_pCmdLineCore != NULL)
+		if (m_pCmdLineCore != nullptr)
 			m_pCmdLineCore->AbortMacro();
 	}
 
 	bool WindowerEngine::PressKey(long key, long delay, long repeat)
 	{
-		if (m_pSystemCore != NULL)
+		if (m_pSystemCore != nullptr)
 		{
-			if (delay < 500L)
-				delay = 500L;
+			if (delay < 50L)
+				delay = 50L;
 
 			for (long i = 0; i < repeat && IsMacroThreadActive(); ++i)
 			{
 				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYDOWN, key, 0);
-				::Sleep(250);
+				::Sleep(50);
 				::PostMessage(m_pSystemCore->GameHWND(), WM_KEYUP, key, 0);
 				::Sleep(delay);
 			}
@@ -347,12 +350,12 @@ namespace Windower
 
 	void WindowerEngine::LockMacroThread()
 	{
-		EnterCriticalSection(&m_MacroLock);
+//		EnterCriticalSection(&m_MacroLock);
 	}
 
 	bool WindowerEngine::UnlockMacroThread()
 	{
-		LeaveCriticalSection(&m_MacroLock);
+//		LeaveCriticalSection(&m_MacroLock);
 
 		return true;
 	}
@@ -370,13 +373,13 @@ namespace Windower
 	//! \brief Initializes the engine
 	void WindowerEngine::InitializeEngine()
 	{
-		if (m_pSystemCore != NULL)
+		if (m_pSystemCore != nullptr)
 		{
 			m_hGameWnd = m_pSystemCore->GameHWND();
 			m_dwPID = ::GetCurrentProcessId();
 		}
 		
-		if (m_pUpdateTimer == NULL)
+		if (m_pUpdateTimer == nullptr)
 		{
 			m_pUpdateTimer = new Timer;
 			
@@ -389,12 +392,12 @@ namespace Windower
 
 	void WindowerEngine::LockEngineThread()
 	{
-		EnterCriticalSection(&m_PluginLock);
+//		EnterCriticalSection(&m_PluginLock);
 	}
 
 	bool WindowerEngine::UnlockEngineThread()
 	{
-		LeaveCriticalSection(&m_PluginLock);
+//		LeaveCriticalSection(&m_PluginLock);
 
 		return true;
 	}
@@ -410,9 +413,9 @@ namespace Windower
 
 			UpdateMacroProgress(0UL, repeat, false);
 			// create the macro thread
-			hThread = ::CreateThread(NULL, 0, WindowerEngine::MacroThread, pParam, 0, &threadID);
+			hThread = ::CreateThread(nullptr, 0, WindowerEngine::MacroThread, pParam, 0, &threadID);
 
-			if (hThread != NULL)
+			if (hThread != nullptr)
 			{
 				InterlockedExchange(&m_MacroThreadState, ThreadState::RUNNING);
 				InterlockedExchange(&m_MacroThreadID, threadID);
@@ -433,7 +436,7 @@ namespace Windower
 		MacroParam* pParam = static_cast<MacroParam*>(pParam_in_out);
 		DWORD Result = (DWORD)-1L;
 
-		if (pParam != NULL)
+		if (pParam != nullptr)
 		{
 			Result = m_Context->m_pCmdLineCore->ExecuteMacroFile(pParam->first, pParam->second) ? 1UL : 0UL;
 			InterlockedExchange(&m_Context->m_MacroThreadState, ThreadState::NONE);
@@ -491,7 +494,7 @@ namespace Windower
 	DWORD_PTR WindowerEngine::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
-		if (m_ExpectCondition.empty() || m_ExpectCondition[0] == '*' || strstr(pOriginalMsg_in, m_ExpectCondition.c_str()) != NULL)
+		if (m_ExpectCondition.empty() || m_ExpectCondition[0] == '*' || strstr(pOriginalMsg_in, m_ExpectCondition.c_str()) != nullptr)
 			SetMacroThreadState(ThreadState::RUNNING);
 
 		return MsgSize_in;
@@ -524,9 +527,9 @@ namespace Windower
 
 	void WindowerEngine::Inject()
 	{
-		HWND hWnd = ::FindWindow(_T(FFXIV_WINDOW_CLASSA), NULL);
+		HWND hWnd = ::FindWindow(_T(FFXIV_WINDOW_CLASSA), nullptr);
 
-		if (hWnd != NULL && m_pSystemCore != NULL)
+		if (hWnd != nullptr && m_pSystemCore != nullptr)
 		{
 			// subclass the game window and start the engine thread
 			m_pSystemCore->SubclassWindow(hWnd);
@@ -543,7 +546,7 @@ namespace Windower
 								  FontName_in, FontSize_in,
 								  Bold_in, Italic_in, Collapsed_in);
 
-		if (m_pSettingsManager != NULL)
+		if (m_pSettingsManager != nullptr)
 			m_pSettingsManager->CopySettings(&m_Settings);
 	}
 
@@ -558,13 +561,13 @@ namespace Windower
 
 	void WindowerEngine::SetWnd(HWND hWnd_in)
 	{
-		if (m_pGraphicsCore != NULL)
+		if (m_pGraphicsCore != nullptr)
 			m_pGraphicsCore->SetWnd(hWnd_in);
 	}
 
 	long WindowerEngine::GetCraftingCondition() const
 	{
-		if (m_pPlayerCore != NULL)
+		if (m_pPlayerCore != nullptr)
 			return m_pPlayerCore->GetCraftingCondition();
 
 		return Crafting::Invalid;

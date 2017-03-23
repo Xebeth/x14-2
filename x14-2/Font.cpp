@@ -14,8 +14,8 @@
 /*! \brief Font default constructor */
 Font::Font()
 {
-	m_pTextSprite = NULL;
-	m_pFont = NULL; 
+	m_pTextSprite = nullptr;
+	m_pFont = nullptr; 
 }
 
 //! Font destructor
@@ -65,7 +65,7 @@ bool Font::Initialize(LPDIRECT3DDEVICE9 pDevice_in, const TCHAR* pFaceName_in, i
 void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3DCOLOR Color_in,
 				 LONG BoxWidth_in, LONG BoxHeight_in, FONTALIGNMENT Alignment_in)
 {
-	if (m_pFont == NULL || m_pTextSprite == NULL || pText_in == NULL)
+	if (m_pFont == nullptr || m_pTextSprite == nullptr || pText_in == nullptr)
 		return;
 
 	DWORD format = DT_EXPANDTABS;
@@ -119,8 +119,8 @@ void Font::Print(const TCHAR* pText_in, LONG xPosition_in, LONG yPosition_in, D3
 //! \brief Destroys the font data
 void Font::Release()
 {
-	m_pTextSprite = NULL;
-	m_pFont = NULL;
+	m_pTextSprite = nullptr;
+	m_pFont = nullptr;
 }
 
 ID3DXSprite* Font::GetSprite() const
@@ -130,18 +130,18 @@ ID3DXSprite* Font::GetSprite() const
 
 void Font::OnDeviceReset()
 {
-	if (m_pTextSprite != NULL)
+	if (m_pTextSprite != nullptr)
 		m_pTextSprite->OnResetDevice();
 
-	if (m_pFont != NULL)
+	if (m_pFont != nullptr)
 		m_pFont->OnResetDevice();
 }
 
 void Font::OnLostDevice()
 {
-	if (m_pTextSprite != NULL)
+	if (m_pTextSprite != nullptr)
 		m_pTextSprite->OnLostDevice();
 
-	if (m_pFont != NULL)
+	if (m_pFont != nullptr)
 		m_pFont->OnLostDevice();
 }

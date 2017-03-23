@@ -19,13 +19,17 @@
 
 #define MODULE_FILE_DESC			"x14-2 Core Module\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
-#define MODULE_COPYRIGHT			"2010-2013 (c) North Edge.  All rights reserved.\0"
+#define MODULE_COPYRIGHT			"2010-2017 (c) North Edge.  All rights reserved.\0"
 #define MODULE_PRODUCT_NAME			"x14-2 for Final Fantasy XIV : A Real Reborn\0"
 
-#define MODULE_FILENAME				"x14-2_core.dll\0"
+#ifndef _M_X64
+	#define MODULE_FILENAME				"x14-2core.x86.dll\0"
+#else
+	#define MODULE_FILENAME				"x14-2core.x64.dll\0"
+#endif
 
 #define MODULE_MAJOR_VERSION		3
-#define MODULE_MINOR_VERSION		0
+#define MODULE_MINOR_VERSION		2
 #define MODULE_RELEASE_VERSION		0
 #define MODULE_TEST_VERSION			0
 

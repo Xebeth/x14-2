@@ -14,7 +14,7 @@
 
 Direct3DDevice9WrapperImpl::Direct3DDevice9WrapperImpl(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS &PresentParams_in)
 	: m_PresentParams(PresentParams_in), m_pDirect3DDevice(pDevice_in),
-	  m_bFullscreen(false), m_bRender(true), m_pHookVTable(NULL)
+	  m_bFullscreen(false), m_bRender(true), m_pHookVTable(nullptr)
 {
 	DWORD vTableSize = D3DDevice9_vTable::vfTableEntryCount * sizeof(LPVOID);
 
@@ -34,7 +34,7 @@ Direct3DDevice9WrapperImpl::~Direct3DDevice9WrapperImpl()
 	// restore the vtable
 	PatchVTable(true);
 	// reset the pointers
-	m_pDirect3DDevice = NULL;
+	m_pDirect3DDevice = nullptr;
 }
 
 void Direct3DDevice9WrapperImpl::PatchVTable(bool bRestore_in)
@@ -63,7 +63,7 @@ void Direct3DDevice9WrapperImpl::PatchVTable(bool bRestore_in)
 
 bool Direct3DDevice9WrapperImpl::AddRenderable(unsigned long ID_in, IRenderable *pRenderable_in)
 {
-	if (pRenderable_in != NULL)
+	if (pRenderable_in != nullptr)
 	{
 		m_UiElements[ID_in] = pRenderable_in;
 
@@ -92,13 +92,13 @@ void Direct3DDevice9WrapperImpl::Draw()
 	if (m_bRender)
 	{
 		RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-		IRenderable *pRenderable = NULL;
+		IRenderable *pRenderable = nullptr;
 
 		for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 		{
 			pRenderable = RenderableIt->second;
 
-			if (pRenderable != NULL && pRenderable->IsVisible())
+			if (pRenderable != nullptr && pRenderable->IsVisible())
 			{
 				pRenderable->Update();
 				pRenderable->Draw();
@@ -110,7 +110,7 @@ void Direct3DDevice9WrapperImpl::Draw()
 void Direct3DDevice9WrapperImpl::OnDeviceLost(D3DPRESENT_PARAMETERS &PresentationParameters_in_out)
 {
 	RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-	IRenderable *pRenderable = NULL;
+	IRenderable *pRenderable = nullptr;
 
 	m_bRender = false;
 	// force vertical sync
@@ -125,7 +125,7 @@ void Direct3DDevice9WrapperImpl::OnDeviceLost(D3DPRESENT_PARAMETERS &Presentatio
 	{
 		pRenderable = RenderableIt->second;
 
-		if (pRenderable != NULL)
+		if (pRenderable != nullptr)
 			pRenderable->OnDeviceLost();
 	}
 }
@@ -133,13 +133,13 @@ void Direct3DDevice9WrapperImpl::OnDeviceLost(D3DPRESENT_PARAMETERS &Presentatio
 void Direct3DDevice9WrapperImpl::OnDeviceReset()
 {
 	RenderableMap::const_iterator RenderableIt, EndIt = m_UiElements.cend();
-	IRenderable *pRenderable = NULL;
+	IRenderable *pRenderable = nullptr;
 
 	for(RenderableIt = m_UiElements.cbegin(); RenderableIt != EndIt; ++RenderableIt)
 	{
 		pRenderable = RenderableIt->second;
 
-		if (pRenderable != NULL)
+		if (pRenderable != nullptr)
 			pRenderable->OnDeviceReset();
 	}
 

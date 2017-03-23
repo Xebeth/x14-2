@@ -26,7 +26,7 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	FormatChatMsgService::FormatChatMsgService(const string_t& Name_in, bool InvokePermission_in)
-		: ModuleService(Name_in, InvokePermission_in), m_pChatMsg(NULL), m_pFormatChatMsgTrampoline(NULL)
+		: ModuleService(Name_in, InvokePermission_in), m_pChatMsg(nullptr), m_pFormatChatMsgTrampoline(nullptr)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -53,17 +53,17 @@ namespace Windower
 	{
 		m_Context->m_pChatMsg = pThis_in_out;
 
-		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
+		if (m_Context->m_pChatMsg != nullptr && m_Context->m_pFormatChatMsgTrampoline != nullptr)
 		{
 			PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Context->m_Subscribers.cend();			
 			DWORD_PTR dwResult = 0UL, dwOriginalSize = pMessage_in_out->dwSize, dwNewSize = dwOriginalSize;
 			const char *pOriginalMsg = pMessage_in_out->pResBuf;
 			DWORD MessageFlags = MSG_FLAG_NONE;
-			char *pModifiedMsg = NULL;
+			char *pModifiedMsg = nullptr;
 			IGameChatPlugin *pPlugin;
 			bool bResult = false;
 
-			if (g_pEngine != NULL)
+			if (g_pEngine != nullptr)
 			{
 				g_pEngine->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
 										 pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
@@ -73,7 +73,7 @@ namespace Windower
 			{
 				pPlugin = static_cast<IGameChatPlugin*>(*PluginIt);
 
-				if (pPlugin != NULL)
+				if (pPlugin != nullptr)
 				{
 					dwResult = pPlugin->OnChatMessage(MessageType_in, pSender_in_out->pResBuf, dwOriginalSize,
 													  pOriginalMsg, &pModifiedMsg, dwNewSize, MessageFlags);
@@ -81,19 +81,19 @@ namespace Windower
 					// discard message
 					if ((MessageFlags & MSG_FLAG_DISCARD) == MSG_FLAG_DISCARD)
 					{
-						if (pModifiedMsg != NULL)
+						if (pModifiedMsg != nullptr)
 							free(pModifiedMsg);
 
 						return false;
 					}
 					// execute result
-					if ((MessageFlags & MSG_FLAG_EXEC) == MSG_FLAG_EXEC && pModifiedMsg != NULL)
+					if ((MessageFlags & MSG_FLAG_EXEC) == MSG_FLAG_EXEC && pModifiedMsg != nullptr)
 						CmdLineCore::InjectCommand(pModifiedMsg);
 					// force the message to be an echo
 					if ((MessageFlags & MSG_FLAG_FORCE_ECHO) == MSG_FLAG_FORCE_ECHO)
 						MessageType_in = CHAT_MESSAGE_TYPE_ECHO_MESSAGE;
 
-					if (pModifiedMsg != NULL && dwResult > dwNewSize)
+					if (pModifiedMsg != nullptr && dwResult > dwNewSize)
 						dwNewSize = dwResult;
 				}
 			}
@@ -114,7 +114,7 @@ namespace Windower
 		bool Result = false;
 		 
 		// update the message
-		if (pModifiedMsg_in != NULL)
+		if (pModifiedMsg_in != nullptr)
 		{
 			InitStringNode(ModifiedMsgNode, pModifiedMsg_in);
 			pNode = &ModifiedMsgNode;
@@ -129,7 +129,7 @@ namespace Windower
 													   pTimestamp_in, Unknown1);
 		g_pEngine->UnlockMacroThread();
 		// cleanup
-		if (pModifiedMsg_in != NULL)
+		if (pModifiedMsg_in != nullptr)
 			free(pModifiedMsg_in);
 
 		return Result;
@@ -139,7 +139,7 @@ namespace Windower
 											 const std::string &Sender_in,
 											 CHAT_MESSAGE_TYPE MessageType_in)
 	{
-		if (m_Context->m_pChatMsg != NULL && m_Context->m_pFormatChatMsgTrampoline != NULL)
+		if (m_Context->m_pChatMsg != nullptr && m_Context->m_pFormatChatMsgTrampoline != nullptr)
 		{
 
 			if (Msg_in.empty() == false)
@@ -150,7 +150,7 @@ namespace Windower
 				InitStringNode(DummySender, Sender_in.c_str());
 
 				FormatChatMessageHook(m_Context->m_pChatMsg, MessageType_in, 
-									  &DummySender, &DummyMsg, NULL, false);
+									  &DummySender, &DummyMsg, nullptr, false);
 			}
 
 			return true;

@@ -10,6 +10,7 @@
 
 // #define __USE_VLD
 #include <stdhdr.h>
+
 #ifdef _M_X64
 	#define SIGSCAN_GAME_PROCESSA "ffxiv_dx11.exe"
 #else

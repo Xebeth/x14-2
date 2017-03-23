@@ -15,7 +15,7 @@
 Direct3D9WrapperImpl::Direct3D9WrapperImpl(IDirect3D9 *pDirect3D9_in, BOOL VSync_in,
 										   IDeviceCreateSubscriber* pSubscriber_in)
 	: m_VSync(0), m_pSubscriber(pSubscriber_in),
-	  m_pDirect3D9(pDirect3D9_in), m_pHookVTable(NULL)
+	  m_pDirect3D9(pDirect3D9_in), m_pHookVTable(nullptr)
 {
 	// retrieve the pointer to the current one
 	m_pHookVTable = *reinterpret_cast<D3D9_vTable::Entries**>(pDirect3D9_in);
@@ -30,8 +30,8 @@ Direct3D9WrapperImpl::~Direct3D9WrapperImpl()
 	// restore the vtable
 	PatchVTable(true);
 	// reset the pointers
-	m_pHookVTable = NULL;
-	m_pDirect3D9 = NULL;
+	m_pHookVTable = nullptr;
+	m_pDirect3D9 = nullptr;
 }
 
 void Direct3D9WrapperImpl::PatchVTable(bool bRestore_in)
@@ -70,6 +70,6 @@ void Direct3D9WrapperImpl::ForceVSync(D3DPRESENT_PARAMETERS &PresentationParamet
 
 void Direct3D9WrapperImpl::OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in) const
 {
-	if (m_pSubscriber != NULL)
+	if (m_pSubscriber != nullptr)
 		m_pSubscriber->OnDeviceCreate(pDevice_in, pPresentParams_in, hWnd_in);
 }

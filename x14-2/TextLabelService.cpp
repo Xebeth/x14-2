@@ -29,7 +29,7 @@ namespace Windower
 									   RenderableMap &UiElements_in, unsigned long BaseID_in,
 									   bool InvokePermission_in)
 		: ModuleService(Name_in, InvokePermission_in), m_UiElements(UiElements_in), m_Engine(Engine_in),
-		  m_NextID(BaseID_in), m_pDevice(NULL), m_pRenderer(NULL), m_pWrapperImpl(NULL)
+		  m_NextID(BaseID_in), m_pDevice(nullptr), m_pRenderer(nullptr), m_pWrapperImpl(nullptr)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -52,22 +52,22 @@ namespace Windower
 	*/
 	bool TextLabelService::Invoke(PluginFramework::ServiceParam &Params_in)
 	{
-		if (m_pDevice != NULL && m_pWrapperImpl != NULL && Params_in.pData != NULL)
+		if (m_pDevice != nullptr && m_pWrapperImpl != nullptr && Params_in.pData != nullptr)
 		{
 			LabelServiceParam *pParam = reinterpret_cast<LabelServiceParam*>(Params_in.pData);
-			NULL;
+			nullptr;
 
-			if (pParam->m_ppUiLabel != NULL)
+			if (pParam->m_ppUiLabel != nullptr)
 			{
 				if (pParam->m_Destroy)
 				{
 					UIAL::CUiWindow<> *pLabel = *pParam->m_ppUiLabel;
 
-					if (pLabel != NULL)
+					if (pLabel != nullptr)
 					{
 						unsigned long ID = pLabel->GetID();
 						
-						*pParam->m_ppUiLabel = NULL;
+						*pParam->m_ppUiLabel = nullptr;
 
 						return DestroyLabel(ID, m_pWrapperImpl);
 					}
@@ -87,19 +87,19 @@ namespace Windower
 
 					pLabel->SetCollapsed(pParam->m_Collapsed);
 
-					if (pParam->m_pfnMouseClick != NULL)
+					if (pParam->m_pfnMouseClick != nullptr)
 						pLabel->SetMouseClickEvent(pParam->m_pfnMouseClick);
 
 					// set the return value
 					*pParam->m_ppUiLabel = pLabel;
 
-					if (pLabel != NULL && Deserialized == false)
+					if (pLabel != nullptr && Deserialized == false)
 						m_Engine.SerializeLabel(pParam->m_LabelName, pParam->m_X, pParam->m_Y,
 												pParam->m_TextColor, pParam->m_FontName,
 												pParam->m_Fontsize, pParam->m_Bold,
 												pParam->m_Italic, pParam->m_Collapsed);
 
-					return (pLabel != NULL);
+					return (pLabel != nullptr);
 				}
 			}
 		}
@@ -113,9 +113,9 @@ namespace Windower
 											   bool bBold_in, bool bItalic_in, unsigned long ARGB_in, 
 											   TextLabelRenderer *pRenderer_in, bool Visibile_in)
 	{
-		UiTextLabel *pLabel = NULL;
+		UiTextLabel *pLabel = nullptr;
 
-		if (pRenderer_in != NULL && pDevice_in != NULL)
+		if (pRenderer_in != nullptr && pDevice_in != nullptr)
 		{
 			UiIdMap::const_iterator IdIt = m_LabelIDs.cbegin();
 			UiLabelMap::const_iterator LabelIt;
@@ -142,7 +142,7 @@ namespace Windower
 			{
 				pLabel = LabelIt->second;
 
-				if (pLabel != NULL)
+				if (pLabel != nullptr)
 				{
 					pLabel->SetName(Name_in);
 					pLabel->SetPos(X_in, Y_in);
@@ -165,17 +165,17 @@ namespace Windower
 
 	bool TextLabelService::DestroyLabel(unsigned long ID_in, Direct3DDevice9WrapperImpl *pWrapperImpl_in)
 	{
-		if (pWrapperImpl_in != NULL)
+		if (pWrapperImpl_in != nullptr)
 		{
 			RenderableMap::const_iterator LabelIt = m_UiElements.find(ID_in);
-			IRenderable *pRenderable = NULL;
+			IRenderable *pRenderable = nullptr;
 			bool Result = false;
 
 			if (LabelIt != m_UiElements.cend())
 			{
 				pRenderable = LabelIt->second;
 
-				if (LabelIt->second != NULL)
+				if (LabelIt->second != nullptr)
 				{
 					pRenderable->SetVisible(false);
 					m_RemovedLabels[ID_in] = static_cast<UiTextLabel*>(pRenderable);

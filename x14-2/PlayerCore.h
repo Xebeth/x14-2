@@ -7,25 +7,27 @@
 **************************************************************************/
 #ifndef __PLAYER_CORE_H__
 #define __PLAYER_CORE_H__
+
 														 //E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8B E8									2015-07-22
-#define INIT_PLAYER_DATA_OPCODES_SIGNATURE				"##E8????????488D0D????????488BE8"
+														 //E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 4C 8B ?? E8								2016-09-24
+#define INIT_PLAYER_DATA_OPCODES_SIGNATURE				"##E8????????488D0D????????4C8B??E8"
 #define INIT_PLAYER_DATA_OPCODES_SIGNATURE_OFFSET		-36
-#define INIT_PLAYER_DATA_OPCODES_HOOK_SIZE				 0
+#define INIT_PLAYER_DATA_OPCODES_HOOK_SIZE				 0 // 10
 
 														 // outdated
 #define SET_PLAYER_TARGET_OPCODES_SIGNATURE				"##57E8????????8B7D??57????E8"
 #define SET_PLAYER_TARGET_OPCODES_SIGNATURE_OFFSET		-13
-#define SET_PLAYER_TARGET_OPCODES_HOOK_SIZE				 13
+#define SET_PLAYER_TARGET_OPCODES_HOOK_SIZE				 0 // 13
 
 														 //0F ?? ?? 66 C7 03 00 00														2015-07-22
 #define FREE_PLAYER_DATA_OPCODES_SIGNATURE				"##0F????66C7030000"
 #define FREE_PLAYER_DATA_OPCODES_SIGNATURE_OFFSET		-33
-#define FREE_PLAYER_DATA_OPCODES_HOOK_SIZE				 0
+#define FREE_PLAYER_DATA_OPCODES_HOOK_SIZE				 0 // 10
 
 														 //83 3D ?? ?? ?? ?? 00 48 8B ?? 48 8B ?? 0F ?? ?? ?? ?? ?? 49 89				2015-07-22
 #define ON_CRAFTING_PROGRESS_OPCODES_SIGNATURE			"##833D????????00488B??488B??0F??????????4989"
 #define ON_CRAFTING_PROGRESS_OPCODES_SIGNATURE_OFFSET	-33
-#define ON_CRAFTING_PROGRESS_OPCODES_HOOK_SIZE			 0
+#define ON_CRAFTING_PROGRESS_OPCODES_HOOK_SIZE			 0 // 8
 
 #define PLAYER_DATA_OFFSET								0x4
 #define TARGET_DATA_OFFSET								0x40

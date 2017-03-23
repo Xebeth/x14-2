@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{19D307E9-C6D3-4EBD-BB3C-217BDBDC5443}"
 EndProject
@@ -39,7 +39,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DebugStaging", "DebugStagin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PluginSDK", "Plugins\SDK\PluginSDK.vcxproj", "{0113C2DD-9AAD-4DBB-A9AE-69B376D405B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bootstrap", "Bootstrap\Bootstrap.vcxproj", "{1495EBF7-185B-40BB-A366-35A98C3B8C91}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bootstrap", "Bootstrap\Bootstrap.vcxproj", "{1495EBF7-185B-40BB-A366-35A98C3B8C91}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoLogin", "Plugins\AutoLoginPlugin\AutoLogin.vcxproj", "{5A76A1BE-3FFF-442E-8165-F1F435952212}"
 EndProject
@@ -203,8 +203,8 @@ Global
 		{DF3F6C0F-462C-4E71-9F58-335F8F00F7F2}.Template|Win32.Build.0 = Release|Win32
 		{DF3F6C0F-462C-4E71-9F58-335F8F00F7F2}.Template|x64.ActiveCfg = Release|x64
 		{DF3F6C0F-462C-4E71-9F58-335F8F00F7F2}.Template|x64.Build.0 = Release|x64
-		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|Win32.Build.0 = Debug|Win32
+		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|Win32.ActiveCfg = Debug|x64
+		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|Win32.Build.0 = Debug|x64
 		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|x64.ActiveCfg = Debug|x64
 		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Debug|x64.Build.0 = Debug|x64
 		{D4D64A16-9F60-4C34-BFBA-6E65B6BBA3CB}.Release|Win32.ActiveCfg = Release|Win32

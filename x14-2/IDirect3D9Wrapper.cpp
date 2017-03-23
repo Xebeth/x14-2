@@ -13,7 +13,7 @@ extern Direct3D9WrapperImpl *g_pDirect3DWrapper;
 HRESULT __stdcall IDirect3D9Wrapper::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags,
 												  D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface)
 {
-	if (g_pDirect3DWrapper == NULL)
+	if (g_pDirect3DWrapper == nullptr)
 		return E_NOTIMPL;
 
 	// force vertical sync

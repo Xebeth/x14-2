@@ -11,7 +11,7 @@ extern DXGISwapChainWrapperImpl *g_pDXGISwapChainWrapper;
 
 HRESULT __stdcall IDXGISwapChainWrapper::Present(UINT SyncInterval, UINT Flags)
 {
-	if (g_pDXGISwapChainWrapper == NULL)
+	if (g_pDXGISwapChainWrapper == nullptr)
 		return E_NOTIMPL;
 	
 	if (g_pDXGISwapChainWrapper->IsRendering())

@@ -25,7 +25,7 @@ namespace Windower
 								 bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
 								 TextLabelRenderer *pRenderer_in, bool Visibile_in)
 		: UiTextLabel(ID_in, pDevice_in, Name_in, X_in, Y_in, W_in, H_in, FontName_in, FontSize_in,
-					  bBold_in, bItalic_in, ARGB_in, pRenderer_in, Visibile_in), m_pRenderTimer(NULL)
+					  bBold_in, bItalic_in, ARGB_in, pRenderer_in, Visibile_in), m_pRenderTimer(nullptr)
 
 	{
 		m_pRenderTimer = new Timer;
@@ -34,10 +34,10 @@ namespace Windower
 
 	UiFPSCounter::~UiFPSCounter()
 	{
-		if (m_pRenderTimer != NULL)
+		if (m_pRenderTimer != nullptr)
 		{
 			delete m_pRenderTimer;
-			m_pRenderTimer = NULL;
+			m_pRenderTimer = nullptr;
 		}
 	}
 	
@@ -65,7 +65,7 @@ namespace Windower
 		m_Total = total;
 		m_Step = step;
 
-		if (m_pRenderTimer != NULL)
+		if (m_pRenderTimer != nullptr)
 		{
 			if (m_Step == 0UL)
 			{

@@ -58,11 +58,11 @@
     <Filter Include="Windower\Modules\Graphics\Wrappers\Direct3D9">
       <UniqueIdentifier>{01f35ed3-7671-4fdd-a866-cff160a85112}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Loader">
-      <UniqueIdentifier>{367c37ad-8cdd-4714-ada9-5903ff66b146}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Windower\Modules\Graphics\Wrappers\Direct3D11">
       <UniqueIdentifier>{2be9fe0c-a528-4abf-b121-e64ea55427c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Loader">
+      <UniqueIdentifier>{d8a4bf32-0f3e-4137-b38d-9b0580c060df}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +156,15 @@
     </ClCompile>
     <ClCompile Include="IDXGISwapChainWrapper.cpp">
       <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGIFactoryWrapperImpl.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="IDXGIFactoryWrapper.cpp">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DebugStaging\ReflectiveLoader.cpp">
+      <Filter>Loader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,6 +272,18 @@
     </ClInclude>
     <ClInclude Include="IFont.h">
       <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="IDXGIFactoryWrapper.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGIFactoryWrapperImpl.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="ISwapChainCreateSubscriber.h">
+      <Filter>Windower\Modules\Graphics\Wrappers\Direct3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DebugStaging\ReflectiveLoader.h">
+      <Filter>Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

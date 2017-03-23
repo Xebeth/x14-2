@@ -21,6 +21,8 @@ typedef struct IDirect3D9 Direct3D9;
 typedef struct IDirect3DDevice9 IDirect3DDevice9;
 
 typedef IDirect3D9*	(WINAPI *fnDirect3DCreate9)(UINT SDKVersion_in);
+typedef HRESULT (WINAPI *fnCreateDXGIFactory)(REFIID riid, void **ppFactory);
+typedef HRESULT(WINAPI *fnCreateSwapChain)(IDXGIFactory *pFactory, IUnknown *pDevice, DXGI_SWAP_CHAIN_DESC *pDesc, IDXGISwapChain **ppSwapChain);
 
 typedef struct ID3D11DeviceContext ID3D11DeviceContext;
 typedef struct IDXGISwapChain IDXGISwapChain;
@@ -34,7 +36,7 @@ namespace Windower
 	class WindowerEngine;
 	class UiTextLabel;
 	
-	class GraphicsCore : public WindowerCore, public IEventInterface, public IDeviceCreateSubscriber
+	class GraphicsCore : public WindowerCore, public IEventInterface, public IDeviceCreateSubscriber, public ISwapChainCreateSubscriber
 	{
 		enum eStaticLabels
 		{
@@ -52,14 +54,15 @@ namespace Windower
 		BaseModuleService* CreateService(const string_t& ServiceName_in, bool InvokePermission_in = false);
 		bool Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in);
 
+		void OnDXGIFactoryCreate(IDXGIFactory *pFactory_in);
 		void OnDeviceCreate(IDirect3DDevice9 *pDevice_in, const D3DPRESENT_PARAMETERS *pPresentParams_in, HWND hWnd_in);
-		void OnSwapChainCreate(IDXGISwapChain *pSwapChain, DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
+		void OnSwapChainCreate(IDXGISwapChain *pSwapChain, const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc);
 
 		
-		LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
-		LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
-		LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
-		LRESULT OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in);
+		LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in);
+		LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in);
+		LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in);
+		LRESULT OnKeyUp(UINT_PTR PressedChar_in, UINT RepetitionCount_in, UINT_PTR KeyFlags_in);
 		LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in);
 		LRESULT OnActivate(bool bActive_in, bool bMinimized_in);
 
@@ -77,13 +80,13 @@ namespace Windower
 		
 		// Direct3D
 
+		static HRESULT WINAPI CreateSwapChainHook(IDXGIFactory *pFactory, IUnknown *pDevice, DXGI_SWAP_CHAIN_DESC *pDesc, IDXGISwapChain **ppSwapChain);
 		static IDirect3D9* WINAPI Direct3DCreate9Hook(UINT SDKVersion_in);
-		static HRESULT WINAPI D3D11CreateDeviceAndSwapChainHook(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software,
-																UINT Flags, CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels,
-																UINT SDKVersion, CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
-																IDXGISwapChain** ppSwapChain, ID3D11Device** ppDevice,
-																D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext);
-
+		static HRESULT WINAPI CreateDXGIFactoryHook(REFIID riid, void **ppFactory);
+		static HRESULT WINAPI D3D11CreateDeviceHook(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software,
+													UINT Flags, CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels,
+													UINT SDKVersion, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel,
+													ID3D11DeviceContext** ppImmediateContext);
 	protected:
 		TextLabelRenderer* GetLabelRenderer();
 		void InitializeLabel(UiTextLabel * pLabel);
@@ -94,7 +97,9 @@ namespace Windower
 		//! Direct3D device
 		IDirect3DDevice9 *m_pDirect3DDevice;
 		ID3D11Device *m_pD3D11Device;
-		PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_pD3D11CreateDeviceAndSwapChainTrampoline;
+		PFN_D3D11_CREATE_DEVICE m_pD3D11CreateDeviceTrampoline;
+		fnCreateDXGIFactory m_pCreateDXGIFactoryTrampoline;
+		fnCreateSwapChain m_pCreateSwapChainTrampoline;
 		//! flag specifying if vertical synchronization is in use
 		bool m_VSync;
 		//! graphical elements

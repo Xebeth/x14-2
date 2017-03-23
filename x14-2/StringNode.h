@@ -17,7 +17,7 @@ namespace Windower
 		DWORD_PTR	 dwSize;				// +12
 		DWORD_PTR	 dwUnknown2;			// +16
 		bool		 bUnknown;				// +17
-		bool		 UseInternal;				// +18
+		bool		 UseInternal;			// +18
 		char		 InternalBuffer[64];	// +19
 	} StringNode;							// total size = 52 / with alignment = 54
 

@@ -14,7 +14,7 @@ namespace Windower
 	class IEventInterface : public NonCopyable
 	{
 	public:
-		IEventInterface() : m_hWnd(NULL) {}
+		IEventInterface() : m_hWnd(nullptr) {}
 		//!	\brief empty destructor
 		virtual ~IEventInterface(void) {}
 
@@ -46,7 +46,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnLButtonDown(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when the left mouse button is released
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -54,7 +54,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnLButtonUp(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when the left mouse button is double clicked
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -62,7 +62,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnLButtonDblClk(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnLButtonDblClk(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when the right mouse button is pressed
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -70,7 +70,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnRButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnRButtonDown(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when the right mouse button is released
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -78,7 +78,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnRButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnRButtonUp(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when the mouse move in the 3D view
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -86,7 +86,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnMouseMove(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 		/*!	\brief Function to call when the mouse wheel is moved in the 3D view
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
 			\param[in] Delta_in Value of the wheel movement
@@ -94,7 +94,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnMouseWheel(WORD X_in, WORD Y_in, short zDelta_in, DWORD MouseFlags_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnMouseWheel(WORD X_in, WORD Y_in, short zDelta_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function called when the mouse leave the view
 		 */
@@ -107,7 +107,7 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnKeyDown(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnKeyDown(UINT_PTR PressedChar_in, UINT_PTR RepetitionCount_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function to call when a key is released
 			\param[in] Flags_in gives the state of keyboard modifier (SHIFT, CTRL..)
@@ -116,14 +116,14 @@ namespace Windower
 			\returns A value that describe what the user input manager should do
 			\see UserInputHandler::Interface::eKeyboardFlag
 		 */
-		virtual LRESULT OnKeyUp(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnKeyUp(UINT_PTR PressedChar_in, UINT_PTR RepetitionCount_in, UINT_PTR KeyFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function called when the user stretch the window
 			\param[in] NewWidth_in New window width
 			\param[in] NewHeight_in New window width
 			\returns A value that describe what the user input manager should do
 		 */
-		virtual LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT nFlags_in) { return EVENT_IGNORED; }
+		virtual LRESULT OnSize(int NewWidth_in, int NewHeight_in, UINT_PTR nFlags_in) { return EVENT_IGNORED; }
 
 		/*!	\brief Function called when the focus in the view is kill
 		 */
@@ -140,10 +140,10 @@ namespace Windower
 		virtual LRESULT OnPaint() { return EVENT_IGNORED; }
 
 		//!	\brief Member function pointer for mouse events
-		typedef LRESULT (IEventInterface::*MouseEventMemFn)(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
+		typedef LRESULT (IEventInterface::*MouseEventMemFn)(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in);
 
 		//!	\brief Member function pointer for mouse events
-		typedef LRESULT (IEventInterface::*KeyEventMemFn)(UINT PressedChar_in, UINT RepetitionCount_in, UINT KeyFlags_in);
+		typedef LRESULT (IEventInterface::*KeyEventMemFn)(UINT_PTR PressedChar_in, UINT_PTR RepetitionCount_in, UINT_PTR KeyFlags_in);
 
 		void SetWnd(HWND hWnd_in) { m_hWnd = hWnd_in; }
 

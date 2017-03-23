@@ -13,7 +13,7 @@
 #include "IDeviceCreateSubscriber.h"
 
 Direct3DSwapChain9WrapperImpl::Direct3DSwapChain9WrapperImpl(IDirect3DSwapChain9 *pDirect3DSwapChain9_in)
-	: m_pDirect3DSwapChain9(pDirect3DSwapChain9_in), m_pHookVTable(NULL)
+	: m_pDirect3DSwapChain9(pDirect3DSwapChain9_in), m_pHookVTable(nullptr)
 {
 	// retrieve the pointer to the current one
 	m_pHookVTable = *reinterpret_cast<D3DSwapChain9_vTable::Entries**>(pDirect3DSwapChain9_in);
@@ -28,8 +28,8 @@ Direct3DSwapChain9WrapperImpl::~Direct3DSwapChain9WrapperImpl()
 	// restore the vtable
 	PatchVTable(true);
 	// reset the pointers
-	m_pHookVTable = NULL;
-	m_pDirect3DSwapChain9 = NULL;
+	m_pHookVTable = nullptr;
+	m_pDirect3DSwapChain9 = nullptr;
 }
 
 void Direct3DSwapChain9WrapperImpl::PatchVTable(bool bRestore_in)
@@ -57,9 +57,9 @@ void Direct3DSwapChain9WrapperImpl::PatchVTable(bool bRestore_in)
 
 void Direct3DSwapChain9WrapperImpl::OnDeviceLost()
 {
-	if (m_pDirect3DSwapChain9 != NULL)
+	if (m_pDirect3DSwapChain9 != nullptr)
 	{
 		m_pDirect3DSwapChain9->Release();
-		m_pDirect3DSwapChain9 = NULL;
+		m_pDirect3DSwapChain9 = nullptr;
 	}
 }

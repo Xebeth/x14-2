@@ -22,15 +22,15 @@
 namespace Windower
 {
 	WindowerCore::CallingContext<SystemCore> SystemCore::m_Context;
-	WNDPROC SystemCore::m_pGameWndProc = NULL;
+	WNDPROC SystemCore::m_pGameWndProc = nullptr;
 
 	/*! \brief SystemCore constructor
 		\param[in,out] pEngine : the windower engine
 	*/
 	SystemCore::SystemCore()
-		: WindowerCore(_T(SYSTEM_MODULE)), m_hMainThread(NULL),
-		  m_pSetWindowSubclassTrampoline(NULL),
-		  m_pRegisterClassExATrampoline(NULL)
+		: WindowerCore(_T(SYSTEM_MODULE)), m_hMainThread(nullptr),
+		  m_pSetWindowSubclassTrampoline(nullptr),
+		  m_pRegisterClassExATrampoline(nullptr)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -42,7 +42,7 @@ namespace Windower
 	*/
 	DWORD WINAPI SystemCore::MainThread(LPVOID pParam_in_out)
 	{
-		if (m_pEngine != NULL)
+		if (m_pEngine != nullptr)
 			return m_pEngine->MainThread();
 
 		return 0xFFFFFFFFUL;
@@ -51,27 +51,27 @@ namespace Windower
 	//! \brief Restores the target WndProc
 	void SystemCore::Detach()
 	{
-		if (m_pGameWndProc != NULL)
+		if (m_pGameWndProc != nullptr)
 		{
 			// remove the engine sub-classing procedure
 			RemoveWindowSubclass(m_hWnd, &SystemCore::SubclassProcHook, 0UL);
 			// restore the original game window procedure (this will kill any game sub-classing)
 			SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_pGameWndProc);
 			// reset the pointer to the game procedure
-			m_pGameWndProc = NULL;
+			m_pGameWndProc = nullptr;
 		}
 	}
 
 	/*! \brief Registers a window class
 			   Hooked to hijack the target process WndProc function
 		\param[in] pWndClass_in : pointer to a WNDCLASSEX structure
-		\return class atom that uniquely identifies the class being registered if successfuly; NULL otherwise
+		\return class atom that uniquely identifies the class being registered if successfuly; nullptr otherwise
 	*/
 	ATOM WINAPI SystemCore::RegisterClassExAHook(const WNDCLASSEXA *pWndClass_in)
 	{
 		ATOM Result = 0L;
 
-		if (m_Context->m_pRegisterClassExATrampoline != NULL)
+		if (m_Context->m_pRegisterClassExATrampoline != nullptr)
 		{
 			// replacing the pointer to the window procedure
 			WNDCLASSEXA *pWndClass = const_cast<WNDCLASSEXA *>(pWndClass_in);
@@ -170,7 +170,7 @@ namespace Windower
 	{
 		if (m_Context->FilterMessages(hWnd_in, uMsg_in, wParam_in, lParam_in))
 			return 0UL;
-		else if (m_pGameWndProc != NULL)
+		else if (m_pGameWndProc != nullptr)
 			return m_pGameWndProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
 		else
 			return ::DefWindowProc(hWnd_in, uMsg_in, wParam_in, lParam_in);
@@ -200,7 +200,7 @@ namespace Windower
 		// register the RegisterClassExA hook
 		HookManager_in.RegisterHook("RegisterClassExA", "user32.dll", RegisterClassExA, &SystemCore::RegisterClassExAHook);
 		// register the SetWindowSubclass hook
-		HookManager_in.RegisterHook("SetWindowSubclass", "comctl32.dll", NULL, &SystemCore::SetWindowSubclassHook);
+		HookManager_in.RegisterHook("SetWindowSubclass", "comctl32.dll", nullptr, &SystemCore::SetWindowSubclassHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -223,11 +223,11 @@ namespace Windower
 	{
 		BOOL Result = FALSE;
 
-		if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
+		if (m_Context->m_pSetWindowSubclassTrampoline != nullptr)
 		{
 			m_Context->m_hWnd = hWnd_in;
 
-			if (m_Context->m_pSetWindowSubclassTrampoline != NULL)
+			if (m_Context->m_pSetWindowSubclassTrampoline != nullptr)
 			{
 				static DWORD CallCount = 2UL;
 
@@ -255,7 +255,7 @@ namespace Windower
 
 			m_pEngine->SetWnd(hWnd_in);
 			// create the engine thread
-			m_hMainThread = CreateThread(NULL, 0, SystemCore::MainThread, NULL, 0, &dwThreadID);
+			m_hMainThread = CreateThread(nullptr, 0, SystemCore::MainThread, nullptr, 0, &dwThreadID);
 		}
 	}
 }

@@ -41,12 +41,13 @@ namespace DXGISwapChain_vTable
 	typedef HRESULT		(__stdcall IUnknown::*fnQueryInterface)(REFIID, void**);
 	typedef ULONG		(__stdcall IUnknown::*fnAddRef)(void);
 	typedef ULONG		(__stdcall IUnknown::*fnRelease)(void);
+	/*** IDXGIObject methods ***/
+	typedef HRESULT		(__stdcall IDXGIObject::*fnSetPrivateData)(REFGUID, UINT, const void*);
+	typedef HRESULT		(__stdcall IDXGIObject::*fnSetPrivateDataInterface)(REFGUID, const IUnknown*);
+	typedef HRESULT		(__stdcall IDXGIObject::*fnGetPrivateData)(REFGUID, UINT*, void*);
+	typedef HRESULT		(__stdcall IDXGIObject::*fnGetParent)(REFIID riid, void**);
+	typedef HRESULT		(__stdcall IDXGIObject::*fnGetDevice)(REFIID riid, void**);
 	/*** IDXGISwapChain methods ***/
-	typedef HRESULT		(__stdcall IDXGISwapChain::*fnSetPrivateData)(REFGUID, UINT, const void*);
-	typedef HRESULT		(__stdcall IDXGISwapChain::*fnSetPrivateDataInterface)(REFGUID, const IUnknown*);
-	typedef HRESULT		(__stdcall IDXGISwapChain::*fnGetPrivateData)(REFGUID, UINT*, void*);
-	typedef HRESULT		(__stdcall IDXGISwapChain::*fnGetParent)(REFIID riid, void**);
-	typedef HRESULT		(__stdcall IDXGISwapChain::*fnGetDevice)(REFIID riid, void**);
 	typedef HRESULT		(__stdcall IDXGISwapChain::*fnPresent)(UINT, UINT);
 	typedef HRESULT		(__stdcall IDXGISwapChain::*fnGetBuffer)(UINT, REFIID, void**);
 	typedef HRESULT		(__stdcall IDXGISwapChain::*fnSetFullscreenState)(BOOL, IDXGIOutput*);
@@ -95,7 +96,7 @@ class DXGISwapChainWrapperImpl
 	friend class IDXGISwapChainWrapper;
 public:
 	DXGISwapChainWrapperImpl(IDXGISwapChain *pDirect3DSwapChain11_in,
-							 DXGI_SWAP_CHAIN_DESC *pSwapChainDesc_in);
+							 const DXGI_SWAP_CHAIN_DESC *pSwapChainDesc_in);
 	~DXGISwapChainWrapperImpl();
 
 	void SetRendering(bool bEnable_in) { m_bRender = bEnable_in; }

@@ -27,7 +27,7 @@ namespace Windower
 							 unsigned short FontSize_in, bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
 							 TextLabelRenderer *pRenderer_in, bool Visibile_in = true);
 
-		virtual void OnMouseClick(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in);
+		virtual void OnMouseClick(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in);
 		virtual void SetVisible(bool Visible_in);
 		virtual bool IsVisible() const;
 		virtual void OnDeviceReset();

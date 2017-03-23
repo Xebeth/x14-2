@@ -14,17 +14,17 @@ extern Direct3DDevice9WrapperImpl *g_pDeviceWrapperImpl;
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresentationParameters) 
 {
-	if (g_pDeviceWrapperImpl == NULL)
+	if (g_pDeviceWrapperImpl == nullptr)
 		return E_NOTIMPL;
 
 	g_pDeviceWrapperImpl->OnDeviceLost(*pPresentationParameters);
 
-	if (g_pDirect3DSwapChainWrapper != NULL)
+	if (g_pDirect3DSwapChainWrapper != nullptr)
 	{
 		g_pDirect3DSwapChainWrapper->OnDeviceLost();
 		// cleanup
 		delete g_pDirect3DSwapChainWrapper;
-		g_pDirect3DSwapChainWrapper = NULL;
+		g_pDirect3DSwapChainWrapper = nullptr;
 	}
 
 	HRESULT Result = CALL_D3DDEVICE_VTABLE(g_pDeviceWrapperImpl, pfnReset)(pPresentationParameters);
@@ -37,12 +37,12 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::Reset(D3DPRESENT_PARAMETERS* pPresent
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain9** pSwapChain)
 {
-	if (g_pDeviceWrapperImpl == NULL)
+	if (g_pDeviceWrapperImpl == nullptr)
 		return E_NOTIMPL;
 
 	HRESULT Result = CALL_D3DDEVICE_VTABLE(g_pDeviceWrapperImpl, pfnCreateAdditionalSwapChain)(pPresentationParameters, pSwapChain);
 
-	if (Result == D3D_OK && *pSwapChain != NULL && g_pDirect3DSwapChainWrapper == NULL && g_pDeviceWrapperImpl->IsFullscreen() == false)
+	if (Result == D3D_OK && *pSwapChain != nullptr && g_pDirect3DSwapChainWrapper == nullptr && g_pDeviceWrapperImpl->IsFullscreen() == false)
 	{
 		g_pDirect3DSwapChainWrapper = new Direct3DSwapChain9WrapperImpl(*pSwapChain);
 	}
@@ -52,7 +52,7 @@ HRESULT __stdcall IDirect3DDevice9Wrapper::CreateAdditionalSwapChain(D3DPRESENT_
 
 HRESULT __stdcall IDirect3DDevice9Wrapper::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-	if (g_pDeviceWrapperImpl == NULL)
+	if (g_pDeviceWrapperImpl == nullptr)
 		return E_NOTIMPL;
 	
 	if (g_pDeviceWrapperImpl->IsRendering())

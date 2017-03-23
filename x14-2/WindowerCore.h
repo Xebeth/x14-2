@@ -62,9 +62,9 @@ namespace Windower
 		template <typename T> class CallingContext
 		{
 		public:
-			CallingContext() : m_pThis(NULL) {}
+			CallingContext() : m_pThis(nullptr) {}
 			
-			bool IsSet() const { return (m_pThis != NULL); }
+			bool IsSet() const { return (m_pThis != nullptr); }
 			void Set(T *pThis_in) { m_pThis = pThis_in; }
 			T* operator->() const { return m_pThis; }
 			operator T*() { return m_pThis; }

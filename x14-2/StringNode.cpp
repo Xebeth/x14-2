@@ -42,7 +42,7 @@ namespace Windower
 	{
 		memset(&Node_in_out, 0, sizeof(Node_in_out));
 
-		if (pMsg_in != NULL)
+		if (pMsg_in != nullptr)
 		{
 			size_t MsgLen = strlen(pMsg_in) + 1;
 

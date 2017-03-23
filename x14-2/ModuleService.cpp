@@ -60,7 +60,7 @@ namespace Windower
 	*/
 	bool ModuleService::IsSubscriberKeyValid(PluginFramework::IPlugin* pPlugin_in)
 	{
-		return (pPlugin_in != NULL && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.cend());
+		return (pPlugin_in != nullptr && m_CompatiblePlugins.find(pPlugin_in->GetUUID()) != m_CompatiblePlugins.cend());
 	}
 
 	/*! \brief Adds a hook pointer to the service

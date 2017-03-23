@@ -15,7 +15,7 @@ extern Direct3DDevice9WrapperImpl *g_pDeviceWrapperImpl;
 HRESULT __stdcall IDirect3DSwapChain9Wrapper::Present(CONST RECT* pSourceRect,CONST RECT* pDestRect, HWND hDestWindowOverride,
 													  CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
-	if (g_pDirect3DSwapChainWrapper == NULL)
+	if (g_pDirect3DSwapChainWrapper == nullptr)
 		return E_NOTIMPL;
 	
 	if (g_pDeviceWrapperImpl->IsRendering())

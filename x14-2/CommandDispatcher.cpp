@@ -46,8 +46,8 @@ namespace Windower
 	{
 		bool Result = true;
 
-		Result &= (RegisterService(_T("UnregisterCommand"), true) != NULL);
-		Result &= (RegisterService(_T("RegisterCommand"), true) != NULL);
+		Result &= (RegisterService(_T("UnregisterCommand"), true) != nullptr);
+		Result &= (RegisterService(_T("RegisterCommand"), true) != nullptr);
 
 		return Result;
 	}
@@ -58,11 +58,11 @@ namespace Windower
 	*/
 	bool CommandDispatcher::RegisterCommand(WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			RegisteredCommands::const_iterator CmdIt = m_Commands.find(pCommand_in->GetName());
 
-			if (CmdIt == m_Commands.cend() || CmdIt->second == NULL)
+			if (CmdIt == m_Commands.cend() || CmdIt->second == nullptr)
 			{
 				// parameters validation
 				if (pCommand_in->ValidateParameters() && IsKeyAuthorized(pCommand_in->GetKey()))
@@ -86,7 +86,7 @@ namespace Windower
 	{
 		RegisteredCommands::const_iterator CmdIt = m_Commands.find(CommandName_in);
 
-		if (CmdIt != m_Commands.cend() && CmdIt->second != NULL
+		if (CmdIt != m_Commands.cend() && CmdIt->second != nullptr
 		 && CmdIt->second->IsKeyMatching(RegistrationKey_in))
 		{
 			return UnregisterCommand(CmdIt->second);
@@ -100,7 +100,7 @@ namespace Windower
 	*/
 	void CommandDispatcher::InsertCommand(WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			m_Commands[pCommand_in->GetName()] = pCommand_in;
 			pCommand_in->OnRegister();
@@ -112,7 +112,7 @@ namespace Windower
 	*/
 	bool CommandDispatcher::UnregisterCommand(WindowerCommand *pCommand_in)
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			m_Commands.erase(pCommand_in->GetName());
 
@@ -137,7 +137,7 @@ namespace Windower
 		{
 			if (ServiceName_in.compare(_T("RegisterCommand")) == 0
 			 && Params_in.DataType.compare(_T("WindowerCommand")) == 0
-			 && Params_in.pData != NULL)
+			 && Params_in.pData != nullptr)
 			{
 				WindowerCommand *pCommand = reinterpret_cast<WindowerCommand*>(Params_in.pData);
 
@@ -145,7 +145,7 @@ namespace Windower
 			}
 			else if (ServiceName_in.compare(_T("UnregisterCommand")) == 0
 				  && Params_in.DataType.compare(_T("UnregisterParam")) == 0
-				  && Params_in.pData != NULL)
+				  && Params_in.pData != nullptr)
 			{
 				UnregisterParam Param = *reinterpret_cast<UnregisterParam*>(Params_in.pData);
 
@@ -158,7 +158,7 @@ namespace Windower
 
 	/*! \brief Retrieves the command specified by its name
 		\param[in] Name_in : the name of the command
-		\return a pointer to the command if found; NULL otherwise
+		\return a pointer to the command if found; nullptr otherwise
 	*/
 	WindowerCommand* CommandDispatcher::FindCommand(const std::string& Name_in) const
 	{
@@ -167,7 +167,7 @@ namespace Windower
 		if (CmdIter != m_Commands.cend())
 			return CmdIter->second;
 
-		return NULL;
+		return nullptr;
 	}
 
 	
@@ -177,11 +177,11 @@ namespace Windower
 	*/
 	bool CommandDispatcher::IsCommandValid(const WindowerCommand *pCommand_in) const
 	{
-		if (pCommand_in != NULL)
+		if (pCommand_in != nullptr)
 		{
 			const WindowerCommand *pCmd = FindCommand(pCommand_in->GetName());
 
-			return (pCmd != NULL);
+			return (pCmd != nullptr);
 		}
 
 		return false;

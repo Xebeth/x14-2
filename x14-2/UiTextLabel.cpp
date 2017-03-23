@@ -22,7 +22,7 @@ namespace Windower
 							 unsigned short FontSize_in, bool bBold_in, bool bItalic_in, unsigned long ARGB_in,
 							 TextLabelRenderer *pRenderer_in, bool Visibile_in)
 		: UIAL::CUiWindow<>(ID_in, Name_in, X_in, Y_in, W_in, H_in, Visibile_in, _T(""), UIAL::CUiFont(FontName_in, FontSize_in),
-							UIAL::CUiColor(ARGB_in), UIAL::CUiColor(0xFFFFFFFF), pRenderer_in), m_pfnMouseClickEvent(NULL)
+							UIAL::CUiColor(ARGB_in), UIAL::CUiColor(0xFFFFFFFF), pRenderer_in), m_pfnMouseClickEvent(nullptr)
 	{
 		m_Font.Initialize(pDevice_in, FontName_in.c_str(), FontSize_in, true, bBold_in, bItalic_in);
 	}
@@ -77,7 +77,7 @@ namespace Windower
 	{
 		TextLabelRenderer *pRenderer = static_cast<TextLabelRenderer*>(m_pRenderer);
 
-		if (pRenderer != NULL)
+		if (pRenderer != nullptr)
 		{
 			X_out = m_Rect.GetX();
 			Y_out = m_Rect.GetY();
@@ -108,9 +108,9 @@ namespace Windower
 	bool UiTextLabel::IsVisible() const
 	{ return m_Visible; }
 
-	void UiTextLabel::OnMouseClick(WORD X_in, WORD Y_in, DWORD MouseFlags_in, UINT KeyFlags_in)
+	void UiTextLabel::OnMouseClick(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in, UINT_PTR KeyFlags_in)
 	{
-		if (m_pfnMouseClickEvent != NULL)
+		if (m_pfnMouseClickEvent != nullptr)
 			m_pfnMouseClickEvent(this, X_in, Y_in, MouseFlags_in, KeyFlags_in);
 	}
 }

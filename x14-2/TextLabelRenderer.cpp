@@ -18,7 +18,7 @@
 namespace Windower
 {
 	TextLabelRenderer::TextLabelRenderer(WORD Width_in, WORD Height_in)
-		: m_pFont(NULL), m_Width(Width_in), m_Height(Height_in) {}
+		: m_pFont(nullptr), m_Width(Width_in), m_Height(Height_in) {}
 
 	void TextLabelRenderer::BeforeRender(UIAL::CUiWindow<> &Window_in_out)
 	{
@@ -27,7 +27,7 @@ namespace Windower
 
 	bool TextLabelRenderer::Render(UIAL::CUiWindow<> &Window_in_out)
 	{
-		if (m_pFont != NULL)
+		if (m_pFont != nullptr)
 		{
 			unsigned long W, H;
 			long X, Y;
@@ -50,7 +50,7 @@ namespace Windower
 
 	void TextLabelRenderer::AfterRender(UIAL::CUiWindow<> &Window_in_out)
 	{
-		m_pFont = NULL;
+		m_pFont = nullptr;
 	}
 
 	void TextLabelRenderer::NormalizePosition(long &X_in_out, long &Y_in_out,

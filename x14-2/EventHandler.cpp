@@ -14,11 +14,11 @@ namespace Windower
 {
 	//!	\brief EventHandler constructor
 	EventHandler::EventHandler()
-		: m_hWnd(NULL), m_pCurrentUIHandler(NULL) {}
+		: m_hWnd(nullptr), m_pCurrentUIHandler(nullptr) {}
 
 	//!	\brief EventHandler constructor
 	EventHandler::EventHandler(HWND hWnd_in)
-		: m_hWnd(hWnd_in), m_pCurrentUIHandler(NULL) {}
+		: m_hWnd(hWnd_in), m_pCurrentUIHandler(nullptr) {}
 
 	//!	\brief EventHandler destructor
 	EventHandler::~EventHandler(void)
@@ -30,7 +30,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnLButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnLButtonDown(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnLButtonDown, X_in, Y_in, MouseFlags_in);
 	}
@@ -39,7 +39,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnLButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnLButtonUp(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnLButtonUp, X_in, Y_in, MouseFlags_in);
 	}
@@ -48,7 +48,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnLButtonDblClk(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnLButtonDblClk(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnLButtonDblClk, X_in, Y_in, MouseFlags_in);
 	}
@@ -57,7 +57,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnRButtonDown(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnRButtonDown(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnRButtonDown, X_in, Y_in, MouseFlags_in);
 	}
@@ -66,7 +66,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnRButtonUp(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnRButtonUp(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnRButtonUp, X_in, Y_in, MouseFlags_in);
 	}
@@ -75,7 +75,7 @@ namespace Windower
 		\param[in] MouseFlags_in Indicates whether various virtual keys are down.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	*/
-	LRESULT EventHandler::OnMouseMove(WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnMouseMove(WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		return DispatchMouseEvent(&IEventInterface::OnMouseMove, X_in, Y_in, MouseFlags_in);
 	}
@@ -101,9 +101,9 @@ namespace Windower
 		\returns state of the Shift, Alt, Control key.
 		\see IEventInterface::eKeyboardFlag
 	 */
-	UINT EventHandler::GetKeyFlags(void)
+	UINT_PTR EventHandler::GetKeyFlags(void)
 	{
-		UINT KeyFlags = 0;
+		UINT_PTR KeyFlags = 0;
 
 		if ((GetKeyState (VK_LSHIFT) < 0) || (GetKeyState (VK_RSHIFT) < 0))
 			KeyFlags |= IEventInterface::SHIFT_KEY_FLAG;
@@ -170,7 +170,7 @@ namespace Windower
 			++UIHIt_in_out;
 			return true;
 		case IEventInterface::EVENT_RELEASE:		// Event consumed and release the lock
-			m_pCurrentUIHandler = NULL;
+			m_pCurrentUIHandler = nullptr;
 			::ReleaseCapture();
 			++UIHIt_in_out;
 			return true;
@@ -192,13 +192,13 @@ namespace Windower
 		\param[in] zDelta_in Indicates distance rotated. The zDelta value is expressed in multiples or divisions of WHEEL_DELTA, which is 120. A value less than zero indicates rotating back (toward the user) while a value greater than zero indicates rotating forward (away from the user). The user can reverse this response by changing the Wheel setting in the mouse software. See the Remarks for more information about this parameter.
 		\param[in] MousePos_in Specifies the x- and y-coordinate of the cursor. These coordinates are always relative to the upper-left corner of the window.
 	 */
-	LRESULT EventHandler::OnMouseWheel(WORD X_in, WORD Y_in, short zDelta_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::OnMouseWheel(WORD X_in, WORD Y_in, short zDelta_in, DWORD_PTR MouseFlags_in)
 	{
 		LRESULT UIHReturnValue = IEventInterface::EVENT_IGNORED;
-		UINT KeyFlags = GetKeyFlags();
+		UINT_PTR KeyFlags = GetKeyFlags();
 		bool SkipLoop = false;
 		
-		// An handler could have asked to get all further events
+		// A handler could have asked to get all further events
 		// Check if it has been saved
 		if(m_pCurrentUIHandler)
 		{
@@ -217,7 +217,7 @@ namespace Windower
 			{
 				if ( m_pCurrentUIHandler == (*UIHIt) )
 				{
-					m_pCurrentUIHandler = NULL;
+					m_pCurrentUIHandler = nullptr;
 					++UIHIt;	//Incr pointer as we don't proceed this entry
 					continue;	//Do not proceed twice the same handler
 				}
@@ -236,7 +236,7 @@ namespace Windower
 		\param[in] nRepCnt_in Repeat count (the number of times the keystroke is repeated as a result of the user holding down the key).
 		\param[in] MouseFlags_in Specifies the scan code, key-transition code, previous key state, and context code.
 	 */
-	LRESULT EventHandler::OnKeyDown(UINT nChar_in, UINT nRepCnt_in)
+	LRESULT EventHandler::OnKeyDown(UINT_PTR nChar_in, UINT_PTR nRepCnt_in)
 	{
 		return DispatchKeyboardEvent(&IEventInterface::OnKeyDown, nChar_in, nRepCnt_in);
 	}
@@ -246,7 +246,7 @@ namespace Windower
 		\param[in] nRepCnt_in Repeat count (the number of times the keystroke is repeated as a result of the user holding down the key).
 		\param[in] MouseFlags_in Specifies the scan code, key-transition code, previous key state, and context code.
 	 */
-	LRESULT EventHandler::OnKeyUp(UINT nChar_in, UINT nRepCnt_in)
+	LRESULT EventHandler::OnKeyUp(UINT_PTR nChar_in, UINT_PTR nRepCnt_in)
 	{
 		return DispatchKeyboardEvent(&IEventInterface::OnKeyUp, nChar_in, nRepCnt_in);
 	}
@@ -342,13 +342,13 @@ namespace Windower
 		\param[in] MousePos_in Mouse position
 		\see IEventInterface
 	 */
-	LRESULT EventHandler::DispatchMouseEvent(IEventInterface::MouseEventMemFn pFn_in, WORD X_in, WORD Y_in, DWORD MouseFlags_in)
+	LRESULT EventHandler::DispatchMouseEvent(IEventInterface::MouseEventMemFn pFn_in, WORD X_in, WORD Y_in, DWORD_PTR MouseFlags_in)
 	{
 		LRESULT UIHReturnValue = IEventInterface::EVENT_IGNORED;
-		UINT KeyFlags = GetKeyFlags();
+		UINT_PTR KeyFlags = GetKeyFlags();
 		bool SkipLoop = false;		
 
-		// An handler could have asked to get all further events
+		// A handler could have asked to get all further events
 		// Check if it has been saved
 		if(m_pCurrentUIHandler)
 		{
@@ -367,7 +367,7 @@ namespace Windower
 			{
 				if ( m_pCurrentUIHandler == (*UIHIt) )
 				{
-					m_pCurrentUIHandler = NULL;
+					m_pCurrentUIHandler = nullptr;
 					++UIHIt;	//Incr pointer as we don't proceed this entry
 					continue;	//Do not proceed twice the same handler
 				}
@@ -387,13 +387,13 @@ namespace Windower
 		\param[in] RepCnt_in Number of time the key pressed have been sent
 		\see IEventInterface
 	 */
-	LRESULT EventHandler::DispatchKeyboardEvent(IEventInterface::KeyEventMemFn pFn_in, UINT Key_in, UINT RepCnt_in)
+	LRESULT EventHandler::DispatchKeyboardEvent(IEventInterface::KeyEventMemFn pFn_in, UINT_PTR Key_in, UINT_PTR RepCnt_in)
 	{
 		LRESULT UIHReturnValue = IEventInterface::EVENT_IGNORED;
-		UINT KeyFlags = GetKeyFlags();
+		UINT_PTR KeyFlags = GetKeyFlags();
 		bool SkipLoop = false;
 
-		// An handler could have asked to get all further events
+		// A handler could have asked to get all further events
 		// Check if it has been saved
 		if(m_pCurrentUIHandler)
 		{
@@ -413,7 +413,7 @@ namespace Windower
 			{
 				if ( m_pCurrentUIHandler == (*UIHIt) )
 				{
-					m_pCurrentUIHandler = NULL;
+					m_pCurrentUIHandler = nullptr;
 					++UIHIt;	//Incr pointer as we don't proceed this entry
 					continue;	//Do not proceed twice the same handler
 				}
@@ -434,7 +434,7 @@ namespace Windower
 	EventHandler::UIHIterator EventHandler::TerminateHandler(IEventInterface *pFinishedUIHandler_in_out)
 	{
 		if(m_pCurrentUIHandler == pFinishedUIHandler_in_out)
-			m_pCurrentUIHandler = NULL;
+			m_pCurrentUIHandler = nullptr;
 
 		delete pFinishedUIHandler_in_out;
 

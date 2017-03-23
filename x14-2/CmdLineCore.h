@@ -11,13 +11,13 @@
 #ifdef _M_X64
 													 //48 8B 02 49 8B F0 48 8B FA 80 38 00			2015-07-16
 	#define PROCESS_CMD_OPCODES_SIGNATURE			"##488B02498BF0488BFA803800"
-	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -23
-	#define PROCESS_CMD_OPCODES_SIZE				  0
+	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	-23
+	#define PROCESS_CMD_OPCODES_SIZE				 0 // 8
 #else
 													 //51 57 8B ?? 89 ?? ?? 89 ?? ?? 89				2015-07-16
 	#define PROCESS_CMD_OPCODES_SIGNATURE			"##51578B??89????89????89"
-	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	 -39
-	#define PROCESS_CMD_OPCODES_SIZE				  11
+	#define PROCESS_CMD_OPCODES_SIGNATURE_OFFSET	-39
+	#define PROCESS_CMD_OPCODES_SIZE				 11
 #endif // _M_X64
 
 #define CMD_LINE_MODULE "CmdLine"
@@ -99,6 +99,8 @@ namespace Windower
 		
 		bool ExecuteCommand(INT_PTR CmdID_in, const WindowerCommand &Command_in, std::string& Feedback_out);
 		bool ExecuteMacroFile(const string_t &macroFile_in, unsigned long repeat = 1UL);
+		void SetMacroDirectry(const string_t &Directory_in);
+		bool FindMacroFile(string_t &MacroFile_in_out);
 		void AbortMacro();
 
 		// ICommandHandler interface implementation
@@ -119,6 +121,9 @@ namespace Windower
 		bool RegisterCommands();
 		void ParseLine(const std::string &line);
 
+		//! list of macro directories
+		string_t m_MacroDirectory;
+		//! conditional action
 		ConditionalAction *m_pCondition;
 		//! the command dispatcher
 		CommandDispatcher *m_pCommandDispatcher;

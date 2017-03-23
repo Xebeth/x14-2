@@ -23,13 +23,13 @@ namespace Windower
 		\param[in,out] HookManager_in_out : Hook manager
 	*/
 	PlayerCore::PlayerCore()
-		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerData(NULL),
-		  m_pPlayerDataService(NULL), m_pPlayerTarget(NULL),
+		: WindowerCore(_T(PLAYER_DATA_MODULE)), m_pPlayerData(nullptr),
+		  m_pPlayerDataService(nullptr), m_pPlayerTarget(nullptr),
 		  m_CraftingCondition(Crafting::Invalid),
-		  m_pOnCraftingProgressTrampoline(NULL),
-		  m_pFreePlayerDataTrampoline(NULL),		  
-		  m_pCharMgrInitTrampoline(NULL),
-		  m_pGetTargetTrampoline(NULL)
+		  m_pOnCraftingProgressTrampoline(nullptr),
+		  m_pFreePlayerDataTrampoline(nullptr),		  
+		  m_pCharMgrInitTrampoline(nullptr),
+		  m_pGetTargetTrampoline(nullptr)
 	{
 		// set the calling context for the hooks
 		m_Context.Set(this);
@@ -62,7 +62,7 @@ namespace Windower
 	bool PlayerCore::RegisterServices()
 	{
 		// register the services
-		return (RegisterService(_T(INIT_PLAYER_DATA_HOOK), false) != NULL);
+		return (RegisterService(_T(INIT_PLAYER_DATA_HOOK), false) != nullptr);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -78,10 +78,10 @@ namespace Windower
 
 	void PlayerCore::OnCraftingProgressHook(LPVOID pThis_in_out, CraftingData *pData_in)
 	{
-		if (pData_in != NULL)
+		if (pData_in != nullptr)
 			m_Context->m_CraftingCondition = pData_in->Condition;
 
-		if (m_Context->m_pFreePlayerDataTrampoline != NULL)
+		if (m_Context->m_pOnCraftingProgressTrampoline != nullptr)
 			m_Context->m_pOnCraftingProgressTrampoline(pThis_in_out, pData_in);
 	}
 
@@ -89,10 +89,10 @@ namespace Windower
 	{
 		int Result = 0;
 
-		if (m_Context->m_pFreePlayerDataTrampoline != NULL)
+		if (m_Context->m_pFreePlayerDataTrampoline != nullptr)
 		{
 			Result = m_Context->m_pFreePlayerDataTrampoline(pThis);
-			m_Context->m_pPlayerDataService->OnPlayerPtrChange(NULL);
+			m_Context->m_pPlayerDataService->OnPlayerPtrChange(nullptr);
 			m_Context->m_pEngine->AbortMacro();
 		}
 
@@ -101,11 +101,11 @@ namespace Windower
 
 	int PlayerCore::InitPlayerDataHook(LPVOID pThis_in_out, LPVOID pUnknown_in)
 	{
-		if (m_Context->m_pCharMgrInitTrampoline != NULL)
+		if (m_Context->m_pCharMgrInitTrampoline != nullptr)
 		{
 			m_Context->m_pPlayerData = (const TargetData**)((DWORD_PTR)pThis_in_out + PLAYER_DATA_OFFSET);
 
-			if (m_Context->m_pPlayerDataService != NULL && m_Context->m_pPlayerData != NULL)
+			if (m_Context->m_pPlayerDataService != nullptr && m_Context->m_pPlayerData != nullptr)
 				m_Context->m_pPlayerDataService->OnPlayerPtrChange(m_Context->m_pPlayerData);
 
 			return m_Context->m_pCharMgrInitTrampoline(pThis_in_out, pUnknown_in);
@@ -119,31 +119,31 @@ namespace Windower
 		m_Context->m_pPlayerTarget = (const TargetData**)((DWORD_PTR)pThis_in_out + TARGET_DATA_OFFSET);
 		m_Context->m_pGetTargetTrampoline(pThis_in_out, pNewTarget_in, Unknown_in);
 
-		if (m_Context->m_pPlayerDataService != NULL)
+		if (m_Context->m_pPlayerDataService != nullptr)
 			m_Context->m_pPlayerDataService->OnTargetPtrChange(m_Context->m_pPlayerTarget);
 	}
 
 	void PlayerCore::Detach()
 	{
-		if (m_Context->m_pPlayerDataService != NULL)
+		if (m_Context->m_pPlayerDataService != nullptr)
 		{
-			m_Context->m_pPlayerDataService->OnTargetPtrChange(NULL);
-			m_Context->m_pPlayerDataService->OnPlayerPtrChange(NULL);
+			m_Context->m_pPlayerDataService->OnTargetPtrChange(nullptr);
+			m_Context->m_pPlayerDataService->OnPlayerPtrChange(nullptr);
 		}
 
-		m_Context->m_pPlayerTarget = NULL;
-		m_Context->m_pPlayerData = NULL;
+		m_Context->m_pPlayerTarget = nullptr;
+		m_Context->m_pPlayerData = nullptr;
 	}
 
 	bool PlayerCore::IsLoggedIn() const
 	{
-		return (m_pPlayerData != NULL && *m_pPlayerData != NULL && (*m_pPlayerData)->Name[0] != '\0');
+		return (m_pPlayerData != nullptr && *m_pPlayerData != nullptr && (*m_pPlayerData)->Name[0] != '\0');
 	}
 
 	/*! \brief Creates a service object given its name
 		\param[in] ServiceName_in : the name of the service
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
-		\return a pointer to the service object if successful; NULL otherwise
+		\return a pointer to the service object if successful; nullptr otherwise
 	*/
 	BaseModuleService* PlayerCore::CreateService(const string_t& ServiceName_in, bool InvokePermission_in)
 	{
@@ -154,11 +154,11 @@ namespace Windower
 
 	void PlayerCore::OnSubscribe(ModuleService *pService_in_out, PluginFramework::IPlugin* pPlugin_in)
 	{
-		if (pService_in_out != NULL && pService_in_out->GetName().compare(_T(INIT_PLAYER_DATA_HOOK)) == 0)
+		if (pService_in_out != nullptr && pService_in_out->GetName().compare(_T(INIT_PLAYER_DATA_HOOK)) == 0)
 		{
 			IPlayerDataPlugin *pPlugin = static_cast<IPlayerDataPlugin*>(pPlugin_in);
 
-			if (pPlugin != NULL)
+			if (pPlugin != nullptr)
 				pPlugin->OnTargetPtrChange(m_pPlayerData, m_pPlayerTarget);
 		}
 	}

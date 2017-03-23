@@ -17,7 +17,7 @@ namespace Windower
 		\param[in] InvokePermission_in : flag specifying if the service can be invoked
 	*/
 	PlayerDataService::PlayerDataService(const string_t& Name_in, bool InvokePermission_in)
-		: ModuleService(Name_in, InvokePermission_in), m_pPlayerData(NULL), m_pPlayerTarget(NULL)
+		: ModuleService(Name_in, InvokePermission_in), m_pPlayerData(nullptr), m_pPlayerTarget(nullptr)
 	{
 		// add compatible plugins
 		StringUtils::UUID PluginUUID;
@@ -46,13 +46,13 @@ namespace Windower
 	void PlayerDataService::NotifyPlugins()
 	{
 		PluginFramework::PluginSet::const_iterator PluginIt, EndIt = m_Subscribers.cend();
-		IPlayerDataPlugin *pPlugin = NULL;
+		IPlayerDataPlugin *pPlugin = nullptr;
 
 		for (PluginIt = m_Subscribers.cbegin(); PluginIt != EndIt; ++PluginIt)
 		{
 			pPlugin = static_cast<IPlayerDataPlugin*>(*PluginIt);
 
-			if (pPlugin != NULL)
+			if (pPlugin != nullptr)
 				pPlugin->OnTargetPtrChange(m_pPlayerData, m_pPlayerTarget);
 		}
 	}
