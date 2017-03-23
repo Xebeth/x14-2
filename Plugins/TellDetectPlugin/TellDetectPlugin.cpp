@@ -22,7 +22,7 @@ namespace Windower
 		: IGameChatPlugin(pServices_in)
 	{
 		// create the settings
-		if (pServices_in != NULL)
+		if (pServices_in != nullptr)
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -43,10 +43,10 @@ namespace Windower
 	*/
 	void TellDetectPlugin::Destroy(IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -68,10 +68,10 @@ namespace Windower
 	*/
 	Windower::PluginPropertyPage* TellDetectPlugin::GetPropertyPage()
 	{
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 			return new TellDetectConfigDlg(m_pSettings, m_PluginInfo.GetName());
 
-		return NULL;
+		return nullptr;
 	}
 
 	/*! \brief Callback invoked when the game chat receives a new line
@@ -87,7 +87,7 @@ namespace Windower
 											  char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
 		if (MessageType_in == CHAT_MESSAGE_TYPE_INCOMING_TELL_MESSAGE && MessageFlags_out == MSG_FLAG_NONE)
-			PlaySound(m_SoundFile.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+			PlaySound(m_SoundFile.c_str(), nullptr, SND_FILENAME | SND_ASYNC);
 
 		return MsgSize_in;
 	}

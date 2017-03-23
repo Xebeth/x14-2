@@ -19,7 +19,7 @@
 
 #define MODULE_FILE_DESC			"x14-2 Tell detect plugin\0"
 #define MODULE_COMPANY_NAME			"North Edge\0"
-#define MODULE_COPYRIGHT			"2010-2013 (c) North Edge.  All rights reserved.\0"
+#define MODULE_COPYRIGHT			"2010-2017 (c) North Edge.  All rights reserved.\0"
 #define MODULE_PRODUCT_NAME			"x14-2 for Final Fantasy XIV : A Real Reborn\0"
 
 #define MODULE_FILENAME				"TellDetect.dll\0"

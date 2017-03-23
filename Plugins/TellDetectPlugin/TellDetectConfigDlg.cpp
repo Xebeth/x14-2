@@ -37,14 +37,14 @@ bool TellDetectConfigDlg::InitializePage()
 
 void TellDetectConfigDlg::Revert()
 {
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 		m_SndFile = m_pSettings->GetTellSound();
 }
 
 //! \brief Message handler called when the user presses the OK button
 bool TellDetectConfigDlg::Commit()
 {
-	if (IsPageValid(NULL) && m_pSettings != NULL)
+	if (IsPageValid(nullptr) && m_pSettings != nullptr)
 	{
 		m_pSettings->SetTellSound(m_SndFile.GetBuffer());
 
@@ -62,7 +62,7 @@ void TellDetectConfigDlg::OnPlayChime()
 	if (m_SndFile.IsEmpty() == false && pPlayButton->IsWindowEnabled())
 	{
 		pPlayButton->EnableWindow(FALSE);
-		PlaySound(m_SndFile, NULL, SND_FILENAME | SND_NODEFAULT);
+		PlaySound(m_SndFile, nullptr, SND_FILENAME | SND_NODEFAULT);
 		pPlayButton->EnableWindow(TRUE);
 	}
 }
@@ -98,7 +98,7 @@ bool TellDetectConfigDlg::IsPageValid(string_t *pFeedback_out) const
 {
 	if (m_SndFile.IsEmpty())
 	{
-		if (pFeedback_out != NULL)
+		if (pFeedback_out != nullptr)
 			*pFeedback_out += _T("\n    - The sound file path is empty.");
 
 		return false;
