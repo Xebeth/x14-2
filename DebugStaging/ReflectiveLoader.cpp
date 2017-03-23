@@ -34,7 +34,7 @@
 typedef BOOL(*EXPORTFUNC)(LPVOID, DWORD);
 
 // Our loader will set this to a pseudo correct HINSTANCE/HMODULE value
-extern HINSTANCE g_hAppInstance;
+extern HINSTANCE g_hDllInstace;
 
 extern "C"
 {
@@ -42,12 +42,12 @@ extern "C"
 	DLLEXPORT VOID WINAPI ReflectiveLoader(LPVOID lpParameter, LPVOID lpLibraryAddress, DWORD dwFunctionHash, LPVOID lpUserData, DWORD nUserdataLen)
 	{
 		// the functions we need
-		LOADLIBRARYA pLoadLibraryA = NULL;
-		GETPROCADDRESS pGetProcAddress = NULL;
-		VIRTUALALLOC pVirtualAlloc = NULL;
-		EXITTHREAD pExitThread = NULL;
-		EXITTHREAD pRtlExitUserThread = NULL;
-		NTFLUSHINSTRUCTIONCACHE pNtFlushInstructionCache = NULL;
+		LOADLIBRARYA pLoadLibraryA = nullptr;
+		GETPROCADDRESS pGetProcAddress = nullptr;
+		VIRTUALALLOC pVirtualAlloc = nullptr;
+		EXITTHREAD pExitThread = nullptr;
+		EXITTHREAD pRtlExitUserThread = nullptr;
+		NTFLUSHINSTRUCTIONCACHE pNtFlushInstructionCache = nullptr;
 
 		USHORT usCounter;
 
@@ -75,7 +75,7 @@ extern "C"
 		// exit code for current thread
 		DWORD dwExitCode = 1;
 
-		uiLibraryAddress = (ULONG_PTR)lpLibraryAddress;
+		uiLibraryAddress = reinterpret_cast<ULONG_PTR>(lpLibraryAddress);
 
 		// STEP 1: process the kernels exports for the functions our loader needs...
 
@@ -83,143 +83,126 @@ extern "C"
 #ifdef _M_X64
 		uiBaseAddress = __readgsqword(0x60);
 #else
-#ifdef _M_IX86
+	#ifdef _M_IX86
 		uiBaseAddress = __readfsdword(0x30);
-#else WIN_ARM
+	#else WIN_ARM
 		uiBaseAddress = *(DWORD *)((BYTE *)_MoveFromCoprocessor(15, 0, 13, 0, 2) + 0x30);
+	#endif
 #endif
-#endif
-
 		// get the processes loaded modules. ref: http://msdn.microsoft.com/en-us/library/aa813708(VS.85).aspx
-		uiBaseAddress = (ULONG_PTR)((_PPEB)uiBaseAddress)->pLdr;
+		uiBaseAddress = reinterpret_cast<ULONG_PTR>(reinterpret_cast<_PPEB>(uiBaseAddress)->pLdr);
 
 		// get the first entry of the InMemoryOrder module list
-		uiValueA = (ULONG_PTR)((PPEB_LDR_DATA)uiBaseAddress)->InMemoryOrderModuleList.Flink;
+		uiValueA = reinterpret_cast<ULONG_PTR>(reinterpret_cast<PPEB_LDR_DATA>(uiBaseAddress)->InMemoryOrderModuleList.Flink);
 		while (uiValueA)
 		{
 			// get pointer to current modules name (unicode string)
-			uiValueB = (ULONG_PTR)((PLDR_DATA_TABLE_ENTRY)uiValueA)->BaseDllName.pBuffer;
+			uiValueB = reinterpret_cast<ULONG_PTR>(reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(uiValueA)->BaseDllName.pBuffer);
 			// set bCounter to the length for the loop
-			usCounter = ((PLDR_DATA_TABLE_ENTRY)uiValueA)->BaseDllName.Length;
+			usCounter = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(uiValueA)->BaseDllName.Length;
 			// clear uiValueC which will store the hash of the module name
 			uiValueC = 0;
 
 			// compute the hash of the module name...
 			do
 			{
-				uiValueC = ror((DWORD)uiValueC);
+				uiValueC = ror(static_cast<DWORD>(uiValueC));
 				// normalize to uppercase if the madule name is in lowercase
-				if (*((BYTE *)uiValueB) >= 'a')
-					uiValueC += *((BYTE *)uiValueB) - 0x20;
+				if (*reinterpret_cast<BYTE *>(uiValueB) >= 'a')
+					uiValueC += *reinterpret_cast<BYTE *>(uiValueB) - 0x20;
 				else
-					uiValueC += *((BYTE *)uiValueB);
+					uiValueC += *reinterpret_cast<BYTE *>(uiValueB);
 				uiValueB++;
 			} while (--usCounter);
 
 			// compare the hash with that of kernel32.dll
-			if ((DWORD)uiValueC == KERNEL32DLL_HASH)
+			if (static_cast<DWORD>(uiValueC) == KERNEL32DLL_HASH)
 			{
 				// get this modules base address
-				uiBaseAddress = (ULONG_PTR)((PLDR_DATA_TABLE_ENTRY)uiValueA)->DllBase;
+				uiBaseAddress = reinterpret_cast<ULONG_PTR>(reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(uiValueA)->DllBase);
 
 				// get the VA of the modules NT Header
-				uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew;
+				uiExportDir = uiBaseAddress + reinterpret_cast<PIMAGE_DOS_HEADER>(uiBaseAddress)->e_lfanew;
 
 				// uiNameArray = the address of the modules export directory entry
-				uiNameArray = (ULONG_PTR)&((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+				uiNameArray = reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT]);
 
 				// get the VA of the export directory
-				uiExportDir = (uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiNameArray)->VirtualAddress);
+				uiExportDir = (uiBaseAddress + reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiNameArray)->VirtualAddress);
 
 				// get the VA for the array of name pointers
-				uiNameArray = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfNames);
+				uiNameArray = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfNames);
 
 				// get the VA for the array of name ordinals
-				uiNameOrdinals = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfNameOrdinals);
+				uiNameOrdinals = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfNameOrdinals);
 
 				usCounter = 4;
-
 				// loop while we still have imports to find
 				while (usCounter > 0)
 				{
 					// compute the hash values for this function name
-					dwHashValue = hash((char *)(uiBaseAddress + DEREF_32(uiNameArray)));
+					dwHashValue = hash(reinterpret_cast<char *>(uiBaseAddress + DEREF_32(uiNameArray)));
 
 					// if we have found a function we want we get its virtual address
-					if (dwHashValue == LOADLIBRARYA_HASH || dwHashValue == GETPROCADDRESS_HASH || dwHashValue == VIRTUALALLOC_HASH || dwHashValue == EXITTHREAD_HSAH)
+					if (dwHashValue == LOADLIBRARYA_HASH || dwHashValue == GETPROCADDRESS_HASH || dwHashValue == VIRTUALALLOC_HASH || dwHashValue == EXITTHREAD_HASH)
 					{
 						// get the VA for the array of addresses
-						uiAddressArray = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfFunctions);
-
+						uiAddressArray = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfFunctions);
 						// use this functions name ordinal as an index into the array of name pointers
 						uiAddressArray += (DEREF_16(uiNameOrdinals) * sizeof(DWORD));
-
 						// store this functions VA
 						if (dwHashValue == LOADLIBRARYA_HASH)
-							pLoadLibraryA = (LOADLIBRARYA)(uiBaseAddress + DEREF_32(uiAddressArray));
+							pLoadLibraryA = reinterpret_cast<LOADLIBRARYA>(uiBaseAddress + DEREF_32(uiAddressArray));
 						else if (dwHashValue == GETPROCADDRESS_HASH)
-							pGetProcAddress = (GETPROCADDRESS)(uiBaseAddress + DEREF_32(uiAddressArray));
+							pGetProcAddress = reinterpret_cast<GETPROCADDRESS>(uiBaseAddress + DEREF_32(uiAddressArray));
 						else if (dwHashValue == VIRTUALALLOC_HASH)
-							pVirtualAlloc = (VIRTUALALLOC)(uiBaseAddress + DEREF_32(uiAddressArray));
-						else if (dwHashValue == EXITTHREAD_HSAH)
-							pExitThread = (EXITTHREAD)(uiBaseAddress + DEREF_32(uiAddressArray));
-
+							pVirtualAlloc = reinterpret_cast<VIRTUALALLOC>(uiBaseAddress + DEREF_32(uiAddressArray));
+						else if (dwHashValue == EXITTHREAD_HASH)
+							pExitThread = reinterpret_cast<EXITTHREAD>(uiBaseAddress + DEREF_32(uiAddressArray));
 						// decrement our counter
 						usCounter--;
 					}
-
 					// get the next exported function name
 					uiNameArray += sizeof(DWORD);
-
 					// get the next exported function name ordinal
 					uiNameOrdinals += sizeof(WORD);
 				}
 			}
-			else if ((DWORD)uiValueC == NTDLLDLL_HASH)
+			else if (static_cast<DWORD>(uiValueC) == NTDLLDLL_HASH)
 			{
 				// get this modules base address
-				uiBaseAddress = (ULONG_PTR)((PLDR_DATA_TABLE_ENTRY)uiValueA)->DllBase;
-
+				uiBaseAddress = reinterpret_cast<ULONG_PTR>(reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(uiValueA)->DllBase);
 				// get the VA of the modules NT Header
-				uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)->e_lfanew;
-
+				uiExportDir = uiBaseAddress + reinterpret_cast<PIMAGE_DOS_HEADER>(uiBaseAddress)->e_lfanew;
 				// uiNameArray = the address of the modules export directory entry
-				uiNameArray = (ULONG_PTR)&((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
-
+				uiNameArray = reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT]);
 				// get the VA of the export directory
-				uiExportDir = (uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiNameArray)->VirtualAddress);
-
+				uiExportDir = (uiBaseAddress + reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiNameArray)->VirtualAddress);
 				// get the VA for the array of name pointers
-				uiNameArray = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfNames);
-
+				uiNameArray = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfNames);
 				// get the VA for the array of name ordinals
-				uiNameOrdinals = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfNameOrdinals);
-
+				uiNameOrdinals = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfNameOrdinals);
 				// get total number of named exports
-				dwNumberOfNames = ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->NumberOfNames;
+				dwNumberOfNames = reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->NumberOfNames;
 
 				usCounter = 2;
-
 				// loop while we still have imports to find
 				while (usCounter > 0 && dwNumberOfNames > 0)
 				{
 					// compute the hash values for this function name
-					dwHashValue = hash((char *)(uiBaseAddress + DEREF_32(uiNameArray)));
-
+					dwHashValue = hash(reinterpret_cast<char *>(uiBaseAddress + DEREF_32(uiNameArray)));
 					// if we have found a function we want we get its virtual address
 					if (dwHashValue == NTFLUSHINSTRUCTIONCACHE_HASH || dwHashValue == RTLEXITUSERTHREAD_HASH)
 					{
 						// get the VA for the array of addresses
-						uiAddressArray = (uiBaseAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfFunctions);
-
+						uiAddressArray = (uiBaseAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfFunctions);
 						// use this functions name ordinal as an index into the array of name pointers
 						uiAddressArray += (DEREF_16(uiNameOrdinals) * sizeof(DWORD));
-
 						// store this functions VA
 						if (dwHashValue == NTFLUSHINSTRUCTIONCACHE_HASH)
-							pNtFlushInstructionCache = (NTFLUSHINSTRUCTIONCACHE)(uiBaseAddress + DEREF_32(uiAddressArray));
+							pNtFlushInstructionCache = reinterpret_cast<NTFLUSHINSTRUCTIONCACHE>(uiBaseAddress + DEREF_32(uiAddressArray));
 						else if (dwHashValue == RTLEXITUSERTHREAD_HASH)
-							pRtlExitUserThread = (EXITTHREAD)(uiBaseAddress + DEREF_32(uiAddressArray));
+							pRtlExitUserThread = reinterpret_cast<EXITTHREAD>(uiBaseAddress + DEREF_32(uiAddressArray));
 
 						// decrement our counter
 						usCounter--;
@@ -247,40 +230,35 @@ extern "C"
 		// STEP 2: load our image into a new permanent location in memory...
 
 		// get the VA of the NT Header for the PE to be loaded
-		uiHeaderValue = uiLibraryAddress + ((PIMAGE_DOS_HEADER)uiLibraryAddress)->e_lfanew;
-
+		uiHeaderValue = uiLibraryAddress + reinterpret_cast<PIMAGE_DOS_HEADER>(uiLibraryAddress)->e_lfanew;
 		// allocate all the memory for the DLL to be loaded into. we can load at any address because we will  
 		// relocate the image. Also zeros all memory and marks it as READ, WRITE and EXECUTE to avoid any problems.
-		uiBaseAddress = (ULONG_PTR)pVirtualAlloc(NULL, ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.SizeOfImage, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-
+		uiBaseAddress = reinterpret_cast<ULONG_PTR>(pVirtualAlloc(nullptr, reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.SizeOfImage, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE));
 		// we must now copy over the headers
-		uiValueA = ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.SizeOfHeaders;
+		uiValueA = reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.SizeOfHeaders;
 		uiValueB = uiLibraryAddress;
 		uiValueC = uiBaseAddress;
 
 		while (uiValueA--)
-			*(BYTE *)uiValueC++ = *(BYTE *)uiValueB++;
+			*reinterpret_cast<BYTE *>(uiValueC++) = *reinterpret_cast<BYTE *>(uiValueB++);
 
 		// STEP 3: load in all of our sections...
 
 		// uiValueA = the VA of the first section
-		uiValueA = ((ULONG_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader + ((PIMAGE_NT_HEADERS)uiHeaderValue)->FileHeader.SizeOfOptionalHeader);
-
+		uiValueA = (reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader) + reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->FileHeader.SizeOfOptionalHeader);
 		// itterate through all sections, loading them into memory.
-		uiValueE = ((PIMAGE_NT_HEADERS)uiHeaderValue)->FileHeader.NumberOfSections;
+		uiValueE = reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->FileHeader.NumberOfSections;
 		while (uiValueE--)
 		{
 			// uiValueB is the VA for this section
-			uiValueB = (uiBaseAddress + ((PIMAGE_SECTION_HEADER)uiValueA)->VirtualAddress);
-
+			uiValueB = (uiBaseAddress + reinterpret_cast<PIMAGE_SECTION_HEADER>(uiValueA)->VirtualAddress);
 			// uiValueC if the VA for this sections data
-			uiValueC = (uiLibraryAddress + ((PIMAGE_SECTION_HEADER)uiValueA)->PointerToRawData);
-
+			uiValueC = (uiLibraryAddress + reinterpret_cast<PIMAGE_SECTION_HEADER>(uiValueA)->PointerToRawData);
 			// copy the section over
-			uiValueD = ((PIMAGE_SECTION_HEADER)uiValueA)->SizeOfRawData;
+			uiValueD = reinterpret_cast<PIMAGE_SECTION_HEADER>(uiValueA)->SizeOfRawData;
 
 			while (uiValueD--)
-				*(BYTE *)uiValueB++ = *(BYTE *)uiValueC++;
+				*reinterpret_cast<BYTE *>(uiValueB++) = *reinterpret_cast<BYTE *>(uiValueC++);
 
 			// get the VA of the next section
 			uiValueA += sizeof(IMAGE_SECTION_HEADER);
@@ -289,45 +267,36 @@ extern "C"
 		// STEP 4: process our images import table...
 
 		// uiValueB = the address of the import directory
-		uiValueB = (ULONG_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
-
+		uiValueB = reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]);
 		// we assume their is an import table to process
 		// uiValueC is the first entry in the import table
-		uiValueC = (uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiValueB)->VirtualAddress);
+		uiValueC = (uiBaseAddress + reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiValueB)->VirtualAddress);
 
 		// itterate through all imports
-		while (((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Name)
+		while (reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(uiValueC)->Name)
 		{
 			// use LoadLibraryA to load the imported module into memory
-			uiLibraryAddress = (ULONG_PTR)pLoadLibraryA((LPCSTR)(uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->Name));
-
+			uiLibraryAddress = reinterpret_cast<ULONG_PTR>(pLoadLibraryA(reinterpret_cast<LPCSTR>(uiBaseAddress + reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(uiValueC)->Name)));
 			// uiValueD = VA of the OriginalFirstThunk
-			uiValueD = (uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->OriginalFirstThunk);
-
+			uiValueD = (uiBaseAddress + reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(uiValueC)->OriginalFirstThunk);
 			// uiValueA = VA of the IAT (via first thunk not origionalfirstthunk)
-			uiValueA = (uiBaseAddress + ((PIMAGE_IMPORT_DESCRIPTOR)uiValueC)->FirstThunk);
-
+			uiValueA = (uiBaseAddress + reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(uiValueC)->FirstThunk);
 			// itterate through all imported functions, importing by ordinal if no name present
 			while (DEREF(uiValueA))
 			{
 				// sanity check uiValueD as some compilers only import by FirstThunk
-				if (uiValueD && ((PIMAGE_THUNK_DATA)uiValueD)->u1.Ordinal & IMAGE_ORDINAL_FLAG)
+				if (uiValueD && reinterpret_cast<PIMAGE_THUNK_DATA>(uiValueD)->u1.Ordinal & IMAGE_ORDINAL_FLAG)
 				{
 					// get the VA of the modules NT Header
-					uiExportDir = uiLibraryAddress + ((PIMAGE_DOS_HEADER)uiLibraryAddress)->e_lfanew;
-
+					uiExportDir = uiLibraryAddress + reinterpret_cast<PIMAGE_DOS_HEADER>(uiLibraryAddress)->e_lfanew;
 					// uiNameArray = the address of the modules export directory entry
-					uiNameArray = (ULONG_PTR)&((PIMAGE_NT_HEADERS)uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
-
+					uiNameArray = reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiExportDir)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT]);
 					// get the VA of the export directory
-					uiExportDir = (uiLibraryAddress + ((PIMAGE_DATA_DIRECTORY)uiNameArray)->VirtualAddress);
-
+					uiExportDir = (uiLibraryAddress + reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiNameArray)->VirtualAddress);
 					// get the VA for the array of addresses
-					uiAddressArray = (uiLibraryAddress + ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->AddressOfFunctions);
-
+					uiAddressArray = (uiLibraryAddress + reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->AddressOfFunctions);
 					// use the import ordinal (- export ordinal base) as an index into the array of addresses
-					uiAddressArray += ((IMAGE_ORDINAL(((PIMAGE_THUNK_DATA)uiValueD)->u1.Ordinal) - ((PIMAGE_EXPORT_DIRECTORY)uiExportDir)->Base) * sizeof(DWORD));
-
+					uiAddressArray += ((IMAGE_ORDINAL((reinterpret_cast<PIMAGE_THUNK_DATA>(uiValueD))->u1.Ordinal) - reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiExportDir)->Base) * sizeof(DWORD));
 					// patch in the address for this imported function
 					DEREF(uiValueA) = (uiLibraryAddress + DEREF_32(uiAddressArray));
 				}
@@ -335,9 +304,8 @@ extern "C"
 				{
 					// get the VA of this functions import by name struct
 					uiValueB = (uiBaseAddress + DEREF(uiValueA));
-
 					// use GetProcAddress and patch in the address for this imported function
-					DEREF(uiValueA) = (ULONG_PTR)pGetProcAddress((HMODULE)uiLibraryAddress, (LPCSTR)((PIMAGE_IMPORT_BY_NAME)uiValueB)->Name);
+					DEREF(uiValueA) = reinterpret_cast<ULONG_PTR>(pGetProcAddress(reinterpret_cast<HMODULE>(uiLibraryAddress), static_cast<LPCSTR>(reinterpret_cast<PIMAGE_IMPORT_BY_NAME>(uiValueB)->Name)));
 				}
 				// get the next imported function
 				uiValueA += sizeof(ULONG_PTR);
@@ -352,39 +320,34 @@ extern "C"
 		// STEP 5: process all of our images relocations...
 
 		// calculate the base address delta and perform relocations (even if we load at desired image base)
-		uiLibraryAddress = uiBaseAddress - ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.ImageBase;
-
+		uiLibraryAddress = uiBaseAddress - reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.ImageBase;
 		// uiValueB = the address of the relocation directory
-		uiValueB = (ULONG_PTR)&((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
-
+		uiValueB = reinterpret_cast<ULONG_PTR>(&reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC]);
 		// check if their are any relocations present
-		if (((PIMAGE_DATA_DIRECTORY)uiValueB)->Size)
+		if (reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiValueB)->Size)
 		{
 			// uiValueC is now the first entry (IMAGE_BASE_RELOCATION)
-			uiValueC = (uiBaseAddress + ((PIMAGE_DATA_DIRECTORY)uiValueB)->VirtualAddress);
+			uiValueC = (uiBaseAddress + reinterpret_cast<PIMAGE_DATA_DIRECTORY>(uiValueB)->VirtualAddress);
 
 			// and we itterate through all entries...
-			while (((PIMAGE_BASE_RELOCATION)uiValueC)->SizeOfBlock)
+			while (reinterpret_cast<PIMAGE_BASE_RELOCATION>(uiValueC)->SizeOfBlock)
 			{
 				// uiValueA = the VA for this relocation block
-				uiValueA = (uiBaseAddress + ((PIMAGE_BASE_RELOCATION)uiValueC)->VirtualAddress);
-
+				uiValueA = (uiBaseAddress + reinterpret_cast<PIMAGE_BASE_RELOCATION>(uiValueC)->VirtualAddress);
 				// uiValueB = number of entries in this relocation block
-				uiValueB = (((PIMAGE_BASE_RELOCATION)uiValueC)->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(IMAGE_RELOC);
-
+				uiValueB = (reinterpret_cast<PIMAGE_BASE_RELOCATION>(uiValueC)->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(IMAGE_RELOC);
 				// uiValueD is now the first entry in the current relocation block
 				uiValueD = uiValueC + sizeof(IMAGE_BASE_RELOCATION);
-
 				// we itterate through all the entries in the current block...
 				while (uiValueB--)
 				{
 					// perform the relocation, skipping IMAGE_REL_BASED_ABSOLUTE as required.
 					// we dont use a switch statement to avoid the compiler building a jump table
 					// which would not be very position independent!
-					if (((PIMAGE_RELOC)uiValueD)->type == IMAGE_REL_BASED_DIR64)
-						*(ULONG_PTR *)(uiValueA + ((PIMAGE_RELOC)uiValueD)->offset) += uiLibraryAddress;
-					else if (((PIMAGE_RELOC)uiValueD)->type == IMAGE_REL_BASED_HIGHLOW)
-						*(DWORD *)(uiValueA + ((PIMAGE_RELOC)uiValueD)->offset) += (DWORD)uiLibraryAddress;
+					if (reinterpret_cast<PIMAGE_RELOC>(uiValueD)->type == IMAGE_REL_BASED_DIR64)
+						*reinterpret_cast<ULONG_PTR *>(uiValueA + reinterpret_cast<PIMAGE_RELOC>(uiValueD)->offset) += uiLibraryAddress;
+					else if (reinterpret_cast<PIMAGE_RELOC>(uiValueD)->type == IMAGE_REL_BASED_HIGHLOW)
+						*reinterpret_cast<DWORD *>(uiValueA + reinterpret_cast<PIMAGE_RELOC>(uiValueD)->offset) += static_cast<DWORD>(uiLibraryAddress);
 #ifdef WIN_ARM
 					// Note: On ARM, the compiler optimization /O2 seems to introduce an off by one issue, possibly a code gen bug. Using /O1 instead avoids this problem.
 					else if (((PIMAGE_RELOC)uiValueD)->type == IMAGE_REL_BASED_ARM_MOV32T)
@@ -418,48 +381,45 @@ extern "C"
 						}
 					}
 #endif
-					else if (((PIMAGE_RELOC)uiValueD)->type == IMAGE_REL_BASED_HIGH)
-						*(WORD *)(uiValueA + ((PIMAGE_RELOC)uiValueD)->offset) += HIWORD(uiLibraryAddress);
-					else if (((PIMAGE_RELOC)uiValueD)->type == IMAGE_REL_BASED_LOW)
-						*(WORD *)(uiValueA + ((PIMAGE_RELOC)uiValueD)->offset) += LOWORD(uiLibraryAddress);
-
+					else if (reinterpret_cast<PIMAGE_RELOC>(uiValueD)->type == IMAGE_REL_BASED_HIGH)
+						*reinterpret_cast<WORD *>(uiValueA + reinterpret_cast<PIMAGE_RELOC>(uiValueD)->offset) += HIWORD(uiLibraryAddress);
+					else if (reinterpret_cast<PIMAGE_RELOC>(uiValueD)->type == IMAGE_REL_BASED_LOW)
+						*reinterpret_cast<WORD *>(uiValueA + reinterpret_cast<PIMAGE_RELOC>(uiValueD)->offset) += LOWORD(uiLibraryAddress);
 					// get the next entry in the current relocation block
 					uiValueD += sizeof(IMAGE_RELOC);
 				}
 
 				// get the next entry in the relocation directory
-				uiValueC = uiValueC + ((PIMAGE_BASE_RELOCATION)uiValueC)->SizeOfBlock;
+				uiValueC = uiValueC + reinterpret_cast<PIMAGE_BASE_RELOCATION>(uiValueC)->SizeOfBlock;
 			}
 		}
 
 		// STEP 6: call our images entry point
 
 		// uiValueA = the VA of our newly loaded DLL/EXE's entry point
-		uiValueA = (uiBaseAddress + ((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.AddressOfEntryPoint);
-
+		uiValueA = (uiBaseAddress + reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.AddressOfEntryPoint);
 		// We must flush the instruction cache to avoid stale code being used which was updated by our relocation processing.
-		pNtFlushInstructionCache((HANDLE)-1, NULL, 0);
-
+		pNtFlushInstructionCache(reinterpret_cast<HANDLE>(-1), nullptr, 0);
 		// call our respective entry point, fudging our hInstance value
 		// if we are injecting a DLL via LoadRemoteLibraryR we call DllMain and pass in our parameter (via the DllMain lpReserved parameter)
-		((DLLMAIN)uiValueA)((HINSTANCE)uiBaseAddress, DLL_PROCESS_ATTACH, lpParameter);
+		reinterpret_cast<DLLMAIN>(uiValueA)(reinterpret_cast<HINSTANCE>(uiBaseAddress), DLL_PROCESS_ATTACH, lpParameter);
 
 		do
 		{
-			PIMAGE_DATA_DIRECTORY directory = &((PIMAGE_NT_HEADERS)uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+			PIMAGE_DATA_DIRECTORY directory = &reinterpret_cast<PIMAGE_NT_HEADERS>(uiHeaderValue)->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
 			if (directory->Size == 0)
 				break;
 
-			PIMAGE_EXPORT_DIRECTORY exports = (PIMAGE_EXPORT_DIRECTORY)(uiBaseAddress + directory->VirtualAddress);
+			PIMAGE_EXPORT_DIRECTORY exports = reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(uiBaseAddress + directory->VirtualAddress);
 			if (exports->NumberOfNames == 0 || exports->NumberOfFunctions == 0)
 				break;
 
 			// search function name in list of exported names
 			int idx = -1;
-			DWORD *nameRef = (DWORD *)(uiBaseAddress + exports->AddressOfNames);
-			WORD *ordinal = (WORD *)(uiBaseAddress + exports->AddressOfNameOrdinals);
+			DWORD *nameRef = reinterpret_cast<DWORD *>(uiBaseAddress + exports->AddressOfNames);
+			WORD *ordinal = reinterpret_cast<WORD *>(uiBaseAddress + exports->AddressOfNameOrdinals);
 			for (DWORD i = 0; i < exports->NumberOfNames; i++, nameRef++, ordinal++) {
-				if (hash((char *)(uiBaseAddress + (*nameRef))) == dwFunctionHash) {
+				if (hash(reinterpret_cast<char *>(uiBaseAddress + (*nameRef))) == dwFunctionHash) {
 					idx = *ordinal;
 
 					break;
@@ -469,7 +429,7 @@ extern "C"
 				break;
 
 			// AddressOfFunctions contains the RVAs to the "real" functions
-			EXPORTFUNC f = (EXPORTFUNC)(uiBaseAddress + (*(DWORD *)(uiBaseAddress + exports->AddressOfFunctions + (idx * 4))));
+			EXPORTFUNC f = reinterpret_cast<EXPORTFUNC>(uiBaseAddress + (*reinterpret_cast<DWORD *>(uiBaseAddress + exports->AddressOfFunctions + (idx * 4))));
 			if (!f(lpUserData, nUserdataLen))
 				break;
 

@@ -6,10 +6,9 @@
 	purpose		:	DLL entry point
 **************************************************************************/
 #include "stdafx.h"
-#include "ReflectiveLoader.h"
 
 // You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
-HINSTANCE g_hAppInstance;
+HINSTANCE g_hDllInstace;
 
 /*! \brief DLL entry point
 	\param[in] hModule_in : a handle to the DLL module
@@ -22,11 +21,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 	switch (dwReason)
 	{
 		case DLL_QUERY_HMODULE:
-			if (lpReserved != NULL)
-				*(HMODULE *)lpReserved = g_hAppInstance;
+			if (lpReserved != nullptr)
+				*static_cast<HMODULE *>(lpReserved) = g_hDllInstace;
 		break;
 		case DLL_PROCESS_ATTACH:
-			g_hAppInstance = hinstDLL;
+			g_hDllInstace = hinstDLL;
 #ifdef _DEBUG
 			Sleep(5000);
 #endif // _DEBUG
@@ -40,9 +39,11 @@ extern "C"
 {
 	DLLEXPORT BOOL DllInject(LPVOID lpUserdata, DWORD nUserdataLen)
 	{
-		if (lpUserdata != NULL)
+		if (lpUserdata != nullptr)
 		{
-			if (LoadLibraryW((LPCTSTR)lpUserdata) == NULL)
+			auto pDLLPath = static_cast<LPCTSTR>(lpUserdata);
+
+			if (LoadLibraryW(pDLLPath) == nullptr)
 			{
 				DWORD errCode = GetLastError();
 				wchar_t buf[256];
@@ -50,11 +51,11 @@ extern "C"
 
 				_ltot_s(errCode, err, 10);
 
-				FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errCode,
+				FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, errCode,
 							   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
-							   buf, 256, NULL);
+							   buf, 256, nullptr);
 
-				MessageBox(NULL, buf, err, MB_OK);
+				MessageBox(nullptr, buf, pDLLPath, MB_OK);
 			}
 			else
 				return TRUE;

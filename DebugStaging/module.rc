@@ -58,7 +58,7 @@ IDR_MAINFRAME ICON "../Resources/x14.ico"
 		END
 		BLOCK "VarFileInfo"
 		BEGIN
-			VALUE "Translation", 0x40c, 1200
+			VALUE "Translation", 0x400, 1200
 		END
 	END
 #endif
