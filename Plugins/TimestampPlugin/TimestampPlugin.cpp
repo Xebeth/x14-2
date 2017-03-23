@@ -26,7 +26,7 @@ namespace Windower
 
 	{
 		// create the settings
-		if (pServices_in != NULL)
+		if (pServices_in != nullptr)
 		{
 			// set the sound file path from the settings
 			OnSettingsChanged();
@@ -47,10 +47,10 @@ namespace Windower
 	*/
 	void TimestampPlugin::Destroy(IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -79,7 +79,7 @@ namespace Windower
 	void TimestampPlugin::OnSettingsChanged()
 	{
 		// retrieve the format from the settings
-		if (m_pSettings != NULL)
+		if (m_pSettings != nullptr)
 			convert_ansi(m_pSettings->GetTimestampFormat(), m_TimestampFormat);
 		else
 			m_TimestampFormat = "[HH:mm:ss] ";
@@ -98,15 +98,15 @@ namespace Windower
 		// register the command
 		WindowerCommand *pCommand = RegisterCommand(CMD_FORMAT, "timestamp::format", "sets the format of the timestamp");
 
-		if (pCommand != NULL && pCommand->AddStringParam("format", false, m_TimestampFormat.c_str(),
+		if (pCommand != nullptr && pCommand->AddStringParam("format", false, m_TimestampFormat.c_str(),
 														 "format of the timestamp\n"
 														 "      \xee\x81\xaf see the remarks at http://tinyurl.com/gettimeformatex ") == false)
 		{
 			delete pCommand;
-			pCommand = NULL;
+			pCommand = nullptr;
 		}
 
-		return (pCommand != NULL);
+		return (pCommand != nullptr);
 	}
 
 	/*! \brief Unregisters the commands of the plugin with the command dispatcher
@@ -130,7 +130,7 @@ namespace Windower
 	DWORD_PTR TimestampPlugin::OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 											 char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out)
 	{
-		if (pOriginalMsg_in != NULL && MsgSize_in > 1U)
+		if (pOriginalMsg_in != nullptr && MsgSize_in > 1U)
 		{
 			// add 11 characters for the timestamp
 			DWORD_PTR dwNewSize = ModifiedSize_in + m_TimestampLength;
@@ -138,7 +138,7 @@ namespace Windower
 			if (ResizeBuffer(pOriginalMsg_in, MsgSize_in, dwNewSize, pModifiedMsg_in_out, ModifiedSize_in, m_TimestampLength))
 			{
 				// get the current time
-				GetTimeFormatA(LOCALE_INVARIANT, NULL, NULL,
+				GetTimeFormatA(LOCALE_INVARIANT, NULL, nullptr,
 							   m_TimestampFormat.c_str(),
 							   *pModifiedMsg_in_out, (int)m_TimestampLength);
 
@@ -188,7 +188,7 @@ namespace Windower
 				m_TimestampFormat += ' ';
 			m_TimestampLength = m_TimestampFormat.length();
 
-			if (m_pSettings != NULL)
+			if (m_pSettings != nullptr)
 			{
 				string_t Format;
 

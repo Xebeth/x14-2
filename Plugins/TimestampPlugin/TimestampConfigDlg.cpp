@@ -57,14 +57,14 @@ bool TimestampConfigDlg::InitializePage()
 
 void TimestampConfigDlg::Revert()
 {
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 		m_TimestampFormat = m_pSettings->GetTimestampFormat();
 }
 
 //! \brief Message handler called when the user presses the OK button
 bool TimestampConfigDlg::Commit()
 {
-	if (IsPageValid(NULL) && m_pSettings != NULL)
+	if (IsPageValid(nullptr) && m_pSettings != nullptr)
 	{
 		m_pSettings->SetTimestampFormat(m_TimestampFormat);
 
@@ -78,7 +78,7 @@ bool TimestampConfigDlg::IsPageValid(string_t *pFeedback_out) const
 {
 	if (m_TimestampFormat.empty())
 	{
-		if (pFeedback_out != NULL)
+		if (pFeedback_out != nullptr)
 			*pFeedback_out += _T("\n    - The format string is empty.");
 
 		return false;
@@ -97,7 +97,7 @@ void TimestampConfigDlg::OnFormatChange()
 	m_TimestampFormat = Format.GetBuffer();
 
 	// update the text preview
-	if (GetTimeFormat(LOCALE_INVARIANT, NULL, NULL, Format, PreviewText, 32) != 0)
+	if (GetTimeFormat(LOCALE_INVARIANT, NULL, nullptr, Format, PreviewText, 32) != 0)
 		SetDlgItemText(IDC_PREVIEW_TEXT, PreviewText);
 	// update the wizard buttons
 	UpdateWizardButtons();
