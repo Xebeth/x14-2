@@ -62,8 +62,17 @@ namespace Windower
 	//! \brief GathererPlugin destructor
 	GathererPlugin::~GathererPlugin()
 	{
-		CleanupTimetable(m_BotanyTimetable);
-		CleanupTimetable(m_MiningTimetable);
+		if (m_pBotanyTimetable != NULL)
+		{
+			delete m_pBotanyTimetable;
+			m_pBotanyTimetable = NULL;
+		}
+
+		if (m_pMiningTimetable != NULL)
+		{
+			delete m_pMiningTimetable;
+			m_pMiningTimetable = NULL;
+		}
 
 		if (m_pMiningLabel != NULL)
 		{
@@ -119,7 +128,7 @@ namespace Windower
 		PluginInfo_out.SetName(_T("Gatherer"));
 	}
 
-	void GathererPlugin::InitTimeTable(DWORD ResID, Timetable &timetable)
+	Timetable* GathererPlugin::CreateTimetableFromRes(DWORD ResID)
 	{
 		const char* data = NULL;
 		DWORD size = 0;
@@ -129,50 +138,10 @@ namespace Windower
 			tinyxml2::XMLDocument doc;
 
 			if (doc.Parse(data) == tinyxml2::XML_NO_ERROR)
-			{
-				tinyxml2::XMLElement *pElement = doc.FirstChildElement("document");
-
-				if (pElement != NULL)
-				{
-					std::string item, position, zone, difficulty, slot;
-					TimetableEntry *pEntry;
-					int hours;
-
-					for (tinyxml2::XMLElement* pTime = pElement->FirstChildElement(); pTime != NULL; pTime = pTime->NextSiblingElement())
-					{
-						hours = pTime->IntAttribute("hours");
-
-						for (tinyxml2::XMLElement* pItem = pTime->FirstChildElement("item"); pItem != NULL; pItem = pItem->NextSiblingElement())
-						{
-							difficulty = pItem->Attribute("difficulty");
-							position = pItem->Attribute("pos");
-							zone = pItem->Attribute("zone");
-							slot = pItem->Attribute("slot");
-							item = pItem->GetText();
-
-							pEntry = new TimetableEntry(hours, zone, position, item, slot, difficulty);
-							timetable[hours].push_back(pEntry);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	void GathererPlugin::CleanupTimetable(Timetable &timetable)
-	{
-		Timetable::const_iterator vecIt, endVecIt = timetable.cend();
-		TimetableEntries::const_iterator entryIt, endEntryIt;
-
-		for (vecIt = timetable.cbegin(); vecIt != endVecIt; ++vecIt)
-		{
-			endEntryIt = vecIt->second.cend();
-
-			for (entryIt = vecIt->second.cbegin(); entryIt != endEntryIt; ++entryIt)
-				delete *entryIt;
+				return new Timetable(&doc);
 		}
 
-		timetable.clear();
+		return NULL;
 	}
 
 	bool GathererPlugin::CreateLabels()
@@ -188,7 +157,7 @@ namespace Windower
 				m_pMiningLabel = NULL;
 		}
 
-		InitTimeTable(IDR_MINING, m_MiningTimetable);
+		CreateTimetableFromRes(IDR_MINING, m_pMiningTimetable);
 
 		if (m_pBotanyLabel == NULL)
 		{
@@ -201,7 +170,7 @@ namespace Windower
 				m_pBotanyLabel = NULL;
 		}
 
-		InitTimeTable(IDR_BOTANY, m_BotanyTimetable);
+		CreateTimetableFromRes(IDR_BOTANY, m_pBotanyTimetable);
 
 		return (m_pMiningLabel != NULL && m_pBotanyLabel != NULL);
 	}
@@ -217,17 +186,17 @@ namespace Windower
 
 			if (gmtime_s(&ezTime, &eorzeanTime) == 0 && localtime_s(&local, &localTime) == 0)
 			{
-				if (m_MiningTimetable.empty() == false)
-					DisplayTimeTable(m_MiningTimetable, m_pMiningLabel, _T("Mining"), ezTime, local);
-				if (m_BotanyTimetable.empty() == false)
-					DisplayTimeTable(m_BotanyTimetable, m_pBotanyLabel, _T("Botany"), ezTime, local);
+				if (m_pMiningTimetable.empty() == false)
+					DisplayTimeTable(m_pMiningTimetable, m_pMiningLabel, _T("Mining"), ezTime, local);
+				if (m_pBotanyTimetable.empty() == false)
+					DisplayTimeTable(m_pBotanyTimetable, m_pBotanyLabel, _T("Botany"), ezTime, local);
 			}
 		}
 
 		return false;
 	}
 
-	void GathererPlugin::DisplayTimeTable(Timetable &timetable, UIAL::CUiWindow<> *pLabel,
+	void GathererPlugin::DisplayTimeTable(const Timetable * pTimetable, UIAL::CUiWindow<> *pLabel,
 										  const TCHAR *pTitle, const tm &ezTime, const tm &local)
 	{
 		if (pLabel != NULL)
@@ -243,9 +212,9 @@ namespace Windower
 
 			if (pLabel->IsCollapsed() == false)
 			{
-				Timetable::const_iterator beginTimeIt = timetable.cbegin();
-				Timetable::const_iterator endTimeIt = timetable.cend();
-				Timetable::const_iterator timeIt, lastIt = endTimeIt;
+				GatheringData::const_iterator beginTimeIt = pTimetable->cbegin();
+				GatheringData::const_iterator endTimeIt = pTimetable->cend();
+				GatheringData::const_iterator timeIt, lastIt = endTimeIt;
 				int current, hour = ezTime.tm_hour;
 
 				format(message, _T("%s%s %s"), pad<TCHAR>(pTitle, tempTitle, 48).c_str(),
@@ -258,7 +227,7 @@ namespace Windower
 
 					if (current > hour - 3 && current <= hour)
 					{
-						DisplayEntries(timetable[current], current, ezTime, activeEntries, true);
+						DisplayEntries(pTimetable[current], current, ezTime, activeEntries, true);
 						lastIt = timeIt;
 					}
 				}
@@ -299,10 +268,10 @@ namespace Windower
 		}
 	}
 
-	void GathererPlugin::DisplayEntries(const TimetableEntries &entries_in, int hours,
+	void GathererPlugin::DisplayEntries(const ItemEntries &entries_in, int hours,
 										const tm &time_in, string_t &message_out, bool active) const
 	{
-		TimetableEntries::const_iterator entryIt, endIt = entries_in.cend();
+		ItemEntries::const_iterator entryIt, endIt = entries_in.cend();
 		std::string tempZone, tempItem, tempTimer, tempPos;
 		char remainingTimeStr[7] = "--:--";
 		tm remaining = { 0 };
@@ -322,7 +291,7 @@ namespace Windower
 
 		for (entryIt = entries_in.cbegin(); entryIt != endIt; ++entryIt)
 		{
-			const TimetableEntry *pEntry = (*entryIt);
+			const ItemData *pEntry = (*entryIt);
 
 			append_format(message_out, _T("%02i:00 (%S) %S %S %S Slot %S\t%S\n"),
 									   pEntry->m_Hour, 

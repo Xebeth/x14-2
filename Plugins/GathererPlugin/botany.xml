@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-  <time hours="1">
+  <time hours="1" duration="3">
     <item slot="4" zone="East Shroud" pos="(x22,y26)" difficulty="*">Silkworm Cocoon</item>
     <item slot="1" zone="Mor Dhona" pos="(x32,y11)" difficulty="*">Grade 4 Carbonized Matter</item>
     <item slot="2" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Lightning Cluster</item>
@@ -10,17 +10,17 @@
     <item slot="6" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Ice Cluster</item>
     <item slot="7" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Earth Cluster</item>
   </time>
-  <time hours="2">
+  <time hours="2" duration="3">
     <item slot="6" zone="South Shroud" pos="(x18,y23)" difficulty="353 Ga 332 Pe *">Fragrant Log</item>
     <item slot="6" zone="Central Shroud" pos="(x16,y20)" difficulty="408 Ga 389 Pe **">Shroud Tea Leaves</item>
   </time>
-  <time hours="3">
+  <time hours="3" duration="3">
     <item slot="4" zone="North Shroud" pos="(x18,y26)" difficulty="408 Ga 389 Pe**">Scarlet Sap</item>
   </time>
-  <time hours="4">
+  <time hours="4" duration="3">
     <item slot="6" zone="Middle La Noscea" pos="(x19,y21)" difficulty="420 Ga 420 Pe ***">Ebony Log</item>
   </time>
-  <time hours="5">
+  <time hours="5" duration="3">
     <item slot="1" zone="East Shroud" pos="(x17,y19)" difficulty="*">Trillium</item>
     <item slot="2" zone="Eastern La Noscea" pos="(x26,y32)" difficulty="*">Honey Lemon</item>
     <item slot="1" zone="Mor Dhona" pos="(x32,y21)" difficulty="*">Grade 4 Carbonized Matter</item>
@@ -31,19 +31,19 @@
     <item slot="6" zone="Mor Dhona" pos="(x32,y21)" difficulty="">Ice Cluster</item>
     <item slot="7" zone="Mor Dhona" pos="(x32,y21)" difficulty="">Earth Cluster</item>
   </time>
-  <time hours="6">
+  <time hours="6" duration="3">
     <item slot="6" zone="Lower La Noscea" pos="(x32,y11)" difficulty="408 Ga 389 Pe **">Young Cieldalaes Spinach</item>
     <item slot="6" zone="Central Shroud" pos="(x30,y19)" difficulty="408 Ga 389 Pe **">Redolent Log</item>
   </time>
-  <time hours="7">
+  <time hours="7" duration="3">
     <item slot="2" zone="Upper La Noscea" pos="(x28,y25)" difficulty="408 Ga 389 Pe **">Blood Orange</item>
     <item slot="6" zone="Upper La Noscea" pos="(x28,y25)" difficulty="408 Ga 389 Pe **">Bamboo Stick</item>
   </time>
-  <time hours="8">
+  <time hours="8" duration="3">
     <item slot="6" zone="Western La Noscea" pos="(x34,y28)" difficulty="408 Ga 389 Pe **">La Noscean Leek</item>
     <item slot="?" zone="Western La Noscea" pos="(x34,y28)" difficulty="408 Ga 389 Pe **">Waterfowl Feather</item>
   </time>
-  <time hours="9">
+  <time hours="9" duration="3">
     <item slot="2" zone="Middle La Noscea" pos="(x19,y16)" difficulty="408 Ga 389 Pe **">Apricot</item>
     <item slot="6" zone="Coerthas Central Highlands" pos="(x27,y12)" difficulty="*">Spruce Log</item>
     <item slot="4" zone="Eastern La Noscea" pos="(x30,y26)" difficulty="*">Prickly Pineapple</item>
@@ -55,20 +55,20 @@
     <item slot="6" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Ice Cluster</item>
     <item slot="7" zone="Mor Dhona" pos="(x32,y11)" difficulty="">Earth Cluster</item>
   </time>
-  <time hours="10">
+  <time hours="10" duration="3">
     <item slot="6" zone="Central Shroud" pos="(x25,y29)" difficulty="420 Ga 420 Pe ***">Cypress Log</item>
   </time>
-  <time hours="13">
+  <time hours="13" duration="3">
     <item slot="8" zone="Coerthas Central Highlands" pos="(x27,y24)" difficulty="*">Vampire Plant</item>
     <item slot="7" zone="Eastern Thanalan" pos="(x12,y16)" difficulty="*">Black Truffle</item>
     <item slot="2" zone="Eastern Thanalan" pos="(x12,y16)" difficulty="*">Mazlaya Greens</item>
     <item slot="3" zone="Eastern La Noscea" pos="(x18,y26)" difficulty="*">Dzemael Tomato</item>
   </time>
-  <time hours="17">
+  <time hours="17" duration="3">
     <item slot="2" zone="Coerthas Central Highlands" pos="(x8,y13)" difficulty="*">Thavnairian Mistletoe</item>
     <item slot="1" zone="East Shroud" pos="(x22,y30)" difficulty="450 Ga 450 Pe ***">Rosemary</item>
   </time>
-  <time hours="21">
+  <time hours="21" duration="3">
     <item slot="7" zone="East Shroud" pos="(x13,y23)" difficulty="*">Kidragora</item>
     <item slot="8" zone="East Shroud" pos="(x13,y23)" difficulty="*">Trillium Bulb</item>
   </time>

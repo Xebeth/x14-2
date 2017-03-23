@@ -8,26 +8,57 @@ purpose		:	Gatherer plugin
 #ifndef __TIMETABLE_H__
 #define __TIMETABLE_H__
 
+namespace tinyxml2
+{
+	class XMLDocument;
+	class XMLElement;
+}
+
 namespace Windower
 {
-	class TimetableEntry
+	class TimetableEntry;
+
+	typedef std::map<int, TimetableEntry*> GatheringData;
+
+	class Timetable
 	{
 	public:
-		TimetableEntry();
-		TimetableEntry(int hour, const std::string &zone, const std::string &position,
-					   const std::string &item, const std::string &slot,
-					   const std::string &difficulty);
+		Timetable(tinyxml2::XMLDocument *pDoc);
+		~Timetable();
 
-		int m_Hour;
-		std::string m_Zone;
-		std::string m_Position;
-		std::string m_Item;
-		std::string m_Slot;
-		std::string m_Difficulty;
+		GatheringData m_Data;
 	};
 
-	typedef std::vector<TimetableEntry*> TimetableEntries;
-	typedef std::map<int, TimetableEntries> Timetable;
+	class TimetableEntry
+	{
+	private:
+		class ItemData
+		{
+		public:
+			ItemData(const std::string &zone, const std::string &position,
+				const std::string &item, const std::string &slot,
+				const std::string &difficulty);
+
+			std::string m_Zone;
+			std::string m_Position;
+			std::string m_Item;
+			std::string m_Slot;
+			std::string m_Difficulty;
+		};
+
+		typedef std::vector<ItemData*> ItemEntries;
+
+	public:
+		TimetableEntry(tinyxml2::XMLElement *pElement_in);
+		~TimetableEntry();
+
+		int GetDuration() const { return m_Duration; }
+		int GetTime() const { return m_Hour; }
+
+	protected:
+		int m_Hour, m_Duration;
+		ItemEntries m_Entries;
+	};
 }
 
 #endif

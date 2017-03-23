@@ -31,17 +31,15 @@ namespace Windower
 		virtual bool Update();
 
 	protected:
-		void InitTimeTable(DWORD ResID, Timetable &timetable);
-		void CleanupTimetable(Timetable &timetable);		
+		Timetable* CreateTimetableFromRes(DWORD ResID);
 		bool CreateLabels();
-		void DisplayEntries(const TimetableEntries &entries_in, int hours,
-							const tm &time_in, string_t &message_out, bool active) const;
-		void DisplayTimeTable(Timetable &timetable, UIAL::CUiWindow<> *pLabel,
+
+		void DisplayTimeTable(const Timetable * pTimetable, UIAL::CUiWindow<> *pLabel,
 							  const TCHAR *pTitle, const tm &ezTime, const tm &local);
 		UIAL::CUiWindow<> *m_pBotanyLabel;
 		UIAL::CUiWindow<> *m_pMiningLabel;
-		Timetable m_BotanyTimetable;
-		Timetable m_MiningTimetable;
+		Timetable *m_pBotanyTimetable;
+		Timetable *m_pMiningTimetable;
 	};
 }
 
