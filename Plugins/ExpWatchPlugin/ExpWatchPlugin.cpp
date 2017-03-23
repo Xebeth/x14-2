@@ -38,10 +38,10 @@ namespace Windower
 	*/
 	void ExpWatchPlugin::Destroy(IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -66,10 +66,10 @@ namespace Windower
 		bool Result = true;
 
 		// register the commands
-		Result &= (RegisterCommand(CMD_START, "expwatch::start", "starts gathering statistics on experience points earned") != NULL);
-		Result &= (RegisterCommand(CMD_RESET, "expwatch::reset", "resets gathering statistics on experience points earned") != NULL);
-		Result &= (RegisterCommand(CMD_STOP, "expwatch::stop", "stops gathering statistics on experience points earned") != NULL);
-		Result &= (RegisterCommand(CMD_REPORT, "expwatch::report", "gives a report on the statistics collected") != NULL);
+		Result &= (RegisterCommand(CMD_START, "expwatch::start", "starts gathering statistics on experience points earned") != nullptr);
+		Result &= (RegisterCommand(CMD_RESET, "expwatch::reset", "resets gathering statistics on experience points earned") != nullptr);
+		Result &= (RegisterCommand(CMD_STOP, "expwatch::stop", "stops gathering statistics on experience points earned") != nullptr);
+		Result &= (RegisterCommand(CMD_REPORT, "expwatch::report", "gives a report on the statistics collected") != nullptr);
 
 		return Result;
 	}
@@ -196,7 +196,7 @@ namespace Windower
 	{
 		if (m_bStarted == false)
 		{
-			if (pFeedback_in_out != NULL)
+			if (pFeedback_in_out != nullptr)
 				*pFeedback_in_out = "ExpWatch started gathering statistics on experience points earned.";
 
 			m_bStarted = true;
@@ -217,7 +217,7 @@ namespace Windower
 	{
 		if (m_bStarted)
 		{
-			if (pFeedback_in_out != NULL)
+			if (pFeedback_in_out != nullptr)
 				*pFeedback_in_out = "ExpWatch stopped gathering statistics on experience points earned.\n";
 			// report on stats
 			Report(pFeedback_in_out);
@@ -237,7 +237,7 @@ namespace Windower
 	{
 		if (m_bStarted)
 		{
-			if (pFeedback_in_out != NULL)
+			if (pFeedback_in_out != nullptr)
 				*pFeedback_in_out = "ExpWatch statistics were reset successfully.";
 
 			m_BonusExp = m_TotalExp = m_AvgExpPerHour = m_AvgExpPerKill = 0.f;
@@ -254,7 +254,7 @@ namespace Windower
 	*/
 	bool ExpWatchPlugin::Report(std::string *pFeedback_in_out)
 	{
-		if (m_bStarted && pFeedback_in_out != NULL)
+		if (m_bStarted && pFeedback_in_out != nullptr)
 		{
 			UpdateStats();
 
@@ -280,5 +280,5 @@ using Windower::ExpWatchPlugin;
 extern "C" PLUGIN_API bool InitPlugin(PluginFramework::RegisterParams &RegisterParams_out)
 {
 	return PluginFramework::IPlugin::Initialize(RegisterParams_out, ExpWatchPlugin::Create, 
-												ExpWatchPlugin::Destroy, ExpWatchPlugin::Query, NULL);
+												ExpWatchPlugin::Destroy, ExpWatchPlugin::Query, nullptr);
 }

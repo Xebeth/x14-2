@@ -29,10 +29,10 @@ namespace Windower
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);
 		
-		bool Report(std::string *pFeedback_in_out = NULL);
-		bool Reset(std::string *pFeedback_in_out = NULL);
-		bool Start(std::string *pFeedback_in_out = NULL);		
-		bool Stop(std::string *pFeedback_in_out = NULL);		
+		bool Report(std::string *pFeedback_in_out = nullptr);
+		bool Reset(std::string *pFeedback_in_out = nullptr);
+		bool Start(std::string *pFeedback_in_out = nullptr);		
+		bool Stop(std::string *pFeedback_in_out = nullptr);		
 
 		DWORD_PTR OnChatMessage(CHAT_MESSAGE_TYPE MessageType_in, const char* pSender_in, DWORD_PTR MsgSize_in, const char *pOriginalMsg_in,
 								char **pModifiedMsg_in_out, DWORD_PTR ModifiedSize_in, DWORD &MessageFlags_out);
