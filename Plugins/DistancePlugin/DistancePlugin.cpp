@@ -14,19 +14,19 @@ namespace Windower
 {
 	//! \brief DistancePlugin constructor
 	DistancePlugin::DistancePlugin(PluginFramework::IPluginServices *pServices_in)
-		: IPlayerDataPlugin(pServices_in), m_pTextLabel(NULL),
-		  m_pPlayerData(NULL), m_pPlayerTarget(NULL) {}
+		: IPlayerDataPlugin(pServices_in), m_pTextLabel(nullptr),
+		  m_pPlayerData(nullptr), m_pPlayerTarget(nullptr) {}
 
 	DistancePlugin::~DistancePlugin()
 	{
-		if (m_pTextLabel != NULL)
+		if (m_pTextLabel != nullptr)
 		{
 			LabelServiceParam LabelParam(&m_pTextLabel);
 			LabelParam.m_Destroy = true;
 			PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
 			if (InvokeService(_T(GRAPHICS_MODULE), _T(TEXT_LABEL_SERVICE), Param) == false)
-				m_pTextLabel = NULL;
+				m_pTextLabel = nullptr;
 		}
 	}
 
@@ -44,10 +44,10 @@ namespace Windower
 	*/
 	void DistancePlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
+			pInstance_in = nullptr;
 		}
 	}
 
@@ -69,23 +69,23 @@ namespace Windower
 		m_pPlayerTarget = pTargetData_in;
 		m_pPlayerData = pPlayerData_in;
 
-		if (m_pTextLabel == NULL)
+		if (m_pTextLabel == nullptr)
 		{
 			LabelServiceParam LabelParam(&m_pTextLabel, DISTANCE_LABEL_NAME, 5L, 5L, 500UL, 16UL);
 			PluginFramework::ServiceParam Param(_T("LabelServiceParam"), &LabelParam);
 
 			if (InvokeService(_T(GRAPHICS_MODULE), _T(TEXT_LABEL_SERVICE), Param) == false)
-				m_pTextLabel = NULL;
+				m_pTextLabel = nullptr;
 		}
 	}
 
 	bool DistancePlugin::Update()
 	{
-		if (m_pPlayerTarget != NULL && *m_pPlayerTarget != NULL
-		 && m_pPlayerData != NULL && *m_pPlayerData != NULL
+		if (m_pPlayerTarget != nullptr && *m_pPlayerTarget != nullptr
+		 && m_pPlayerData != nullptr && *m_pPlayerData != nullptr
 		 && *m_pPlayerData != *m_pPlayerTarget)
 		{
-			if (m_pTextLabel != NULL)
+			if (m_pTextLabel != nullptr)
 			{
 				float dX = (*m_pPlayerData)->PosX - (*m_pPlayerTarget)->PosX;
 				float dY = (*m_pPlayerData)->PosY - (*m_pPlayerTarget)->PosY;
@@ -93,7 +93,7 @@ namespace Windower
 				float Distance = sqrtf(dX * dX + dY * dY + dZ * dZ);
 				string_t TargetName, LabelText;
 
-				if ((*m_pPlayerTarget)->Name != NULL)
+				if ((*m_pPlayerTarget)->Name != nullptr)
 					convert_utf8(std::string((*m_pPlayerTarget)->Name), TargetName);
 
 #ifdef _DEBUG
@@ -107,7 +107,7 @@ namespace Windower
 
 			return true;
 		}
-		else if (m_pTextLabel != NULL)
+		else if (m_pTextLabel != nullptr)
 			m_pTextLabel->SetVisibile(false);
 
 		return false;
