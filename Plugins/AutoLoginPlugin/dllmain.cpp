@@ -6,9 +6,8 @@
 	purpose		:	DLL entry point
 **************************************************************************/
 #include "stdafx.h"
-#include <afxdllx.h>
 
-static AFX_EXTENSION_MODULE AutoLoginDLL = { NULL, NULL };
+static AFX_EXTENSION_MODULE AutoLoginDLL = { FALSE, nullptr };
 
 extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
@@ -32,7 +31,6 @@ extern "C" int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRe
 		//  the CDynLinkLibrary object will not be attached to the
 		//  Regular DLL's resource chain, and serious problems will
 		//  result.
-
 		new CDynLinkLibrary(AutoLoginDLL);
 
 	}

@@ -10,7 +10,6 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "version.h"
-#include <afxdlgs.h>
 
 #include <PluginPropertyPage.h>
 
@@ -28,10 +27,10 @@ namespace Bootstrap
 		memset(&m_ThreadData, 0, sizeof(m_ThreadData));
 
 		// create the settings
-		if (pServices_in != NULL)
+		if (pServices_in != nullptr)
 		{
 			// set the sound file path from the settings
-			OnSettingsChanged();
+			AutoLoginPlugin::OnSettingsChanged();
 		}
 	}
 	
@@ -41,12 +40,12 @@ namespace Bootstrap
 	*/
 	bool AutoLoginPlugin::CreateAutoLoginThread(HWND ParentHwnd_in)
 	{
-		if (ParentHwnd_in != NULL && m_pSettings != NULL)
+		if (ParentHwnd_in != nullptr && m_pSettings != nullptr)
 		{
 			m_ThreadData.m_hParentWnd = ParentHwnd_in;
 			m_ThreadData.m_pSettings = m_pSettings;
 
-			return (::CreateThread(NULL, 0, ::AutoLoginThread, (LPVOID)&m_ThreadData, 0, NULL) != NULL);
+			return (::CreateThread(nullptr, 0, ::AutoLoginThread, static_cast<LPVOID>(&m_ThreadData), 0, nullptr) != nullptr);
 		}
 
 		return false;
@@ -57,7 +56,7 @@ namespace Bootstrap
 	*/
 	PluginFramework::IPlugin* AutoLoginPlugin::Create(PluginFramework::IPluginServices *pServices_in)
 	{
-		HWND hIEServerWnd = NULL;
+		HWND hIEServerWnd = nullptr;
 		AutoLoginPlugin *pPlugin = new AutoLoginPlugin(pServices_in);
 		PluginFramework::ServiceParam Param(_T("HWND*"), &hIEServerWnd);
 
@@ -75,10 +74,9 @@ namespace Bootstrap
 	*/
 	void AutoLoginPlugin::Destroy(PluginFramework::IPlugin *pInstance_in)
 	{
-		if (pInstance_in != NULL)
+		if (pInstance_in != nullptr)
 		{
 			delete pInstance_in;
-			pInstance_in = NULL;
 		}
 	}
 

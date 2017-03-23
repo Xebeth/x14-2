@@ -11,14 +11,16 @@
 class HTMLFormIterator
 {
 public:
-	HTMLFormIterator(IHTMLDocument2 &Document_in)
-		: m_Document(Document_in), m_pForms(NULL),
-		  m_pCurrentForm(NULL), m_FormCount(0)
-			{ InitForms(); }
+	explicit HTMLFormIterator(IHTMLDocument2 &Document_in)
+		: m_pForms(nullptr), m_pCurrentForm(nullptr),
+		  m_Document(Document_in), m_FormCount(0)
+	{
+		InitForms();
+	}
 
 	IHTMLElement* Next();
-	bool End() { return (m_pForms != NULL && m_CurrentIndex.lVal >= m_FormCount); }
-	void Release();
+	bool End() const { return (m_pForms != nullptr && m_CurrentIndex.lVal >= m_FormCount); }
+	void Release() const;
 	void Reset();
 
 private:

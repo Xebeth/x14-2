@@ -11,8 +11,6 @@
 #include <ExDisp.h>
 #include <afxdlgs.h>
 
-#include <PluginPropertyPage.h>
-
 #include "CryptUtils.h"
 #include "AutoLogin.h"
 
@@ -26,11 +24,11 @@
 */
 DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 {
-	if (pUserData_in != NULL)
+	if (pUserData_in != nullptr)
 	{
 		ThreadData *pThreadData = reinterpret_cast<ThreadData*>(pUserData_in);
 
-		if (pThreadData->m_pSettings != NULL && ::IsWindow(pThreadData->m_hParentWnd))
+		if (pThreadData->m_pSettings != nullptr && ::IsWindow(pThreadData->m_hParentWnd))
 		{
 			AutoLogin Login(*pThreadData->m_pSettings, pThreadData->m_hParentWnd);
 
@@ -47,12 +45,12 @@ DWORD WINAPI AutoLoginThread(LPVOID pUserData_in)
 	\param[in] Settings_in : the settings of the AutoLogin plugin
 */
 AutoLogin::AutoLogin(Windower::WindowerProfile &Settings_in, HWND hParentWnd_in)
-	: m_hParentWnd(hParentWnd_in), m_hIEServer(NULL), m_Settings(Settings_in), m_bLoop(true),
-	  m_PasswordSet(false), m_AutoSubmitted(false),  m_UserSet(false),
-	  m_pFormIterator(NULL), m_pIFrameDoc(NULL), m_pPageDoc(NULL)
+	: m_pIFrameDoc(nullptr), m_pPageDoc(nullptr), m_Settings(Settings_in), m_pFormIterator(nullptr),
+	  m_PasswordSet(false), m_UserSet(false),  m_AutoSubmitted(false),
+	  m_bLoop(true), m_hParentWnd(hParentWnd_in), m_hIEServer(nullptr)
 {
 	// initialize COM
-	SUCCEEDED(::CoInitialize(NULL));
+	SUCCEEDED(::CoInitialize(nullptr));
 }
 
 //! \brief AutoLogin destructor
@@ -68,7 +66,7 @@ void AutoLogin::MonitorForms()
 {
 	m_hIEServer = GetIEServerWindow(5000);
 
-	if (m_hIEServer != NULL)
+	if (m_hIEServer != nullptr)
 	{
 		while (m_bLoop || IsStatus(m_pIFrameDoc, _T("complete")) == false)
 		{
@@ -83,11 +81,11 @@ void AutoLogin::MonitorForms()
 		}
 
 		// cleanup
-		if (m_pFormIterator != NULL)
+		if (m_pFormIterator != nullptr)
 			m_pFormIterator->Release();
-		if (m_pIFrameDoc != NULL)
+		if (m_pIFrameDoc != nullptr)
 			m_pIFrameDoc->Release();
-		if (m_pPageDoc != NULL)
+		if (m_pPageDoc != nullptr)
 			m_pPageDoc->Release();
 
 		ResetForms();
@@ -99,20 +97,19 @@ void AutoLogin::MonitorForms()
 */
 bool AutoLogin::AutoCompleteForm()
 {
-	IHTMLElement *pCurrentForm = NULL;
-	IHTMLElement *pElement = NULL;
+	IHTMLElement *pCurrentForm, *pElement;
 
-	if (m_pFormIterator == NULL)
+	if (m_pFormIterator == nullptr)
 		m_pFormIterator = new HTMLFormIterator(*m_pIFrameDoc);
 
 	while (m_pFormIterator->End() == false)
 	{
 		pCurrentForm = m_pFormIterator->Next();
 
-		if (pCurrentForm != NULL)
+		if (pCurrentForm != nullptr)
 		{
 			string_t Username = m_Settings.GetUsername();
-			IHTMLInputElement *pInputElement = NULL;
+			IHTMLInputElement *pInputElement = nullptr;
 
 			// the user input hasn't been found yet
 			if (Username.empty() == false && m_UserSet == false)
@@ -120,24 +117,23 @@ bool AutoLogin::AutoCompleteForm()
 				// look for it in the current form
 				pElement = FindChildById(pCurrentForm, _T("sqexid"));
 
-				if (pElement != NULL)
+				if (pElement != nullptr)
 				{
-					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&pInputElement)) && pInputElement != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, reinterpret_cast<LPVOID*>(&pInputElement))) && pInputElement != nullptr)
 					{
 						m_UserSet = SetInputValue(pInputElement, Username.c_str());
 
 						pInputElement->Release();
-						pInputElement = NULL;
+						pInputElement = nullptr;
 					}
 					else
 					{
 						m_bLoop = m_AutoSubmitted = false;
 						m_pIFrameDoc->Release();
-						m_pIFrameDoc = NULL;
+						m_pIFrameDoc = nullptr;
 					}
 
 					pElement->Release();
-					pElement = NULL;
 				}
 			}
 
@@ -147,9 +143,9 @@ bool AutoLogin::AutoCompleteForm()
 				// look for it in the current form
 				pElement = FindChildById(pCurrentForm, _T("password"));
 
-				if (pElement != NULL)
+				if (pElement != nullptr)
 				{
-					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, (LPVOID*)&pInputElement)) && pInputElement != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLInputElement, reinterpret_cast<LPVOID*>(&pInputElement))) && pInputElement != nullptr)
 					{
 						string_t Key;				
 						long KeyHash;
@@ -176,17 +172,16 @@ bool AutoLogin::AutoCompleteForm()
 						}
 
  						pInputElement->Release();
-						pInputElement = NULL;
+						pInputElement = nullptr;
 					}
 					else
 					{
 						m_bLoop = m_AutoSubmitted = false;
 						m_pIFrameDoc->Release();
-						m_pIFrameDoc = NULL;
+						m_pIFrameDoc = nullptr;
 					}
 
 					pElement->Release();
-					pElement = NULL;
 				}
 
 				if (m_AutoSubmitted == false && m_UserSet && m_PasswordSet)
@@ -196,7 +191,7 @@ bool AutoLogin::AutoCompleteForm()
 						// auto-submit the form
 						pElement = FindChildById(pCurrentForm, _T("btLogin"));
 
-						if (pElement != NULL)
+						if (pElement != nullptr)
 						{
 							pElement->click();
 							pElement->Release();
@@ -206,7 +201,7 @@ bool AutoLogin::AutoCompleteForm()
 						{
 							m_AutoSubmitted = false;
 							m_pIFrameDoc->Release();
-							m_pIFrameDoc = NULL;
+							m_pIFrameDoc = nullptr;
 						}
 					}
 					else
@@ -214,11 +209,11 @@ bool AutoLogin::AutoCompleteForm()
 						// look for the one-time password field in the current form
 						pElement = FindChildById(pCurrentForm, _T("otppw"));
 
-						if (pElement != NULL)
+						if (pElement != nullptr)
 						{
-							IHTMLElement2 *pFocusInput = NULL;
+							IHTMLElement2 *pFocusInput = nullptr;
 
-							if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLElement2, (LPVOID*)&pFocusInput)) && pFocusInput != NULL)
+							if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLElement2, reinterpret_cast<LPVOID*>(&pFocusInput))) && pFocusInput != nullptr)
 							{
 								pFocusInput->focus();
 								pFocusInput->Release();
@@ -228,7 +223,7 @@ bool AutoLogin::AutoCompleteForm()
 							{
 								m_AutoSubmitted = false;
 								m_pIFrameDoc->Release();
-								m_pIFrameDoc = NULL;
+								m_pIFrameDoc = nullptr;
 							}
 
 							pElement->Release();
@@ -247,24 +242,24 @@ bool AutoLogin::AutoCompleteForm()
 /*! \brief Retrieves and HTML element given its ID
 	\param[in] pParent_in : the parent of the element
 	\param[in] pID_in : the ID of the element
-	\return a pointer to the element if found; NULL otherwise
+	\return a pointer to the element if found; nullptr otherwise
 */
 IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in)
 {
-	IHTMLElement *pElement = NULL;
+	IHTMLElement *pElement = nullptr;
 
-	if (pParent_in != NULL && pID_in != NULL)
+	if (pParent_in != nullptr && pID_in != nullptr)
 	{
-		IDispatch* pElemDispatch = NULL;
+		IDispatch* pElemDispatch = nullptr;
 
-		if (SUCCEEDED(pParent_in->get_all(&pElemDispatch)) && pElemDispatch != NULL)
+		if (SUCCEEDED(pParent_in->get_all(&pElemDispatch)) && pElemDispatch != nullptr)
 		{
-			IHTMLElementCollection *pElements = NULL;
-			HRESULT hr = pElemDispatch->QueryInterface(IID_IHTMLElementCollection, (LPVOID*)&pElements);
+			IHTMLElementCollection *pElements = nullptr;
+			HRESULT hr = pElemDispatch->QueryInterface(IID_IHTMLElementCollection, reinterpret_cast<LPVOID*>(&pElements));
 
-			if (SUCCEEDED(hr) && pElements != NULL)
+			if (SUCCEEDED(hr) && pElements != nullptr)
 			{
-				IDispatch* pInputDispatch = NULL;
+				IDispatch* pInputDispatch = nullptr;
 				BSTR EltID = SysAllocString(_T(""));
 				long nLength = 0;
 
@@ -276,17 +271,17 @@ IHTMLElement* AutoLogin::FindChildById(IHTMLElement* pParent_in, const TCHAR *pI
 
 					for (long i = 0; i < nLength; ++i)
 					{
-						pElement = NULL;
+						pElement = nullptr;
 						Index.lVal = i;
 
-						if (SUCCEEDED(pElements->item(Index, Index, &pInputDispatch)) && pInputDispatch != NULL)
+						if (SUCCEEDED(pElements->item(Index, Index, &pInputDispatch)) && pInputDispatch != nullptr)
 						{
-							if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, (LPVOID*)&pElement)) && pElement != NULL)
+							if (SUCCEEDED(pInputDispatch->QueryInterface(IID_IHTMLElement, reinterpret_cast<LPVOID*>(&pElement))) && pElement != nullptr)
 							{
 								if (SUCCEEDED(pElement->get_id(&EltID)))
 								{
 
-									if (EltID != NULL && _tcscmp(EltID, pID_in) == 0)
+									if (EltID != nullptr && _tcscmp(EltID, pID_in) == 0)
 									{
 										pInputDispatch->Release();
 										break;
@@ -324,14 +319,13 @@ bool AutoLogin::SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pVa
 {
 	bool Result = false;
 
-	if (pValue_in != NULL && pInput_in_out != NULL)
+	if (pValue_in != nullptr && pInput_in_out != nullptr)
 	{
 		BSTR Value = SysAllocString(pValue_in);
 
 		if ((Result = SUCCEEDED(pInput_in_out->put_value(Value))) == false)
 		{
 			pInput_in_out->Release();
-			pInput_in_out = NULL;
 		}
 
 		SysFreeString(Value);
@@ -342,17 +336,17 @@ bool AutoLogin::SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pVa
 
 /*! \brief Retrieves the top window of the IE server
 	\param[in] Timeout_in : a timeout value
-	\return a handle on the window if found; NULL otherwise
+	\return a handle on the window if found; nullptr otherwise
 */
-HWND AutoLogin::GetIEServerWindow(long Timeout_in)
+HWND AutoLogin::GetIEServerWindow(long Timeout_in) const
 {
-	HWND Result = NULL;
+	HWND Result = nullptr;
 
-	while (Timeout_in >= 0 && Result == NULL)
+	while (Timeout_in >= 0 && Result == nullptr)
 	{
-		Result = FindWindowEx(m_hParentWnd, NULL, IE_SERVER_CLASSNAME, NULL);
+		Result = FindWindowEx(m_hParentWnd, nullptr, IE_SERVER_CLASSNAME, nullptr);
 
-		if (Result == NULL)
+		if (Result == nullptr)
 		{
 			Timeout_in -= 250;
 			Sleep(250);
@@ -370,7 +364,7 @@ bool AutoLogin::WaitUntilDocumentComplete(IHTMLDocument2 *pDoc_in, long Timeout_
 {
 	bool Result = false;
 
-	if (pDoc_in != NULL)
+	if (pDoc_in != nullptr)
 	{
 		while (Timeout_in >= 0 && Result == false)
 		{
@@ -393,11 +387,11 @@ bool AutoLogin::WaitUntilDocumentComplete(IHTMLDocument2 *pDoc_in, long Timeout_
 LPFNOBJECTFROMLRESULT AutoLogin::GetObjectFromLParamAddr()
 {
 	HINSTANCE hInst = ::LoadLibrary(_T("OleAcc.dll"));
-	LPFNOBJECTFROMLRESULT pResult = NULL;
+	LPFNOBJECTFROMLRESULT pResult = nullptr;
 
-	if (hInst != NULL)
+	if (hInst != nullptr)
 	{
-		pResult = (LPFNOBJECTFROMLRESULT)::GetProcAddress(hInst, "ObjectFromLresult");
+		pResult = reinterpret_cast<LPFNOBJECTFROMLRESULT>(::GetProcAddress(hInst, "ObjectFromLresult"));
 
 		::FreeLibrary(hInst);
 	}
@@ -407,12 +401,12 @@ LPFNOBJECTFROMLRESULT AutoLogin::GetObjectFromLParamAddr()
 
 /*! \brief 
 */
-IHTMLDocument2* AutoLogin::GetIFrameDocument(long Timeout_in)
+IHTMLDocument2* AutoLogin::GetIFrameDocument() const
 {
-	IHTMLFramesCollection2 *pIFrames = NULL;
-	IHTMLDocument2 *pDoc = NULL;
+	IHTMLFramesCollection2 *pIFrames = nullptr;
+	IHTMLDocument2 *pDoc = nullptr;
 
-	if (SUCCEEDED(m_pPageDoc->get_frames(&pIFrames)) && pIFrames != NULL)
+	if (SUCCEEDED(m_pPageDoc->get_frames(&pIFrames)) && pIFrames != nullptr)
 	{
 		VARIANT Index, FrameItem;
 		long Count = 0L;
@@ -421,37 +415,37 @@ IHTMLDocument2* AutoLogin::GetIFrameDocument(long Timeout_in)
 		Index.lVal = 0;
 
 		FrameItem.vt = VT_DISPATCH;
-		FrameItem.pdispVal = NULL;
+		FrameItem.pdispVal = nullptr;
 
 		if (SUCCEEDED(pIFrames->get_length(&Count)) && Count > 0L
 		 && SUCCEEDED(pIFrames->item(&Index, &FrameItem)) 
-		 && FrameItem.pdispVal != NULL)
+		 && FrameItem.pdispVal != nullptr)
 		{
-			IHTMLWindow2 *pFrame = NULL;
+			IHTMLWindow2 *pFrame = nullptr;
 
-			if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, (LPVOID*)&pFrame)) && pFrame != NULL)
+			if (SUCCEEDED(FrameItem.pdispVal->QueryInterface(IID_IHTMLWindow2, reinterpret_cast<LPVOID*>(&pFrame))) && pFrame != nullptr)
 			{
 				HRESULT hRes = pFrame->get_document(&pDoc);
 
 				// if the access to the iframe document is denied, we'll have to work around cross-frame restrictions
 				if (hRes == E_ACCESSDENIED)
 				{
-					IServiceProvider *pProvider = NULL;
+					IServiceProvider *pProvider = nullptr;
 
 					// retrieve the service provider interface
-					if (SUCCEEDED(pFrame->QueryInterface(IID_IServiceProvider, (LPVOID*)&pProvider)) && pProvider != NULL)
+					if (SUCCEEDED(pFrame->QueryInterface(IID_IServiceProvider, reinterpret_cast<LPVOID*>(&pProvider))) && pProvider != nullptr)
 					{
-						IWebBrowser2 *pBrowser = NULL;
+						IWebBrowser2 *pBrowser = nullptr;
 
 						// retrieve the web browser service
-						if (SUCCEEDED(pProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, (LPVOID*)&pBrowser)) && pBrowser != NULL)
+						if (SUCCEEDED(pProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, reinterpret_cast<LPVOID*>(&pBrowser))) && pBrowser != nullptr)
 						{
-							IDispatch *pDispatch = NULL;
+							IDispatch *pDispatch = nullptr;
 
 							// retrieve the document
-							if (SUCCEEDED(pBrowser->get_Document(&pDispatch)) && pDispatch != NULL)
+							if (SUCCEEDED(pBrowser->get_Document(&pDispatch)) && pDispatch != nullptr)
 							{
-								pDispatch->QueryInterface(IID_IHTMLDocument2, (LPVOID*)&pDoc);
+								pDispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<LPVOID*>(&pDoc));
 								pDispatch->Release();
 							}
 
@@ -482,19 +476,19 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 {
 	bool Result = false;
 
-	if (m_hIEServer != NULL)
+	if (m_hIEServer != nullptr)
 	{
 		LPFNOBJECTFROMLRESULT fnObjectFromLRESULT = GetObjectFromLParamAddr();
 
-		if (fnObjectFromLRESULT != NULL)
+		if (fnObjectFromLRESULT != nullptr)
 		{
 			UINT nMsg = ::RegisterWindowMessage(_T("WM_HTML_GETOBJECT"));
 			LRESULT lRes = 0;
 
 			while (Timeout_in >= 0 && Result == false)
 			{
-				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, (DWORD_PTR*)&lRes);
-				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, (LPVOID*)&m_pPageDoc)) && m_pPageDoc != NULL);
+				::SendMessageTimeout(m_hIEServer, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 200, reinterpret_cast<DWORD_PTR*>(&lRes));
+				Result = (SUCCEEDED((*fnObjectFromLRESULT)(lRes, IID_IHTMLDocument2, 0, reinterpret_cast<LPVOID*>(&m_pPageDoc))) && m_pPageDoc != nullptr);
 
 				if (Result == false)
 				{
@@ -510,7 +504,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			WaitUntilDocumentComplete(m_pPageDoc, Timeout_in);
 
 #if defined _DEBUG && defined _DUMP_HTML
-			IPersistFile* pFile = NULL;
+			IPersistFile* pFile = nullptr;
 
 			if(SUCCEEDED(m_pPageDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
 			{
@@ -520,17 +514,17 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 #endif // _DEBUG
 
 			// try to change the language combo => seems to have no effect (event not triggered?)
-			IHTMLElement *pBody = NULL, *pElement = NULL;
+			IHTMLElement *pBody = nullptr, *pElement;
 
-			if (m_pIFrameDoc == NULL && SUCCEEDED(m_pPageDoc->get_body(&pBody)) && pBody != NULL)
+			if (m_pIFrameDoc == nullptr && SUCCEEDED(m_pPageDoc->get_body(&pBody)) && pBody != nullptr)
 			{
 				pElement = FindChildById(pBody, _T("langSelect"));
 
-				if (pElement != NULL)
+				if (pElement != nullptr)
 				{
-					IHTMLSelectElement *pLngCombo = NULL;
+					IHTMLSelectElement *pLngCombo = nullptr;
 
-					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLSelectElement, (LPVOID*)&pLngCombo)) && pLngCombo != NULL)
+					if (SUCCEEDED(pElement->QueryInterface(IID_IHTMLSelectElement, reinterpret_cast<LPVOID*>(&pLngCombo))) && pLngCombo != nullptr)
 					{
 						pLngCombo->put_selectedIndex(m_Settings.GetLanguage());
 						pLngCombo->Release();
@@ -544,14 +538,14 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 			}
 
 			// find the login iframe
-			IHTMLDocument2 *pDoc = GetIFrameDocument(Timeout_in);
+			IHTMLDocument2 *pDoc = GetIFrameDocument();
 
 			// update the document of the iframe
-			if (pDoc != NULL)
+			if (pDoc != nullptr)
 			{
 				if (pDoc != m_pIFrameDoc)
 				{
-					if (m_pIFrameDoc != NULL)
+					if (m_pIFrameDoc != nullptr)
 						m_pIFrameDoc->Release();
 					// assign the document
 					m_pIFrameDoc = pDoc;
@@ -560,7 +554,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 					WaitUntilDocumentComplete(m_pIFrameDoc, Timeout_in);
 
 #if defined _DEBUG && defined _DUMP_HTML
-					IPersistFile* pFile = NULL;
+					IPersistFile* pFile = nullptr;
 
 					if(SUCCEEDED(m_pIFrameDoc->QueryInterface(IID_IPersistFile, (void**)&pFile)))
 					{
@@ -575,7 +569,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 		}
 	}
 
-	return (m_pIFrameDoc != NULL);
+	return (m_pIFrameDoc != nullptr);
 }
 
 /*! \brief Checks if the specified status matches the status of the document
@@ -584,7 +578,7 @@ bool AutoLogin::GetHTMLDocument(long Timeout_in)
 */
 bool AutoLogin::IsStatus(IHTMLDocument2 *pDoc_in, const TCHAR *pStatus_in)
 {
-	return (pStatus_in != NULL && UpdateDocumentState(pDoc_in) 
+	return (pStatus_in != nullptr && UpdateDocumentState(pDoc_in) 
 		 && m_DocumentState.compare(pStatus_in) == 0);
 }
 
@@ -595,7 +589,7 @@ bool AutoLogin::UpdateDocumentState(IHTMLDocument2 *pDoc_in)
 {
 	bool Result = false;
 
-	if (pDoc_in != NULL)
+	if (pDoc_in != nullptr)
 	{
 		BSTR DocState = SysAllocString(_T(""));
 
@@ -616,6 +610,6 @@ void AutoLogin::ResetForms()
 	// reset the form
 	m_UserSet = m_PasswordSet = false;
 	delete m_pFormIterator;
-	m_pFormIterator = NULL;
+	m_pFormIterator = nullptr;
 	m_bLoop = true;
 }

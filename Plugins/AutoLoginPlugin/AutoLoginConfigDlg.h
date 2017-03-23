@@ -21,10 +21,10 @@ public:
 	explicit AutoLoginConfigDlg(Windower::WindowerProfile *pSettings_in,
 								const string_t &PluginName_in);
 
-	bool IsPageValid(string_t *pFeedback_out) const;
-	bool InitializePage();
-	bool Commit();
-	void Revert();
+	bool IsPageValid(string_t *pFeedback_out) const override;
+	bool InitializePage() override;
+	bool Commit() override;
+	void Revert() override;
 
 protected:
 	DECLARE_MESSAGE_MAP()

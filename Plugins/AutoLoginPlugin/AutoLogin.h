@@ -48,17 +48,17 @@ public:
 	void MonitorForms();
 
 protected:
-	bool SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pValue_in);
+	static bool SetInputValue(IHTMLInputElement *pInput_in_out, const TCHAR *pValue_in);
 	bool AutoCompleteForm();
 
-	IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
+	static IHTMLElement* FindChildById(IHTMLElement* pParent_in, const TCHAR *pID_in);
 	bool WaitUntilDocumentComplete(IHTMLDocument2 *pDoc_in, long Timeout_in);
 	bool IsStatus(IHTMLDocument2 *pDoc_in, const TCHAR *pStatus_in);
 	bool UpdateDocumentState(IHTMLDocument2 *pDoc_in);
 
-	IHTMLDocument2* GetIFrameDocument(long Timeout_in);
-	LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
-	HWND GetIEServerWindow(long Timeout_in);
+	IHTMLDocument2* GetIFrameDocument() const;
+	static LPFNOBJECTFROMLRESULT GetObjectFromLParamAddr();
+	HWND GetIEServerWindow(long Timeout_in) const;
 	bool GetHTMLDocument(long Timeout_in);	
 	void ResetForms();
 

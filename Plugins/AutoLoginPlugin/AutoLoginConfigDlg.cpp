@@ -11,7 +11,6 @@
 
 #include <PluginPropertyPage.h>
 
-#include "AutoLogin.h"
 #include "AutoLoginConfigDlg.h"
 
 BEGIN_MESSAGE_MAP(AutoLoginConfigDlg, Windower::PluginPropertyPage)
@@ -24,7 +23,7 @@ END_MESSAGE_MAP()
 	\param[in] : the parent window of the dialog
  */
 AutoLoginConfigDlg::AutoLoginConfigDlg(Windower::WindowerProfile *pSettings_in, const string_t &PluginName_in)
-	: Windower::PluginPropertyPage(pSettings_in, PluginName_in, AutoLoginConfigDlg::IDD, IDI_CONFIG) {}
+	: Windower::PluginPropertyPage(pSettings_in, PluginName_in, AutoLoginConfigDlg::IDD, IDI_CONFIG), m_AutoSubmit(false) {}
 
 /*! \brief Initializes the controls of the page from the settings
 	\return true if the initialization succeeded; false otherwise
@@ -44,7 +43,7 @@ bool AutoLoginConfigDlg::InitializePage()
 	SetDlgItemText(IDC_USERNAME, m_Username);
 	SetDlgItemText(IDC_PASSWORD, _T(""));
 
-	if (pAutoSubmitChk != NULL)
+	if (pAutoSubmitChk != nullptr)
 		pAutoSubmitChk->SetCheck(m_AutoSubmit ? BST_CHECKED : BST_UNCHECKED);
 
 	return true;
@@ -54,7 +53,7 @@ void AutoLoginConfigDlg::Revert()
 {
 	CryptUtils::GenerateMachineID(m_EncryptionKey, _T("C:\\"));
 
-	if (m_pSettings != NULL)
+	if (m_pSettings != nullptr)
 	{
 		m_PasswordHash = m_pSettings->GetCryptedPassword();
 		m_AutoSubmit = m_pSettings->IsAutoSubmitted();
@@ -65,7 +64,7 @@ void AutoLoginConfigDlg::Revert()
 //! \brief Message handler called when the user presses the OK button
 bool AutoLoginConfigDlg::Commit()
 {
-	if (IsPageValid(NULL) && m_pSettings != NULL)
+	if (IsPageValid(nullptr) && m_pSettings != nullptr)
 	{
 		m_pSettings->SetCryptedPassword(m_PasswordHash.GetBuffer());
 		m_pSettings->SetKeyHash(CryptUtils::Hash(m_EncryptionKey));
@@ -115,14 +114,14 @@ void AutoLoginConfigDlg::OnAutoSubmitCheck()
 {
 	CButton *pAutoSubmitChk = static_cast<CButton*>(GetDlgItem(IDC_AUTOSUBMIT_CHK));
 
-	m_AutoSubmit = (pAutoSubmitChk != NULL && pAutoSubmitChk->GetCheck() == BST_CHECKED);
+	m_AutoSubmit = (pAutoSubmitChk != nullptr && pAutoSubmitChk->GetCheck() == BST_CHECKED);
 }
 
 bool AutoLoginConfigDlg::IsPageValid(string_t *pFeedback_out) const
 {
 	if (m_Username.IsEmpty())
 	{
-		if (pFeedback_out != NULL)
+		if (pFeedback_out != nullptr)
 			*pFeedback_out += _T("\n    - The username is empty.");
 
 		return false;

@@ -42,12 +42,12 @@ namespace Bootstrap
 		static void Query(PluginFramework::PluginInfo& PluginInfo_out);		
 		static void Destroy(PluginFramework::IPlugin *pInstance_in);
 
-		bool Unsubscribe();
-		bool Subscribe();
+		bool Unsubscribe() override;
+		bool Subscribe() override;
 
 	protected:
-		Windower::PluginPropertyPage* GetPropertyPage();
-		void OnSettingsChanged();
+		Windower::PluginPropertyPage* GetPropertyPage() override;
+		void OnSettingsChanged() override;
 
 		ThreadData m_ThreadData;
 	};
