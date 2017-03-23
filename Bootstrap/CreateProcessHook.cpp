@@ -10,9 +10,8 @@
 
 #include "BootstrapEngine.h"
 
-#include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
-
+#include "CreateProcessHook.h"
 #include "SystemCore.h"
 
 extern Bootstrap::BootstrapEngine *g_pEngine;

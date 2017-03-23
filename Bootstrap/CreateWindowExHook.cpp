@@ -9,9 +9,8 @@
 
 #include "BootstrapEngine.h"
 
-#include "CreateProcessHook.h"
 #include "CreateWindowExHook.h"
-
+#include "CreateProcessHook.h"
 #include "SystemCore.h"
 
 extern Bootstrap::BootstrapEngine *g_pEngine;
@@ -29,7 +28,7 @@ extern Bootstrap::BootstrapEngine *g_pEngine;
 	\param[in] hMenu_in : handle to a menu, or specifies a child-window identifier, depending on the window style
 	\param[in] hInstance_in : handle to the instance of the module to be associated with the window
 	\param[in] lpParam_in : value to be passed to the window through the CREATESTRUCT structure
-	\return a handle to the new window; NULL otherwise
+	\return a handle to the new window; nullptr otherwise
 */
 HWND WINAPI CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,
 								int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in)

@@ -39,11 +39,11 @@ namespace Bootstrap
 		*/
 		SystemCore& System() const { return *m_pSystemCore; }
 
-		bool UpdateCmdLineFromSettings(string_t &CmdLine_in_out);
+		bool UpdateCmdLineFromSettings(string_t &CmdLine_in_out) const;
 
 	protected:
-		virtual bool Attach();
-		virtual bool Detach();
+		bool Attach() override;
+		bool Detach() override;
 
 		//! the settings manager of the engine
 		Windower::SettingsManager *m_pSettingsManager;

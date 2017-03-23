@@ -9,7 +9,7 @@
 
 #include "BootstrapEngine.h"
 
-Bootstrap::BootstrapEngine *g_pEngine = NULL;
+Bootstrap::BootstrapEngine *g_pEngine = nullptr;
 
 /*! \brief DLL entry point
 	\param[in] hModule_in : a handle to the DLL module
@@ -24,28 +24,29 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 	if (dwReason_in == DLL_PROCESS_ATTACH) 
 	{
+#ifndef _M_X64
 		// Restore the IAT table
 		::DetourRestoreAfterWith();
-
-		if (g_pEngine == NULL)
+#endif // _M_X64
+		if (g_pEngine == nullptr)
 		{
 			TCHAR DirPath[_MAX_PATH] = { '\0' };
 			string_t WorkingDir;
 
 			// retrieve the name of the module
 			if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
-				filepath(DirPath, WorkingDir);
+				file_path(DirPath, WorkingDir);
 
 			g_pEngine = new Bootstrap::BootstrapEngine(WorkingDir.c_str(), _T("config.ini"));
 		}
 	}
 	else if (dwReason_in == DLL_PROCESS_DETACH)
 	{
-		if (g_pEngine != NULL)
+		if (g_pEngine != nullptr)
 		{
 			// cleanup
 			delete g_pEngine;
-			g_pEngine = NULL;
+			g_pEngine = nullptr;
 		}
 	}
 

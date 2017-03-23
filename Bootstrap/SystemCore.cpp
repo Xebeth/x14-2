@@ -22,7 +22,7 @@ namespace Bootstrap
 		\param[in,out] pEngine : a pointer to the windower engine
 	*/
 	SystemCore::SystemCore(BootstrapEngine &Engine_in_out, HookEngine &HookManager_in_out)
-		: m_Engine(Engine_in_out), m_HookManager(HookManager_in_out), m_hIEWnd(NULL)
+		: m_Engine(Engine_in_out), m_HookManager(HookManager_in_out), m_hIEWnd(nullptr)
 	{
 		m_AutoLogin = static_cast<BootstrapEngine&>(Engine_in_out).IsAutoLoginActive();
 
@@ -45,16 +45,16 @@ namespace Bootstrap
 		\param[in] hMenu_in : handle to a menu, or specifies a child-window identifier, depending on the window style
 		\param[in] hInstance_in : handle to the instance of the module to be associated with the window
 		\param[in] lpParam_in : value to be passed to the window through the CREATESTRUCT structure
-		\return a handle to the new window; NULL otherwise
+		\return a handle to the new window; nullptr otherwise
 	*/
 	HWND SystemCore::CreateWindowExWHook(DWORD dwExStyle_in, LPCTSTR lpClassName_in, LPCTSTR lpWindowName_in, DWORD dwStyle_in, int X_in, int Y_in,
 										 int nWidth_in, int nHeight_in, HWND hWndParent_in, HMENU hMenu_in, HINSTANCE hInstance_in, LPVOID lpParam_in)
 	{
 		HWND hWndResult = m_pCreateWindowExWTrampoline(dwExStyle_in, lpClassName_in, lpWindowName_in, dwStyle_in, X_in, Y_in,
 													   nWidth_in, nHeight_in, hWndParent_in, hMenu_in, hInstance_in, lpParam_in);
-		DWORD_PTR ClassAtom = (DWORD_PTR)lpClassName_in;
+		DWORD_PTR ClassAtom = reinterpret_cast<DWORD_PTR>(lpClassName_in);
 
-		if (lpClassName_in != NULL && (ClassAtom & 0xFFFF0000) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName_in) == 0)
+		if (lpClassName_in != nullptr && (ClassAtom & 0xFFFF0000U) != NULL && _tcscmp(TARGET_CLASSNAME, lpClassName_in) == 0)
 		{
 			m_hIEWnd = hWndResult;
 			m_Engine.InvokeAutoLogin();			
@@ -79,37 +79,37 @@ namespace Bootstrap
 	BOOL SystemCore::CreateProcessHook(LPCTSTR lpApplicationName_in, LPTSTR lpCommandLine_in_out, LPSECURITY_ATTRIBUTES lpProcessAttributes_in,
 									   LPSECURITY_ATTRIBUTES lpThreadAttributes_in, BOOL bInheritHandles_in, DWORD dwCreationFlags_in,
 									   LPVOID lpEnvironment_in, LPCTSTR lpCurrentDirectory_in, LPSTARTUPINFO lpStartupInfo_in, 
-									   LPPROCESS_INFORMATION lpProcessInformation_out)
+									   LPPROCESS_INFORMATION lpProcessInformation_out) const
 	{
 		// at least one of the strings should be valid
-		if (m_pCreateProcessTrampoline == NULL || (lpCommandLine_in_out == NULL && lpApplicationName_in == NULL))
+		if (m_pCreateProcessTrampoline == nullptr || (lpCommandLine_in_out == nullptr && lpApplicationName_in == nullptr))
 			return FALSE;
 
 		string_t WorkingDir = m_Engine.GetWorkingDir();
-		TCHAR DLL32Path[_MAX_PATH] = { '\0', };
+		TCHAR InjectedDLL[_MAX_PATH] = { '\0', };
 		BOOL Result = FALSE;
 		bool x64 = false;
 
-		if (lpApplicationName_in == NULL && lpCommandLine_in_out != NULL)
+		if (lpApplicationName_in == nullptr && lpCommandLine_in_out != nullptr)
 		{
-			if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != NULL)
+			if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME) != nullptr)
 			{
-				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.x86.dll"), WorkingDir.c_str());
+				_stprintf_s(InjectedDLL, _MAX_PATH, _T("%sx14-2core.x86.dll"), WorkingDir.c_str());
 				Result = TRUE;
 			}
-			else if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME_DX11) != NULL)
+			else if (_tcsstr(lpCommandLine_in_out, TARGET_PROCESS_GAME_DX11) != nullptr)
 			{
 #ifdef _DEBUG
-				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2dbg.x64.dll"), WorkingDir.c_str());
+				_stprintf_s(InjectedDLL, _MAX_PATH, _T("%sx14-2dbg.x64.dll"), WorkingDir.c_str());
 #else
-				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sx14-2core.x64.dll"), WorkingDir.c_str());
+				_stprintf_s(InjectedDLL, _MAX_PATH, _T("%sx14-2core.x64.dll"), WorkingDir.c_str());
 #endif
 				Result = TRUE;
 				x64 = true;
 			}
 			else
 			{
-				_stprintf_s(DLL32Path, _MAX_PATH, _T("%sbootstrap.dll"), WorkingDir.c_str());
+				_stprintf_s(InjectedDLL, _MAX_PATH, _T("%sbootstrap.dll"), WorkingDir.c_str());
 				Result = TRUE;
 			}
 		}
@@ -123,7 +123,7 @@ namespace Bootstrap
 #else
 				const TCHAR *pFormatString = _T("%s");
 #endif
-				PROCESS_INFORMATION processInfo = { NULL };
+				PROCESS_INFORMATION processInfo = { nullptr };
 				TCHAR UserData[_MAX_PATH] = { '\0' };
 				DWORD DataLength;
 				string_t exePath;
@@ -133,24 +133,23 @@ namespace Bootstrap
 
 				if (DataLength != -1 && DataLength > 0UL)
 				{
-					Result = InjectModule::CreateProcessEx(exePath, processInfo, lpCommandLine_in_out,
-														   dwCreationFlags_in, DLL32Path, FUNCTION_HASH,
-														   UserData, (DataLength + 1) * sizeof(TCHAR));
+					Result = InjectModule::CreateProcessEx(exePath, processInfo, lpCommandLine_in_out, dwCreationFlags_in, InjectedDLL,
+														   FUNCTION_HASH, UserData, (DataLength + 1) * sizeof(TCHAR));
 				}
 				else
 					Result = FALSE;
 			}
 			else
 			{
-				char DLLPath[_MAX_PATH] = { '\0', };
+				char InjectedDLLA[_MAX_PATH] = { '\0', };
 
-				WideCharToMultiByte(CP_ACP, 0, DLL32Path, _MAX_PATH, DLLPath, _MAX_PATH, NULL, NULL);
+				WideCharToMultiByte(CP_ACP, 0, InjectedDLL, _MAX_PATH, InjectedDLLA, _MAX_PATH, nullptr, nullptr);
 
 				// attach the DLL to the next process in the chain
 				Result = DetourCreateProcessWithDllExW(lpApplicationName_in, lpCommandLine_in_out, lpProcessAttributes_in,
 													   lpThreadAttributes_in, bInheritHandles_in, dwCreationFlags_in,
 													   lpEnvironment_in, lpCurrentDirectory_in, lpStartupInfo_in,
-													   lpProcessInformation_out, DLLPath, NULL);
+													   lpProcessInformation_out, InjectedDLLA, nullptr);
 			}
 		}
 		else
@@ -173,7 +172,7 @@ namespace Bootstrap
 		if (m_AutoLogin)
 			HookManager_in.RegisterHook("CreateWindowExW", "User32.dll", CreateWindowExW, ::CreateWindowExWHook);
 		// CreateProcessW hook used to inject the bootstrap/windower DLL into the game process (Windows 7)
-		IATPatcher::PatchIAT(GetModuleHandle(NULL), "Kernel32.dll", "CreateProcessW", (PVOID*)&m_pCreateProcessTrampoline, ::CreateProcessHook);
+		IATPatcher::PatchIAT(GetModuleHandle(nullptr), "Kernel32.dll", "CreateProcessW", reinterpret_cast<PVOID*>(&m_pCreateProcessTrampoline), ::CreateProcessHook);
 	}
 
 	/*! \brief Callback invoked when the hooks of the module are installed
@@ -182,7 +181,7 @@ namespace Bootstrap
 	void SystemCore::OnHookInstall(HookEngineLib::IHookManager &HookManager_in)
 	{
 		if (m_AutoLogin)
-			m_pCreateWindowExWTrampoline = (fnCreateWindowExW)HookManager_in.GetTrampolineFunc("CreateWindowExW");
+			m_pCreateWindowExWTrampoline = static_cast<fnCreateWindowExW>(HookManager_in.GetTrampolineFunc("CreateWindowExW"));
 	}
 
 	/*! \brief Registers the services of the module
@@ -191,7 +190,7 @@ namespace Bootstrap
 	bool SystemCore::RegisterServices()
 	{
 		// register the services
-		return (RegisterService(_T(IE_SERVER_HWND_SERVICE), true) != NULL);
+		return (RegisterService(_T(IE_SERVER_HWND_SERVICE), true) != nullptr);
 	}
 
 	/*! \brief Invokes a command registered with the specified service
@@ -202,11 +201,11 @@ namespace Bootstrap
 	bool SystemCore::Invoke(const string_t& ServiceName_in, PluginFramework::ServiceParam &Params_in)
 	{
 		if (ServiceName_in.compare(_T(IE_SERVER_HWND_SERVICE)) == 0
-		 && Params_in.pData != NULL && Params_in.DataType.compare(_T("HWND*")) == 0)
+		 && Params_in.pData != nullptr && Params_in.DataType.compare(_T("HWND*")) == 0)
 		{
-			*((HWND*)Params_in.pData) = m_hIEWnd;
+			*static_cast<HWND*>(Params_in.pData) = m_hIEWnd;
 
-			return (m_hIEWnd != NULL);
+			return (m_hIEWnd != nullptr);
 		}
 
 		return false;
