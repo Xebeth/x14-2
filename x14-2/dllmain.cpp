@@ -43,7 +43,7 @@ DLLEXPORT BOOL CreateEngine(LPVOID lpUserdata, DWORD nUserdataLen)
 		//Sleep(5000);
 #endif // _DEBUG
 
-		file_path((LPCTSTR)lpUserdata, WorkingDir);
+		filepath(reinterpret_cast<LPCTSTR>(lpUserdata), WorkingDir);
 		g_pEngine = new Windower::WindowerEngine(WorkingDir.c_str(), _T("config.ini"));
 		g_pEngine->Attach();
 	}

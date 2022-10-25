@@ -35,7 +35,7 @@ BOOL APIENTRY DllMain(HMODULE hModule_in, DWORD dwReason_in, LPVOID lpReserved_i
 
 			// retrieve the name of the module
 			if (GetModuleFileName(hModule_in, DirPath, _MAX_PATH) != 0UL)
-				file_path(DirPath, WorkingDir);
+				filepath(DirPath, WorkingDir);
 
 			g_pEngine = new Bootstrap::BootstrapEngine(WorkingDir.c_str(), _T("config.ini"));
 		}
