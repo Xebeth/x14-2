@@ -1,0 +1,17 @@
+.localhistory/
+Release*/
+Tester/
+Debug/
+ipch/
+obj/
+.vs/
+*.*sdf
+*.aps
+*.bak
+*.ini
+*.props
+*.suo
+*.user
+*.xml
+*.db
+*.opendb
