@@ -13,8 +13,8 @@
 	//														   45 32 D2 45 33 F6										2016-05-29
 	//														   45 32 D2 33 ?? 4D										2016-09-24
 	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE			 "##4532D233??4D"
-	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	 -39
-	#define FORMAT_CHAT_MESSAGE_OPCODES_SIZE				  0 // 15
+	#define FORMAT_CHAT_MESSAGE_OPCODES_SIGNATURE_OFFSET	 -24
+	#define FORMAT_CHAT_MESSAGE_OPCODES_SIZE				  10 // 5 + 1 + 4
 #else
 	//														   33 C5 89 ?? ?? 8B ?? ?? 53 56 0F ?? ?? ?? 57				2015-07-14
 	//														   33 C5 89 ?? ?? 8B ?? ?? 53 56 8B ?? ?? 57 0F 			2016-05-29

@@ -11,9 +11,9 @@
 
 namespace Windower
 {
-	size_t UpdateNode(char *pText_in, size_t TextLen_in, StringNode &Node_in_out)
+	size_t UpdateNode(char *pText_in, DWORD TextLen_in, StringNode &Node_in_out)
 	{
-		DWORD_PTR newCapacity = Node_in_out.dwCapacity;
+		DWORD newCapacity = Node_in_out.dwCapacity;
 
 		Node_in_out.pResBuf = pText_in;
 		Node_in_out.dwSize = Node_in_out.dwCapacity = TextLen_in;
@@ -44,7 +44,7 @@ namespace Windower
 
 		if (pMsg_in != nullptr)
 		{
-			size_t MsgLen = strlen(pMsg_in) + 1;
+			DWORD MsgLen = (DWORD)strlen(pMsg_in) + 1;
 
 			Node_in_out.dwSize = MsgLen;
 
